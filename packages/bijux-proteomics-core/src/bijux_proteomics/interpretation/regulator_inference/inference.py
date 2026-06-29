@@ -6,10 +6,8 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Sequence
 import csv
 from io import StringIO
-from pathlib import Path
 
 from bijux_proteomics.interpretation.pathway_activity import (
     PathwayActivityConfidenceStatus,
@@ -19,9 +17,6 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationMappingReport,
 )
 from bijux_proteomics.interpretation.regulator_inference.models import (
-    RegulatorEvidenceColumnMapping,
-    RegulatorEvidenceImportReport,
-    RegulatorEvidenceImportSummary,
     RegulatorEvidenceRecord,
     RegulatorEvidenceTargetField,
     RegulatorEvidenceType,
@@ -31,365 +26,14 @@ from bijux_proteomics.interpretation.regulator_inference.models import (
     RegulatorInferenceReport,
     RegulatorInferenceSummary,
     RegulatorSignalSurface,
-    RegulatorSiteSignalColumnMapping,
     RegulatorSiteSignalEntry,
-    RegulatorSiteSignalImportReport,
-    RegulatorSiteSignalImportSummary,
-    RejectedRegulatorEvidenceRow,
-    RejectedRegulatorSiteSignalRow,
     UnresolvedRegulatorTargetEntry,
 )
 from bijux_proteomics.io.stable_outputs import sort_strings
-from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceReport,
 )
 from bijux_proteomics.sequences import canonicalize_protein_reference
-def parse_regulator_evidence_table(
-    path: Path,
-    *,
-    mapping: RegulatorEvidenceColumnMapping | None = None,
-) -> RegulatorEvidenceImportReport:
-    """Parse one explicit regulator evidence table into owned rows."""
-
-    lines = _read_delimited_lines(path)
-    active_mapping = mapping or RegulatorEvidenceColumnMapping()
-    if not lines:
-        return RegulatorEvidenceImportReport(
-            source_path=str(path),
-            total_rows=0,
-            accepted_records=(),
-            rejected_rows=(
-                RejectedRegulatorEvidenceRow(
-                    row_number=2,
-                    reason="regulator evidence table is empty",
-                ),
-            ),
-            column_mapping=active_mapping,
-            summary=RegulatorEvidenceImportSummary(
-                accepted_record_count=0,
-                rejected_row_count=1,
-                regulator_count=0,
-                kinase_substrate_record_count=0,
-                transcription_factor_target_record_count=0,
-                pathway_record_count=0,
-                ppi_record_count=0,
-            ),
-            note="regulator evidence import rejected an empty table",
-        )
-
-    reader = csv.DictReader(lines, delimiter=_infer_delimiter(lines[0]))
-    if reader.fieldnames is None:
-        raise ValueError("regulator evidence table must include a header row")
-    _validate_required_columns(
-        reader.fieldnames,
-        (active_mapping.regulator, active_mapping.evidence_type),
-    )
-
-    accepted_records: list[RegulatorEvidenceRecord] = []
-    rejected_rows: list[RejectedRegulatorEvidenceRow] = []
-    for row_number, raw_row in enumerate(reader, start=2):
-        values = _normalize_row(raw_row)
-        regulator = values.get(active_mapping.regulator, "").strip()
-        evidence_token = values.get(active_mapping.evidence_type, "").strip().lower()
-        if not regulator:
-            rejected_rows.append(
-                RejectedRegulatorEvidenceRow(
-                    row_number=row_number,
-                    values=values,
-                    reason="regulator evidence row requires regulator",
-                )
-            )
-            continue
-        try:
-            evidence_type = RegulatorEvidenceType(evidence_token)
-        except ValueError:
-            rejected_rows.append(
-                RejectedRegulatorEvidenceRow(
-                    row_number=row_number,
-                    values=values,
-                    reason=(
-                        "regulator evidence_type must be one of "
-                        "kinase_substrate, transcription_factor_target, pathway, or ppi"
-                    ),
-                )
-            )
-            continue
-        protein_ref = _optional_value(values, active_mapping.protein_ref)
-        if protein_ref is not None:
-            protein_ref = canonicalize_protein_reference(protein_ref)
-        gene_symbol = _optional_value(values, active_mapping.gene_symbol)
-        pathway_id = _optional_value(values, active_mapping.pathway_id)
-        site_key = _optional_value(values, active_mapping.site_key)
-        target_fields = tuple(
-            field
-            for field, value in (
-                (RegulatorEvidenceTargetField.PROTEIN_REF, protein_ref),
-                (RegulatorEvidenceTargetField.GENE_SYMBOL, gene_symbol),
-                (RegulatorEvidenceTargetField.PATHWAY_ID, pathway_id),
-                (RegulatorEvidenceTargetField.SITE_KEY, site_key),
-            )
-            if value is not None
-        )
-        if len(target_fields) != 1:
-            rejected_rows.append(
-                RejectedRegulatorEvidenceRow(
-                    row_number=row_number,
-                    values=values,
-                    reason=(
-                        "regulator evidence row must supply exactly one of protein_ref, "
-                        "gene_symbol, pathway_id, or site_key"
-                    ),
-                )
-            )
-            continue
-        target_field = target_fields[0]
-        if evidence_type is RegulatorEvidenceType.KINASE_SUBSTRATE:
-            if target_field is not RegulatorEvidenceTargetField.SITE_KEY:
-                rejected_rows.append(
-                    RejectedRegulatorEvidenceRow(
-                        row_number=row_number,
-                        values=values,
-                        reason="kinase_substrate evidence rows must target site_key",
-                    )
-                )
-                continue
-        elif evidence_type is RegulatorEvidenceType.PATHWAY:
-            if target_field is not RegulatorEvidenceTargetField.PATHWAY_ID:
-                rejected_rows.append(
-                    RejectedRegulatorEvidenceRow(
-                        row_number=row_number,
-                        values=values,
-                        reason="pathway evidence rows must target pathway_id",
-                    )
-                )
-                continue
-        elif target_field not in {
-            RegulatorEvidenceTargetField.PROTEIN_REF,
-            RegulatorEvidenceTargetField.GENE_SYMBOL,
-        }:
-            rejected_rows.append(
-                RejectedRegulatorEvidenceRow(
-                    row_number=row_number,
-                    values=values,
-                    reason=(
-                        "transcription_factor_target and ppi evidence rows must target "
-                        "protein_ref or gene_symbol"
-                    ),
-                )
-            )
-            continue
-
-        accepted_records.append(
-            RegulatorEvidenceRecord(
-                regulator=regulator,
-                evidence_type=evidence_type,
-                protein_ref=protein_ref,
-                gene_symbol=gene_symbol,
-                pathway_id=pathway_id,
-                site_key=site_key,
-                source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(
-                    values, active_mapping.source_accession
-                ),
-                metadata={
-                    key: value
-                    for key, value in values.items()
-                    if key
-                    not in {
-                        active_mapping.regulator,
-                        active_mapping.evidence_type,
-                        active_mapping.protein_ref,
-                        active_mapping.gene_symbol,
-                        active_mapping.pathway_id,
-                        active_mapping.site_key,
-                        active_mapping.source_name,
-                        active_mapping.source_accession,
-                    }
-                },
-            )
-        )
-
-    accepted_tuple = tuple(
-        sorted(
-            accepted_records,
-            key=lambda record: (
-                record.regulator,
-                record.evidence_type.value,
-                record.source_name or "",
-                record.source_accession or "",
-                record.protein_ref or "",
-                record.gene_symbol or "",
-                record.pathway_id or "",
-                record.site_key or "",
-            ),
-        )
-    )
-    counts: defaultdict[RegulatorEvidenceType, int] = defaultdict(int)
-    for record in accepted_tuple:
-        counts[record.evidence_type] += 1
-    return RegulatorEvidenceImportReport(
-        source_path=str(path),
-        total_rows=max(len(lines) - 1, 0),
-        accepted_records=accepted_tuple,
-        rejected_rows=tuple(rejected_rows),
-        column_mapping=active_mapping,
-        summary=RegulatorEvidenceImportSummary(
-            accepted_record_count=len(accepted_tuple),
-            rejected_row_count=len(rejected_rows),
-            regulator_count=len({record.regulator for record in accepted_tuple}),
-            kinase_substrate_record_count=counts[
-                RegulatorEvidenceType.KINASE_SUBSTRATE
-            ],
-            transcription_factor_target_record_count=counts[
-                RegulatorEvidenceType.TRANSCRIPTION_FACTOR_TARGET
-            ],
-            pathway_record_count=counts[RegulatorEvidenceType.PATHWAY],
-            ppi_record_count=counts[RegulatorEvidenceType.PPI],
-        ),
-        note=(
-            "regulator evidence import preserves explicit regulator names and target rows "
-            "instead of inferring regulators from downstream annotations"
-        ),
-    )
-
-
-def parse_regulator_site_signal_table(
-    path: Path,
-    *,
-    mapping: RegulatorSiteSignalColumnMapping | None = None,
-) -> RegulatorSiteSignalImportReport:
-    """Parse one explicit site differential table for regulator inference."""
-
-    lines = _read_delimited_lines(path)
-    active_mapping = mapping or RegulatorSiteSignalColumnMapping()
-    if not lines:
-        return RegulatorSiteSignalImportReport(
-            source_path=str(path),
-            total_rows=0,
-            accepted_entries=(),
-            rejected_rows=(
-                RejectedRegulatorSiteSignalRow(
-                    row_number=2,
-                    reason="regulator site signal table is empty",
-                ),
-            ),
-            column_mapping=active_mapping,
-            summary=RegulatorSiteSignalImportSummary(
-                accepted_entry_count=0,
-                rejected_row_count=1,
-                distinct_site_count=0,
-            ),
-            note="regulator site signal import rejected an empty table",
-        )
-
-    reader = csv.DictReader(lines, delimiter=_infer_delimiter(lines[0]))
-    if reader.fieldnames is None:
-        raise ValueError("regulator site signal table must include a header row")
-    _validate_required_columns(
-        reader.fieldnames,
-        (active_mapping.site_key, active_mapping.log2_fold_change),
-    )
-
-    accepted_entries: list[RegulatorSiteSignalEntry] = []
-    rejected_rows: list[RejectedRegulatorSiteSignalRow] = []
-    seen_site_keys: set[str] = set()
-    for row_number, raw_row in enumerate(reader, start=2):
-        values = _normalize_row(raw_row)
-        site_key = values.get(active_mapping.site_key, "").strip()
-        if not site_key:
-            rejected_rows.append(
-                RejectedRegulatorSiteSignalRow(
-                    row_number=row_number,
-                    values=values,
-                    reason="regulator site signal row requires site_key",
-                )
-            )
-            continue
-        if site_key in seen_site_keys:
-            rejected_rows.append(
-                RejectedRegulatorSiteSignalRow(
-                    row_number=row_number,
-                    values=values,
-                    reason=f"duplicate regulator site signal row for {site_key}",
-                )
-            )
-            continue
-        try:
-            log2_fold_change = float(
-                values.get(active_mapping.log2_fold_change, "").strip()
-            )
-        except ValueError:
-            rejected_rows.append(
-                RejectedRegulatorSiteSignalRow(
-                    row_number=row_number,
-                    values=values,
-                    reason="regulator site signal log2_fold_change must be numeric",
-                )
-            )
-            continue
-        adjusted_p_value = _optional_value(values, active_mapping.adjusted_p_value)
-        try:
-            adjusted_value = (
-                None if adjusted_p_value is None else float(adjusted_p_value)
-            )
-        except ValueError:
-            rejected_rows.append(
-                RejectedRegulatorSiteSignalRow(
-                    row_number=row_number,
-                    values=values,
-                    reason="regulator site signal adjusted_p_value must be numeric",
-                )
-            )
-            continue
-        seen_site_keys.add(site_key)
-        accepted_entries.append(
-            RegulatorSiteSignalEntry(
-                site_key=site_key,
-                protein_ref=_optional_value(values, active_mapping.protein_ref),
-                log2_fold_change=log2_fold_change,
-                adjusted_p_value=adjusted_value,
-            )
-        )
-
-    accepted_tuple = tuple(
-        sorted(
-            accepted_entries,
-            key=lambda entry: (entry.site_key, entry.protein_ref or ""),
-        )
-    )
-    return RegulatorSiteSignalImportReport(
-        source_path=str(path),
-        total_rows=max(len(lines) - 1, 0),
-        accepted_entries=accepted_tuple,
-        rejected_rows=tuple(rejected_rows),
-        column_mapping=active_mapping,
-        summary=RegulatorSiteSignalImportSummary(
-            accepted_entry_count=len(accepted_tuple),
-            rejected_row_count=len(rejected_rows),
-            distinct_site_count=len(accepted_tuple),
-        ),
-        note="regulator site signal import preserves explicit site-level fold changes",
-    )
-
-
-def build_regulator_site_signal_entries_from_ptm_evidence_cards(
-    report: PtmEvidenceCardReport,
-) -> tuple[RegulatorSiteSignalEntry, ...]:
-    """Project site-level differential signal from PTM evidence cards."""
-
-    return tuple(
-        RegulatorSiteSignalEntry(
-            site_key=card.site_key,
-            protein_ref=card.protein_ref,
-            log2_fold_change=card.differential_result.log2_fold_change,
-            adjusted_p_value=card.differential_result.adjusted_p_value,
-        )
-        for card in sorted(
-            report.cards, key=lambda card: (card.protein_ref, card.site_key)
-        )
-    )
-
 
 def build_regulator_inference_report(
     evidence_records: tuple[RegulatorEvidenceRecord, ...],
@@ -1155,40 +799,6 @@ def _is_better_signal(
     return candidate_key < current_key
 
 
-def _read_delimited_lines(path: Path) -> list[str]:
-    return [
-        line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
-    ]
-
-
-def _infer_delimiter(header_line: str) -> str:
-    return "\t" if header_line.count("\t") >= header_line.count(",") else ","
-
-
-def _validate_required_columns(
-    fieldnames: Sequence[str],
-    required: tuple[str | None, ...],
-) -> None:
-    missing = [
-        field for field in required if field is not None and field not in fieldnames
-    ]
-    if missing:
-        raise ValueError(
-            "table is missing required columns: " + ", ".join(sorted(missing))
-        )
-
-
-def _normalize_row(row: dict[str, str | None]) -> dict[str, str]:
-    return {key: (value or "").strip() for key, value in row.items() if key is not None}
-
-
-def _optional_value(values: dict[str, str], field: str | None) -> str | None:
-    if field is None:
-        return None
-    value = values.get(field, "").strip()
-    return value or None
-
-
 def _format_float(value: float) -> str:
     return f"{value:.4g}"
 
@@ -1202,9 +812,6 @@ def _format_values(values: dict[str, str]) -> str:
 
 
 __all__ = [
-    "RegulatorEvidenceColumnMapping",
-    "RegulatorEvidenceImportReport",
-    "RegulatorEvidenceImportSummary",
     "RegulatorEvidenceRecord",
     "RegulatorEvidenceTargetField",
     "RegulatorEvidenceType",
@@ -1214,17 +821,9 @@ __all__ = [
     "RegulatorInferenceReport",
     "RegulatorInferenceSummary",
     "RegulatorSignalSurface",
-    "RegulatorSiteSignalColumnMapping",
     "RegulatorSiteSignalEntry",
-    "RegulatorSiteSignalImportReport",
-    "RegulatorSiteSignalImportSummary",
-    "RejectedRegulatorEvidenceRow",
-    "RejectedRegulatorSiteSignalRow",
     "UnresolvedRegulatorTargetEntry",
     "build_regulator_inference_report",
-    "build_regulator_site_signal_entries_from_ptm_evidence_cards",
-    "parse_regulator_evidence_table",
-    "parse_regulator_site_signal_table",
     "render_rejected_regulator_evidence_tsv",
     "render_rejected_regulator_site_signal_tsv",
     "render_regulator_inference_summary_tsv",
