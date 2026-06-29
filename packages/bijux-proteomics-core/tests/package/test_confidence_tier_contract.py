@@ -17,7 +17,7 @@ ALIAS_OWNERS = {
     "review/evidence_graph/evidence_graph_confidence.py": "EvidenceGraphConfidenceTier",
     "review/claims/biological_hypotheses.py": "BiologicalHypothesisConfidenceTier",
     "study/design/experiment_confidence.py": "ExperimentConfidenceTier",
-    "interpretation/pathway_activity.py": "PathwayActivityConfidenceStatus",
+    "interpretation/pathway_activity/__init__.py": "PathwayActivityConfidenceStatus",
     "interpretation/protein_set_scoring/__init__.py": "ProteinSetScoreConfidenceStatus",
     "interpretation/disease_phenotype_interpretation.py": "DiseasePhenotypeConfidenceStatus",
     "interpretation/complex_activity/__init__.py": "ComplexActivityConfidenceStatus",

@@ -50,7 +50,7 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
     "workflow/reports/biological_result_graph.py": {
         "bijux_proteomics_lab.handoffs.qc_feedback",
     },
-    "interpretation/pathway_activity.py": {
+    "interpretation/pathway_activity/analysis.py": {
         "bijux_proteomics_knowledge.pathways.members",
     },
 }
