@@ -77,6 +77,13 @@ runtime-agnostic workflow seams.
 
 - `bijux_proteomics.quantification` is the package-root public facade for
   reader-facing quantitative workflows and compatibility wrappers
+- `bijux_proteomics.quantification.public_api` is the quantification owner
+  ledger; export ownership, collision precedence, and facade budgets live
+  there instead of being implied by barrel ordering
+- `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
+  `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
+  quantification subfacades and should widen before the root compatibility
+  facade grows
 - `bijux_proteomics.quantification.contracts` is a curated public contract
   facade, not the preferred internal import target for core source code
 - internal quantitative code should import owner modules such as `design`,

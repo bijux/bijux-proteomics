@@ -70,10 +70,15 @@ Batch advisories prefer the explicit `batch` field and fall back to
 
 ## Boundary notes
 
-- `bijux_proteomics.quantification` is the reader-facing facade for stable
-  workflows and compatibility wrappers
+- `bijux_proteomics.quantification` is the reader-facing compatibility facade
+  for stable workflows
+- `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
+  `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
+  quantification subfacades over narrower owner modules
 - `bijux_proteomics.quantification.contracts` is the curated public contract
   facade
+- `bijux_proteomics.quantification.public_api` is the machine-readable ledger
+  for quantification export ownership, root precedence, and subfacade budgets
 - internal core code should import owner modules such as `design`,
   `differential`, `input_models`, `label_based`, `matrix_building`,
   `matrix_models`, `missingness`, `normalization_imputation`,

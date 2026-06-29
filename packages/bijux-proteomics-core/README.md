@@ -123,9 +123,14 @@ The interface layer is split on purpose:
 
 The quantification layer is also split on purpose:
 
-- `bijux_proteomics.quantification` is the reader-facing public facade
+- `bijux_proteomics.quantification` is the reader-facing compatibility facade
+- `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
+  `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
+  quantification subfacades over tighter owner modules
 - `bijux_proteomics.quantification.contracts` is a curated public contract
   facade, not the preferred internal import target for core source code
+- `bijux_proteomics.quantification.public_api` is the machine-readable ledger
+  for quantification facade ownership, export precedence, and surface budgets
 - internal quantitative code should import owner modules such as `design`,
   `differential`, `input_models`, `label_based`, `matrix_building`,
   `matrix_models`, `missingness`, `normalization_imputation`,
