@@ -14,13 +14,6 @@ from bijux_proteomics.quantification.provenance.sample_exploration.analysis impo
     export_sample_outlier_tsv,
     export_sample_pca_scores_tsv,
     export_sample_pca_variance_tsv,
-    render_sample_cluster_tsv,
-    render_sample_correlation_tsv,
-    render_sample_distance_tsv,
-    render_sample_exploration_summary_tsv,
-    render_sample_outlier_tsv,
-    render_sample_pca_scores_tsv,
-    render_sample_pca_variance_tsv,
 )
 from bijux_proteomics.quantification.provenance.sample_exploration.models import (
     ConditionClusteringReport,
@@ -38,6 +31,15 @@ from bijux_proteomics.quantification.provenance.sample_exploration.models import
     SamplePcaReport,
     SamplePcaVarianceEntry,
     SamplePcaVarianceReport,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.rendering import (
+    render_sample_cluster_tsv,
+    render_sample_correlation_tsv,
+    render_sample_distance_tsv,
+    render_sample_exploration_summary_tsv,
+    render_sample_outlier_tsv,
+    render_sample_pca_scores_tsv,
+    render_sample_pca_variance_tsv,
 )
 from bijux_proteomics.quantification.provenance.sample_exploration.sample_space import (
     build_condition_clustering_report,
