@@ -127,6 +127,10 @@ The quantification layer is also split on purpose:
 - `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
   `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
   quantification subfacades over tighter owner modules
+- `bijux_proteomics.quantification.statistics.differential_abundance` is the
+  canonical owner package for differential abundance, grouped into `analysis`,
+  `contrast_statistics`, `design_context`, `observation_vectors`,
+  `rendering`, and `weighting`
 - `bijux_proteomics.quantification.contracts` is a curated public contract
   facade, not the preferred internal import target for core source code
 - `bijux_proteomics.quantification.public_api` is the machine-readable ledger

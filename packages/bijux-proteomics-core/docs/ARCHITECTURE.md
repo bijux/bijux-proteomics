@@ -86,6 +86,12 @@ runtime-agnostic workflow seams.
   `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
   quantification subfacades and should widen before the root compatibility
   facade grows
+- `bijux_proteomics.quantification.statistics.differential_abundance` is the
+  canonical owner package for differential abundance; keep report assembly in
+  `analysis.py`, contrast-specific engines in `contrast_statistics.py`,
+  design validation in `design_context.py`, observation collection in
+  `observation_vectors.py`, tabular output in `rendering.py`, and reliability
+  weighting in `weighting.py`
 - `bijux_proteomics.quantification.contracts` is a curated public contract
   facade, not the preferred internal import target for core source code
 - internal quantitative code should import owner modules such as `design`,
