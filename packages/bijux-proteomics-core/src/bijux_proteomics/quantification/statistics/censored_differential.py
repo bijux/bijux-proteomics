@@ -29,7 +29,7 @@ from bijux_proteomics.quantification.contracts.matrix_models import (
     LabelFreeQuantTable,
     QuantValue,
 )
-from bijux_proteomics.quantification.missingness.missingness import (
+from bijux_proteomics.quantification.missingness import (
     MissingnessClassificationReport,
     MissingnessLabel,
 )

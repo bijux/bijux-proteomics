@@ -75,6 +75,12 @@ Batch advisories prefer the explicit `batch` field and fall back to
 - `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
   `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
   quantification subfacades over narrower owner modules
+- `bijux_proteomics.quantification.missingness` is governed by durable owners:
+  `models`, `summaries`, `intensity_dependence`, `mechanism_report`,
+  `classification`, `rendering`, `peptide_profile_inconsistency`, and
+  `readiness`
+- `bijux_proteomics.quantification.missingness.missingness` remains only as a
+  compatibility import path and must not grow new implementation logic
 - `bijux_proteomics.quantification.contracts` is the curated public contract
   facade
 - `bijux_proteomics.quantification.public_api` is the machine-readable ledger

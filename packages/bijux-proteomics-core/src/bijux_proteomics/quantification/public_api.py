@@ -103,8 +103,28 @@ MATRIX_FACADE_OWNERS = (
 
 MISSINGNESS_FACADE_OWNERS = (
     _owner(
-        "bijux_proteomics.quantification.missingness.missingness",
-        "missingness classification ownership",
+        "bijux_proteomics.quantification.missingness.models",
+        "missingness classification model ownership",
+    ),
+    _owner(
+        "bijux_proteomics.quantification.missingness.summaries",
+        "missingness summary ownership",
+    ),
+    _owner(
+        "bijux_proteomics.quantification.missingness.intensity_dependence",
+        "missingness intensity dependence ownership",
+    ),
+    _owner(
+        "bijux_proteomics.quantification.missingness.mechanism_report",
+        "missingness mechanism ownership",
+    ),
+    _owner(
+        "bijux_proteomics.quantification.missingness.classification",
+        "missingness classification assembly ownership",
+    ),
+    _owner(
+        "bijux_proteomics.quantification.missingness.rendering",
+        "missingness rendering ownership",
     ),
     _owner(
         "bijux_proteomics.quantification.missingness.peptide_profile_inconsistency",
@@ -333,7 +353,7 @@ QUANTIFICATION_ROOT_FACADE_OWNERS = (
         "model rollup compatibility ownership",
     ),
     _owner(
-        "bijux_proteomics.quantification.missingness.missingness",
+        "bijux_proteomics.quantification.missingness",
         "missingness compatibility ownership",
     ),
     _owner(
