@@ -78,6 +78,22 @@ runtime-agnostic workflow seams.
 - private helpers with underscore-prefixed names belong to their owner modules
   only and should not be widened through package-root facades
 
+## Identification boundaries
+
+- `bijux_proteomics.identification` is the reader-facing compatibility facade
+  for identification evidence, confidence, and search-adapter workflows
+- `bijux_proteomics.identification.psm`, `peptide`, `protein`, `fdr`,
+  `contracts`, and `adapters` are curated facades over tighter owner modules
+- `bijux_proteomics.identification.public_api` is the machine-readable ledger
+  for those facades: export ownership, rationale, and surface budgets live
+  there instead of being implied by wildcard barrels
+- internal code should prefer owner modules such as
+  `identification.psm.psm_rescoring`, `identification.fdr.confidence`, or
+  `identification.protein.protein_grouping` when it needs one bounded concern
+- compatibility wrappers such as `identification.confidence` remain available
+  for callers, but they are not the preferred import target for new internal
+  code
+
 ## Dependency direction
 
 The package is designed as the durable semantic source of truth for progression

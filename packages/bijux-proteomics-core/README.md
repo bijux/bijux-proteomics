@@ -132,6 +132,18 @@ The quantification layer is also split on purpose:
   `protein_rollup`, and `study_qc` directly
 - underscore-prefixed quantitative helpers stay private to their owner modules
 
+The identification layer is split on purpose as well:
+
+- `bijux_proteomics.identification` is the reader-facing compatibility facade
+- `bijux_proteomics.identification.psm`, `peptide`, `protein`, `fdr`,
+  `contracts`, and `adapters` are curated facades over narrower owner modules
+- `bijux_proteomics.identification.public_api` is the machine-readable ledger
+  for export ownership, rationale, and surface budgets
+- internal code should prefer owner modules such as
+  `identification.psm.psm_rescoring`, `identification.fdr.confidence`, and
+  `identification.protein.protein_grouping` instead of reaching through the
+  broad compatibility facades when one bounded concern is enough
+
 Sequence intake and FASTA operations now live in the same package surface:
 
 ```bash
