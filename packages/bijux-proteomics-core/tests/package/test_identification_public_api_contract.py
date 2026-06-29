@@ -7,9 +7,11 @@ from bijux_proteomics.identification.public_api import (
     ADAPTERS_FACADE_BUDGET,
     CONTRACTS_FACADE_BUDGET,
     FDR_FACADE_BUDGET,
+    IDENTIFICATION_ROOT_SUBMODULES,
     PEPTIDE_FACADE_BUDGET,
     PROTEIN_FACADE_BUDGET,
     PSM_FACADE_BUDGET,
+    build_identification_root_export_owner_map,
     build_facade_export_map,
     flatten_facade_exports,
     list_identification_adapter_api_modules,
@@ -18,6 +20,7 @@ from bijux_proteomics.identification.public_api import (
     list_identification_peptide_api_modules,
     list_identification_protein_api_modules,
     list_identification_psm_api_modules,
+    list_identification_root_export_names,
 )
 
 
@@ -96,3 +99,19 @@ def test_identification_facade_ledgers_resolve_every_export_to_one_owner() -> No
             assert module.owner_module.startswith("bijux_proteomics.identification.")
             assert module.classification
             assert module.rationale
+
+
+def test_identification_root_public_api_ledger_stays_governed() -> None:
+    export_names = list_identification_root_export_names()
+    owner_map = build_identification_root_export_owner_map()
+
+    assert tuple(owner_map) == export_names
+    assert tuple(IDENTIFICATION_ROOT_SUBMODULES) == (
+        "adapters",
+        "confidence",
+        "contracts",
+        "fdr",
+        "peptide",
+        "protein",
+        "psm",
+    )

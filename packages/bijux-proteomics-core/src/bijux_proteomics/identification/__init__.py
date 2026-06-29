@@ -10,41 +10,19 @@ from typing import Any
 
 from bijux_proteomics.identification._facade_runtime import build_facade_dir
 from bijux_proteomics.identification.public_api import (
-    build_facade_export_map,
-    list_identification_adapter_api_modules,
-    list_identification_contract_api_modules,
-    list_identification_fdr_api_modules,
-    list_identification_peptide_api_modules,
-    list_identification_protein_api_modules,
-    list_identification_psm_api_modules,
-    merge_facade_export_maps,
+    IDENTIFICATION_ROOT_SUBMODULES,
+    build_identification_root_export_owner_map,
+    list_identification_root_export_names,
 )
 
-_IDENTIFICATION_SUBMODULES = {
-    "adapters": "bijux_proteomics.identification.adapters",
-    "confidence": "bijux_proteomics.identification.confidence",
-    "contracts": "bijux_proteomics.identification.contracts",
-    "fdr": "bijux_proteomics.identification.fdr",
-    "peptide": "bijux_proteomics.identification.peptide",
-    "protein": "bijux_proteomics.identification.protein",
-    "psm": "bijux_proteomics.identification.psm",
-}
+_IDENTIFICATION_EXPORT_OWNER_MAP = build_identification_root_export_owner_map()
+_IDENTIFICATION_PUBLIC_EXPORTS = list_identification_root_export_names()
 
-_IDENTIFICATION_EXPORT_OWNER_MAP = merge_facade_export_maps(
-    build_facade_export_map(list_identification_adapter_api_modules()),
-    build_facade_export_map(list_identification_contract_api_modules()),
-    build_facade_export_map(list_identification_fdr_api_modules()),
-    build_facade_export_map(list_identification_peptide_api_modules()),
-    build_facade_export_map(list_identification_protein_api_modules()),
-    build_facade_export_map(list_identification_psm_api_modules()),
-)
-_IDENTIFICATION_PUBLIC_EXPORTS = tuple(_IDENTIFICATION_EXPORT_OWNER_MAP)
-
-__all__ = list(_IDENTIFICATION_PUBLIC_EXPORTS) + list(_IDENTIFICATION_SUBMODULES)
+__all__ = list(_IDENTIFICATION_PUBLIC_EXPORTS) + list(IDENTIFICATION_ROOT_SUBMODULES)
 
 
 def __getattr__(name: str) -> Any:
-    submodule_path = _IDENTIFICATION_SUBMODULES.get(name)
+    submodule_path = IDENTIFICATION_ROOT_SUBMODULES.get(name)
     if submodule_path is not None:
         module = import_module(submodule_path)
         globals()[name] = module
