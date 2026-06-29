@@ -11,10 +11,12 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.sequences.core import (
+from bijux_proteomics.sequences.fasta import (
     NormalizedProteinRecord,
     RejectedFastaRecord,
     SequenceValidationIssue,
+)
+from bijux_proteomics.sequences.core import (
     build_fasta_stats,
 )
 from bijux_proteomics_foundation import JsonModel

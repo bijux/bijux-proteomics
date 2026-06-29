@@ -11,7 +11,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
-from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     PeptideProteinIndexEntry,

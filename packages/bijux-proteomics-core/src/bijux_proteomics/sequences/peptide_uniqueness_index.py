@@ -13,7 +13,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics._tabular import render_rows_tsv
-from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
     DigestedPeptide,
     DigestPolicy,

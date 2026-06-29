@@ -10,9 +10,11 @@ import warnings
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.sequences.core import (
+from bijux_proteomics.sequences.fasta import (
     FastaParseMode,
     NormalizedProteinRecord,
+)
+from bijux_proteomics.sequences.core import (
     parse_fasta_document,
 )
 from bijux_proteomics_foundation import JsonModel
