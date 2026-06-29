@@ -6,19 +6,14 @@
 from __future__ import annotations
 
 import csv
-from enum import StrEnum
 from io import StringIO
 import math
 
 import numpy as np
-from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts.input_models import (
-    MissingValueCorrectionPolicy,
-    MissingValueKind,
-)
+from bijux_proteomics.quantification.contracts.input_models import MissingValueKind
 from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
     _matrix_value_index,
@@ -45,83 +40,20 @@ from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,
     missing_value_kind_to_code,
 )
-from bijux_proteomics_foundation import JsonModel
-
-
-class MissingnessLabel(StrEnum):
-    """Owned entity-level missingness labels for downstream statistical handling."""
-
-    RANDOM = "random"
-    INTENSITY_CENSORED = "intensity_censored"
-    CONDITION_SPECIFIC = "condition_specific"
-    SAMPLE_FAILURE = "sample_failure"
-    STRUCTURAL_ABSENCE = "structural_absence"
-
-
-_MISSING_VALUE_KINDS = (
-    MissingValueKind.OBSERVED,
-    MissingValueKind.ZERO,
-    MissingValueKind.NOT_OBSERVED,
-    MissingValueKind.FILTERED,
-    MissingValueKind.IMPUTED,
-    MissingValueKind.CENSORED,
-    MissingValueKind.EXCLUDED,
-    MissingValueKind.NOT_APPLICABLE,
+from bijux_proteomics.quantification.missingness.models import (
+    MissingnessClassificationEntry,
+    MissingnessClassificationReport,
+    MissingnessLabel,
 )
-_OBSERVED_VALUE_CODES = np.array(
-    [
-        missing_value_kind_to_code(MissingValueKind.OBSERVED),
-        missing_value_kind_to_code(MissingValueKind.ZERO),
-        missing_value_kind_to_code(MissingValueKind.IMPUTED),
-    ],
-    dtype=np.int8,
+from bijux_proteomics.quantification.missingness.policy import (
+    _MISSING_BURDEN_CODES,
+    _MISSING_VALUE_KINDS,
+    _OBSERVED_VALUE_CODES,
+    apply_missing_value_summary_policy as _apply_missing_value_summary_policy,
+    apply_missing_value_summary_policy_codes as _apply_missing_value_summary_policy_codes,
+    empty_missing_value_counts as _empty_missing_value_counts,
+    is_missing_burden as _is_missing_burden,
 )
-_MISSING_BURDEN_CODES = np.array(
-    [
-        missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED),
-        missing_value_kind_to_code(MissingValueKind.FILTERED),
-        missing_value_kind_to_code(MissingValueKind.CENSORED),
-        missing_value_kind_to_code(MissingValueKind.EXCLUDED),
-    ],
-    dtype=np.int8,
-)
-
-
-def _empty_missing_value_counts() -> dict[MissingValueKind, int]:
-    return dict.fromkeys(_MISSING_VALUE_KINDS, 0)
-
-
-def _is_missing_burden(kind: MissingValueKind) -> bool:
-    return kind in {
-        MissingValueKind.NOT_OBSERVED,
-        MissingValueKind.FILTERED,
-        MissingValueKind.CENSORED,
-        MissingValueKind.EXCLUDED,
-    }
-
-
-class MissingnessClassificationEntry(JsonModel):
-    """One entity-level missingness classification row."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entity_id: str = Field(..., min_length=1)
-    label: MissingnessLabel
-    observed_sample_count: int = Field(..., ge=0)
-    missing_sample_count: int = Field(..., ge=0)
-    missing_fraction: float = Field(..., ge=0.0, le=1.0)
-    mean_log2_observed_abundance: float | None = None
-    note: str = Field(..., min_length=1)
-
-
-class MissingnessClassificationReport(JsonModel):
-    """Five-label missingness classification over one quantitative matrix."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entries: tuple[MissingnessClassificationEntry, ...] = Field(default_factory=tuple)
-    failed_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
 
 
 def build_missingness_entity_summary_report(
@@ -1068,41 +1000,6 @@ def render_missingness_classification_tsv(
             )
         )
     return buffer.getvalue()
-
-
-def _apply_missing_value_summary_policy(
-    kind: MissingValueKind,
-    *,
-    policy: MissingValueSummaryPolicy,
-) -> MissingValueKind:
-    if (
-        kind is MissingValueKind.ZERO
-        and policy.zero_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
-    ):
-        return MissingValueKind.NOT_OBSERVED
-    if (
-        kind is MissingValueKind.FILTERED
-        and policy.filtered_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
-    ):
-        return MissingValueKind.NOT_OBSERVED
-    return kind
-
-
-def _apply_missing_value_summary_policy_codes(
-    missing_kind_codes: np.ndarray,
-    *,
-    policy: MissingValueSummaryPolicy,
-) -> np.ndarray:
-    adjusted = missing_kind_codes.copy()
-    if policy.zero_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED:
-        adjusted[adjusted == missing_value_kind_to_code(MissingValueKind.ZERO)] = (
-            missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED)
-        )
-    if policy.filtered_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED:
-        adjusted[adjusted == missing_value_kind_to_code(MissingValueKind.FILTERED)] = (
-            missing_value_kind_to_code(MissingValueKind.NOT_OBSERVED)
-        )
-    return adjusted
 
 
 def _failed_sample_ids(
