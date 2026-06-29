@@ -80,7 +80,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("interfaces/support/targeted_panel_support.py", 1706),
     _exception("interfaces/support/targeted_selection_io.py", 1619),
     _exception("interfaces/support/validation_evidence_support.py", 1542),
-    _exception("interpretation/pathway_activity/analysis.py", 1047),
     _exception("io/formats/proteomics_formats.py", 1105),
     _exception("io/raw/raw_signal_evidence_cards.py", 1128),
     _exception("io/spectra/spectrum_contracts.py", 2095),
