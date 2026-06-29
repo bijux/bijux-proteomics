@@ -14,7 +14,7 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.quantification.contracts.matrix_models import (
     LabelFreeQuantTable,
 )
-from bijux_proteomics.quantification.missingness.missingness import (
+from bijux_proteomics.quantification.missingness.intensity_dependence import (
     _build_missingness_intensity_dependence_report_pure,
     _build_missingness_intensity_dependence_report_vectorized,
 )
