@@ -131,6 +131,9 @@ The quantification layer is also split on purpose:
   canonical owner package for differential abundance, grouped into `analysis`,
   `contrast_statistics`, `design_context`, `observation_vectors`,
   `rendering`, and `weighting`
+- `bijux_proteomics.quantification.statistics.differential_result_robustness`
+  is the canonical owner package for robustness scoring, grouped into
+  `analysis`, `bootstrap`, `entry_builders`, `models`, and `scoring_policy`
 - `bijux_proteomics.quantification.contracts` is a curated public contract
   facade, not the preferred internal import target for core source code
 - `bijux_proteomics.quantification.public_api` is the machine-readable ledger

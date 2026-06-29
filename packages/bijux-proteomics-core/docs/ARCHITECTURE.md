@@ -92,6 +92,11 @@ runtime-agnostic workflow seams.
   design validation in `design_context.py`, observation collection in
   `observation_vectors.py`, tabular output in `rendering.py`, and reliability
   weighting in `weighting.py`
+- `bijux_proteomics.quantification.statistics.differential_result_robustness`
+  is the canonical owner package for robustness scoring; keep report assembly
+  in `analysis.py`, bootstrap resampling in `bootstrap.py`, row construction
+  in `entry_builders.py`, public data contracts in `models.py`, and scoring
+  rules in `scoring_policy.py`
 - `bijux_proteomics.quantification.contracts` is a curated public contract
   facade, not the preferred internal import target for core source code
 - internal quantitative code should import owner modules such as `design`,
