@@ -87,7 +87,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("io/formats/proteomics_formats.py", 1105),
     _exception("io/raw/raw_signal_evidence_cards.py", 1128),
     _exception("io/spectra/spectrum_contracts.py", 2095),
-    _exception("lab/qc.py", 2216),
+    _exception("lab/qc/reports.py", 2217),
     _exception("ptm/cards/evidence_cards.py", 1403),
     _exception("ptm/contracts.py", 1061),
     _exception("ptm/quant/differential_analysis.py", 1080),
