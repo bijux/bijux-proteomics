@@ -92,7 +92,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("review/claims/result_queries.py", 1075),
     _exception("review/explanations/result_explanations.py", 1341),
     _exception("targeted/assay_interference.py", 1090),
-    _exception("targeted/biomarker_stability.py", 1111),
+    _exception("targeted/biomarker_stability/analysis.py", 1111),
     _exception("targeted/validation_planning.py", 1006),
     _exception("workflow/cards/protein_evidence_cards.py", 1454),
     _exception("workflow/cross_study_effect_comparison.py", 1187),

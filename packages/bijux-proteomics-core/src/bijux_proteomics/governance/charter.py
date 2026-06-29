@@ -407,7 +407,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "targeted/assay_interference.py",
             "targeted/assay_qc/analysis.py",
-            "targeted/biomarker_stability.py",
+            "targeted/biomarker_stability/analysis.py",
             "targeted/carryover.py",
             "targeted/discovery_peptide_selection.py",
             "targeted/fragment_ratios.py",

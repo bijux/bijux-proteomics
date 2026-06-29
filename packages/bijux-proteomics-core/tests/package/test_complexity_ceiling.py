@@ -244,7 +244,11 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         "build_targeted_assay_qc_report",
         84,
     ),
-    _exception("targeted/biomarker_stability.py", "_build_candidate_entry", 39),
+    _exception(
+        "targeted/biomarker_stability/analysis.py",
+        "_build_candidate_entry",
+        39,
+    ),
     _exception(
         "targeted/transition_coelution.py",
         "build_targeted_transition_coelution_report",
