@@ -71,6 +71,16 @@ from bijux_proteomics.quantification.statistics.differential_abundance.observati
     collect_condition_values,
     collect_condition_values_vectorized,
 )
+from bijux_proteomics.quantification.statistics.differential_abundance.weighting import (
+    combine_notes as _combine_notes,
+    effective_weighted_sample_size as _effective_weighted_sample_size,
+    sample_weight_lookup as _sample_weight_lookup,
+    weighted_effect_size_and_uncertainty as _weighted_effect_size_and_uncertainty,
+    weighted_observation_note as _weighted_observation_note,
+    weighted_or_unweighted_mean as _weighted_or_unweighted_mean,
+    weighted_sample_standard_deviation as _weighted_sample_standard_deviation,
+    weighted_welch_statistics as _weighted_welch_statistics,
+)
 from bijux_proteomics.quantification.statistics.differential_result_robustness import (
     annotate_differential_abundance_report_robustness,
 )
@@ -372,6 +382,7 @@ def build_differential_abundance_report(
                     exclusion_weight_threshold=(
                         sample_weights_report.exclusion_weight_threshold
                     ),
+                    student_t_two_sided_p_value=_student_t_two_sided_p_value,
                 )
             else:
                 log2_fold_change, p_value = _welch_t_test(values_a, values_b)
@@ -971,255 +982,6 @@ def _paired_t_test_statistics(
         complete_pair_count,
         note,
     )
-
-
-def _sample_weight_lookup(
-    report: SampleReliabilityWeightReport | None,
-) -> dict[str, float] | None:
-    if report is None:
-        return None
-    return {
-        entry.sample_id: float(entry.reliability_weight) for entry in report.entries
-    }
-
-
-def _weighted_or_unweighted_mean(values: np.ndarray, weights: np.ndarray) -> float:
-    if values.size == 0:
-        return 0.0
-    if weights.size != values.size or np.allclose(weights, 1.0):
-        return float(np.mean(values))
-    weight_sum = float(np.sum(weights))
-    if weight_sum <= 0.0:
-        return 0.0
-    return float(np.sum(values * weights) / weight_sum)
-
-
-def _effective_weighted_sample_size(weights: np.ndarray) -> float:
-    if weights.size == 0:
-        return 0.0
-    weight_sum = float(np.sum(weights))
-    weight_square_sum = float(np.sum(weights * weights))
-    if weight_sum <= 0.0 or weight_square_sum <= 0.0:
-        return 0.0
-    return (weight_sum * weight_sum) / weight_square_sum
-
-
-def _weighted_sample_variance(values: np.ndarray, weights: np.ndarray) -> float | None:
-    if values.size < 2 or weights.size != values.size:
-        return None
-    weight_sum = float(np.sum(weights))
-    weight_square_sum = float(np.sum(weights * weights))
-    denominator = (
-        weight_sum - (weight_square_sum / weight_sum) if weight_sum > 0 else 0.0
-    )
-    if denominator <= 0.0:
-        return None
-    mean_value = _weighted_or_unweighted_mean(values, weights)
-    centered = values - mean_value
-    return float(np.sum(weights * centered * centered) / denominator)
-
-
-def _weighted_sample_standard_deviation(
-    values: np.ndarray,
-    weights: np.ndarray,
-) -> float | None:
-    variance = _weighted_sample_variance(values, weights)
-    if variance is None or variance < 0.0 or not math.isfinite(variance):
-        return None
-    return math.sqrt(variance)
-
-
-def _weighted_effect_size_and_uncertainty(
-    values_a: np.ndarray,
-    weights_a: np.ndarray,
-    values_b: np.ndarray,
-    weights_b: np.ndarray,
-    log2_fold_change: float,
-) -> tuple[float | None, float | None, float | None, float | None, str | None]:
-    variance_a = _weighted_sample_variance(values_a, weights_a)
-    variance_b = _weighted_sample_variance(values_b, weights_b)
-    if (
-        values_a.size < 2
-        or values_b.size < 2
-        or variance_a is None
-        or variance_b is None
-    ):
-        return (
-            None,
-            None,
-            None,
-            None,
-            "confidence intervals and effect sizes require at least two positive-weight observations per condition after reliability weighting",
-        )
-    effective_a = _effective_weighted_sample_size(weights_a)
-    effective_b = _effective_weighted_sample_size(weights_b)
-    standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
-    interval_radius = 1.96 * standard_error
-    pooled_variance_numerator = (
-        max(effective_a - 1.0, 0.0) * variance_a
-        + max(effective_b - 1.0, 0.0) * variance_b
-    )
-    pooled_variance_denominator = effective_a + effective_b - 2.0
-    pooled_sd = (
-        math.sqrt(pooled_variance_numerator / pooled_variance_denominator)
-        if pooled_variance_denominator > 0.0
-        else None
-    )
-    cohens_d = (
-        log2_fold_change / pooled_sd
-        if pooled_sd is not None and pooled_sd > 0.0
-        else None
-    )
-    note = None
-    if standard_error > 1.0:
-        note = "uncertainty remains wide relative to the estimated fold change"
-    return (
-        standard_error,
-        log2_fold_change - interval_radius,
-        log2_fold_change + interval_radius,
-        cohens_d,
-        note,
-    )
-
-
-def _weighted_welch_statistics(
-    values_a: np.ndarray,
-    weights_a: np.ndarray,
-    values_b: np.ndarray,
-    weights_b: np.ndarray,
-    *,
-    exclusion_weight_threshold: float,
-) -> tuple[
-    float, float, float | None, float | None, float | None, float | None, str | None
-]:
-    mean_a = _weighted_or_unweighted_mean(values_a, weights_a)
-    mean_b = _weighted_or_unweighted_mean(values_b, weights_b)
-    estimate = mean_b - mean_a
-    variance_a = _weighted_sample_variance(values_a, weights_a)
-    variance_b = _weighted_sample_variance(values_b, weights_b)
-    if (
-        values_a.size < 2
-        or values_b.size < 2
-        or variance_a is None
-        or variance_b is None
-    ):
-        note = _combine_notes(
-            "weighted differential testing requires at least two positive-weight observations per condition after reliability weighting",
-            _weighted_observation_note(
-                weights_a,
-                weights_b,
-                exclusion_weight_threshold=exclusion_weight_threshold,
-            ),
-        )
-        return estimate, 1.0, None, None, None, None, note
-    effective_a = _effective_weighted_sample_size(weights_a)
-    effective_b = _effective_weighted_sample_size(weights_b)
-    if variance_a == 0.0 and variance_b == 0.0:
-        return (
-            estimate,
-            1.0,
-            0.0,
-            estimate,
-            estimate,
-            None,
-            _weighted_observation_note(
-                weights_a,
-                weights_b,
-                exclusion_weight_threshold=exclusion_weight_threshold,
-            ),
-        )
-    standard_error = math.sqrt(variance_a / effective_a + variance_b / effective_b)
-    if standard_error == 0.0 or not math.isfinite(standard_error):
-        return (
-            estimate,
-            1.0,
-            None,
-            None,
-            None,
-            None,
-            _combine_notes(
-                "weighted differential uncertainty collapsed to zero",
-                _weighted_observation_note(
-                    weights_a,
-                    weights_b,
-                    exclusion_weight_threshold=exclusion_weight_threshold,
-                ),
-            ),
-        )
-    t_statistic = estimate / standard_error
-    numerator = (variance_a / effective_a + variance_b / effective_b) ** 2
-    denominator_df = ((variance_a / effective_a) ** 2) / max(effective_a - 1.0, 1.0) + (
-        (variance_b / effective_b) ** 2
-    ) / max(effective_b - 1.0, 1.0)
-    degrees_of_freedom = numerator / denominator_df if denominator_df > 0.0 else 0.0
-    p_value = _student_t_two_sided_p_value(abs(t_statistic), degrees_of_freedom)
-    (
-        _standard_error,
-        confidence_interval_low,
-        confidence_interval_high,
-        effect_size_cohens_d,
-        effect_note,
-    ) = _weighted_effect_size_and_uncertainty(
-        values_a,
-        weights_a,
-        values_b,
-        weights_b,
-        estimate,
-    )
-    note = _combine_notes(
-        effect_note,
-        _weighted_observation_note(
-            weights_a,
-            weights_b,
-            exclusion_weight_threshold=exclusion_weight_threshold,
-        ),
-    )
-    return (
-        estimate,
-        p_value,
-        standard_error,
-        confidence_interval_low,
-        confidence_interval_high,
-        effect_size_cohens_d,
-        note,
-    )
-
-
-def _weighted_observation_note(
-    weights_a: np.ndarray,
-    weights_b: np.ndarray,
-    *,
-    exclusion_weight_threshold: float,
-) -> str | None:
-    all_weights = np.concatenate((weights_a, weights_b))
-    if all_weights.size == 0:
-        return None
-    excluded_count = int(np.sum(all_weights <= exclusion_weight_threshold))
-    downweighted_count = int(
-        np.sum((all_weights > exclusion_weight_threshold) & (all_weights < 1.0))
-    )
-    if excluded_count == 0 and downweighted_count == 0:
-        return None
-    if excluded_count > 0 and downweighted_count > 0:
-        return (
-            "reliability weighting excluded "
-            f"{excluded_count} observed sample(s) and downweighted {downweighted_count} additional observed sample(s)"
-        )
-    if excluded_count > 0:
-        return f"reliability weighting excluded {excluded_count} observed sample(s)"
-    return f"reliability weighting downweighted {downweighted_count} observed sample(s)"
-
-
-def _combine_notes(*notes: str | None) -> str | None:
-    unique_notes: list[str] = []
-    for note in notes:
-        if note is None or note == "" or note in unique_notes:
-            continue
-        unique_notes.append(note)
-    ordered_notes = tuple(unique_notes)
-    if not ordered_notes:
-        return None
-    return "; ".join(ordered_notes)
 
 
 def _render_differential_rows(
