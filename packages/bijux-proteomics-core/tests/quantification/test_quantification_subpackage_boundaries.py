@@ -14,6 +14,12 @@ from bijux_proteomics.quantification import (
     rollup,
     statistics,
 )
+from bijux_proteomics.quantification.public_api import (
+    MATRIX_FACADE_OWNERS,
+    ROLLUP_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+)
 
 _WRAPPER_MODULES = (
     "quantification/core_matrix.py",
@@ -70,6 +76,14 @@ def test_quantification_subpackages_export_representative_owner_surfaces() -> No
     assert hasattr(provenance, "build_quant_review_bundle")
     assert hasattr(provenance, "build_sample_exploration_report")
     assert hasattr(provenance, "build_quant_truth_package_benchmark_report")
+
+
+def test_quantification_matrix_and_rollup_ledgers_match_runtime_exports() -> None:
+    expected_matrix, _ = build_lazy_export_index(facade_owner_modules(MATRIX_FACADE_OWNERS))
+    expected_rollup, _ = build_lazy_export_index(facade_owner_modules(ROLLUP_FACADE_OWNERS))
+
+    assert tuple(matrix.__all__) == expected_matrix
+    assert tuple(rollup.__all__) == expected_rollup
 
 
 def test_quantification_root_wrappers_stay_compatibility_only() -> None:
