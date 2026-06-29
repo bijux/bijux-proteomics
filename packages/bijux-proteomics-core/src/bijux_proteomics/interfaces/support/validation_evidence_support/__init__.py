@@ -6,8 +6,8 @@
 
 from __future__ import annotations
 
-from .imports import *  # noqa: F401,F403
-from .targeted_selection_io import _parse_cli_bool, _split_semicolon_field
+from ..imports import *  # noqa: F401,F403
+from ..targeted_selection_io import _parse_cli_bool, _split_semicolon_field
 
 
 def _load_validation_evidence_discovery_candidates(
