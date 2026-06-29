@@ -13,8 +13,6 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.sequences.fasta import (
     FastaParseMode,
     NormalizedProteinRecord,
-)
-from bijux_proteomics.sequences.core import (
     parse_fasta_document,
 )
 from bijux_proteomics.sequences.digestion import (

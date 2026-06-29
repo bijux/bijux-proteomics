@@ -56,7 +56,7 @@ SEQUENCES_FACADE_OWNERS = (
         "contaminant catalog ownership",
     ),
     _owner(
-        "bijux_proteomics.sequences.core",
+        "bijux_proteomics.sequences.fasta",
         "FASTA intake, validation, and target-decoy compatibility ownership",
     ),
     _owner(
