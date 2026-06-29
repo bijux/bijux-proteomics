@@ -10,11 +10,6 @@ from bijux_proteomics.interpretation.regulator_inference.evidence_import import 
 )
 from bijux_proteomics.interpretation.regulator_inference.inference import (
     build_regulator_inference_report,
-    render_rejected_regulator_evidence_tsv,
-    render_rejected_regulator_site_signal_tsv,
-    render_regulator_inference_summary_tsv,
-    render_regulator_inference_tsv,
-    render_unresolved_regulator_target_tsv,
 )
 from bijux_proteomics.interpretation.regulator_inference.models import (
     RegulatorEvidenceColumnMapping,
@@ -36,6 +31,13 @@ from bijux_proteomics.interpretation.regulator_inference.models import (
     RejectedRegulatorEvidenceRow,
     RejectedRegulatorSiteSignalRow,
     UnresolvedRegulatorTargetEntry,
+)
+from bijux_proteomics.interpretation.regulator_inference.rendering import (
+    render_rejected_regulator_evidence_tsv,
+    render_rejected_regulator_site_signal_tsv,
+    render_regulator_inference_summary_tsv,
+    render_regulator_inference_tsv,
+    render_unresolved_regulator_target_tsv,
 )
 from bijux_proteomics.interpretation.regulator_inference.site_signal_input import (
     build_regulator_site_signal_entries_from_ptm_evidence_cards,

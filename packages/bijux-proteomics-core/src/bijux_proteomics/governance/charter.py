@@ -513,6 +513,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interpretation/regulator_inference/evidence_import.py",
             "interpretation/regulator_inference/inference.py",
             "interpretation/regulator_inference/models.py",
+            "interpretation/regulator_inference/rendering.py",
             "interpretation/regulator_inference/site_signal_input.py",
             "interpretation/tissue_cell_type_context.py",
             "panels/target_panel.py",
