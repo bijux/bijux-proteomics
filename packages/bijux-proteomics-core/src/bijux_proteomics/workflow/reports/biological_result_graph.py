@@ -347,3 +347,9 @@ def _claim_state(
 def _claim_confidence(entry: DifferentialAbundanceEntry) -> float:
     adjusted = 1.0 if entry.adjusted_p_value is None else entry.adjusted_p_value
     return max(0.05, min(0.99, 1.0 - adjusted))
+
+
+__all__ = [
+    "BiologicalResultGraphReport",
+    "build_biological_result_graph_report",
+]
