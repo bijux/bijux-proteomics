@@ -26,6 +26,10 @@ class BijuxProteomicsCompatibilityTests(unittest.TestCase):
     def test_distribution_alias_installs_the_canonical_core_import_root(self) -> None:
         self.assertTrue(callable(DigestPolicy))
 
+    def test_metadata_helper_does_not_replace_the_public_core_import_root(self) -> None:
+        self.assertTrue(DigestPolicy.__module__.startswith("bijux_proteomics."))
+        self.assertFalse(DigestPolicy.__module__.startswith("bijux_proteomics_alias"))
+
 
 if __name__ == "__main__":
     unittest.main()

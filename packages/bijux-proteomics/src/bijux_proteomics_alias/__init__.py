@@ -1,4 +1,4 @@
-"""Distribution-alias metadata for the `bijux-proteomics` package name."""
+"""Internal version metadata helper for the `bijux-proteomics` distribution alias."""
 
 from __future__ import annotations
 

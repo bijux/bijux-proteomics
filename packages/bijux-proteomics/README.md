@@ -37,7 +37,9 @@
 
 `bijux-proteomics` is the distribution-name alias for the canonical core owner
 `bijux-proteomics-core`.
-It is the install and command alias for bijux-proteomics-core.
+It is the install and command alias for `bijux-proteomics-core`, while the
+public Python import surface remains the canonical `bijux_proteomics`
+namespace shipped by core.
 
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.
@@ -66,7 +68,8 @@ assert report.accepted_records[0].canonical_accession == "P11111"
 ## Package identity
 
 - Distribution name: `bijux-proteomics`
-- Import root: `bijux_proteomics`
+- Public import root: `bijux_proteomics`
+- Private metadata helper: `bijux_proteomics_alias`
 - Canonical owner package: `bijux-proteomics-core`
 - Canonical owner docs: `packages/bijux-proteomics-core/README.md`
 
