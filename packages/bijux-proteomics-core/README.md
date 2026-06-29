@@ -629,6 +629,14 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - repository and execution protocols must stay replaceable and runtime-agnostic
 - downstream packages should consume core scientific rules instead of restating them
 
+## Workflow surface layout
+
+- use `bijux_proteomics.workflow` for the stable root import surface
+- use `bijux_proteomics.workflow.reports`, `cards`, `exports`, `demo`, and `pipelines` when you want the owned subfacade instead of the broad root barrel
+- treat `src/bijux_proteomics/workflow/public_api.py` as the source of truth for root and subfacade export ledgers
+- add new workflow exports to the owning subfacade first; only re-export them from the root when the package-level import is worth supporting long term
+- do not grow root-level compatibility wrappers into second owners; they exist to preserve import continuity, not to hide where workflow behavior really lives
+
 ## Choose this package when
 
 - you need canonical proteomics semantics that higher layers should consume rather than reinterpret

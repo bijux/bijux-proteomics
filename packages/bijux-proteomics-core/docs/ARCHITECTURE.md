@@ -43,6 +43,14 @@ runtime-agnostic workflow seams.
 - `governance/` owns the machine-readable package charter and owner-map
   boundaries for core scientific surfaces
 
+## Workflow surface layout
+
+- `workflow/__init__.py` is the governed root facade for stable package-level workflow imports
+- `workflow/public_api.py` is the workflow owner ledger; add or remove root exports there instead of extending scan-based import logic
+- `workflow/reports/`, `workflow/cards/`, `workflow/exports/`, `workflow/demo/`, and `workflow/pipelines/` are the owned subfacades and should carry new public workflow surfaces before the root facade widens
+- root-level modules under `workflow/` that simply preserve historic import paths are compatibility wrappers, not new ownership targets
+- when a symbol can be owned by a deeper scientific module, prefer that canonical owner and keep the root facade as an explicit re-export boundary rather than a second source of truth
+
 ## Canonical tree layout
 
 - Import roots: `bijux_proteomics`
