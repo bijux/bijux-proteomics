@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics import quantification
+from bijux_proteomics.quantification import contracts
 from bijux_proteomics.quantification.public_api import (
     CONTRACTS_FACADE_BUDGET,
     CONTRACTS_FACADE_OWNERS,
@@ -59,6 +61,32 @@ def test_quantification_root_compatibility_ledger_prefers_contract_exports() -> 
     )
     assert export_index["build_missingness_classifier_report"][0] == (
         "bijux_proteomics.quantification.contracts"
+    )
+
+
+def test_quantification_root_runtime_exports_match_governed_compatibility_ledger() -> None:
+    expected_exports, _ = build_lazy_export_index(
+        facade_owner_modules(QUANTIFICATION_ROOT_FACADE_OWNERS),
+        collision_policy="prefer_first_owner",
+    )
+
+    assert tuple(quantification.__all__) == expected_exports
+    assert set(QUANTIFICATION_ROOT_SUBMODULES).isdisjoint(quantification.__all__)
+    assert all(hasattr(quantification, name) for name in QUANTIFICATION_ROOT_SUBMODULES)
+
+
+def test_quantification_root_runtime_prefers_contract_surface_for_colliding_exports() -> None:
+    assert (
+        quantification.build_quant_design_matrix_report
+        is contracts.build_quant_design_matrix_report
+    )
+    assert (
+        quantification.build_differential_abundance_report
+        is contracts.build_differential_abundance_report
+    )
+    assert (
+        quantification.build_missingness_classifier_report
+        is contracts.build_missingness_classifier_report
     )
 
 
