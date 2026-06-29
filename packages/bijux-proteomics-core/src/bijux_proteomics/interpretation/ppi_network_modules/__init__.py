@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from .analysis import (
     build_ppi_network_module_report,
+)
+from .edge_import import (
     parse_ppi_edge_table,
 )
 from .models import (
