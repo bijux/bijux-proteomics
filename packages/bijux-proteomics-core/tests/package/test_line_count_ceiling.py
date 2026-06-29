@@ -91,7 +91,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("review/belief/belief_audit.py", 1007),
     _exception("review/claims/result_queries.py", 1075),
     _exception("review/explanations/result_explanations.py", 1341),
-    _exception("sequences/digestion/analysis.py", 1198),
     _exception("targeted/assay_interference.py", 1090),
     _exception("targeted/assay_qc.py", 1297),
     _exception("targeted/biomarker_stability.py", 1111),

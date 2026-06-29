@@ -6,6 +6,23 @@
 from __future__ import annotations
 
 from bijux_proteomics.sequences.digestion.analysis import (
+    build_digest_benchmark_report,
+    build_digest_duplicate_accounting,
+    build_digest_manifest,
+    build_peptide_protein_index,
+    classify_peptide_uniqueness,
+    count_missed_cleavages,
+    digest_protein_records,
+    digest_sequence,
+    export_peptide_protein_table_tsv,
+    export_peptides_fasta,
+    export_peptides_jsonl,
+    export_peptides_parquet,
+    export_peptides_tsv,
+    filter_digested_peptides,
+    peptide_export_fingerprint,
+)
+from bijux_proteomics.sequences.digestion.models import (
     DigestBenchmarkReport,
     DigestDuplicateAccounting,
     DigestDuplicateSequenceEntry,
@@ -20,25 +37,12 @@ from bijux_proteomics.sequences.digestion.analysis import (
     PeptideUniquenessEntry,
     ProteaseCleavageMode,
     ProteaseRule,
-    build_digest_benchmark_report,
-    build_digest_duplicate_accounting,
-    build_digest_manifest,
+)
+from bijux_proteomics.sequences.digestion.proteases import (
     build_digest_policy,
-    build_peptide_protein_index,
-    classify_peptide_uniqueness,
     compute_digest_policy_hash,
-    count_missed_cleavages,
-    digest_protein_records,
-    digest_sequence,
-    export_peptide_protein_table_tsv,
-    export_peptides_fasta,
-    export_peptides_jsonl,
-    export_peptides_parquet,
-    export_peptides_tsv,
-    filter_digested_peptides,
     get_protease_rule,
     parse_custom_protease_rule,
-    peptide_export_fingerprint,
     protease_registry,
     resolve_protease_rule,
 )
