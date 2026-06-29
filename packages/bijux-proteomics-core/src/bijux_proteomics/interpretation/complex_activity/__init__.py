@@ -9,13 +9,6 @@ from bijux_proteomics.domain import ConfidenceTier
 
 from .analysis import (
     build_complex_activity_report,
-    render_complex_activity_condition_comparison_tsv,
-    render_complex_activity_condition_score_tsv,
-    render_complex_activity_matrix_tsv,
-    render_complex_activity_sample_score_tsv,
-    render_complex_activity_summary_tsv,
-    render_complex_activity_unresolved_member_tsv,
-    render_complex_member_contribution_tsv,
 )
 from .models import (
     ComplexActivityPolicy,
@@ -26,6 +19,15 @@ from .models import (
     ComplexMemberContributionEntry,
     ComplexSampleScoreEntry,
     UnresolvedComplexActivityMemberEntry,
+)
+from .rendering import (
+    render_complex_activity_condition_comparison_tsv,
+    render_complex_activity_condition_score_tsv,
+    render_complex_activity_matrix_tsv,
+    render_complex_activity_sample_score_tsv,
+    render_complex_activity_summary_tsv,
+    render_complex_activity_unresolved_member_tsv,
+    render_complex_member_contribution_tsv,
 )
 
 ComplexActivityConfidenceStatus = ConfidenceTier
