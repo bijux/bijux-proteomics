@@ -189,7 +189,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         40,
     ),
     _exception(
-        "quantification/missingness/missingness.py",
+        "quantification/missingness/mechanism_report.py",
         "build_missing_data_mechanism_report",
         26,
     ),
