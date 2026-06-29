@@ -62,6 +62,10 @@ def test_python_api_modules_import_owned_support_submodules_directly() -> None:
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the targeted panel support facade instead of an owner module"
                 )
+            if node.module == "bijux_proteomics.interfaces.support.validation_evidence_support":
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the validation evidence support facade instead of an owner module"
+                )
             if node.module == "bijux_proteomics.interfaces.support.workflow" and any(
                 alias.name == "*" for alias in node.names
             ):
