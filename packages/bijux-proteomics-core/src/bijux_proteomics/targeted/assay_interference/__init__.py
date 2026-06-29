@@ -7,10 +7,6 @@ from __future__ import annotations
 
 from .analysis import (
     build_targeted_assay_interference_report,
-    render_targeted_assay_interference_assay_tsv,
-    render_targeted_assay_interference_panel_tsv,
-    render_targeted_assay_interference_summary_tsv,
-    render_targeted_assay_interference_transition_tsv,
 )
 from .models import (
     TargetedAssayInterferenceAssayEntry,
@@ -20,6 +16,12 @@ from .models import (
     TargetedAssayInterferenceRiskTier,
     TargetedAssayInterferenceSummary,
     TargetedAssayInterferenceTransitionEntry,
+)
+from .renderers import (
+    render_targeted_assay_interference_assay_tsv,
+    render_targeted_assay_interference_panel_tsv,
+    render_targeted_assay_interference_summary_tsv,
+    render_targeted_assay_interference_transition_tsv,
 )
 
 __all__ = [
