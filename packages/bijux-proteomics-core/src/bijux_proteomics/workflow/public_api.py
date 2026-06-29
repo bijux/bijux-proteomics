@@ -19,6 +19,7 @@ class WorkflowFacadeOwner:
 
     owner_module: str
     rationale: str
+    excluded_exports: tuple[str, ...] = ()
 
 
 CARD_FACADE_OWNERS = (
@@ -177,6 +178,7 @@ PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.orchestrator",
         rationale="workflow orchestrator ownership",
+        excluded_exports=("WorkflowResult",),
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.ptm_site_workflow",
@@ -185,6 +187,7 @@ PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.public_benchmark_runner",
         rationale="public benchmark runner ownership",
+        excluded_exports=("load_public_benchmark_descriptor",),
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.demo.scale_demo",
@@ -226,24 +229,64 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="shared workflow result record ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.reports",
-        rationale="report surface aggregation",
+        owner_module="bijux_proteomics.workflow.exports.result_manifest",
+        rationale="result manifest ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.cards",
-        rationale="card surface aggregation",
+        owner_module="bijux_proteomics.workflow.exports.result_search_index",
+        rationale="result search index ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.exports",
-        rationale="artifact export aggregation",
+        owner_module="bijux_proteomics.workflow.exports.result_archive",
+        rationale="result archive ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.demo",
-        rationale="demo workflow aggregation",
+        owner_module="bijux_proteomics.workflow.reports.biological_reporting",
+        rationale="biological report ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines",
-        rationale="pipeline workflow aggregation",
+        owner_module="bijux_proteomics.workflow.reports.biological_result_graph",
+        rationale="biological result graph ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.exports.artifact_layout",
+        rationale="workflow artifact layout ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.exports.output_validation",
+        rationale="workflow output validation ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_workflow_family",
+        rationale="advanced workflow family ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.blueprint",
+        rationale="workflow blueprint ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_fragpipe",
+        rationale="advanced FragPipe pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_maxquant",
+        rationale="advanced MaxQuant pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_ptm",
+        rationale="advanced PTM pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_targeted",
+        rationale="advanced targeted pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_tmt",
+        rationale="advanced TMT pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced_diann",
+        rationale="advanced DIA-NN pipeline ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cohort_stratification",
@@ -252,6 +295,11 @@ WORKFLOW_ROOT_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cross_study_effect_comparison",
         rationale="cross-study effect comparison ownership",
+        excluded_exports=("CrossStudyProteinStudyInput",),
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.cards.cross_study_evidence_cards",
+        rationale="cross-study evidence card ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cross_study_meta_analysis",
@@ -270,8 +318,77 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="cross-species effect comparison ownership",
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.discovery_to_assay",
+        rationale="discovery-to-assay workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.cards.pathway_evidence_cards",
+        rationale="pathway evidence card ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.cards.sample_evidence_cards",
+        rationale="sample evidence card ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.dda_biological_workflow",
+        rationale="DDA biological workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.diann_benchmarks",
+        rationale="DIA-NN benchmark ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.diann_biological_workflow",
+        rationale="DIA-NN biological workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.flagship_run",
+        rationale="flagship workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.exports.interactive_result_comparison",
+        rationale="interactive result comparison ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.exports.interactive_result_bundle",
+        rationale="interactive result bundle ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.integrated_scientific_report",
+        rationale="integrated scientific report ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.maxquant_benchmarks",
+        rationale="MaxQuant benchmark ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.maxquant_biological_workflow",
+        rationale="MaxQuant biological workflow ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.mechanisms",
         rationale="mechanism report ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.multi_study",
+        rationale="multi-study workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.orchestrator",
+        rationale="workflow orchestrator ownership",
+        excluded_exports=("WorkflowResult",),
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.ptm_site_workflow",
+        rationale="PTM site workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.cards.protein_evidence_cards",
+        rationale="protein evidence card ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.cards.protein_mechanism_cards",
+        rationale="protein mechanism card ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.public_benchmark_descriptors",
@@ -282,12 +399,29 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="public benchmark subset ownership",
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.public_benchmark_runner",
+        rationale="public benchmark runner ownership",
+        excluded_exports=("load_public_benchmark_descriptor",),
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.public_dataset_comparison",
         rationale="public dataset comparison ownership",
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.demo.scale_demo",
+        rationale="generated scale demo ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.study_result",
         rationale="study result ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.demo.surprising_demo",
+        rationale="surprising demo ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.demo.surprising_demo_interrogation",
+        rationale="surprising demo interrogation ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.synthetic_quant_truth",
@@ -298,47 +432,78 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="targeted review workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.blueprint",
-        rationale="workflow blueprint ownership",
+        owner_module="bijux_proteomics.workflow.pipelines.tmt_experiment_workflow",
+        rationale="TMT experiment workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.trust_bundle",
+        rationale="trust bundle workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.weak_evidence",
+        rationale="weak evidence workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.dia_differential_analysis",
+        rationale="DIA differential analysis ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.dia_dda_comparison",
+        rationale="DIA versus DDA comparison ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.label_based_differential_analysis",
+        rationale="label-based differential workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.label_based_reporting",
+        rationale="label-based reporting workflow ownership",
     ),
 )
 
 
 def facade_owner_modules(
     owners: tuple[WorkflowFacadeOwner, ...],
-) -> tuple[str, ...]:
+) -> tuple[WorkflowFacadeOwner, ...]:
     """Return owner module names in their governed facade order."""
 
-    return tuple(owner.owner_module for owner in owners)
+    return owners
 
 
 def list_owned_public_names(owner_module: str) -> tuple[str, ...]:
     """Return the owned public symbols for one workflow owner module."""
 
-    module_tree = _load_module_tree(owner_module)
+    source_path = _module_source_path(owner_module)
+    module_tree = ast.parse(source_path.read_text(encoding="utf-8"))
     explicit_exports = _extract_explicit_exports(module_tree)
     if explicit_exports is not None:
         return explicit_exports
+    if source_path.name == "__init__.py":
+        runtime_exports = getattr(import_module(owner_module), "__all__", None)
+        if runtime_exports is not None:
+            return tuple(runtime_exports)
     return _extract_owned_public_symbols(module_tree)
 
 
 def build_lazy_export_index(
-    owner_modules: tuple[str, ...],
+    owners: tuple[WorkflowFacadeOwner, ...],
 ) -> tuple[tuple[str, ...], dict[str, tuple[str, str]]]:
     """Build one ordered export ledger and import target map for a facade."""
 
     public_names: list[str] = []
     export_index: dict[str, tuple[str, str]] = {}
-    for owner_module in owner_modules:
-        for export_name in list_owned_public_names(owner_module):
+    for owner in owners:
+        for export_name in list_owned_public_names(owner.owner_module):
+            if export_name in owner.excluded_exports:
+                continue
             if export_name in export_index:
                 conflict_owner, _ = export_index[export_name]
                 raise ValueError(
                     "workflow facade export collision for "
-                    f"{export_name!r}: {conflict_owner} vs {owner_module}"
+                    f"{export_name!r}: {conflict_owner} vs {owner.owner_module}"
                 )
             public_names.append(export_name)
-            export_index[export_name] = (owner_module, export_name)
+            export_index[export_name] = (owner.owner_module, export_name)
     return tuple(public_names), export_index
 
 
@@ -386,12 +551,11 @@ def module_directory(
     return sorted(set(package_globals) | set(public_names) | set(submodule_names))
 
 
-def _load_module_tree(owner_module: str) -> ast.Module:
+def _module_source_path(owner_module: str) -> Path:
     spec = find_spec(owner_module)
     if spec is None or spec.origin is None:
         raise ValueError(f"workflow facade owner module is not discoverable: {owner_module}")
-    source_path = Path(spec.origin)
-    return ast.parse(source_path.read_text(encoding="utf-8"))
+    return Path(spec.origin)
 
 
 def _extract_explicit_exports(module_tree: ast.Module) -> tuple[str, ...] | None:

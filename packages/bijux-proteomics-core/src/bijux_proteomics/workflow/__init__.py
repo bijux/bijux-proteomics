@@ -2,76 +2,37 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
 
-_WORKFLOW_EXPORT_MODULES = (
-    "bijux_proteomics.workflow.result_types",
-    "bijux_proteomics.workflow.exports.result_manifest",
-    "bijux_proteomics.workflow.exports.result_search_index",
-    "bijux_proteomics.workflow.exports.result_archive",
-    "bijux_proteomics.workflow.reports.biological_reporting",
-    "bijux_proteomics.workflow.reports.biological_result_graph",
-    "bijux_proteomics.workflow.exports.artifact_layout",
-    "bijux_proteomics.workflow.exports.output_validation",
-    "bijux_proteomics.workflow.advanced_workflow_family",
-    "bijux_proteomics.workflow.blueprint",
-    "bijux_proteomics.workflow.advanced_fragpipe",
-    "bijux_proteomics.workflow.advanced_maxquant",
-    "bijux_proteomics.workflow.advanced_ptm",
-    "bijux_proteomics.workflow.advanced_targeted",
-    "bijux_proteomics.workflow.advanced_tmt",
-    "bijux_proteomics.workflow.advanced_diann",
-    "bijux_proteomics.workflow.cohort_stratification",
-    "bijux_proteomics.workflow.cross_study_effect_comparison",
-    "bijux_proteomics.workflow.cards.cross_study_evidence_cards",
-    "bijux_proteomics.workflow.cross_study_meta_analysis",
-    "bijux_proteomics.workflow.cross_study_pathway_comparison",
-    "bijux_proteomics.workflow.cross_study_protein_harmonization",
-    "bijux_proteomics.workflow.cross_species_effect_comparison",
-    "bijux_proteomics.workflow.discovery_to_assay",
-    "bijux_proteomics.workflow.cards.pathway_evidence_cards",
-    "bijux_proteomics.workflow.cards.sample_evidence_cards",
-    "bijux_proteomics.workflow.pipelines.dda_biological_workflow",
-    "bijux_proteomics.workflow.diann_benchmarks",
-    "bijux_proteomics.workflow.pipelines.diann_biological_workflow",
-    "bijux_proteomics.workflow.flagship_run",
-    "bijux_proteomics.workflow.exports.interactive_result_comparison",
-    "bijux_proteomics.workflow.exports.interactive_result_bundle",
-    "bijux_proteomics.workflow.integrated_scientific_report",
-    "bijux_proteomics.workflow.maxquant_benchmarks",
-    "bijux_proteomics.workflow.pipelines.maxquant_biological_workflow",
-    "bijux_proteomics.workflow.mechanisms",
-    "bijux_proteomics.workflow.multi_study",
-    "bijux_proteomics.workflow.orchestrator",
-    "bijux_proteomics.workflow.pipelines.ptm_site_workflow",
-    "bijux_proteomics.workflow.cards.protein_evidence_cards",
-    "bijux_proteomics.workflow.cards.protein_mechanism_cards",
-    "bijux_proteomics.workflow.public_benchmark_descriptors",
-    "bijux_proteomics.workflow.public_benchmark_subset",
-    "bijux_proteomics.workflow.public_benchmark_runner",
-    "bijux_proteomics.workflow.public_dataset_comparison",
-    "bijux_proteomics.workflow.scale_demo",
-    "bijux_proteomics.workflow.study_result",
-    "bijux_proteomics.workflow.surprising_demo",
-    "bijux_proteomics.workflow.surprising_demo_interrogation",
-    "bijux_proteomics.workflow.synthetic_quant_truth",
-    "bijux_proteomics.workflow.targeted_review_workflow",
-    "bijux_proteomics.workflow.pipelines.tmt_experiment_workflow",
-    "bijux_proteomics.workflow.trust_bundle",
-    "bijux_proteomics.workflow.weak_evidence",
-    "bijux_proteomics.workflow.pipelines.dia_differential_analysis",
-    "bijux_proteomics.workflow.pipelines.dia_dda_comparison",
-    "bijux_proteomics.workflow.pipelines.label_based_differential_analysis",
-    "bijux_proteomics.workflow.pipelines.label_based_reporting",
+from bijux_proteomics.workflow.public_api import (
+    WORKFLOW_ROOT_OWNERS,
+    WORKFLOW_ROOT_SUBMODULES,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    load_public_submodule,
+    module_directory,
+)
+
+__all__, _WORKFLOW_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(WORKFLOW_ROOT_OWNERS)
 )
 
 
 def __getattr__(name: str) -> Any:
-    for module_path in _WORKFLOW_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    if name in WORKFLOW_ROOT_SUBMODULES:
+        return load_public_submodule(
+            __name__,
+            globals(),
+            WORKFLOW_ROOT_SUBMODULES,
+            name,
+        )
+    return load_public_export(__name__, globals(), _WORKFLOW_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(
+        globals(),
+        __all__,
+        submodule_names=tuple(WORKFLOW_ROOT_SUBMODULES),
+    )
