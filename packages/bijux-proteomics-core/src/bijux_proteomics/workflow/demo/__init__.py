@@ -2,21 +2,24 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
 
-_DEMO_EXPORT_MODULES = (
-    "bijux_proteomics.workflow.demo.scale_demo",
-    "bijux_proteomics.workflow.demo.surprising_demo",
-    "bijux_proteomics.workflow.demo.surprising_demo_interrogation",
+from bijux_proteomics.workflow.public_api import (
+    DEMO_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    module_directory,
+)
+
+__all__, _DEMO_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(DEMO_FACADE_OWNERS)
 )
 
 
 def __getattr__(name: str) -> Any:
-    for module_path in _DEMO_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return load_public_export(__name__, globals(), _DEMO_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)
