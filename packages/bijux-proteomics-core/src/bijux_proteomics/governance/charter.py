@@ -674,7 +674,9 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         return _module_family(compatibility_target)
     pure_reexport_targets = _pure_reexport_targets(module_path)
     if pure_reexport_targets:
-        return _module_family(_resolve_module_path(pure_reexport_targets[0]))
+        target_path = _resolve_module_path(pure_reexport_targets[0])
+        if target_path != module_path:
+            return _module_family(target_path)
 
     if module_path.startswith(
         ("workflow/", "interfaces/execution/")
