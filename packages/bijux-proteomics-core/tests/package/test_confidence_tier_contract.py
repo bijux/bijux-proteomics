@@ -20,7 +20,7 @@ ALIAS_OWNERS = {
     "interpretation/pathway_activity.py": "PathwayActivityConfidenceStatus",
     "interpretation/protein_set_scoring/__init__.py": "ProteinSetScoreConfidenceStatus",
     "interpretation/disease_phenotype_interpretation.py": "DiseasePhenotypeConfidenceStatus",
-    "interpretation/complex_activity.py": "ComplexActivityConfidenceStatus",
+    "interpretation/complex_activity/__init__.py": "ComplexActivityConfidenceStatus",
     "io/raw/run_qc.py": "SpectrumQualityTier",
     "study/metadata/sample_sheet_repairs.py": "SampleSheetRepairConfidence",
     "workflow/mechanisms.py": "MechanismCardConfidence",
