@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 import math
 from statistics import mean, median
 
@@ -35,6 +36,28 @@ from bijux_proteomics.targeted.result_validation import (
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationPanelAssayInput,
 )
+
+
+@dataclass(frozen=True)
+class _CandidateSignalAssessment:
+    candidate_sample_values: dict[str, float]
+    reliable_sample_ids: set[str]
+    matched_target_ids: set[str]
+    reliable_sample_count: int
+    reliable_sample_fraction: float
+    condition_values_with_signal: tuple[str, ...]
+    condition_breadth_score: float
+    assay_agreement_score: float
+
+
+@dataclass(frozen=True)
+class _CandidateSubgroupAssessment:
+    subgroup_entries: tuple[BiomarkerSubgroupBehaviorEntry, ...]
+    instability_reasons: tuple[BiomarkerStabilityReasonCode, ...]
+    component_scores: tuple[float, ...]
+    batch_stability_score: float | None
+    timepoint_stability_score: float | None
+    sample_type_stability_score: float | None
 
 
 def build_biomarker_stability_report(
@@ -184,178 +207,40 @@ def _build_candidate_entry(
 ) -> tuple[
     BiomarkerStabilityEntry, list[BiomarkerSubgroupBehaviorEntry], tuple[str, ...]
 ]:
-    target_ids_by_assay = {
-        assay.assay_entry_id: _match_assay_target_ids(assay, descriptors)
-        for assay in assays
-    }
-    assay_values_by_sample: dict[str, dict[str, float]] = {}
-    reliable_sample_ids: set[str] = set()
-    matched_target_ids: set[str] = set()
-    for assay in assays:
-        for target_id in target_ids_by_assay[assay.assay_entry_id]:
-            matched_target_ids.add(target_id)
-            for sample_id, _design_entry in design_by_sample.items():
-                qc_entry = qc_by_target_sample.get((target_id, sample_id))
-                if qc_entry is None:
-                    continue
-                if (
-                    qc_entry.passing_total_intensity is None
-                    or qc_entry.passing_total_intensity <= 0.0
-                ):
-                    continue
-                assay_values_by_sample.setdefault(sample_id, {})[
-                    assay.assay_entry_id
-                ] = math.log2(qc_entry.passing_total_intensity)
-                if qc_entry.reliable:
-                    reliable_sample_ids.add(sample_id)
-
-    candidate_sample_values = {
-        sample_id: mean(assay_values.values())
-        for sample_id, assay_values in assay_values_by_sample.items()
-        if assay_values
-    }
-    reliable_sample_count = len(
-        {
-            sample_id
-            for sample_id in candidate_sample_values
-            if sample_id in reliable_sample_ids
-        }
-    )
-    total_sample_count = len(total_sample_ids)
-    reliable_sample_fraction = (
-        reliable_sample_count / total_sample_count if total_sample_count else 0.0
-    )
-    condition_values_with_signal = {
-        design_by_sample[sample_id].condition
-        for sample_id in candidate_sample_values
-        if sample_id in design_by_sample
-    }
-    condition_breadth_score = (
-        len(condition_values_with_signal) / len(total_condition_values)
-        if total_condition_values
-        else 0.0
-    )
-    assay_agreement_score = _compute_assay_agreement_score(
-        assay_values_by_sample,
-        disagreement_delta_threshold=policy.assay_disagreement_delta_threshold,
-    )
-
-    subgroup_entries: list[BiomarkerSubgroupBehaviorEntry] = []
-    instability_reasons: list[BiomarkerStabilityReasonCode] = []
-    component_scores: list[float] = [
-        reliable_sample_fraction,
-        condition_breadth_score,
-        assay_agreement_score,
-    ]
-    if not matched_target_ids:
-        instability_reasons.append(
-            BiomarkerStabilityReasonCode.NO_MATCHING_TARGETED_SIGNAL
-        )
-    if reliable_sample_fraction < policy.minimum_reliable_sample_fraction:
-        instability_reasons.append(
-            BiomarkerStabilityReasonCode.LOW_RELIABLE_SAMPLE_FRACTION
-        )
-    if len(condition_values_with_signal) <= 1 and total_condition_values:
-        instability_reasons.append(
-            BiomarkerStabilityReasonCode.SINGLE_CONDITION_SIGNAL_ONLY
-        )
-    if assay_agreement_score < 1.0:
-        instability_reasons.append(BiomarkerStabilityReasonCode.ASSAY_DISAGREEMENT)
-
-    subgroup_dimension_results = []
-    condition_dimension = _build_subgroup_dimension_entries(
-        candidate_id=candidate.candidate_id,
-        dimension=BiomarkerStabilityDimension.CONDITION,
-        group_values={
-            sample_id: design_by_sample[sample_id].condition
-            for sample_id in candidate_sample_values
-            if sample_id in design_by_sample and design_by_sample[sample_id].condition
-        },
-        sample_values=candidate_sample_values,
-        reliable_sample_ids=reliable_sample_ids,
-        minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
-    )
-    subgroup_entries.extend(condition_dimension[0])
-
-    batch_dimension = _build_batch_entries(
-        candidate_id=candidate.candidate_id,
-        sample_values=candidate_sample_values,
-        reliable_sample_ids=reliable_sample_ids,
+    signal_assessment = _assess_candidate_signal(
+        assays=assays,
+        descriptors=descriptors,
+        qc_by_target_sample=qc_by_target_sample,
         design_by_sample=design_by_sample,
-        batch_field=policy.batch_field,
-        minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
-        residual_delta_threshold=policy.batch_residual_delta_threshold,
+        total_sample_ids=total_sample_ids,
+        total_condition_values=total_condition_values,
+        assay_disagreement_delta_threshold=policy.assay_disagreement_delta_threshold,
     )
-    subgroup_dimension_results.append(batch_dimension)
-    subgroup_entries.extend(batch_dimension[0])
-
-    timepoint_dimension = _build_subgroup_dimension_entries(
+    subgroup_assessment = _assess_candidate_subgroups(
         candidate_id=candidate.candidate_id,
-        dimension=BiomarkerStabilityDimension.TIMEPOINT,
-        group_values=_group_values_for_dimension(
-            sample_ids=candidate_sample_values,
-            design_by_sample=design_by_sample,
-            field_name=policy.timepoint_field,
-        ),
-        sample_values=candidate_sample_values,
-        reliable_sample_ids=reliable_sample_ids,
-        minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
-        median_delta_threshold=policy.subgroup_median_delta_threshold,
-        instability_reason=BiomarkerStabilityReasonCode.TIMEPOINT_SENSITIVE_SIGNAL,
+        signal_assessment=signal_assessment,
+        design_by_sample=design_by_sample,
+        policy=policy,
     )
-    subgroup_dimension_results.append(timepoint_dimension)
-    subgroup_entries.extend(timepoint_dimension[0])
-
-    sample_type_dimension = _build_subgroup_dimension_entries(
-        candidate_id=candidate.candidate_id,
-        dimension=BiomarkerStabilityDimension.SAMPLE_TYPE,
-        group_values=_group_values_for_dimension(
-            sample_ids=candidate_sample_values,
-            design_by_sample=design_by_sample,
-            field_name=policy.sample_type_field,
-        ),
-        sample_values=candidate_sample_values,
-        reliable_sample_ids=reliable_sample_ids,
-        minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
-        median_delta_threshold=policy.subgroup_median_delta_threshold,
-        instability_reason=BiomarkerStabilityReasonCode.SAMPLE_TYPE_SENSITIVE_SIGNAL,
-    )
-    subgroup_dimension_results.append(sample_type_dimension)
-    subgroup_entries.extend(sample_type_dimension[0])
-
-    batch_stability_score = None
-    timepoint_stability_score = None
-    sample_type_stability_score = None
-    for entries, score, reason, sparse in subgroup_dimension_results:
-        if score is not None:
-            component_scores.append(score)
-        if sparse:
-            instability_reasons.append(
-                BiomarkerStabilityReasonCode.SPARSE_SUBGROUP_COVERAGE
+    deduped_reasons = tuple(
+        dict.fromkeys(
+            (
+                *_signal_instability_reasons(
+                    signal_assessment=signal_assessment,
+                    total_condition_values=total_condition_values,
+                    policy=policy,
+                ),
+                *subgroup_assessment.instability_reasons,
             )
-        if reason is not None:
-            instability_reasons.append(reason)
-        if entries and entries[0].dimension is BiomarkerStabilityDimension.BATCH:
-            batch_stability_score = score
-        elif entries and entries[0].dimension is BiomarkerStabilityDimension.TIMEPOINT:
-            timepoint_stability_score = score
-        elif (
-            entries and entries[0].dimension is BiomarkerStabilityDimension.SAMPLE_TYPE
-        ):
-            sample_type_stability_score = score
-
-    deduped_reasons = tuple(dict.fromkeys(instability_reasons))
-    stability_score = (
-        max(0.0, min(1.0, mean(component_scores))) if component_scores else 0.0
-    )
-    if (
-        BiomarkerStabilityReasonCode.SINGLE_CONDITION_SIGNAL_ONLY in deduped_reasons
-        and total_condition_values
-    ):
-        stability_score = min(
-            stability_score,
-            max(0.0, policy.downgrade_below_score - 0.05),
         )
+    )
+    stability_score = _stability_score(
+        signal_assessment=signal_assessment,
+        subgroup_assessment=subgroup_assessment,
+        instability_reasons=deduped_reasons,
+        total_condition_values=total_condition_values,
+        policy=policy,
+    )
     stability_penalty = 1.0 - stability_score
     adjusted_final_score = max(0.0, min(1.0, candidate.final_score * stability_score))
     adjusted_penalty_total = candidate.penalty_total + stability_penalty
@@ -364,9 +249,9 @@ def _build_candidate_entry(
         candidate,
         stability_score=stability_score,
         reasons=deduped_reasons,
-        reliable_sample_count=reliable_sample_count,
-        total_sample_count=total_sample_count,
-        condition_count_with_signal=len(condition_values_with_signal),
+        reliable_sample_count=signal_assessment.reliable_sample_count,
+        total_sample_count=len(total_sample_ids),
+        condition_count_with_signal=len(signal_assessment.condition_values_with_signal),
         total_condition_count=len(total_condition_values),
     )
     rank_reason_codes = candidate.rank_reason_codes + tuple(
@@ -387,26 +272,260 @@ def _build_candidate_entry(
             adjusted_penalty_total=adjusted_penalty_total,
             stability_penalty=stability_penalty,
             stability_score=stability_score,
-            reliable_sample_fraction=reliable_sample_fraction,
-            condition_breadth_score=condition_breadth_score,
-            assay_agreement_score=assay_agreement_score,
-            batch_stability_score=batch_stability_score,
-            timepoint_stability_score=timepoint_stability_score,
-            sample_type_stability_score=sample_type_stability_score,
-            reliable_sample_count=reliable_sample_count,
-            total_sample_count=total_sample_count,
-            condition_count_with_signal=len(condition_values_with_signal),
+            reliable_sample_fraction=signal_assessment.reliable_sample_fraction,
+            condition_breadth_score=signal_assessment.condition_breadth_score,
+            assay_agreement_score=signal_assessment.assay_agreement_score,
+            batch_stability_score=subgroup_assessment.batch_stability_score,
+            timepoint_stability_score=subgroup_assessment.timepoint_stability_score,
+            sample_type_stability_score=subgroup_assessment.sample_type_stability_score,
+            reliable_sample_count=signal_assessment.reliable_sample_count,
+            total_sample_count=len(total_sample_ids),
+            condition_count_with_signal=len(signal_assessment.condition_values_with_signal),
             total_condition_count=len(total_condition_values),
             assay_entry_count=len(assays),
-            matched_target_count=len(matched_target_ids),
+            matched_target_count=len(signal_assessment.matched_target_ids),
             downgraded=downgraded,
             instability_reasons=deduped_reasons,
-            subgroup_behavior_count=len(subgroup_entries),
+            subgroup_behavior_count=len(subgroup_assessment.subgroup_entries),
             note=note,
         ),
-        subgroup_entries,
+        list(subgroup_assessment.subgroup_entries),
         rank_reason_codes,
     )
+
+
+def _assess_candidate_signal(
+    *,
+    assays: tuple[TargetedValidationPanelAssayInput, ...],
+    descriptors: tuple[_ImportedTargetDescriptor, ...],
+    qc_by_target_sample: Mapping[tuple[str, str], TargetedTargetQcEntry],
+    design_by_sample: dict[str, ExperimentalDesignEntry],
+    total_sample_ids: tuple[str, ...],
+    total_condition_values: tuple[str, ...],
+    assay_disagreement_delta_threshold: float,
+) -> _CandidateSignalAssessment:
+    assay_values_by_sample, reliable_sample_ids, matched_target_ids = (
+        _collect_assay_values_by_sample(
+            assays=assays,
+            descriptors=descriptors,
+            qc_by_target_sample=qc_by_target_sample,
+            design_by_sample=design_by_sample,
+        )
+    )
+    candidate_sample_values = {
+        sample_id: mean(assay_values.values())
+        for sample_id, assay_values in assay_values_by_sample.items()
+        if assay_values
+    }
+    reliable_sample_count = len(
+        set(candidate_sample_values).intersection(reliable_sample_ids)
+    )
+    total_sample_count = len(total_sample_ids)
+    reliable_sample_fraction = (
+        reliable_sample_count / total_sample_count if total_sample_count else 0.0
+    )
+    condition_values_with_signal = tuple(
+        sorted(
+            {
+                design_by_sample[sample_id].condition
+                for sample_id in candidate_sample_values
+                if sample_id in design_by_sample
+            }
+        )
+    )
+    condition_breadth_score = (
+        len(condition_values_with_signal) / len(total_condition_values)
+        if total_condition_values
+        else 0.0
+    )
+    assay_agreement_score = _compute_assay_agreement_score(
+        assay_values_by_sample,
+        disagreement_delta_threshold=assay_disagreement_delta_threshold,
+    )
+    return _CandidateSignalAssessment(
+        candidate_sample_values=candidate_sample_values,
+        reliable_sample_ids=reliable_sample_ids,
+        matched_target_ids=matched_target_ids,
+        reliable_sample_count=reliable_sample_count,
+        reliable_sample_fraction=reliable_sample_fraction,
+        condition_values_with_signal=condition_values_with_signal,
+        condition_breadth_score=condition_breadth_score,
+        assay_agreement_score=assay_agreement_score,
+    )
+
+
+def _collect_assay_values_by_sample(
+    *,
+    assays: tuple[TargetedValidationPanelAssayInput, ...],
+    descriptors: tuple[_ImportedTargetDescriptor, ...],
+    qc_by_target_sample: Mapping[tuple[str, str], TargetedTargetQcEntry],
+    design_by_sample: dict[str, ExperimentalDesignEntry],
+) -> tuple[dict[str, dict[str, float]], set[str], set[str]]:
+    target_ids_by_assay = {
+        assay.assay_entry_id: _match_assay_target_ids(assay, descriptors)
+        for assay in assays
+    }
+    assay_values_by_sample: dict[str, dict[str, float]] = {}
+    reliable_sample_ids: set[str] = set()
+    matched_target_ids: set[str] = set()
+    for assay in assays:
+        for target_id in target_ids_by_assay[assay.assay_entry_id]:
+            matched_target_ids.add(target_id)
+            for sample_id in design_by_sample:
+                qc_entry = qc_by_target_sample.get((target_id, sample_id))
+                if qc_entry is None or not _positive_intensity(qc_entry):
+                    continue
+                assay_values_by_sample.setdefault(sample_id, {})[
+                    assay.assay_entry_id
+                ] = math.log2(qc_entry.passing_total_intensity)
+                if qc_entry.reliable:
+                    reliable_sample_ids.add(sample_id)
+    return assay_values_by_sample, reliable_sample_ids, matched_target_ids
+
+
+def _positive_intensity(qc_entry: TargetedTargetQcEntry) -> bool:
+    return (
+        qc_entry.passing_total_intensity is not None
+        and qc_entry.passing_total_intensity > 0.0
+    )
+
+
+def _signal_instability_reasons(
+    *,
+    signal_assessment: _CandidateSignalAssessment,
+    total_condition_values: tuple[str, ...],
+    policy: BiomarkerStabilityPolicy,
+) -> tuple[BiomarkerStabilityReasonCode, ...]:
+    reasons: list[BiomarkerStabilityReasonCode] = []
+    if not signal_assessment.matched_target_ids:
+        reasons.append(BiomarkerStabilityReasonCode.NO_MATCHING_TARGETED_SIGNAL)
+    if (
+        signal_assessment.reliable_sample_fraction
+        < policy.minimum_reliable_sample_fraction
+    ):
+        reasons.append(BiomarkerStabilityReasonCode.LOW_RELIABLE_SAMPLE_FRACTION)
+    if len(signal_assessment.condition_values_with_signal) <= 1 and total_condition_values:
+        reasons.append(BiomarkerStabilityReasonCode.SINGLE_CONDITION_SIGNAL_ONLY)
+    if signal_assessment.assay_agreement_score < 1.0:
+        reasons.append(BiomarkerStabilityReasonCode.ASSAY_DISAGREEMENT)
+    return tuple(reasons)
+
+
+def _assess_candidate_subgroups(
+    *,
+    candidate_id: str,
+    signal_assessment: _CandidateSignalAssessment,
+    design_by_sample: dict[str, ExperimentalDesignEntry],
+    policy: BiomarkerStabilityPolicy,
+) -> _CandidateSubgroupAssessment:
+    subgroup_entries: list[BiomarkerSubgroupBehaviorEntry] = []
+    component_scores: list[float] = []
+    instability_reasons: list[BiomarkerStabilityReasonCode] = []
+
+    condition_dimension = _build_subgroup_dimension_entries(
+        candidate_id=candidate_id,
+        dimension=BiomarkerStabilityDimension.CONDITION,
+        group_values={
+            sample_id: design_by_sample[sample_id].condition
+            for sample_id in signal_assessment.candidate_sample_values
+            if sample_id in design_by_sample and design_by_sample[sample_id].condition
+        },
+        sample_values=signal_assessment.candidate_sample_values,
+        reliable_sample_ids=signal_assessment.reliable_sample_ids,
+        minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
+    )
+    subgroup_entries.extend(condition_dimension[0])
+
+    dimension_results = {
+        BiomarkerStabilityDimension.BATCH: _build_batch_entries(
+            candidate_id=candidate_id,
+            sample_values=signal_assessment.candidate_sample_values,
+            reliable_sample_ids=signal_assessment.reliable_sample_ids,
+            design_by_sample=design_by_sample,
+            batch_field=policy.batch_field,
+            minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
+            residual_delta_threshold=policy.batch_residual_delta_threshold,
+        ),
+        BiomarkerStabilityDimension.TIMEPOINT: _build_subgroup_dimension_entries(
+            candidate_id=candidate_id,
+            dimension=BiomarkerStabilityDimension.TIMEPOINT,
+            group_values=_group_values_for_dimension(
+                sample_ids=signal_assessment.candidate_sample_values,
+                design_by_sample=design_by_sample,
+                field_name=policy.timepoint_field,
+            ),
+            sample_values=signal_assessment.candidate_sample_values,
+            reliable_sample_ids=signal_assessment.reliable_sample_ids,
+            minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
+            median_delta_threshold=policy.subgroup_median_delta_threshold,
+            instability_reason=BiomarkerStabilityReasonCode.TIMEPOINT_SENSITIVE_SIGNAL,
+        ),
+        BiomarkerStabilityDimension.SAMPLE_TYPE: _build_subgroup_dimension_entries(
+            candidate_id=candidate_id,
+            dimension=BiomarkerStabilityDimension.SAMPLE_TYPE,
+            group_values=_group_values_for_dimension(
+                sample_ids=signal_assessment.candidate_sample_values,
+                design_by_sample=design_by_sample,
+                field_name=policy.sample_type_field,
+            ),
+            sample_values=signal_assessment.candidate_sample_values,
+            reliable_sample_ids=signal_assessment.reliable_sample_ids,
+            minimum_reliable_samples_per_group=policy.minimum_reliable_samples_per_group,
+            median_delta_threshold=policy.subgroup_median_delta_threshold,
+            instability_reason=BiomarkerStabilityReasonCode.SAMPLE_TYPE_SENSITIVE_SIGNAL,
+        ),
+    }
+    for entries, score, reason, sparse in dimension_results.values():
+        subgroup_entries.extend(entries)
+        if score is not None:
+            component_scores.append(score)
+        if sparse:
+            instability_reasons.append(
+                BiomarkerStabilityReasonCode.SPARSE_SUBGROUP_COVERAGE
+            )
+        if reason is not None:
+            instability_reasons.append(reason)
+
+    return _CandidateSubgroupAssessment(
+        subgroup_entries=tuple(subgroup_entries),
+        instability_reasons=tuple(instability_reasons),
+        component_scores=tuple(component_scores),
+        batch_stability_score=dimension_results[BiomarkerStabilityDimension.BATCH][1],
+        timepoint_stability_score=dimension_results[
+            BiomarkerStabilityDimension.TIMEPOINT
+        ][1],
+        sample_type_stability_score=dimension_results[
+            BiomarkerStabilityDimension.SAMPLE_TYPE
+        ][1],
+    )
+
+
+def _stability_score(
+    *,
+    signal_assessment: _CandidateSignalAssessment,
+    subgroup_assessment: _CandidateSubgroupAssessment,
+    instability_reasons: tuple[BiomarkerStabilityReasonCode, ...],
+    total_condition_values: tuple[str, ...],
+    policy: BiomarkerStabilityPolicy,
+) -> float:
+    component_scores = (
+        signal_assessment.reliable_sample_fraction,
+        signal_assessment.condition_breadth_score,
+        signal_assessment.assay_agreement_score,
+        *subgroup_assessment.component_scores,
+    )
+    stability_score = (
+        max(0.0, min(1.0, mean(component_scores))) if component_scores else 0.0
+    )
+    if (
+        BiomarkerStabilityReasonCode.SINGLE_CONDITION_SIGNAL_ONLY in instability_reasons
+        and total_condition_values
+    ):
+        return min(
+            stability_score,
+            max(0.0, policy.downgrade_below_score - 0.05),
+        )
+    return stability_score
 
 
 def _build_subgroup_dimension_entries(
