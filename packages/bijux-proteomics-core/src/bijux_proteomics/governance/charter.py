@@ -333,6 +333,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/rollup/protein_lfq/analysis.py",
             "quantification/rollup/protein_lfq/models.py",
             "quantification/rollup/protein_lfq/rendering.py",
+            "quantification/rollup/protein_lfq/solving.py",
             "quantification/normalization/__init__.py",
             "quantification/normalization/batch_effect.py",
             "quantification/normalization/composition.py",

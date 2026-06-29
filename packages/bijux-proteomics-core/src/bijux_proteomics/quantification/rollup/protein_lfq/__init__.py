@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.quantification.rollup.protein_lfq import analysis as _analysis
+from bijux_proteomics.quantification.rollup.protein_lfq import solving as _solving
 from bijux_proteomics.quantification.rollup.protein_lfq.analysis import (
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_peptides,
@@ -28,13 +28,13 @@ from bijux_proteomics.quantification.rollup.protein_lfq.rendering import (
     render_protein_lfq_summary_tsv,
 )
 
-_build_pairwise_ratio_rows_pure = _analysis._build_pairwise_ratio_rows_pure
-_build_pairwise_ratio_rows_vectorized = _analysis._build_pairwise_ratio_rows_vectorized
+_build_pairwise_ratio_rows_pure = _solving.build_pairwise_ratio_rows_pure
+_build_pairwise_ratio_rows_vectorized = _solving.build_pairwise_ratio_rows_vectorized
 _observed_log2_intensities_by_sample_pure = (
-    _analysis._observed_log2_intensities_by_sample_pure
+    _solving.observed_log2_intensities_by_sample_pure
 )
 _observed_log2_intensities_by_sample_vectorized = (
-    _analysis._observed_log2_intensities_by_sample_vectorized
+    _solving.observed_log2_intensities_by_sample_vectorized
 )
 
 __all__ = [
