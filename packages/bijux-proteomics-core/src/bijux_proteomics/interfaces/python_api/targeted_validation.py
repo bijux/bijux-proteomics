@@ -41,7 +41,7 @@ from bijux_proteomics.interfaces.support.output_protocol import (
     _emit_json,
     _write_text_output,
 )
-from bijux_proteomics.interfaces.support.targeted_panel_support import (
+from bijux_proteomics.interfaces.support.targeted_panel_support.targeted_validation import (
     _load_panel_redundancy_candidates,
     _load_targeted_validation_discovery_claims,
 )

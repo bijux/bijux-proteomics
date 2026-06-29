@@ -35,10 +35,12 @@ from bijux_proteomics.interfaces.support.output_protocol import (
     _emit_json,
     _write_text_output,
 )
-from bijux_proteomics.interfaces.support.targeted_panel_support import (
+from bijux_proteomics.interfaces.support.targeted_panel_support.panel_design import (
     _load_targeted_panel_assay_inputs,
     _load_targeted_panel_selected_peptides,
     _load_targeted_panel_transition_inputs,
+)
+from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning import (
     _load_validation_planning_biomarker_candidates,
     _load_validation_planning_omitted_candidates,
     _load_validation_planning_panel_assays,
