@@ -5,22 +5,24 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
 
-_NORMALIZATION_EXPORT_MODULES = (
-    "bijux_proteomics.quantification.normalization.batch_effect",
-    "bijux_proteomics.quantification.normalization.composition",
-    "bijux_proteomics.quantification.normalization.imputation",
-    "bijux_proteomics.quantification.normalization.normalization",
+from bijux_proteomics.quantification.public_api import (
+    NORMALIZATION_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    module_directory,
+)
+
+__all__, _NORMALIZATION_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(NORMALIZATION_FACADE_OWNERS)
 )
 
 
 def __getattr__(name: str) -> Any:
-    for module_path in _NORMALIZATION_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return load_public_export(__name__, globals(), _NORMALIZATION_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)

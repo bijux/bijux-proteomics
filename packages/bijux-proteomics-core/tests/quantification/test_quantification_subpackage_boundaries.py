@@ -16,6 +16,8 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.quantification.public_api import (
     MATRIX_FACADE_OWNERS,
+    MISSINGNESS_FACADE_OWNERS,
+    NORMALIZATION_FACADE_OWNERS,
     ROLLUP_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
@@ -84,6 +86,18 @@ def test_quantification_matrix_and_rollup_ledgers_match_runtime_exports() -> Non
 
     assert tuple(matrix.__all__) == expected_matrix
     assert tuple(rollup.__all__) == expected_rollup
+
+
+def test_quantification_normalization_and_missingness_ledgers_match_runtime_exports() -> None:
+    expected_missingness, _ = build_lazy_export_index(
+        facade_owner_modules(MISSINGNESS_FACADE_OWNERS)
+    )
+    expected_normalization, _ = build_lazy_export_index(
+        facade_owner_modules(NORMALIZATION_FACADE_OWNERS)
+    )
+
+    assert tuple(missingness.__all__) == expected_missingness
+    assert tuple(normalization.__all__) == expected_normalization
 
 
 def test_quantification_root_wrappers_stay_compatibility_only() -> None:

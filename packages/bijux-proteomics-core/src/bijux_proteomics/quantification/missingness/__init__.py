@@ -5,21 +5,24 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
 
-_MISSINGNESS_EXPORT_MODULES = (
-    "bijux_proteomics.quantification.missingness.missingness",
-    "bijux_proteomics.quantification.missingness.peptide_profile_inconsistency",
-    "bijux_proteomics.quantification.missingness.readiness",
+from bijux_proteomics.quantification.public_api import (
+    MISSINGNESS_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    module_directory,
+)
+
+__all__, _MISSINGNESS_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(MISSINGNESS_FACADE_OWNERS)
 )
 
 
 def __getattr__(name: str) -> Any:
-    for module_path in _MISSINGNESS_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return load_public_export(__name__, globals(), _MISSINGNESS_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)
