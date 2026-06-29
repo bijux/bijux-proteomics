@@ -66,6 +66,7 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_source_row_lineage_contract.py",
         "test_study_package_surface.py",
         "test_targeted_package_surface.py",
+        "test_targeted_public_api_contract.py",
         "test_test_tree_layout.py",
         "test_workflow_output_schema_contract.py",
         "test_workflow_package_surface.py",

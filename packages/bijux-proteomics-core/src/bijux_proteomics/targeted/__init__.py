@@ -5,33 +5,22 @@
 
 from __future__ import annotations
 
-from importlib import import_module
-from typing import Any
+from .public_api import (
+    TARGETED_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    module_directory,
+)
 
-_TARGETED_EXPORT_MODULES = (
-    "bijux_proteomics.targeted.assay_interference",
-    "bijux_proteomics.targeted.assay_qc",
-    "bijux_proteomics.targeted.biomarker_stability",
-    "bijux_proteomics.targeted.carryover",
-    "bijux_proteomics.targeted.discovery_peptide_selection",
-    "bijux_proteomics.targeted.fragment_ratios",
-    "bijux_proteomics.targeted.panel_design",
-    "bijux_proteomics.targeted.panel_redundancy",
-    "bijux_proteomics.targeted.result_validation",
-    "bijux_proteomics.targeted.result_import",
-    "bijux_proteomics.targeted.target_matrix",
-    "bijux_proteomics.targeted.transition_coelution",
-    "bijux_proteomics.targeted.transition_selection",
-    "bijux_proteomics.targeted.validation_evidence_cards",
-    "bijux_proteomics.targeted.validation_planning",
+__all__, _TARGETED_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(TARGETED_FACADE_OWNERS)
 )
 
 
-def __getattr__(name: str) -> Any:
-    for module_path in _TARGETED_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+def __getattr__(name: str) -> object:
+    return load_public_export(__name__, globals(), _TARGETED_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)
