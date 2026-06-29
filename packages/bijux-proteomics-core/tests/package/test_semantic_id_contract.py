@@ -39,7 +39,7 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         (),
     ),
     (
-        "interfaces/support/biomarker_candidate_support/__init__.py",
+        "interfaces/support/biomarker_candidate_support/ptm_candidates.py",
         ("build_site_id",),
         (),
     ),
