@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification.rollup.protein_lfq import solving as _solving
-from bijux_proteomics.quantification.rollup.protein_lfq.analysis import (
+from bijux_proteomics.quantification.rollup.protein_lfq.builders import (
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_peptides,
     build_protein_lfq_report_from_psms,

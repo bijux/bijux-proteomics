@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""MaxLFQ-like protein quantification over peptide-intensity evidence."""
+"""Top-level report builders for protein LFQ packages."""
 
 from __future__ import annotations
 
@@ -241,3 +241,10 @@ def build_protein_lfq_report_from_psms(
         unique_only=unique_only,
         minimum_shared_peptides=minimum_shared_peptides,
     )
+
+
+__all__ = [
+    "build_protein_lfq_report_from_features",
+    "build_protein_lfq_report_from_peptides",
+    "build_protein_lfq_report_from_psms",
+]
