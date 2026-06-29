@@ -7,10 +7,6 @@ from __future__ import annotations
 
 from .analysis import (
     build_biomarker_stability_report,
-    render_biomarker_stability_candidate_tsv,
-    render_biomarker_stability_subgroup_tsv,
-    render_biomarker_stability_summary_tsv,
-    render_biomarker_stability_tsv,
 )
 from .models import (
     BiomarkerStabilityDimension,
@@ -21,6 +17,12 @@ from .models import (
     BiomarkerStabilitySummary,
     BiomarkerSubgroupBehaviorEntry,
     BiomarkerSubgroupBehaviorStatus,
+)
+from .renderers import (
+    render_biomarker_stability_candidate_tsv,
+    render_biomarker_stability_subgroup_tsv,
+    render_biomarker_stability_summary_tsv,
+    render_biomarker_stability_tsv,
 )
 
 __all__ = [
