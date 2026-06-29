@@ -41,10 +41,12 @@ from bijux_proteomics.interfaces.support.output_protocol import (
     _write_text_output,
 )
 from bijux_proteomics.interfaces.support.sequence_support import _load_fasta_report
-from bijux_proteomics.interfaces.support.targeted_selection_io import (
+from bijux_proteomics.interfaces.support.targeted_selection_io.protein_support import (
     _load_assay_interference_support_by_protein,
-    _load_peptide_evidence_entries,
     _load_selected_peptide_support_by_protein,
+)
+from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables import (
+    _load_peptide_evidence_entries,
     _load_selected_targeted_peptides,
     _load_selected_targeted_transitions,
     _load_targeted_selection_targets,

@@ -33,7 +33,9 @@ from bijux_proteomics.interfaces.support.output_protocol import (
     _write_text_output,
 )
 from bijux_proteomics.interfaces.support.sequence_support import _default_psm_mapping
-from bijux_proteomics.interfaces.support.targeted_selection_io import _load_similarity_spectra
+from bijux_proteomics.interfaces.support.targeted_selection_io.spectrum_similarity import (
+    _load_similarity_spectra,
+)
 
 
 def run_spectrum_annotate_command(

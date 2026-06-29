@@ -35,7 +35,9 @@ from bijux_proteomics.interfaces.support.sequence_support import (
     _load_fasta_report,
     _resolve_cli_protease_rule,
 )
-from bijux_proteomics.interfaces.support.targeted_selection_io import _load_protein_group_map
+from bijux_proteomics.interfaces.support.targeted_selection_io.protein_support import (
+    _load_protein_group_map,
+)
 
 
 def run_peptide_index_command(

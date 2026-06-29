@@ -16,7 +16,7 @@ from bijux_proteomics.targeted.result_validation import (
     TargetedValidationDiscoveryClaimInput,
 )
 
-from ..targeted_selection_io import _split_semicolon_field
+from ..targeted_selection_io.field_parsing import _split_semicolon_field
 
 
 def _load_targeted_validation_discovery_claims(

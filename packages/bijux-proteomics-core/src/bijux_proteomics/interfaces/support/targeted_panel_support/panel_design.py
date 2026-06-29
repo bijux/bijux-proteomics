@@ -26,7 +26,10 @@ from bijux_proteomics.targeted.panel_design import (
     TargetedPanelTransitionInput,
 )
 
-from ..targeted_selection_io import _parse_cli_bool, _split_semicolon_field
+from ..targeted_selection_io.field_parsing import (
+    _parse_cli_bool,
+    _split_semicolon_field,
+)
 
 
 def _load_targeted_panel_selected_peptides(

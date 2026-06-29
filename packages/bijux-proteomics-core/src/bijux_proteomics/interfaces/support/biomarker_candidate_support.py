@@ -14,12 +14,8 @@ from bijux_proteomics.io.tables import (
 )
 
 from .imports import *  # noqa: F401,F403
-from .targeted_selection_io import (
-    _parse_cli_bool,
-    _read_summary_field_map,
-    _require_report_artifact,
-    _split_semicolon_field,
-)
+from .targeted_selection_io.field_parsing import _parse_cli_bool, _split_semicolon_field
+from .targeted_selection_io.report_artifacts import _read_summary_field_map, _require_report_artifact
 
 
 def _build_biomarker_candidates_from_biological_report_dir(

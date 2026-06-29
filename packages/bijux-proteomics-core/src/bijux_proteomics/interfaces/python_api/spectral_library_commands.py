@@ -28,7 +28,7 @@ from bijux_proteomics.interfaces.support.output_protocol import (
     _emit_json,
     _write_text_output,
 )
-from bijux_proteomics.interfaces.support.targeted_selection_io import (
+from bijux_proteomics.interfaces.support.targeted_selection_io.spectrum_similarity import (
     _load_similarity_spectra,
     _select_similarity_spectrum,
 )
