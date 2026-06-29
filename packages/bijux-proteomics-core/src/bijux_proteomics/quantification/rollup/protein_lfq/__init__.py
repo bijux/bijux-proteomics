@@ -10,12 +10,6 @@ from bijux_proteomics.quantification.rollup.protein_lfq.analysis import (
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_peptides,
     build_protein_lfq_report_from_psms,
-    render_protein_lfq_disconnected_components_tsv,
-    render_protein_lfq_matrix_tsv,
-    render_protein_lfq_missingness_mask_tsv,
-    render_protein_lfq_missingness_tsv,
-    render_protein_lfq_pairwise_ratios_tsv,
-    render_protein_lfq_summary_tsv,
 )
 from bijux_proteomics.quantification.rollup.protein_lfq.models import (
     ProteinLfqDisconnectedComponentEntry,
@@ -24,6 +18,14 @@ from bijux_proteomics.quantification.rollup.protein_lfq.models import (
     ProteinLfqRow,
     ProteinLfqSummary,
     ProteinLfqValue,
+)
+from bijux_proteomics.quantification.rollup.protein_lfq.rendering import (
+    render_protein_lfq_disconnected_components_tsv,
+    render_protein_lfq_matrix_tsv,
+    render_protein_lfq_missingness_mask_tsv,
+    render_protein_lfq_missingness_tsv,
+    render_protein_lfq_pairwise_ratios_tsv,
+    render_protein_lfq_summary_tsv,
 )
 
 _build_pairwise_ratio_rows_pure = _analysis._build_pairwise_ratio_rows_pure
