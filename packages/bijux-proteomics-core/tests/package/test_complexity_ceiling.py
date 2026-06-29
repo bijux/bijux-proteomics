@@ -235,11 +235,6 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     ),
     _exception("study/design/experiment_design.py", "build_experiment_design", 27),
     _exception(
-        "targeted/assay_interference/analysis.py",
-        "build_targeted_assay_interference_report",
-        30,
-    ),
-    _exception(
         "targeted/assay_qc/analysis.py",
         "build_targeted_assay_qc_report",
         84,
