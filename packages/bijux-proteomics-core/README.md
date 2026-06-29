@@ -152,6 +152,19 @@ The identification layer is split on purpose as well:
   `identification.protein.protein_grouping` instead of reaching through the
   broad compatibility facades when one bounded concern is enough
 
+The labeled differential workflow surface is split on purpose too:
+
+- `bijux_proteomics.workflow.label_based_differential_analysis` remains the
+  stable reader-facing import path
+- `bijux_proteomics.workflow.pipelines.label_based_differential` is the
+  canonical owner package for the public workflow surface
+- that owner package is grouped by scientific responsibility:
+  `analysis`, `inputs`, `models`, `normalization`, `rendering`, and
+  `statistics`
+- internal workflow code should import the narrow owner modules it needs
+  instead of growing the compatibility facades back into mixed 1,000-line
+  owners
+
 Sequence intake and FASTA operations now live in the same package surface:
 
 ```bash

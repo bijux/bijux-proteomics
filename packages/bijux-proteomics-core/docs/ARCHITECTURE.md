@@ -48,6 +48,8 @@ runtime-agnostic workflow seams.
 - `workflow/__init__.py` is the governed root facade for stable package-level workflow imports
 - `workflow/public_api.py` is the workflow owner ledger; add or remove root exports there instead of extending scan-based import logic
 - `workflow/reports/`, `workflow/cards/`, `workflow/exports/`, `workflow/demo/`, and `workflow/pipelines/` are the owned subfacades and should carry new public workflow surfaces before the root facade widens
+- `workflow/pipelines/label_based_differential/` is the canonical owner package for labeled differential analysis; keep orchestration in `analysis.py`, source assembly in `inputs.py`, data contracts in `models.py`, normalization in `normalization.py`, tabular output in `rendering.py`, and quantitative methods in `statistics.py`
+- `workflow/pipelines/label_based_differential_analysis.py` is a compatibility facade only and should stay a thin re-export over the owned package
 - root-level modules under `workflow/` that simply preserve historic import paths are compatibility wrappers, not new ownership targets
 - when a symbol can be owned by a deeper scientific module, prefer that canonical owner and keep the root facade as an explicit re-export boundary rather than a second source of truth
 
