@@ -5,12 +5,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.identification import fdr, peptide, protein, psm
+from bijux_proteomics.identification import adapters, contracts, fdr, peptide, protein, psm
 from bijux_proteomics.identification.public_api import (
+    ADAPTERS_FACADE_BUDGET,
+    CONTRACTS_FACADE_BUDGET,
     FDR_FACADE_BUDGET,
     PEPTIDE_FACADE_BUDGET,
     PROTEIN_FACADE_BUDGET,
     PSM_FACADE_BUDGET,
+    list_identification_adapter_api_modules,
+    list_identification_contract_api_modules,
     flatten_facade_exports,
     list_identification_fdr_api_modules,
     list_identification_peptide_api_modules,
@@ -69,3 +73,25 @@ def test_fdr_facade_exports_match_governed_public_api() -> None:
     assert _non_empty_line_count(
         "packages/bijux-proteomics-core/src/bijux_proteomics/identification/fdr/__init__.py"
     ) <= FDR_FACADE_BUDGET.max_init_lines
+
+
+def test_contract_facade_exports_match_governed_public_api() -> None:
+    expected = flatten_facade_exports(list_identification_contract_api_modules())
+
+    assert tuple(contracts.__all__) == expected
+    assert hasattr(contracts, "PsmRecord")
+    assert hasattr(contracts, "build_fdr_audit_trail")
+    assert _non_empty_line_count(
+        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contracts/__init__.py"
+    ) <= CONTRACTS_FACADE_BUDGET.max_init_lines
+
+
+def test_adapter_facade_exports_match_governed_public_api() -> None:
+    expected = flatten_facade_exports(list_identification_adapter_api_modules())
+
+    assert tuple(adapters.__all__) == expected
+    assert hasattr(adapters, "build_diann_import_report")
+    assert hasattr(adapters, "search_adapter_registry")
+    assert _non_empty_line_count(
+        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/adapters/__init__.py"
+    ) <= ADAPTERS_FACADE_BUDGET.max_init_lines
