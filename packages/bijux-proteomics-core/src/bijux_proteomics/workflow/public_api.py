@@ -187,6 +187,18 @@ PIPELINE_FACADE_OWNERS = (
         rationale="public benchmark runner ownership",
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.demo.scale_demo",
+        rationale="scale demo pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.demo.surprising_demo",
+        rationale="surprising demo pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.demo.surprising_demo_interrogation",
+        rationale="surprising demo interrogation ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.tmt_experiment_workflow",
         rationale="TMT experiment workflow ownership",
     ),
