@@ -5,11 +5,7 @@
 
 from __future__ import annotations
 
-from .analysis import (
-    build_skyline_targeted_assay_qc_report,
-    build_targeted_assay_qc_report,
-    build_transition_table_targeted_assay_qc_report,
-)
+from .analysis import build_targeted_assay_qc_report
 from .models import (
     TargetedAssayQcReport,
     TargetedAssayQcSummary,
@@ -32,6 +28,10 @@ from .rendering import (
     render_targeted_assay_qc_transition_qc_tsv,
     render_targeted_assay_qc_transition_tsv,
     render_targeted_assay_qc_unreliable_tsv,
+)
+from .sources import (
+    build_skyline_targeted_assay_qc_report,
+    build_transition_table_targeted_assay_qc_report,
 )
 
 __all__ = [

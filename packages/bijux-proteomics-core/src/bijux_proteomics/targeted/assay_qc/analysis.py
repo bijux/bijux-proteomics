@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.fragment_ratio_stability import (
     build_targeted_fragment_ratio_stability_report,
@@ -22,69 +20,17 @@ from bijux_proteomics.targeted.assay_qc.models import (
     TargetedTransitionQcEntry,
     TargetedUnreliableTargetEntry,
 )
-from bijux_proteomics.targeted.fragment_ratios import (
-    TargetedFragmentRatioMatrixEntry,
-    score_fragment_ratio_drift,
+from bijux_proteomics.targeted.assay_qc.support import (
+    coefficient_of_variation as compute_coefficient_of_variation,
+    fragment_ratio_matrix,
+    missing_target_coelution_entry,
+    missing_transition_coelution_entry,
 )
-from bijux_proteomics.targeted.result_import import (
-    TargetedResultImportReport,
-    build_skyline_result_import_report,
-    build_transition_table_result_import_report,
-)
+from bijux_proteomics.targeted.fragment_ratios import score_fragment_ratio_drift
+from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics.targeted.transition_coelution import (
-    TargetedTransitionCoelutionTargetEntry,
-    TargetedTransitionCoelutionTier,
-    TargetedTransitionCoelutionTransitionEntry,
     build_targeted_transition_coelution_report,
 )
-
-
-def _missing_target_coelution_entry(
-    *,
-    target_id: str,
-    sample_id: str,
-    expected_transition_count: int,
-) -> TargetedTransitionCoelutionTargetEntry:
-    return TargetedTransitionCoelutionTargetEntry(
-        target_id=target_id,
-        sample_id=sample_id,
-        expected_transition_count=expected_transition_count,
-        observed_transition_count=0,
-        coeluting_transition_count=0,
-        coeluting_transition_ids=(),
-        noncoeluting_transition_ids=(),
-        anchor_transition_id=None,
-        anchor_retention_time_minutes=None,
-        mean_retention_time_minutes=None,
-        reference_retention_time_minutes=None,
-        absolute_alignment_delta_minutes=None,
-        alignment_flagged=False,
-        coelution_tier=TargetedTransitionCoelutionTier.MISSING,
-        reliable_transition_support=False,
-        reliability_reasons=("target is not detected in this sample",),
-    )
-
-
-def _missing_transition_coelution_entry(
-    *,
-    target_id: str,
-    sample_id: str,
-    transition_id: str,
-) -> TargetedTransitionCoelutionTransitionEntry:
-    return TargetedTransitionCoelutionTransitionEntry(
-        target_id=target_id,
-        sample_id=sample_id,
-        transition_id=transition_id,
-        detected=False,
-        retention_time_minutes=None,
-        anchor_transition_id=None,
-        anchor_retention_time_minutes=None,
-        reference_retention_time_minutes=None,
-        coelution_delta_minutes=None,
-        reference_delta_minutes=None,
-        coeluting=False,
-        failure_reasons=("transition is not detected in this sample",),
-    )
 
 
 def build_targeted_assay_qc_report(
@@ -119,7 +65,7 @@ def build_targeted_assay_qc_report(
     fragment_ratio_drift_by_target_transition = {
         (entry.target_id, entry.transition_id): entry
         for entry in score_fragment_ratio_drift(
-            _fragment_ratio_matrix(import_report),
+            fragment_ratio_matrix(import_report),
             observed_ratio_cv_threshold=fragment_ratio_cv_threshold,
         )
     }
@@ -172,7 +118,7 @@ def build_targeted_assay_qc_report(
             }
             target_coelution_entry = target_coelution_by_target_sample.get(
                 (target_id, sample_id),
-                _missing_target_coelution_entry(
+                missing_target_coelution_entry(
                     target_id=target_id,
                     sample_id=sample_id,
                     expected_transition_count=expected_count,
@@ -269,7 +215,7 @@ def build_targeted_assay_qc_report(
                 transition_coelution_entry = (
                     transition_coelution_by_target_sample_transition.get(
                         (target_id, sample_id, transition_id),
-                        _missing_transition_coelution_entry(
+                        missing_transition_coelution_entry(
                             target_id=target_id,
                             sample_id=sample_id,
                             transition_id=transition_id,
@@ -517,7 +463,9 @@ def build_targeted_assay_qc_report(
                 if replicate_intensities
                 else None
             )
-            coefficient_of_variation = _coefficient_of_variation(replicate_intensities)
+            coefficient_of_variation = compute_coefficient_of_variation(
+                replicate_intensities
+            )
             flagged = (
                 coefficient_of_variation is not None
                 and coefficient_of_variation > high_replicate_cv_threshold
@@ -659,55 +607,4 @@ def build_targeted_assay_qc_report(
         note=(
             "targeted assay qc keeps target-level reliability, transition-level pass-fail evidence, transition consistency, transition coelution, fragment-ion ratio stability, retention-time consistency, replicate cv, and explicit unreliable-target review visible before any sample or target is trusted"
         ),
-    )
-
-
-def build_skyline_targeted_assay_qc_report(path: Path) -> TargetedAssayQcReport:
-    """Build targeted assay QC directly from one Skyline-style export."""
-
-    return build_targeted_assay_qc_report(build_skyline_result_import_report(path))
-
-
-def build_transition_table_targeted_assay_qc_report(
-    path: Path,
-) -> TargetedAssayQcReport:
-    """Build targeted assay QC directly from one exported transition table."""
-
-    return build_targeted_assay_qc_report(
-        build_transition_table_result_import_report(path)
-    )
-
-
-def _median(values: list[float]) -> float | None:
-    if not values:
-        return None
-    ordered = sorted(values)
-    midpoint = len(ordered) // 2
-    if len(ordered) % 2 == 1:
-        return ordered[midpoint]
-    return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
-
-
-def _coefficient_of_variation(values: list[float]) -> float | None:
-    if len(values) < 2:
-        return None
-    mean_value = sum(values) / len(values)
-    if mean_value <= 0.0:
-        return None
-    squared_distance_sum = sum((value - mean_value) ** 2 for value in values)
-    variance = squared_distance_sum / (len(values) - 1)
-    return float(variance**0.5 / mean_value)
-
-
-def _fragment_ratio_matrix(
-    import_report: TargetedResultImportReport,
-) -> tuple[TargetedFragmentRatioMatrixEntry, ...]:
-    return tuple(
-        TargetedFragmentRatioMatrixEntry(
-            target_id=observation.precursor_id,
-            sample_id=observation.sample_id,
-            transition_id=observation.transition_id,
-            intensity=observation.intensity,
-        )
-        for observation in import_report.observations
     )
