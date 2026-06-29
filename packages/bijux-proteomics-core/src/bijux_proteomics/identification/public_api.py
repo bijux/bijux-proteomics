@@ -2,35 +2,23 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True)
-class IdentificationFacadeBudget:
-    """Budget for one durable identification facade."""
-
-    max_public_symbols: int
-    max_init_lines: int
-
-
-@dataclass(frozen=True)
-class IdentificationFacadeModule:
-    """One owner module grouped under an identification facade."""
-
-    owner_module: str
-    export_names: tuple[str, ...]
-    classification: str
-    rationale: str
-
-
-PSM_FACADE_BUDGET = IdentificationFacadeBudget(
-    max_public_symbols=60,
-    max_init_lines=70,
+from bijux_proteomics.identification.facade_ledger.models import (
+    IdentificationFacadeBudget,
+    IdentificationFacadeModule,
+    build_facade_export_map,
+    build_facade_module as _module,
+    flatten_facade_exports,
+    merge_facade_export_maps,
 )
-PEPTIDE_FACADE_BUDGET = IdentificationFacadeBudget(
-    max_public_symbols=35,
-    max_init_lines=60,
+from bijux_proteomics.identification.facade_ledger.peptide import (
+    PEPTIDE_FACADE_BUDGET,
+    list_identification_peptide_api_modules,
 )
+from bijux_proteomics.identification.facade_ledger.psm import (
+    PSM_FACADE_BUDGET,
+    list_identification_psm_api_modules,
+)
+
 PROTEIN_FACADE_BUDGET = IdentificationFacadeBudget(
     max_public_symbols=90,
     max_init_lines=80,
@@ -65,236 +53,6 @@ IDENTIFICATION_ROOT_FACADE_ORDER = (
     "protein",
     "psm",
 )
-
-
-def _module(
-    owner_module: str,
-    classification: str,
-    rationale: str,
-    export_names: tuple[str, ...],
-) -> IdentificationFacadeModule:
-    return IdentificationFacadeModule(
-        owner_module=owner_module,
-        export_names=export_names,
-        classification=classification,
-        rationale=rationale,
-    )
-
-
-def flatten_facade_exports(
-    modules: tuple[IdentificationFacadeModule, ...],
-) -> tuple[str, ...]:
-    """Return the flattened export names for a facade module tuple."""
-
-    return tuple(
-        export_name
-        for module in modules
-        for export_name in module.export_names
-    )
-
-
-def build_facade_export_map(
-    modules: tuple[IdentificationFacadeModule, ...],
-) -> dict[str, str]:
-    """Return the export-name to owner-module map for a facade module tuple."""
-
-    return {
-        export_name: module.owner_module
-        for module in modules
-        for export_name in module.export_names
-    }
-
-
-def merge_facade_export_maps(*export_owner_maps: dict[str, str]) -> dict[str, str]:
-    """Merge facade export maps while preserving first-owner precedence."""
-
-    merged: dict[str, str] = {}
-    for export_owner_map in export_owner_maps:
-        for export_name, owner_module in export_owner_map.items():
-            merged.setdefault(export_name, owner_module)
-    return merged
-
-
-def list_identification_psm_api_modules() -> tuple[IdentificationFacadeModule, ...]:
-    """Return the supported PSM owner-facade modules."""
-
-    return (
-        _module(
-            "bijux_proteomics.identification.psm.contaminant_audit",
-            "psm_audit_owner",
-            "PSM contaminant audit and strategy-shift owner surface.",
-            (
-                "ContaminantStrategyShift",
-                "ContaminantAwareProteinInferenceAudit",
-                "ContaminantPeptideMatchReport",
-                "build_contaminant_aware_protein_inference_audit",
-                "build_contaminant_peptide_match_report",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.contaminant_evidence",
-            "psm_evidence_owner",
-            "PSM contaminant evidence and burden rendering owner surface.",
-            (
-                "ContaminantBurdenEntry",
-                "ContaminantEvidenceReport",
-                "ContaminantEvidenceSummary",
-                "ContaminantSeparatedPeptideEntry",
-                "ContaminantSeparatedProteinEntry",
-                "ContaminantSeparatedPsmEntry",
-                "build_contaminant_evidence_report",
-                "render_contaminant_burden_tsv",
-                "render_contaminant_proteins_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.generic_psm_mapper",
-            "psm_mapping_owner",
-            "Generic external PSM table mapping owner surface.",
-            (
-                "GenericPsmTableColumnMapping",
-                "GenericMappedPsmRow",
-                "GenericPsmMapperSummary",
-                "GenericPsmMapperReport",
-                "load_generic_psm_table_mapping",
-                "build_generic_psm_mapper_report",
-                "render_generic_psm_mapper_tsv",
-                "render_generic_psm_rejected_row_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.psm_features",
-            "psm_feature_owner",
-            "PSM feature extraction owner surface.",
-            (
-                "PsmFeatureRow",
-                "extract_psm_features",
-                "render_psm_feature_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.psm_inspection",
-            "psm_inspection_owner",
-            "PSM evidence inspection and distribution owner surface.",
-            (
-                "PsmInspectionDistributionEntry",
-                "PsmEvidenceInspectionReport",
-                "build_psm_evidence_inspection_report",
-                "render_psm_evidence_inspection_summary_tsv",
-                "render_psm_inspection_distribution_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.psm_rescoring",
-            "psm_rescoring_owner",
-            "PSM rescoring model and explanation owner surface.",
-            (
-                "PsmRescoringFeatureParameter",
-                "PsmRescoringModel",
-                "PsmRescoringEntry",
-                "PsmRescoringExplanationEntry",
-                "PsmRescoringSummary",
-                "PsmRescoringReport",
-                "fit_target_decoy_logistic_model",
-                "explain_rescored_psm",
-                "render_psm_rescoring_tsv",
-                "render_psm_rescoring_explanation_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.rejected_evidence_table",
-            "psm_refusal_owner",
-            "Rejected evidence table owner surface for parsed PSM rows.",
-            (
-                "RejectedEvidenceTableEntry",
-                "build_rejected_evidence_rows_from_psm_rows",
-                "build_rejected_evidence_rows_from_scientific_rows",
-                "render_rejected_evidence_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.psm.score_separation_diagnostic",
-            "psm_diagnostic_owner",
-            "Score separation diagnostic owner surface for PSM evidence.",
-            (
-                "ScoreSeparationBin",
-                "ScoreSeparationDiagnosticPolicy",
-                "ScoreSeparationDiagnosticReport",
-                "ScoreSeparationDiagnosticSummary",
-                "ScoreSeparationWarningTier",
-                "build_score_separation_diagnostic_report",
-                "render_score_separation_bins_tsv",
-                "render_score_separation_summary_tsv",
-            ),
-        ),
-    )
-
-
-def list_identification_peptide_api_modules() -> tuple[IdentificationFacadeModule, ...]:
-    """Return the supported peptide owner-facade modules."""
-
-    return (
-        _module(
-            "bijux_proteomics.identification.peptide.cross_run_reproducibility",
-            "peptide_reproducibility_owner",
-            "Cross-run reproducibility owner for peptide and protein evidence.",
-            (
-                "CrossRunEntityType",
-                "CrossRunReproducibilityClass",
-                "CrossRunReproducibilityEntry",
-                "CrossRunReproducibilityReport",
-                "CrossRunReproducibilitySummary",
-                "RunDetectionContext",
-                "build_peptide_cross_run_reproducibility_report",
-                "build_protein_cross_run_reproducibility_report",
-                "render_cross_run_reproducibility_entries_tsv",
-                "render_cross_run_reproducibility_summary_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.peptide.error_rate_annotation",
-            "peptide_annotation_owner",
-            "Error-rate annotation owner for PSM-derived peptide evidence.",
-            (
-                "ErrorRateProvenanceFlag",
-                "PsmErrorRateAnnotationEntry",
-                "PsmErrorRateAnnotationPolicy",
-                "PsmErrorRateAnnotationReport",
-                "PsmErrorRateAnnotationSummary",
-                "annotate_psm_error_rates",
-                "build_psm_error_rate_annotation_report",
-                "render_psm_error_rate_annotation_summary_tsv",
-                "render_psm_error_rate_annotation_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.peptide.peptide_evidence",
-            "peptide_evidence_owner",
-            "Peptide evidence owner surface.",
-            (
-                "PeptideEvidenceClass",
-                "PeptideEvidenceEntry",
-                "PeptideEvidenceReport",
-                "PeptideEvidenceSummary",
-                "PeptideEvidenceTag",
-                "build_peptide_evidence_report",
-                "render_peptide_evidence_entries_tsv",
-                "render_peptide_evidence_summary_tsv",
-            ),
-        ),
-        _module(
-            "bijux_proteomics.identification.peptide.peptide_evidence_review",
-            "peptide_review_owner",
-            "Peptide evidence review owner surface.",
-            (
-                "PeptideEvidencePrimaryClass",
-                "PeptideEvidenceReviewEntry",
-                "PeptideEvidenceReviewReport",
-                "PeptideEvidenceReviewSummary",
-                "build_peptide_evidence_review_report",
-            ),
-        ),
-    )
 
 
 def list_identification_protein_api_modules() -> tuple[IdentificationFacadeModule, ...]:
