@@ -34,7 +34,7 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         ("protein-claim:", "pathway-claim:", "regulator-claim:"),
     ),
     (
-        "interfaces/support/biomarker_candidate_support.py",
+        "interfaces/support/biomarker_candidate_support/__init__.py",
         ("build_protein_id", "build_site_id"),
         (),
     ),
