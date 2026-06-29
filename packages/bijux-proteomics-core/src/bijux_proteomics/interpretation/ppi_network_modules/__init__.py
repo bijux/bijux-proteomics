@@ -8,12 +8,6 @@ from __future__ import annotations
 from .analysis import (
     build_ppi_network_module_report,
     parse_ppi_edge_table,
-    render_ppi_isolated_protein_tsv,
-    render_ppi_module_enrichment_tsv,
-    render_ppi_module_tsv,
-    render_ppi_network_edge_tsv,
-    render_ppi_network_module_summary_tsv,
-    render_rejected_ppi_edge_tsv,
 )
 from .models import (
     PpiEdgeColumnMapping,
@@ -27,6 +21,14 @@ from .models import (
     PpiNetworkModuleSummary,
     PpiSubnetworkEdgeEntry,
     RejectedPpiEdgeRow,
+)
+from .rendering import (
+    render_ppi_isolated_protein_tsv,
+    render_ppi_module_enrichment_tsv,
+    render_ppi_module_tsv,
+    render_ppi_network_edge_tsv,
+    render_ppi_network_module_summary_tsv,
+    render_rejected_ppi_edge_tsv,
 )
 
 __all__ = [
