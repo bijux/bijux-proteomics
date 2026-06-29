@@ -515,6 +515,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interpretation/protein_set_enrichment.py",
             "interpretation/protein_set_scoring/__init__.py",
             "interpretation/protein_set_scoring/analysis.py",
+            "interpretation/protein_set_scoring/models.py",
             "interpretation/ppi_network_modules.py",
             "interpretation/regulator_inference/__init__.py",
             "interpretation/regulator_inference/_table_io.py",
