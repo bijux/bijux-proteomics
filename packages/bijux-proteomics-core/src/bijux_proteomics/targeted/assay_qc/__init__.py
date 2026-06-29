@@ -6,15 +6,6 @@
 from __future__ import annotations
 
 from .analysis import (
-    TargetedAssayQcReport,
-    TargetedAssayQcSummary,
-    TargetedFragmentRatioEntry,
-    TargetedReplicateCvEntry,
-    TargetedRetentionTimeConsistencyEntry,
-    TargetedTargetQcEntry,
-    TargetedTransitionConsistencyEntry,
-    TargetedTransitionQcEntry,
-    TargetedUnreliableTargetEntry,
     build_skyline_targeted_assay_qc_report,
     build_targeted_assay_qc_report,
     build_transition_table_targeted_assay_qc_report,
@@ -28,6 +19,17 @@ from .analysis import (
     render_targeted_assay_qc_transition_qc_tsv,
     render_targeted_assay_qc_transition_tsv,
     render_targeted_assay_qc_unreliable_tsv,
+)
+from .models import (
+    TargetedAssayQcReport,
+    TargetedAssayQcSummary,
+    TargetedFragmentRatioEntry,
+    TargetedReplicateCvEntry,
+    TargetedRetentionTimeConsistencyEntry,
+    TargetedTargetQcEntry,
+    TargetedTransitionConsistencyEntry,
+    TargetedTransitionQcEntry,
+    TargetedUnreliableTargetEntry,
 )
 
 __all__ = [
