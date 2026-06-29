@@ -9,13 +9,6 @@ from bijux_proteomics.domain import ConfidenceTier
 
 from .analysis import (
     build_pathway_activity_report,
-    render_pathway_activity_condition_comparison_tsv,
-    render_pathway_activity_condition_score_tsv,
-    render_pathway_activity_matrix_tsv,
-    render_pathway_activity_sample_score_tsv,
-    render_pathway_activity_summary_tsv,
-    render_pathway_activity_unresolved_member_tsv,
-    render_pathway_member_contribution_tsv,
 )
 from .models import (
     PathwayActivityPolicy,
@@ -26,6 +19,15 @@ from .models import (
     PathwayMemberContributionEntry,
     PathwaySampleScoreEntry,
     UnresolvedPathwayActivityMemberEntry,
+)
+from .rendering import (
+    render_pathway_activity_condition_comparison_tsv,
+    render_pathway_activity_condition_score_tsv,
+    render_pathway_activity_matrix_tsv,
+    render_pathway_activity_sample_score_tsv,
+    render_pathway_activity_summary_tsv,
+    render_pathway_activity_unresolved_member_tsv,
+    render_pathway_member_contribution_tsv,
 )
 
 PathwayActivityConfidenceStatus = ConfidenceTier
