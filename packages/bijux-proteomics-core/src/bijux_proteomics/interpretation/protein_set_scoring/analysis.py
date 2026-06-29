@@ -6,16 +6,17 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable
 import csv
 from io import StringIO
 import json
 import math
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 
+from bijux_proteomics.interpretation.protein_set_scoring.definition_import import (
+    parse_protein_set_table,
+)
 from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
     _matrix_value_index,
@@ -23,164 +24,19 @@ from bijux_proteomics.quantification.contracts.matrix_building import (
 from bijux_proteomics.quantification.contracts.input_models import QuantEntityLevel
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.interpretation.protein_set_scoring.models import (
-    ProteinSetColumnMapping,
     ProteinSetConditionComparisonEntry,
     ProteinSetConditionScoreEntry,
     ProteinSetScoreConfidenceStatus,
     ProteinSetImportReport,
-    ProteinSetImportSummary,
-    ProteinSetRecord,
     ProteinSetSampleScoreEntry,
     ProteinSetScoringPolicy,
     ProteinSetScoringReport,
     ProteinSetScoringSummary,
-    RejectedProteinSetRow,
     UnresolvedProteinSetMemberEntry,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
 
 if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
-
-
-def parse_protein_set_table(
-    path: Path,
-    *,
-    mapping: ProteinSetColumnMapping | None = None,
-) -> ProteinSetImportReport:
-    """Parse one protein-set definition table into owned normalized memberships."""
-
-    lines = _read_delimited_lines(path)
-    active_mapping = mapping or ProteinSetColumnMapping(
-        set_id="set_id",
-        protein_ref="protein_ref",
-        set_name="set_name",
-        set_category="set_category",
-        source_name="source_name",
-        source_accession="source_accession",
-    )
-    if not lines:
-        return ProteinSetImportReport(
-            source_path=str(path),
-            total_rows=0,
-            accepted_records=(),
-            rejected_rows=(
-                RejectedProteinSetRow(
-                    row_number=2,
-                    reason="protein set table is empty",
-                ),
-            ),
-            column_mapping=active_mapping,
-            summary=ProteinSetImportSummary(
-                accepted_record_count=0,
-                rejected_row_count=1,
-                distinct_set_count=0,
-                distinct_member_count=0,
-                source_counts={},
-            ),
-            note="protein set table did not contain any readable rows",
-        )
-
-    reader = csv.DictReader(lines, delimiter=_infer_delimiter(lines[0]))
-    if reader.fieldnames is None:
-        raise ValueError("protein set table must include a header row")
-    _validate_required_columns(
-        reader.fieldnames,
-        (active_mapping.set_id, active_mapping.protein_ref),
-    )
-
-    accepted_records: list[ProteinSetRecord] = []
-    rejected_rows: list[RejectedProteinSetRow] = []
-    seen_memberships: set[tuple[str, str]] = set()
-    for row_number, raw_row in enumerate(reader, start=2):
-        values = _normalize_row(raw_row)
-        set_id = values.get(active_mapping.set_id, "").strip()
-        protein_token = values.get(active_mapping.protein_ref, "").strip()
-        if not set_id:
-            rejected_rows.append(
-                RejectedProteinSetRow(
-                    row_number=row_number,
-                    values=values,
-                    reason="protein set row requires set_id",
-                )
-            )
-            continue
-        if not protein_token:
-            rejected_rows.append(
-                RejectedProteinSetRow(
-                    row_number=row_number,
-                    values=values,
-                    reason="protein set row requires protein_ref",
-                )
-            )
-            continue
-        protein_ref = canonicalize_protein_reference(protein_token)
-        membership_key = (set_id, protein_ref)
-        if membership_key in seen_memberships:
-            rejected_rows.append(
-                RejectedProteinSetRow(
-                    row_number=row_number,
-                    values=values,
-                    reason=(
-                        f"duplicate protein set membership for {set_id} and protein {protein_ref}"
-                    ),
-                )
-            )
-            continue
-        seen_memberships.add(membership_key)
-        accepted_records.append(
-            ProteinSetRecord(
-                set_id=set_id,
-                protein_ref=protein_ref,
-                set_name=_optional_value(values, active_mapping.set_name),
-                set_category=_optional_value(values, active_mapping.set_category),
-                source_name=_optional_value(values, active_mapping.source_name),
-                source_accession=_optional_value(
-                    values, active_mapping.source_accession
-                ),
-                metadata={
-                    key: value
-                    for key, value in values.items()
-                    if key
-                    not in {
-                        active_mapping.set_id,
-                        active_mapping.protein_ref,
-                        active_mapping.set_name,
-                        active_mapping.set_category,
-                        active_mapping.source_name,
-                        active_mapping.source_accession,
-                    }
-                    and value
-                },
-            )
-        )
-
-    source_counts: dict[str, int] = {}
-    for record in accepted_records:
-        if record.source_name is not None:
-            source_counts[record.source_name] = (
-                source_counts.get(record.source_name, 0) + 1
-            )
-
-    return ProteinSetImportReport(
-        source_path=str(path),
-        total_rows=max(len(lines) - 1, 0),
-        accepted_records=tuple(accepted_records),
-        rejected_rows=tuple(rejected_rows),
-        column_mapping=active_mapping,
-        summary=ProteinSetImportSummary(
-            accepted_record_count=len(accepted_records),
-            rejected_row_count=len(rejected_rows),
-            distinct_set_count=len({record.set_id for record in accepted_records}),
-            distinct_member_count=len(
-                {record.protein_ref for record in accepted_records}
-            ),
-            source_counts=dict(sorted(source_counts.items())),
-        ),
-        note=(
-            "protein set definitions preserve stable set identifiers, provenance, and explicit rejected memberships"
-        ),
-    )
 
 
 def build_protein_set_scoring_report(
@@ -762,41 +618,8 @@ def _confidence_reason(
     )
 
 
-def _infer_delimiter(header_line: str) -> str:
-    return "\t" if "\t" in header_line else ","
-
-
-def _normalize_row(raw_row: dict[str | None, str | None]) -> dict[str, str]:
-    return {
-        (key or "").strip(): (value or "").strip()
-        for key, value in raw_row.items()
-        if key is not None
-    }
-
-
-def _optional_value(row: dict[str, str], field_name: str | None) -> str | None:
-    if field_name is None:
-        return None
-    value = row.get(field_name, "").strip()
-    return value or None
-
-
-def _read_delimited_lines(path: Path) -> list[str]:
-    payload = path.read_text(encoding="utf-8")
-    return payload.splitlines()
-
-
 def _metadata_json(values: dict[str, str]) -> str:
     return json.dumps(values, sort_keys=True)
-
-
-def _validate_required_columns(
-    fieldnames: Iterable[str], required_columns: tuple[str, ...]
-) -> None:
-    available = {field.strip() for field in fieldnames}
-    missing = [column for column in required_columns if column not in available]
-    if missing:
-        raise ValueError("missing required columns: " + ", ".join(sorted(missing)))
 
 
 __all__ = [
