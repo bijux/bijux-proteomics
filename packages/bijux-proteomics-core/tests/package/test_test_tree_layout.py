@@ -62,6 +62,7 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_search_adapter_package_surface.py",
         "test_semantic_id_contract.py",
         "test_sequences_package_surface.py",
+        "test_sequences_public_api_contract.py",
         "test_source_row_lineage_contract.py",
         "test_study_package_surface.py",
         "test_targeted_package_surface.py",

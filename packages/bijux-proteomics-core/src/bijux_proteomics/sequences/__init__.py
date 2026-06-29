@@ -5,16 +5,25 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.sequences.contaminant_database import *  # noqa: F401,F403
-from bijux_proteomics.sequences.core import *  # noqa: F401,F403
-from bijux_proteomics.sequences.digestion import *  # noqa: F401,F403
-from bijux_proteomics.sequences.fasta_profile import *  # noqa: F401,F403
-from bijux_proteomics.sequences.peptide_chemical_liability import *  # noqa: F401,F403
-from bijux_proteomics.sequences.peptide_detectability import *  # noqa: F401,F403
-from bijux_proteomics.sequences.peptide_properties import *  # noqa: F401,F403
-from bijux_proteomics.sequences.peptide_uniqueness_index import *  # noqa: F401,F403
-from bijux_proteomics.sequences.protein_identity_resolution import *  # noqa: F401,F403
-from bijux_proteomics.sequences.protein_index import *  # noqa: F401,F403
-from bijux_proteomics.sequences.protein_region_context import *  # noqa: F401,F403
-from bijux_proteomics.sequences.proteogenomic_peptide_support import *  # noqa: F401,F403
-from bijux_proteomics.sequences.theoretical_digest import *  # noqa: F401,F403
+from typing import Any
+
+from bijux_proteomics.sequences.public_api import (
+    SEQUENCES_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    load_public_export,
+    module_directory,
+)
+
+__all__, _SEQUENCE_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(SEQUENCES_FACADE_OWNERS),
+    collision_policy="prefer_first_owner",
+)
+
+
+def __getattr__(name: str) -> Any:
+    return load_public_export(__name__, globals(), _SEQUENCE_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)
