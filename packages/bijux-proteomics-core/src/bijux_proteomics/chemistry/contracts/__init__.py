@@ -5,11 +5,9 @@
 
 from __future__ import annotations
 
-import importlib
 import json
 from pathlib import Path
 import re
-from typing import Protocol, cast
 
 from bijux_proteomics.chemistry.amino_acid_mass import (
     _AVERAGE_RESIDUE_MASS,
@@ -40,7 +38,7 @@ from bijux_proteomics.chemistry.contracts.models import (
     ModificationProvenance,
     ModificationRegistryDocument,
     ModificationRegistryValidationIssue as ModificationRegistryValidationIssue,
-    ModificationRegistryValidationReport,
+    ModificationRegistryValidationReport as ModificationRegistryValidationReport,
     ModificationSiteValidationIssue,
     ModificationSiteValidationReport,
     ModifiedPeptideExportRecord,
@@ -52,8 +50,16 @@ from bijux_proteomics.chemistry.contracts.models import (
     VariableModification,
     VariableModificationEnumerationEntry,
     VariableModificationEnumerationReport,
-    _BaseModification,
     _RESIDUE_TOKEN_RE,
+)
+from bijux_proteomics.chemistry.contracts.registry_access import (
+    build_modification_registry as build_modification_registry,
+    get_modification,
+    load_modification_registry as load_modification_registry,
+    modification_registry,
+    registry_lookup,
+    resolve_modification_definition,
+    validate_modification_registry as validate_modification_registry,
 )
 
 _AMMONIA_MONOISOTOPIC_MASS = 17.026549
@@ -70,60 +76,6 @@ _CARBON_MONOXIDE_MONOISOTOPIC_MASS = (
 _CARBON_MONOXIDE_AVERAGE_MASS = _CARBON_AVERAGE_MASS + _OXYGEN_AVERAGE_MASS
 _C13_NEUTRON_SHIFT = 1.0033548378
 _DELTA_TOKEN_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$")
-
-
-class _ModificationRegistryEngine(Protocol):
-    def resolve_modification_definition(
-        self,
-        *,
-        token: str | None = None,
-        controlled_id: str | None = None,
-        mass_delta_monoisotopic: float | None = None,
-        site: ModificationPosition | None = None,
-        residue: str | None = None,
-        at_protein_n_term: bool = False,
-        at_protein_c_term: bool = False,
-        registry: ModificationRegistryDocument | None = None,
-        tolerance: float = 1e-6,
-    ) -> StaticModification | VariableModification: ...
-
-    def validate_modification_registry(
-        self,
-        registry: ModificationRegistryDocument,
-    ) -> ModificationRegistryValidationReport: ...
-
-    def modification_registry(self) -> ModificationRegistryDocument: ...
-
-    def build_modification_registry(
-        self,
-        *,
-        static_modifications: tuple[StaticModification, ...] = (),
-        variable_modifications: tuple[VariableModification, ...] = (),
-    ) -> ModificationRegistryDocument: ...
-
-    def load_modification_registry(
-        self,
-        path: Path,
-    ) -> ModificationRegistryDocument: ...
-
-    def _registry_lookup(
-        self,
-        registry: ModificationRegistryDocument | None,
-    ) -> dict[str, StaticModification | VariableModification]: ...
-
-    def get_modification(
-        self,
-        name: str,
-        *,
-        registry: ModificationRegistryDocument | None = None,
-    ) -> StaticModification | VariableModification: ...
-
-
-def _modification_registry_engine() -> _ModificationRegistryEngine:
-    return cast(
-        _ModificationRegistryEngine,
-        importlib.import_module("bijux_proteomics.chemistry.modification_registry"),
-    )
 
 
 def _format_mass_delta(delta: float) -> str:
@@ -145,7 +97,7 @@ def _build_applied_modification(
     stripped_token = token.strip()
     definition = None
     if not _DELTA_TOKEN_RE.fullmatch(stripped_token):
-        definition = _modification_registry_engine().resolve_modification_definition(
+        definition = resolve_modification_definition(
             token=stripped_token,
             site=site,
             residue=sequence[site_index - 1]
@@ -202,7 +154,7 @@ def _candidate_definition_for_delta(
     registry: ModificationRegistryDocument | None,
     tolerance: float = 1e-6,
 ) -> StaticModification | VariableModification | None:
-    for definition in _registry_lookup(registry).values():
+    for definition in registry_lookup(registry).values():
         if abs(definition.mass_delta_monoisotopic - delta) > tolerance:
             continue
         if definition.position is not site:
@@ -266,91 +218,6 @@ def _validate_isotopic_label_policy(
         raise ValueError(
             f"isotopic label family {definition.isotopic_label_family!r} is not allowed by the active labeling policy"
         )
-
-
-def validate_modification_registry(
-    registry: ModificationRegistryDocument,
-) -> ModificationRegistryValidationReport:
-    return _modification_registry_engine().validate_modification_registry(
-        registry,
-    )
-
-
-def _registry_validation_signature(
-    modification: _BaseModification,
-) -> tuple[object, ...]:
-    application = (
-        "variable" if isinstance(modification, VariableModification) else "static"
-    )
-    return (
-        application,
-        modification.position,
-        modification.residues,
-        modification.mass_delta_monoisotopic,
-        modification.mass_delta_average,
-        tuple(
-            (
-                neutral_loss.name,
-                neutral_loss.monoisotopic_mass,
-                neutral_loss.average_mass,
-            )
-            for neutral_loss in modification.neutral_losses
-        ),
-        modification.isotopic_label_family,
-        modification.max_occurrences
-        if isinstance(modification, VariableModification)
-        else None,
-    )
-
-
-def _raise_on_invalid_modification_registry(
-    registry: ModificationRegistryDocument,
-) -> None:
-    report = _modification_registry_engine().validate_modification_registry(registry)
-    if report.valid:
-        return
-    messages = "; ".join(issue.message for issue in report.issues)
-    raise ValueError(f"invalid modification registry: {messages}")
-
-
-def _build_builtin_registry() -> ModificationRegistryDocument:
-    return _modification_registry_engine().modification_registry()
-
-
-_BUILTIN_REGISTRY = _build_builtin_registry()
-
-
-def build_modification_registry(
-    *,
-    static_modifications: tuple[StaticModification, ...] = (),
-    variable_modifications: tuple[VariableModification, ...] = (),
-) -> ModificationRegistryDocument:
-    return _modification_registry_engine().build_modification_registry(
-        static_modifications=static_modifications,
-        variable_modifications=variable_modifications,
-    )
-
-
-def modification_registry() -> ModificationRegistryDocument:
-    return _modification_registry_engine().modification_registry()
-
-
-def load_modification_registry(path: Path) -> ModificationRegistryDocument:
-    return _modification_registry_engine().load_modification_registry(path)
-
-
-def _registry_lookup(
-    registry: ModificationRegistryDocument | None,
-) -> dict[str, StaticModification | VariableModification]:
-    return _modification_registry_engine()._registry_lookup(registry)
-
-
-def get_modification(
-    name: str,
-    *,
-    registry: ModificationRegistryDocument | None = None,
-) -> StaticModification | VariableModification:
-    return _modification_registry_engine().get_modification(name, registry=registry)
 
 
 def _coerce_sequence(peptide: str | ParsedModifiedPeptide) -> str:
@@ -657,7 +524,7 @@ def build_modification_localization_advisory(
 ) -> ModificationLocalizationAdvisory:
     """Emit an advisory-only localization summary until scored localization exists."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
-    mapping = _registry_lookup(registry)
+    mapping = registry_lookup(registry)
     try:
         canonical_notation = canonicalize_modified_peptide(parsed, registry=registry)
     except ValueError:
