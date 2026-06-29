@@ -63,4 +63,5 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_test_tree_layout.py",
         "test_workflow_output_schema_contract.py",
         "test_workflow_package_surface.py",
+        "test_workflow_public_api_surface.py",
     }
