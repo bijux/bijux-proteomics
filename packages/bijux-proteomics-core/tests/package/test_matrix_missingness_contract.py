@@ -25,7 +25,7 @@ MISSINGNESS_COMPANION_OWNERS = {
         "render_protein_intensity_matrix_tsv",
         "render_protein_intensity_missingness_mask_tsv",
     ),
-    "quantification/rollup/protein_lfq.py": (
+    "quantification/rollup/protein_lfq/analysis.py": (
         "render_protein_lfq_matrix_tsv",
         "render_protein_lfq_missingness_mask_tsv",
     ),

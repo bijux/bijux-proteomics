@@ -95,7 +95,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("quantification/missingness/missingness.py", 1154),
     _exception("quantification/provenance/review.py", 1288),
     _exception("quantification/provenance/sample_exploration.py", 1217),
-    _exception("quantification/rollup/protein_lfq.py", 1125),
+    _exception("quantification/rollup/protein_lfq/analysis.py", 1128),
     _exception("review/belief/belief_audit.py", 1007),
     _exception("review/claims/result_queries.py", 1075),
     _exception("review/explanations/result_explanations.py", 1341),
