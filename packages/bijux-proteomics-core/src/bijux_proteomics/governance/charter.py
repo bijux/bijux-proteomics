@@ -414,7 +414,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "targeted/panel_design.py",
             "targeted/panel_redundancy.py",
             "targeted/result_validation.py",
-            "targeted/validation_planning.py",
+            "targeted/validation_planning/analysis.py",
             "targeted/validation_evidence_cards.py",
             "targeted/transition_coelution.py",
             "targeted/transition_selection.py",
