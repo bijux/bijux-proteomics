@@ -134,8 +134,8 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception("io/raw/run_qc.py", "build_spectrum_run_qc_report", 38),
     _exception("io/tables/target_panel.py", "_parse_target_panel_row", 27),
     _exception("io/tables/transition_table.py", "_parse_transition_row", 29),
-    _exception("lab/qc/reports.py", "_build_run_status_reasons", 37),
-    _exception("lab/qc/reports.py", "build_lcms_run_qc_report", 55),
+    _exception("lab/qc/assessment.py", "_build_run_status_reasons", 37),
+    _exception("lab/qc/run_reports.py", "build_lcms_run_qc_report", 55),
     _exception("multiplex/ratio_analysis.py", "build_tmt_ratio_report", 43),
     _exception(
         "multiplex/reporter_ion_import.py",
