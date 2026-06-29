@@ -5,14 +5,28 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.identification.fdr.calibration_benchmarks import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.calibration_drift import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.confidence import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.evidence_level_fdr_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.peptide_target_decoy_fdr import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.picked_protein_fdr import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.picked_protein_fdr_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.protein_target_decoy_fdr import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.psm_target_decoy_fdr import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.target_decoy_benchmarks import *  # noqa: F401,F403
-from bijux_proteomics.identification.fdr.target_decoy_reference_validation import *  # noqa: F401,F403
+from typing import Any
+
+from bijux_proteomics.identification._facade_runtime import (
+    build_facade_dir,
+    resolve_facade_export,
+)
+from bijux_proteomics.identification.public_api import (
+    build_facade_export_map,
+    flatten_facade_exports,
+    list_identification_fdr_api_modules,
+)
+
+_FDR_API_MODULES = list_identification_fdr_api_modules()
+_FDR_EXPORT_OWNER_MAP = build_facade_export_map(_FDR_API_MODULES)
+_FDR_PUBLIC_EXPORTS = flatten_facade_exports(_FDR_API_MODULES)
+
+__all__ = list(_FDR_PUBLIC_EXPORTS)
+
+
+def __getattr__(name: str) -> Any:
+    return resolve_facade_export(name, _FDR_EXPORT_OWNER_MAP, globals())
+
+
+def __dir__() -> list[str]:
+    return build_facade_dir(globals(), _FDR_PUBLIC_EXPORTS)

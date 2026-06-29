@@ -287,6 +287,10 @@ def list_identification_protein_api_modules() -> tuple[IdentificationFacadeModul
             "protein_review_owner",
             "Parsimony review owner surface.",
             (
+                "ParsimonyReviewSummary",
+                "ParsimonyReviewProteinEntry",
+                "ParsimonyAmbiguityEntry",
+                "ParsimonyReviewReport",
                 "build_parsimony_review_report",
                 "render_parsimony_review_summary_tsv",
                 "render_parsimony_review_proteins_tsv",

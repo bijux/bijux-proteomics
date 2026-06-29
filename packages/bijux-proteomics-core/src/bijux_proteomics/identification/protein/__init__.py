@@ -5,14 +5,28 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.identification.protein.parsimony_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_ambiguity_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_coverage import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_coverage_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_coverage_visualization import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_evidence import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_evidence_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_grouping import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_grouping_review import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_inference_benchmarks import *  # noqa: F401,F403
-from bijux_proteomics.identification.protein.protein_parsimony import *  # noqa: F401,F403
+from typing import Any
+
+from bijux_proteomics.identification._facade_runtime import (
+    build_facade_dir,
+    resolve_facade_export,
+)
+from bijux_proteomics.identification.public_api import (
+    build_facade_export_map,
+    flatten_facade_exports,
+    list_identification_protein_api_modules,
+)
+
+_PROTEIN_API_MODULES = list_identification_protein_api_modules()
+_PROTEIN_EXPORT_OWNER_MAP = build_facade_export_map(_PROTEIN_API_MODULES)
+_PROTEIN_PUBLIC_EXPORTS = flatten_facade_exports(_PROTEIN_API_MODULES)
+
+__all__ = list(_PROTEIN_PUBLIC_EXPORTS)
+
+
+def __getattr__(name: str) -> Any:
+    return resolve_facade_export(name, _PROTEIN_EXPORT_OWNER_MAP, globals())
+
+
+def __dir__() -> list[str]:
+    return build_facade_dir(globals(), _PROTEIN_PUBLIC_EXPORTS)
