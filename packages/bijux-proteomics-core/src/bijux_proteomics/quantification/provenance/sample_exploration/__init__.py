@@ -6,10 +6,6 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification.provenance.sample_exploration.analysis import (
-    build_condition_clustering_report,
-    build_sample_cluster_report,
-    build_sample_correlation_report,
-    build_sample_distance_report,
     build_sample_exploration_report,
     export_sample_cluster_tsv,
     export_sample_correlation_tsv,
@@ -44,10 +40,16 @@ from bijux_proteomics.quantification.provenance.sample_exploration.models import
     SamplePcaVarianceReport,
 )
 from bijux_proteomics.quantification.provenance.sample_exploration.sample_space import (
+    build_condition_clustering_report,
     build_sample_feature_matrix,
     build_sample_pca_report,
     build_sample_pca_variance_report,
     distance_outlier_threshold,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.sample_topology import (
+    build_sample_cluster_report,
+    build_sample_correlation_report,
+    build_sample_distance_report,
 )
 
 __all__ = [

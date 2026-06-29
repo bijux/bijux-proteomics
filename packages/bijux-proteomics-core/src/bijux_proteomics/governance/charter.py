@@ -394,6 +394,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/provenance/sample_exploration/analysis.py",
             "quantification/provenance/sample_exploration/models.py",
             "quantification/provenance/sample_exploration/sample_space.py",
+            "quantification/provenance/sample_exploration/sample_topology.py",
             "quantification/provenance/value_provenance.py",
         ),
         release_blocker="Core cannot ship if quantitative outputs stop carrying design and QC meaning that downstream packages depend on.",
