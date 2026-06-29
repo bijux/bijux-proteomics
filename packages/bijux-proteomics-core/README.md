@@ -144,6 +144,9 @@ The identification layer is split on purpose as well:
   `contracts`, and `adapters` are curated facades over narrower owner modules
 - `bijux_proteomics.identification.public_api` is the machine-readable ledger
   for export ownership, rationale, and surface budgets
+- `bijux_proteomics.identification.facade_ledger` is the canonical package tree
+  for those ledgers, grouped by durable owner family instead of one giant
+  catalog module
 - internal code should prefer owner modules such as
   `identification.psm.psm_rescoring`, `identification.fdr.confidence`, and
   `identification.protein.protein_grouping` instead of reaching through the

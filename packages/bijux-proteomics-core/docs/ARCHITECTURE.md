@@ -102,6 +102,10 @@ runtime-agnostic workflow seams.
 - `bijux_proteomics.identification.public_api` is the machine-readable ledger
   for those facades: export ownership, rationale, and surface budgets live
   there instead of being implied by wildcard barrels
+- `bijux_proteomics.identification.facade_ledger` is the canonical source tree
+  for the ledger families themselves, grouped into `psm`, `peptide`,
+  `protein`, `fdr`, `contracts`, and `adapters` rather than a single oversized
+  catalog module
 - internal code should prefer owner modules such as
   `identification.psm.psm_rescoring`, `identification.fdr.confidence`, or
   `identification.protein.protein_grouping` when it needs one bounded concern
