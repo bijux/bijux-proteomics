@@ -304,6 +304,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "lab/protocol_consistency.py",
             "lab/protocol_context.py",
             "lab/qc/__init__.py",
+            "lab/qc/models.py",
             "lab/qc/reports.py",
             "lab/qc_benchmarks.py",
             "lab/run_diagnosis.py",

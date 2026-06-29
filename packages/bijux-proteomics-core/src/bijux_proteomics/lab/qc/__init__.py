@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.lab.qc.models import *  # noqa: F401,F403
 from bijux_proteomics.lab.qc import reports as _reports
 from bijux_proteomics.lab.qc.reports import *  # noqa: F401,F403
 
