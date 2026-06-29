@@ -56,6 +56,15 @@ IDENTIFICATION_OWNER_SUBMODULE_NAMES = (
     "protein",
     "psm",
 )
+IDENTIFICATION_COMPATIBILITY_SUBMODULE_NAMES = ("confidence",)
+IDENTIFICATION_ROOT_FACADE_ORDER = (
+    "adapters",
+    "contracts",
+    "fdr",
+    "peptide",
+    "protein",
+    "psm",
+)
 
 
 def _module(
@@ -94,6 +103,16 @@ def build_facade_export_map(
         for module in modules
         for export_name in module.export_names
     }
+
+
+def merge_facade_export_maps(*export_owner_maps: dict[str, str]) -> dict[str, str]:
+    """Merge facade export maps while preserving first-owner precedence."""
+
+    merged: dict[str, str] = {}
+    for export_owner_map in export_owner_maps:
+        for export_name, owner_module in export_owner_map.items():
+            merged.setdefault(export_name, owner_module)
+    return merged
 
 
 def list_identification_psm_api_modules() -> tuple[IdentificationFacadeModule, ...]:
@@ -1105,6 +1124,8 @@ def list_identification_adapter_api_modules() -> tuple[IdentificationFacadeModul
 
 __all__ = [
     "ADAPTERS_FACADE_BUDGET",
+    "IDENTIFICATION_COMPATIBILITY_SUBMODULE_NAMES",
+    "IDENTIFICATION_ROOT_FACADE_ORDER",
     "CONTRACTS_FACADE_BUDGET",
     "FDR_FACADE_BUDGET",
     "IDENTIFICATION_OWNER_SUBMODULE_NAMES",
@@ -1114,6 +1135,7 @@ __all__ = [
     "IdentificationFacadeBudget",
     "IdentificationFacadeModule",
     "build_facade_export_map",
+    "merge_facade_export_maps",
     "flatten_facade_exports",
     "list_identification_adapter_api_modules",
     "list_identification_contract_api_modules",

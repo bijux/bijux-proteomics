@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import bijux_proteomics.identification as identification
 from bijux_proteomics.identification import adapters, contracts, fdr, peptide, protein, psm
 from bijux_proteomics.identification.public_api import (
     ADAPTERS_FACADE_BUDGET,
@@ -95,3 +96,12 @@ def test_adapter_facade_exports_match_governed_public_api() -> None:
     assert _non_empty_line_count(
         "packages/bijux-proteomics-core/src/bijux_proteomics/identification/adapters/__init__.py"
     ) <= ADAPTERS_FACADE_BUDGET.max_init_lines
+
+
+def test_identification_root_facade_keeps_governed_exports_and_submodules() -> None:
+    assert "SearchAdapterKind" in identification.__all__
+    assert "ParsimonyReviewReport" in identification.__all__
+    assert "confidence" in identification.__all__
+    assert hasattr(identification, "SearchAdapterKind")
+    assert hasattr(identification, "ParsimonyReviewReport")
+    assert hasattr(identification, "confidence")
