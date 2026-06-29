@@ -136,6 +136,8 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "sequences/theoretical_digest.py",
             "chemistry/amino_acid_mass.py",
             "chemistry/contracts/__init__.py",
+            "chemistry/contracts/fragment_ions.py",
+            "chemistry/contracts/mass_projection.py",
             "chemistry/contracts/models.py",
             "chemistry/contracts/modified_peptides.py",
             "chemistry/contracts/registry_access.py",
