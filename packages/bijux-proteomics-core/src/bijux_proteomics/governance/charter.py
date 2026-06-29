@@ -510,6 +510,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interpretation/ppi_network_modules.py",
             "interpretation/regulator_inference/__init__.py",
             "interpretation/regulator_inference/inference.py",
+            "interpretation/regulator_inference/models.py",
             "interpretation/tissue_cell_type_context.py",
             "panels/target_panel.py",
         ),
