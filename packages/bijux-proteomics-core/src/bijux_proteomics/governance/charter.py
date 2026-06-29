@@ -497,6 +497,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "review/explanations/scientific_story.py",
             "review/explanations/volcano_plots.py",
             "review/structure_reports/render.py",
+            "interpretation/public_api.py",
             "interpretation/annotation_packs.py",
             "interpretation/biological_context_mapping.py",
             "interpretation/compartment_biology.py",

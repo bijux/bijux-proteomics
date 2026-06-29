@@ -20,6 +20,7 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
     assert root_level_tests == set()
     assert package_tests == {
         "test_chemistry_package_surface.py",
+        "test_chemistry_public_api_contract.py",
         "test_compatibility_exports.py",
         "test_complexity_ceiling.py",
         "test_confidence_tier_contract.py",
@@ -33,8 +34,10 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_identification_public_api_contract.py",
         "test_import_contracts.py",
         "test_input_naming_surface.py",
+        "test_interpretation_public_api_contract.py",
         "test_interpretation_package_surface.py",
         "test_io_package_surface.py",
+        "test_lab_public_api_contract.py",
         "test_lab_package_surface.py",
         "test_line_count_ceiling.py",
         "test_matrix_missingness_contract.py",
@@ -66,4 +69,5 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_workflow_output_schema_contract.py",
         "test_workflow_package_surface.py",
         "test_workflow_public_api_surface.py",
+        "test_chemistry_contracts_public_api.py",
     }
