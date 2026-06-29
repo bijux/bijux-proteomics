@@ -7,6 +7,13 @@ import ast
 from importlib import import_module
 from pathlib import Path
 
+from bijux_proteomics.quantification.public_api import (
+    CONTRACTS_FACADE_BUDGET,
+    CONTRACTS_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+)
+
 _CONTRACT_ROOT = (
     Path(__file__).resolve().parents[2]
     / "src"
@@ -140,6 +147,21 @@ def test_quantification_contract_facade_preserves_representative_exports() -> No
 
     for export_name in _FACADE_EXPORTS:
         assert hasattr(facade, export_name), export_name
+
+
+def test_quantification_contract_facade_matches_governed_owner_ledger() -> None:
+    facade = import_module("bijux_proteomics.quantification.contracts")
+    expected_exports, _ = build_lazy_export_index(
+        facade_owner_modules(CONTRACTS_FACADE_OWNERS)
+    )
+
+    assert tuple(facade.__all__) == expected_exports
+
+
+def test_quantification_contract_facade_init_stays_within_budget() -> None:
+    init_lines = sum(1 for _line in (_CONTRACT_ROOT / "__init__.py").open(encoding="utf-8"))
+
+    assert init_lines <= CONTRACTS_FACADE_BUDGET.max_init_lines
 
 
 def test_quantification_contract_facade_excludes_private_helpers() -> None:
