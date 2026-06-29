@@ -5,11 +5,22 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.interfaces.support.biomarker_candidate_support import (
+import bijux_proteomics.interfaces.support.biomarker_candidate_support as biomarker_candidate_support
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.biological_candidates import (
     _build_biomarker_candidates_from_biological_report_dir,
+)
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.ptm_candidates import (
     _build_biomarker_candidates_from_ptm_report_dir,
 )
 from bijux_proteomics.review import BiomarkerCandidateKind
+
+
+def test_biomarker_candidate_support_facade_exports_primary_loaders() -> None:
+    assert biomarker_candidate_support.__all__ == [
+        "_build_biomarker_candidates_from_biological_report_dir",
+        "_build_biomarker_candidates_from_ptm_report_dir",
+        "_load_biomarker_candidate_inputs",
+    ]
 
 
 def test_biological_report_candidate_loader_matches_out_of_order_differential_rows(

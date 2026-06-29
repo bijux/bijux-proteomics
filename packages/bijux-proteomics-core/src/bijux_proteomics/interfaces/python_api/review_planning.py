@@ -47,7 +47,9 @@ from bijux_proteomics.interfaces.support.targeted_panel_support.validation_plann
     _load_validation_planning_pilot_variance,
     _load_validation_planning_selected_peptides,
 )
-from bijux_proteomics.interfaces.support.biomarker_candidate_support import _load_biomarker_candidate_inputs
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.panel_candidate_inputs import (
+    _load_biomarker_candidate_inputs,
+)
 
 
 def run_belief_audit_command(

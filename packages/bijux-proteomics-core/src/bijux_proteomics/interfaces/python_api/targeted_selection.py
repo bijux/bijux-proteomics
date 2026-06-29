@@ -51,8 +51,10 @@ from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables 
     _load_selected_targeted_transitions,
     _load_targeted_selection_targets,
 )
-from bijux_proteomics.interfaces.support.biomarker_candidate_support import (
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.biological_candidates import (
     _build_biomarker_candidates_from_biological_report_dir,
+)
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.ptm_candidates import (
     _build_biomarker_candidates_from_ptm_report_dir,
 )
 
