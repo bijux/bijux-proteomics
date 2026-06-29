@@ -11,10 +11,6 @@ from bijux_proteomics.quantification.provenance.sample_exploration.analysis impo
     build_sample_correlation_report,
     build_sample_distance_report,
     build_sample_exploration_report,
-    build_sample_feature_matrix,
-    build_sample_pca_report,
-    build_sample_pca_variance_report,
-    distance_outlier_threshold,
     export_sample_cluster_tsv,
     export_sample_correlation_tsv,
     export_sample_distance_tsv,
@@ -46,6 +42,12 @@ from bijux_proteomics.quantification.provenance.sample_exploration.models import
     SamplePcaReport,
     SamplePcaVarianceEntry,
     SamplePcaVarianceReport,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.sample_space import (
+    build_sample_feature_matrix,
+    build_sample_pca_report,
+    build_sample_pca_variance_report,
+    distance_outlier_threshold,
 )
 
 __all__ = [
