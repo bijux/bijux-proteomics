@@ -392,6 +392,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "quantification/provenance/review.py",
             "quantification/provenance/sample_exploration/__init__.py",
             "quantification/provenance/sample_exploration/analysis.py",
+            "quantification/provenance/sample_exploration/exports.py",
             "quantification/provenance/sample_exploration/models.py",
             "quantification/provenance/sample_exploration/rendering.py",
             "quantification/provenance/sample_exploration/sample_space.py",

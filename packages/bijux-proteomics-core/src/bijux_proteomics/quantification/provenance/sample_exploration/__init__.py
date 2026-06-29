@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from bijux_proteomics.quantification.provenance.sample_exploration.analysis import (
     build_sample_exploration_report,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.exports import (
     export_sample_cluster_tsv,
     export_sample_correlation_tsv,
     export_sample_distance_tsv,

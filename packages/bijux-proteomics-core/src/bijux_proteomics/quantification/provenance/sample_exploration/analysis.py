@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts.matrix_building import (
@@ -19,15 +16,6 @@ from bijux_proteomics.quantification.provenance.sample_exploration.models import
     SampleExplorationSummary,
     SampleOutlierEntry,
     SampleOutlierReport,
-)
-from bijux_proteomics.quantification.provenance.sample_exploration.rendering import (
-    render_sample_cluster_tsv,
-    render_sample_correlation_tsv,
-    render_sample_distance_tsv,
-    render_sample_exploration_summary_tsv,
-    render_sample_outlier_tsv,
-    render_sample_pca_scores_tsv,
-    render_sample_pca_variance_tsv,
 )
 from bijux_proteomics.quantification.provenance.sample_exploration.sample_space import (
     build_condition_clustering_report,
@@ -106,51 +94,7 @@ def build_sample_exploration_report(
         note=(
             "sample exploration assembles pca, explained variance, pairwise correlations, pairwise distances, average-linkage clustering, and metric-labeled outlier review over one governed quantification table"
         ),
-    )
-
-
-def export_sample_exploration_summary_tsv(
-    report: SampleExplorationReport, path: Path
-) -> None:
-    """Write one compact sample-exploration summary to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_exploration_summary_tsv(report))
-
-
-def export_sample_pca_scores_tsv(report: SampleExplorationReport, path: Path) -> None:
-    """Write one sample-level PCA score table to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_pca_scores_tsv(report))
-
-
-def export_sample_correlation_tsv(report: SampleExplorationReport, path: Path) -> None:
-    """Write pairwise sample correlations to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_correlation_tsv(report))
-
-
-def export_sample_pca_variance_tsv(report: SampleExplorationReport, path: Path) -> None:
-    """Write PCA explained-variance rows to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_pca_variance_tsv(report))
-
-
-def export_sample_distance_tsv(report: SampleExplorationReport, path: Path) -> None:
-    """Write pairwise sample distances to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_distance_tsv(report))
-
-
-def export_sample_outlier_tsv(report: SampleExplorationReport, path: Path) -> None:
-    """Write metric-labeled sample outliers to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_outlier_tsv(report))
-
-
-def export_sample_cluster_tsv(report: SampleExplorationReport, path: Path) -> None:
-    """Write the deterministic cluster table to a stable TSV artifact."""
-
-    write_output_table_tsv(path, render_sample_cluster_tsv(report))
+)
 
 
 __all__ = [
@@ -163,18 +107,4 @@ __all__ = [
     "build_sample_pca_report",
     "build_sample_pca_variance_report",
     "distance_outlier_threshold",
-    "export_sample_cluster_tsv",
-    "export_sample_correlation_tsv",
-    "export_sample_distance_tsv",
-    "export_sample_exploration_summary_tsv",
-    "export_sample_outlier_tsv",
-    "export_sample_pca_scores_tsv",
-    "export_sample_pca_variance_tsv",
-    "render_sample_cluster_tsv",
-    "render_sample_correlation_tsv",
-    "render_sample_distance_tsv",
-    "render_sample_exploration_summary_tsv",
-    "render_sample_outlier_tsv",
-    "render_sample_pca_scores_tsv",
-    "render_sample_pca_variance_tsv",
 ]
