@@ -12,7 +12,7 @@ import re
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry.amino_acid_mass import _CANONICAL_RESIDUES
-from bijux_proteomics.chemistry.contracts import (
+from bijux_proteomics.chemistry.contracts.models import (
     ModificationPosition,
     ModificationRegistryDocument,
     ModificationRegistryValidationIssue,
