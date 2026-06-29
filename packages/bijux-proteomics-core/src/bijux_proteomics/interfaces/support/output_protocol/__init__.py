@@ -18,8 +18,8 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
     WorkflowResult,
 )
 
-from .imports import *  # noqa: F401,F403
-from .workflow import *  # noqa: F401,F403
+from ..imports import *  # noqa: F401,F403
+from ..workflow import *  # noqa: F401,F403
 
 
 def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
