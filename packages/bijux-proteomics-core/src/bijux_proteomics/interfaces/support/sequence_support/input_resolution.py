@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
+# ruff: noqa: F401
 
 """Typed input resolution helpers for sequence-adjacent workflows."""
 
@@ -8,7 +8,26 @@ from __future__ import annotations
 
 from typing import cast
 
-from ..imports import *  # noqa: F401,F403
+from ..foundation import (
+    Path,
+    ProteomicsOperatorError,
+    ProteomicsOperatorErrorCode,
+    click,
+    csv,
+    hashlib,
+)
+from ..identification import (
+    PsmRecord,
+    RunDetectionContext,
+    SearchResultColumnMapping,
+    TargetDecoyLabelPolicy,
+    filter_psms_by_fdr,
+)
+from ..io_and_dia import (
+    ExperimentalDesignEntry,
+    PrecursorMassErrorQuery,
+    parse_experimental_design_table,
+)
 
 
 def _file_sha256(path: Path) -> str:
