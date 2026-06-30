@@ -10,7 +10,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.chemistry.modifications import parse_modified_peptide
 from bijux_proteomics.domain.records import (
     MissingValueState,
     QuantEntityKind,

@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )

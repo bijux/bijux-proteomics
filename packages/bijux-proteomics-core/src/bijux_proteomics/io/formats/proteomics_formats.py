@@ -19,7 +19,7 @@ from bijux_proteomics._scientific_tables import (
     validate_scientific_table,
 )
 from bijux_proteomics._tabular import DelimitedTableIssue
-from bijux_proteomics.chemistry import load_modification_registry
+from bijux_proteomics.chemistry.modifications import load_modification_registry
 from bijux_proteomics.domain.records import (
     Contrast,
     ContrastKind,
