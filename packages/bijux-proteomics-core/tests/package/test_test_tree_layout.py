@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-TEST_ROOT = Path("packages/bijux-proteomics-core/tests")
-PACKAGE_TEST_ROOT = TEST_ROOT / "package"
+TEST_ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_TEST_ROOT = Path(__file__).resolve().parent
 
 
 def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
@@ -20,12 +20,15 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
     assert root_level_tests == set()
     assert package_tests == {
         "test_chemistry_package_surface.py",
+        "test_chemistry_owner_facade_surface.py",
         "test_chemistry_public_api_contract.py",
         "test_compatibility_exports.py",
         "test_complexity_ceiling.py",
         "test_confidence_tier_contract.py",
         "test_core_boundary_guards.py",
         "test_cross_package_invariants.py",
+        "test_domain_owner_facade_surface.py",
+        "test_domain_public_api_surface.py",
         "test_error_class_surface.py",
         "test_foundation_hashing_surface.py",
         "test_foundation_primitives_surface.py",
@@ -56,12 +59,14 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_public_function_docstring_contract.py",
         "test_public_function_type_boundary_contract.py",
         "test_quantification_package_surface.py",
+        "test_quantification_owner_facade_surface.py",
         "test_reason_code_registry_surface.py",
         "test_rejected_evidence_contract.py",
         "test_review_package_surface.py",
         "test_search_adapter_package_surface.py",
         "test_semantic_id_contract.py",
         "test_sequences_package_surface.py",
+        "test_sequences_owner_facade_surface.py",
         "test_sequences_public_api_contract.py",
         "test_source_row_lineage_contract.py",
         "test_study_package_surface.py",
