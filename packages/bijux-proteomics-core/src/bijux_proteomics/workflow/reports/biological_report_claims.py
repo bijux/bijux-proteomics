@@ -34,7 +34,7 @@ from bijux_proteomics.workflow.reports.biological_report_claim_validation_report
 from bijux_proteomics.workflow.reports.biological_report_hypothesis_reports import (
     _build_biological_hypothesis_report as _build_hypothesis_report,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_ranking_reports import (

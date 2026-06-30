@@ -19,7 +19,7 @@ from bijux_proteomics.review.claims.biological_claim_validation import (
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCardReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_pathway_claim_candidates import (
