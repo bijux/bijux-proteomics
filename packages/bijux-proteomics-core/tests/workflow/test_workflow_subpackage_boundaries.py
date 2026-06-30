@@ -10,6 +10,12 @@ from pathlib import Path
 _WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
+_ROOT_OWNER_FILES = {
+    "__init__.py",
+    "blueprint.py",
+    "public_api.py",
+    "result_types.py",
+}
 _ROOT_WRAPPER_TARGETS = {
     "mechanisms.py": "bijux_proteomics.workflow.cards.mechanisms",
     "diann_benchmarks.py": "bijux_proteomics.workflow.benchmarks.diann_benchmarks",
@@ -135,6 +141,16 @@ def test_workflow_root_wrappers_stay_thin_subpackage_facades() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its canonical workflow owner"
+
+
+def test_workflow_root_keeps_only_shared_facade_owners() -> None:
+    owner_files: set[str] = set()
+    for path in _WORKFLOW_ROOT.glob("*.py"):
+        nodes = _significant_nodes(path)
+        if nodes and all(isinstance(node, ast.ImportFrom) for node in nodes):
+            continue
+        owner_files.add(path.name)
+    assert owner_files == _ROOT_OWNER_FILES
 
 
 def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
