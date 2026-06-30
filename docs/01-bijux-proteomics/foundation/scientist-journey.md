@@ -19,6 +19,14 @@ whether chemistry, sequence, quantification, PTM, grounding, or consequence
 are real product surfaces. The point of this page is to move through those
 surfaces in an honest order.
 
+## Reading Discipline
+
+- keep one workflow family in view until the question becomes package-specific
+- read evidence roots before recommendation prose
+- read recommendation posture before downstream consequence claims
+- stop at the first owner surface that still explains the scientific boundary
+  without inventing stronger biology than the package can defend
+
 ## One-Family Route
 
 If the reader wants one worked family instead of the general route, start with
@@ -52,6 +60,16 @@ the [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-prot
   grounding
 - it avoids treating recommendation confidence as if lab consequence were
   already settled
+
+## Honest Exit Conditions
+
+- if the family sentence already collapses under comparator, grounding, or
+  consequence pressure, move to the decision route rather than reading more
+  package prose
+- if the disagreement is now about one owner artifact, stop the journey and
+  inspect that owner surface directly
+- if the question turns into whether the lab spend is still justified, hand
+  off to consequence and refusal pages immediately
 
 ## Boundary
 

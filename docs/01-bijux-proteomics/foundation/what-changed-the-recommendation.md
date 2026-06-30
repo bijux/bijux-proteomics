@@ -11,6 +11,12 @@ last_reviewed: 2026-05-09
 
 This page answers the blunt question a hostile reviewer will ask next: what actually changes the recommendation once comparator pressure, literature pressure, lab burden, or observed outcome enters the picture?
 
+## How To Read These Counterfactuals
+
+- Treat each family row as a stress test on the released sentence rather than a marketing recap of the current result.
+- If removing one evidence axis or increasing downstream burden collapses the call, the weaker posture is part of the truthful product surface today.
+- Observed outcome revisions matter only when they change the next honest sentence, not when they merely add more activity around the same uncertainty.
+
 ### `dda`
 
 - current posture: `recommend_with_downgrade`

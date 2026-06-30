@@ -71,6 +71,12 @@ def _render_consequence_maps() -> str:
             "",
             "These maps are the shared consequence narrative across knowledge, intelligence, and lab. Each family starts from contradiction pressure, passes through current recommendation posture, and ends at assay burden and the cost of being wrong.",
             "",
+            "## How To Read These Maps",
+            "",
+            "- These are not vote tallies. The weakest downstream boundary controls the strongest honest public sentence.",
+            "- A family can look benchmark-strong and still remain recommendation-bounded once comparator pressure, assay burden, or follow-up failure stays unresolved.",
+            "- Read the table first for posture shape, then read the family map to see which contradiction, control demand, or consequence cost actually enforces the downgrade.",
+            "",
             "| workflow family | knowledge posture | recommendation posture | lab posture | weakest allowed posture |",
             "| --- | --- | --- | --- | --- |",
         ]
@@ -150,6 +156,12 @@ def _render_recommendation_changes() -> str:
             "# What Changed The Recommendation",
             "",
             "This page answers the blunt question a hostile reviewer will ask next: what actually changes the recommendation once comparator pressure, literature pressure, lab burden, or observed outcome enters the picture?",
+            "",
+            "## How To Read These Counterfactuals",
+            "",
+            "- Treat each family row as a stress test on the released sentence rather than a marketing recap of the current result.",
+            "- If removing one evidence axis or increasing downstream burden collapses the call, the weaker posture is part of the truthful product surface today.",
+            "- Observed outcome revisions matter only when they change the next honest sentence, not when they merely add more activity around the same uncertainty.",
             "",
         ]
     )

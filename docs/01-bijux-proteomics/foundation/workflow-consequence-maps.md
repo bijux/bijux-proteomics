@@ -11,6 +11,12 @@ last_reviewed: 2026-05-09
 
 These maps are the shared consequence narrative across knowledge, intelligence, and lab. Each family starts from contradiction pressure, passes through current recommendation posture, and ends at assay burden and the cost of being wrong.
 
+## How To Read These Maps
+
+- These are not vote tallies. The weakest downstream boundary controls the strongest honest public sentence.
+- A family can look benchmark-strong and still remain recommendation-bounded once comparator pressure, assay burden, or follow-up failure stays unresolved.
+- Read the table first for posture shape, then read the family map to see which contradiction, control demand, or consequence cost actually enforces the downgrade.
+
 | workflow family | knowledge posture | recommendation posture | lab posture | weakest allowed posture |
 | --- | --- | --- | --- | --- |
 | `dda` | `recommend_with_downgrade` | `recommend_with_downgrade` | `recommend_with_downgrade` | `recommend_with_downgrade` |

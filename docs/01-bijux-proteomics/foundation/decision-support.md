@@ -18,6 +18,17 @@ where grounded evidence, contradiction handling, analytical judgment, and lab
 burden are forced onto one honest chain. If that chain is weak, the public
 language must narrow even when the code or benchmark count looks impressive.
 
+## How To Use This Route
+
+- start with one workflow family instead of trying to decide whether the whole
+  repository is trustworthy at once
+- move in order from grounded evidence to recommendation posture to downstream
+  consequence instead of reading those surfaces as unrelated package summaries
+- treat the weakest honest sentence as the real product surface, even when one
+  upstream benchmark or runtime artifact looks stronger in isolation
+- stop at the owner surface that can still defend the sentence without hand
+  waving
+
 ## What This Route Actually Governs
 
 - grounded evidence and contradiction state from `bijux-proteomics-knowledge`
@@ -70,6 +81,13 @@ language must narrow even when the code or benchmark count looks impressive.
   one still remain?
 - Which release phrase is still blocked even if the docs explanation sounds
   persuasive?
+
+## Interpretation Rule
+
+If knowledge, intelligence, and lab do not all support the same stronger
+sentence, the weaker shared sentence wins. The decision route exists to make
+that downgrade visible instead of letting package-local confidence outrun the
+combined consequence chain.
 
 ## Adjacent Routes
 
