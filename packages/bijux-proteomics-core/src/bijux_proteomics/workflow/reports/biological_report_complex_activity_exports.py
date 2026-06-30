@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -22,12 +23,33 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
 )
 
 
+@dataclass(frozen=True)
+class BiologicalComplexActivityExportNames:
+    """Artifact names emitted for complex activity exports."""
+
+    activity_summary_name: str | None
+    activity_matrix_name: str | None
+    activity_sample_name: str | None
+    activity_condition_name: str | None
+    activity_comparison_name: str | None
+    activity_member_name: str | None
+    activity_unresolved_name: str | None
+
+
 def _write_biological_complex_activity_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None, str | None, str | None, str | None, str | None]:
+) -> BiologicalComplexActivityExportNames:
     if report.complex_activity_report is None:
-        return (None, None, None, None, None, None, None)
+        return BiologicalComplexActivityExportNames(
+            activity_summary_name=None,
+            activity_matrix_name=None,
+            activity_sample_name=None,
+            activity_condition_name=None,
+            activity_comparison_name=None,
+            activity_member_name=None,
+            activity_unresolved_name=None,
+        )
 
     activity_summary_name = "biological_complex_activity_summary.tsv"
     activity_matrix_name = "biological_complex_activity_matrix.tsv"
@@ -68,12 +90,18 @@ def _write_biological_complex_activity_exports(
         output_dir / activity_unresolved_name,
         render_complex_activity_unresolved_member_tsv(report.complex_activity_report),
     )
-    return (
-        activity_summary_name,
-        activity_matrix_name,
-        activity_sample_name,
-        activity_condition_name,
-        activity_comparison_name,
-        activity_member_name,
-        activity_unresolved_name,
+    return BiologicalComplexActivityExportNames(
+        activity_summary_name=activity_summary_name,
+        activity_matrix_name=activity_matrix_name,
+        activity_sample_name=activity_sample_name,
+        activity_condition_name=activity_condition_name,
+        activity_comparison_name=activity_comparison_name,
+        activity_member_name=activity_member_name,
+        activity_unresolved_name=activity_unresolved_name,
     )
+
+
+__all__ = [
+    "BiologicalComplexActivityExportNames",
+    "_write_biological_complex_activity_exports",
+]
