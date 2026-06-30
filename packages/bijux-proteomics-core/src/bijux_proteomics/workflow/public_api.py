@@ -22,6 +22,50 @@ class WorkflowFacadeOwner:
     excluded_exports: tuple[str, ...] = ()
 
 
+def copy_facade_owners(
+    owners: tuple[WorkflowFacadeOwner, ...],
+    *,
+    excluded_exports: tuple[str, ...] = (),
+) -> tuple[WorkflowFacadeOwner, ...]:
+    """Copy facade owners while preserving order and extending exclusions."""
+
+    return tuple(
+        WorkflowFacadeOwner(
+            owner_module=owner.owner_module,
+            rationale=owner.rationale,
+            excluded_exports=(*owner.excluded_exports, *excluded_exports),
+        )
+        for owner in owners
+    )
+
+
+def facade_owner_modules(
+    owners: tuple[WorkflowFacadeOwner, ...],
+) -> frozenset[str]:
+    """Return the canonical owner modules represented by a facade catalog."""
+
+    return frozenset(owner.owner_module for owner in owners)
+
+
+def select_facade_owners(
+    owners: tuple[WorkflowFacadeOwner, ...],
+    owner_modules: set[str] | frozenset[str],
+    *,
+    excluded_exports: tuple[str, ...] = (),
+) -> tuple[WorkflowFacadeOwner, ...]:
+    """Copy only the owners whose modules belong to the selected compatibility set."""
+
+    return tuple(
+        WorkflowFacadeOwner(
+            owner_module=owner.owner_module,
+            rationale=owner.rationale,
+            excluded_exports=(*owner.excluded_exports, *excluded_exports),
+        )
+        for owner in owners
+        if owner.owner_module in owner_modules
+    )
+
+
 CARD_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cards.cross_study_evidence_cards",
@@ -69,14 +113,7 @@ WORKFLOW_ROOT_CARD_HELPER_EXPORTS = (
     "render_sample_evidence_card_tsv",
 )
 
-WORKFLOW_ROOT_CARD_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=owner.excluded_exports,
-    )
-    for owner in CARD_FACADE_OWNERS
-)
+WORKFLOW_ROOT_CARD_OWNERS = copy_facade_owners(CARD_FACADE_OWNERS)
 
 BENCHMARK_SYNTHETIC_FACADE_OWNERS = (
     WorkflowFacadeOwner(
@@ -225,14 +262,7 @@ WORKFLOW_ROOT_DEMO_HELPER_EXPORTS = (
     "render_surprising_demo_interrogation_summary_tsv",
 )
 
-WORKFLOW_ROOT_DEMO_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=owner.excluded_exports,
-    )
-    for owner in DEMO_FACADE_OWNERS
-)
+WORKFLOW_ROOT_DEMO_OWNERS = copy_facade_owners(DEMO_FACADE_OWNERS)
 
 STUDY_FACADE_OWNERS = (
     WorkflowFacadeOwner(
@@ -321,14 +351,7 @@ WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS = (
     "render_public_dataset_pathway_comparison_tsv",
 )
 
-WORKFLOW_ROOT_STUDY_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=owner.excluded_exports,
-    )
-    for owner in STUDY_FACADE_OWNERS
-)
+WORKFLOW_ROOT_STUDY_OWNERS = copy_facade_owners(STUDY_FACADE_OWNERS)
 
 REPORT_FACADE_OWNERS = (
     WorkflowFacadeOwner(
