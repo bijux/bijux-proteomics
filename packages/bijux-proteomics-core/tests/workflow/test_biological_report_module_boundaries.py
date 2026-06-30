@@ -697,6 +697,32 @@ def test_biological_report_assembly_forwards_ms1_input_ownership() -> None:
     }
 
 
+def test_owned_biological_report_modules_avoid_compatibility_barrel() -> None:
+    owned_modules = (
+        "biological_report_assembly.py",
+        "biological_report_bundle_confidence_state.py",
+        "biological_report_bundle_materialization.py",
+        "biological_report_bundle_summary.py",
+        "biological_report_export_writing.py",
+    )
+
+    violations: list[str] = []
+    for filename in owned_modules:
+        module = ast.parse((REPORTS_ROOT / filename).read_text(encoding="utf-8"))
+        imported_modules = {
+            node.module
+            for node in module.body
+            if isinstance(node, ast.ImportFrom) and node.module is not None
+        }
+        if (
+            "bijux_proteomics.workflow.reports.biological_report_models"
+            in imported_modules
+        ):
+            violations.append(filename)
+
+    assert not violations, "\n".join(violations)
+
+
 def test_biological_report_assembly_forwards_quant_table_input_ownership() -> None:
     module = ast.parse(
         (REPORTS_ROOT / "biological_report_assembly.py").read_text(encoding="utf-8")

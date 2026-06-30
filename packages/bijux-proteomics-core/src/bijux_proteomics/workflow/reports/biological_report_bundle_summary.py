@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceLabel,
 )
 from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.workflow.cards.protein_evidence_cards import (
         ProteinEvidenceCardReport,
     )
-    from bijux_proteomics.workflow.reports.biological_report_models import (
+    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
         BiologicalResultSelectionPolicy,
     )
     from bijux_proteomics.workflow.studies.cohort_stratification import (
