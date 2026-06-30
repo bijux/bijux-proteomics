@@ -22,9 +22,10 @@ from bijux_proteomics.workflow.public_api import (
     BENCHMARK_FIDELITY_FACADE_OWNERS,
     BENCHMARK_SYNTHETIC_FACADE_OWNERS,
     BENCHMARK_SUBMODULES,
-    ENGINE_PIPELINE_FACADE_OWNERS,
     CARD_FACADE_OWNERS,
+    COMPARATIVE_PIPELINE_FACADE_OWNERS,
     DEMO_FACADE_OWNERS,
+    ENGINE_PIPELINE_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
     PIPELINE_FACADE_OWNERS,
     PIPELINE_SUBMODULES,
@@ -296,6 +297,9 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     expected_pipeline_advanced, _ = build_lazy_export_index(
         ordered_facade_owners(ADVANCED_PIPELINE_FACADE_OWNERS)
     )
+    expected_pipeline_comparative, _ = build_lazy_export_index(
+        ordered_facade_owners(COMPARATIVE_PIPELINE_FACADE_OWNERS)
+    )
     expected_pipeline_engines, _ = build_lazy_export_index(
         ordered_facade_owners(ENGINE_PIPELINE_FACADE_OWNERS)
     )
@@ -319,6 +323,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     assert set(PIPELINE_SUBMODULES).isdisjoint(pipelines.__all__)
     assert all(hasattr(pipelines, name) for name in PIPELINE_SUBMODULES)
     assert tuple(pipelines.advanced.__all__) == expected_pipeline_advanced
+    assert tuple(pipelines.comparative.__all__) == expected_pipeline_comparative
     assert tuple(pipelines.engines.__all__) == expected_pipeline_engines
     assert tuple(reports.__all__) == expected_reports
     assert tuple(studies.__all__) == expected_studies

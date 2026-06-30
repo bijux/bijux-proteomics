@@ -502,6 +502,9 @@ def test_workflow_result_types_import_contract() -> None:
 def test_workflow_pipeline_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow.pipelines")
     advanced = importlib.import_module("bijux_proteomics.workflow.pipelines.advanced")
+    comparative = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.comparative"
+    )
     engines = importlib.import_module("bijux_proteomics.workflow.pipelines.engines")
     advanced_tmt = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.advanced_tmt"
@@ -518,7 +521,11 @@ def test_workflow_pipeline_package_import_contract() -> None:
 
     assert module.__name__ == "bijux_proteomics.workflow.pipelines"
     assert advanced.__name__ == "bijux_proteomics.workflow.pipelines.advanced"
+    assert comparative.__name__ == "bijux_proteomics.workflow.pipelines.comparative"
     assert engines.__name__ == "bijux_proteomics.workflow.pipelines.engines"
+    assert hasattr(comparative, "build_diann_vs_dda_psm_comparison_report")
+    assert hasattr(comparative, "build_dia_differential_analysis_report")
+    assert hasattr(comparative, "build_label_based_differential_analysis_report")
     assert hasattr(engines, "build_dda_biological_workflow_bundle")
     assert hasattr(engines, "build_diann_biological_workflow_bundle")
     assert hasattr(engines, "build_ptm_site_workflow_bundle")
@@ -566,13 +573,19 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(benchmarks, "load_public_benchmark_descriptor")
     assert hasattr(benchmarks, "build_public_benchmark_subset")
     assert hasattr(benchmarks, "generate_quant_truth_dataset")
-    assert benchmark_datasets.__name__ == "bijux_proteomics.workflow.benchmarks.datasets"
+    assert (
+        benchmark_datasets.__name__ == "bijux_proteomics.workflow.benchmarks.datasets"
+    )
     assert hasattr(benchmark_datasets, "load_public_benchmark_descriptor")
     assert hasattr(benchmark_datasets, "build_public_benchmark_subset")
-    assert benchmark_fidelity.__name__ == "bijux_proteomics.workflow.benchmarks.fidelity"
+    assert (
+        benchmark_fidelity.__name__ == "bijux_proteomics.workflow.benchmarks.fidelity"
+    )
     assert hasattr(benchmark_fidelity, "build_diann_benchmark_report")
     assert hasattr(benchmark_fidelity, "build_maxquant_benchmark_report")
-    assert benchmark_synthetic.__name__ == "bijux_proteomics.workflow.benchmarks.synthetic"
+    assert (
+        benchmark_synthetic.__name__ == "bijux_proteomics.workflow.benchmarks.synthetic"
+    )
     assert hasattr(benchmark_synthetic, "generate_quant_truth_dataset")
     assert hasattr(benchmark_synthetic, "render_synthetic_quant_truth_tsv")
     assert reports.__name__ == "bijux_proteomics.workflow.reports"
