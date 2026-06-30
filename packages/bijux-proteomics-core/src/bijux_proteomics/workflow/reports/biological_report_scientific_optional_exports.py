@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -31,10 +32,45 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
 )
 
 
+@dataclass(frozen=True)
+class BiologicalRankingExportNames:
+    """Artifact names emitted for optional evidence-aware ranking outputs."""
+
+    evidence_aware_ranking_name: str | None
+
+
+@dataclass(frozen=True)
+class BiologicalClaimExportNames:
+    """Artifact names emitted for optional claim validation outputs."""
+
+    claim_validation_summary_name: str | None
+    supported_claim_name: str | None
+    rejected_claim_name: str | None
+
+
+@dataclass(frozen=True)
+class BiologicalHypothesisExportNames:
+    """Artifact names emitted for optional biological hypothesis outputs."""
+
+    biological_hypothesis_summary_name: str | None
+    biological_hypothesis_name: str | None
+    rejected_hypothesis_candidate_name: str | None
+
+
+@dataclass(frozen=True)
+class BiologicalRegulatorExportNames:
+    """Artifact names emitted for optional regulator inference outputs."""
+
+    regulator_inference_summary_name: str | None
+    regulator_inference_name: str | None
+    regulator_unresolved_name: str | None
+    regulator_rejected_name: str | None
+
+
 def _write_biological_optional_ranking_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None]:
+) -> BiologicalRankingExportNames:
     evidence_aware_ranking_name = None
     if report.evidence_aware_ranking_report is not None:
         evidence_aware_ranking_name = "biological_evidence_aware_ranking.tsv"
@@ -42,13 +78,15 @@ def _write_biological_optional_ranking_exports(
             output_dir / evidence_aware_ranking_name,
             render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
         )
-    return (evidence_aware_ranking_name,)
+    return BiologicalRankingExportNames(
+        evidence_aware_ranking_name=evidence_aware_ranking_name
+    )
 
 
 def _write_biological_optional_claim_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None]:
+) -> BiologicalClaimExportNames:
     claim_validation_summary_name = None
     supported_claim_name = None
     rejected_claim_name = None
@@ -70,17 +108,17 @@ def _write_biological_optional_claim_exports(
             output_dir / rejected_claim_name,
             render_rejected_biological_claim_tsv(report.claim_validation_report),
         )
-    return (
-        claim_validation_summary_name,
-        supported_claim_name,
-        rejected_claim_name,
+    return BiologicalClaimExportNames(
+        claim_validation_summary_name=claim_validation_summary_name,
+        supported_claim_name=supported_claim_name,
+        rejected_claim_name=rejected_claim_name,
     )
 
 
 def _write_biological_optional_hypothesis_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None]:
+) -> BiologicalHypothesisExportNames:
     biological_hypothesis_summary_name = None
     biological_hypothesis_name = None
     rejected_hypothesis_candidate_name = None
@@ -106,17 +144,17 @@ def _write_biological_optional_hypothesis_exports(
                 report.biological_hypothesis_report
             ),
         )
-    return (
-        biological_hypothesis_summary_name,
-        biological_hypothesis_name,
-        rejected_hypothesis_candidate_name,
+    return BiologicalHypothesisExportNames(
+        biological_hypothesis_summary_name=biological_hypothesis_summary_name,
+        biological_hypothesis_name=biological_hypothesis_name,
+        rejected_hypothesis_candidate_name=rejected_hypothesis_candidate_name,
     )
 
 
 def _write_biological_optional_regulator_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None, str | None]:
+) -> BiologicalRegulatorExportNames:
     regulator_inference_summary_name = None
     regulator_inference_name = None
     regulator_unresolved_name = None
@@ -147,15 +185,19 @@ def _write_biological_optional_regulator_exports(
                 report.regulator_evidence_import_report
             ),
         )
-    return (
-        regulator_inference_summary_name,
-        regulator_inference_name,
-        regulator_unresolved_name,
-        regulator_rejected_name,
+    return BiologicalRegulatorExportNames(
+        regulator_inference_summary_name=regulator_inference_summary_name,
+        regulator_inference_name=regulator_inference_name,
+        regulator_unresolved_name=regulator_unresolved_name,
+        regulator_rejected_name=regulator_rejected_name,
     )
 
 
 __all__ = [
+    "BiologicalClaimExportNames",
+    "BiologicalHypothesisExportNames",
+    "BiologicalRankingExportNames",
+    "BiologicalRegulatorExportNames",
     "_write_biological_optional_claim_exports",
     "_write_biological_optional_hypothesis_exports",
     "_write_biological_optional_ranking_exports",

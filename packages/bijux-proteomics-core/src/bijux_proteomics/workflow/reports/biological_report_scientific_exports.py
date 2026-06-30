@@ -86,27 +86,17 @@ def write_biological_scientific_exports(
         section_confidence_tsv=section_confidence_tsv,
     )
 
-    (evidence_aware_ranking_name,) = _write_biological_optional_ranking_exports(
+    ranking_export_names = _write_biological_optional_ranking_exports(
         report,
         output_dir,
     )
-    (
-        claim_validation_summary_name,
-        supported_claim_name,
-        rejected_claim_name,
-    ) = _write_biological_optional_claim_exports(report, output_dir)
-    (
-        biological_hypothesis_summary_name,
-        biological_hypothesis_name,
-        rejected_hypothesis_candidate_name,
-    ) = _write_biological_optional_hypothesis_exports(report, output_dir)
-
-    (
-        regulator_inference_summary_name,
-        regulator_inference_name,
-        regulator_unresolved_name,
-        regulator_rejected_name,
-    ) = _write_biological_optional_regulator_exports(report, output_dir)
+    claim_export_names = _write_biological_optional_claim_exports(report, output_dir)
+    hypothesis_export_names = _write_biological_optional_hypothesis_exports(
+        report, output_dir
+    )
+    regulator_export_names = _write_biological_optional_regulator_exports(
+        report, output_dir
+    )
 
     return BiologicalScientificExportNames(
         summary_name=required_export_names.summary_name,
@@ -126,13 +116,19 @@ def write_biological_scientific_exports(
             required_export_names.experiment_confidence_components_name
         ),
         section_confidence_name=required_export_names.section_confidence_name,
-        evidence_aware_ranking_name=evidence_aware_ranking_name,
-        claim_validation_summary_name=claim_validation_summary_name,
-        supported_claim_name=supported_claim_name,
-        rejected_claim_name=rejected_claim_name,
-        biological_hypothesis_summary_name=biological_hypothesis_summary_name,
-        biological_hypothesis_name=biological_hypothesis_name,
-        rejected_hypothesis_candidate_name=rejected_hypothesis_candidate_name,
+        evidence_aware_ranking_name=ranking_export_names.evidence_aware_ranking_name,
+        claim_validation_summary_name=(
+            claim_export_names.claim_validation_summary_name
+        ),
+        supported_claim_name=claim_export_names.supported_claim_name,
+        rejected_claim_name=claim_export_names.rejected_claim_name,
+        biological_hypothesis_summary_name=(
+            hypothesis_export_names.biological_hypothesis_summary_name
+        ),
+        biological_hypothesis_name=hypothesis_export_names.biological_hypothesis_name,
+        rejected_hypothesis_candidate_name=(
+            hypothesis_export_names.rejected_hypothesis_candidate_name
+        ),
         foreground_background_summary_name=(
             required_export_names.foreground_background_summary_name
         ),
@@ -142,10 +138,12 @@ def write_biological_scientific_exports(
         foreground_background_issue_name=(
             required_export_names.foreground_background_issue_name
         ),
-        regulator_inference_summary_name=regulator_inference_summary_name,
-        regulator_inference_name=regulator_inference_name,
-        regulator_unresolved_name=regulator_unresolved_name,
-        regulator_rejected_name=regulator_rejected_name,
+        regulator_inference_summary_name=(
+            regulator_export_names.regulator_inference_summary_name
+        ),
+        regulator_inference_name=regulator_export_names.regulator_inference_name,
+        regulator_unresolved_name=regulator_export_names.regulator_unresolved_name,
+        regulator_rejected_name=regulator_export_names.regulator_rejected_name,
         annotation_summary_name=required_export_names.annotation_summary_name,
         annotation_name=required_export_names.annotation_name,
         annotation_unmapped_name=required_export_names.annotation_unmapped_name,
