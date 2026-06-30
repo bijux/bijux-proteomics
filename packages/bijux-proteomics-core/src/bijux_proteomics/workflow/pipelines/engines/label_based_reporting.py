@@ -63,7 +63,7 @@ from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,
 )
-from bijux_proteomics.workflow.pipelines.label_based_differential_analysis import (
+from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import (
     LabelBasedDifferentialAnalysisReport,
     LabelBasedDifferentialSourceKind,
     build_silac_differential_analysis_report,

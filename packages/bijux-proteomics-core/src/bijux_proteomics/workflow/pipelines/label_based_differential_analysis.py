@@ -6,4 +6,4 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.pipelines.label_based_differential import *
+from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import *

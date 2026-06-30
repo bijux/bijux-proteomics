@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis import (
         DiaDifferentialVolcanoPlot,
     )
-    from bijux_proteomics.workflow.pipelines.label_based_differential_analysis import (
+    from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import (
         LabelBasedDifferentialVolcanoPlot,
     )
 

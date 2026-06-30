@@ -110,7 +110,7 @@ from bijux_proteomics.workflow.pipelines.integrated_scientific_report import (
     render_integrated_scientific_report_sentences_tsv,
     render_integrated_scientific_report_summary_tsv,
 )
-from bijux_proteomics.workflow.pipelines.label_based_differential import (
+from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import (
     build_label_based_differential_volcano_plot,
     build_silac_differential_analysis_report,
     build_tmt_differential_analysis_report,
