@@ -34,3 +34,14 @@ def test_make_setup_routes_repository_artifact_layout_through_dev_package() -> N
 
     assert "-m bijux_proteomics_dev.workspace.artifact_layout" in package_make
     assert "-m bijux_proteomics_dev.workspace.artifact_layout" in repository_root_make
+
+
+def test_package_make_bootstraps_virtualenv_from_python_executable_target() -> None:
+    package_make = (REPO_ROOT / "makes" / "bijux-py" / "package.mk").read_text(
+        encoding="utf-8"
+    )
+
+    assert "$(VENV_PYTHON): | setup" in package_make
+    assert "$(PACKAGE_INSTALL_STAMP): $(VENV_PYTHON)" in package_make
+    assert "install: $(VENV_PYTHON)" in package_make
+    assert "ensure-venv: $(VENV_PYTHON)" in package_make
