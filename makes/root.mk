@@ -30,6 +30,13 @@ export
 include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
+ROOT_SHARED_CHECK_ENV_CLEAR += \
+	-u PYTHONPYCACHEPREFIX \
+	-u XDG_CACHE_HOME \
+	-u HYPOTHESIS_STORAGE_DIRECTORY \
+	-u COVERAGE_FILE \
+	-u UV_CACHE_DIR \
+	-u NPM_CONFIG_CACHE
 ROOT_TARGET_PACKAGES_test-all := $(CHECK_PACKAGES)
 ROOT_TARGET_PACKAGES_test-all-plus-run-time := $(CHECK_PACKAGES)
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/docs.mk
