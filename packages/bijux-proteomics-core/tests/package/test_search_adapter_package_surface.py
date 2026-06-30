@@ -23,5 +23,7 @@ def test_identification_package_exports_search_adapter_split_surface() -> None:
     assert hasattr(search_adapters, "normalize_search_results_with_adapter")
     assert hasattr(search_adapters, "build_search_adapter_corpus_conformance_matrix")
     assert not hasattr(identification, "build_search_adapter_corpus_conformance_matrix")
+    assert not hasattr(identification, "search_adapter_registry")
+    assert not hasattr(identification, "normalize_search_results_with_adapter")
     assert identification.SearchAdapterKind.COMET.value == "comet"
     assert matrix.passes is True
