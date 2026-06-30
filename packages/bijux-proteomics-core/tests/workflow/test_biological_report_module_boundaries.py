@@ -181,3 +181,37 @@ def test_biological_reporting_facade_delegates_to_split_owners() -> None:
         "render_biological_report_section_confidence_tsv",
         "render_biological_result_report_summary_tsv",
     }
+
+
+def test_biological_report_assembly_forwards_ms1_input_ownership() -> None:
+    module = ast.parse(
+        (REPORTS_ROOT / "biological_report_assembly.py").read_text(encoding="utf-8")
+    )
+    wrapper = next(
+        node
+        for node in module.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "build_biological_result_report_bundle"
+    )
+    delegated_call = next(
+        node.value
+        for node in ast.walk(wrapper)
+        if isinstance(node, ast.Return)
+        and isinstance(node.value, ast.Call)
+        and isinstance(node.value.func, ast.Name)
+        and node.value.func.id
+        == "build_biological_result_report_bundle_from_ms1_feature_input"
+    )
+    forwarded_keywords = {
+        keyword.arg
+        for keyword in delegated_call.keywords
+        if keyword.arg is not None
+    }
+
+    assert forwarded_keywords >= {
+        "mapping",
+        "aggregation_method",
+        "top_n",
+        "normalization_method",
+        "chunk_size_rows",
+    }

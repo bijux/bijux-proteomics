@@ -1,43 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
-# ruff: noqa: F401
-
 """Biological report assembly over governed quantification and review surfaces."""
 
 from __future__ import annotations
 
-from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics.interpretation import (
-    BiologicalContextImportReport,
     BiologicalContextKind,
-    BiologicalContextMappingReport,
-    BiologicalForegroundBackgroundModel,
-    BiologicalSetEntry,
-    BiologicalSetFilteringPolicy,
     BiologicalSetSourceKind,
-    ComplexActivityReport,
     ComplexEnrichmentCorrectionPolicy,
-    ComplexEnrichmentReport,
     DiseasePhenotypeInterpretationPolicy,
-    DiseasePhenotypeInterpretationReport,
     DrugTargetInterpretationPolicy,
-    DrugTargetInterpretationReport,
     GoEnrichmentCorrectionPolicy,
-    GoEnrichmentReport,
-    PathwayActivityReport,
     PathwayEnrichmentCorrectionPolicy,
-    PathwayEnrichmentReport,
     ProteinAnnotationColumnMapping,
-    ProteinAnnotationMappingReport,
-    ProteinReferenceEntry,
-    RegulatorEvidenceImportReport,
-    RegulatorInferenceReport,
-    TissueCellTypeContextReport,
     apply_complex_enrichment_multiple_testing,
     apply_go_enrichment_multiple_testing,
     apply_pathway_enrichment_multiple_testing,
@@ -61,86 +39,25 @@ from bijux_proteomics.interpretation import (
     parse_protein_annotation_table,
     parse_regulator_evidence_table,
     parse_regulator_site_signal_table,
-    render_biological_context_mapping_summary_tsv,
-    render_biological_context_mapping_tsv,
-    render_biological_context_term_tsv,
-    render_biological_foreground_background_entry_tsv,
-    render_biological_foreground_background_issue_tsv,
-    render_biological_foreground_background_summary_tsv,
-    render_complex_activity_condition_comparison_tsv,
-    render_complex_activity_condition_score_tsv,
-    render_complex_activity_matrix_tsv,
-    render_complex_activity_sample_score_tsv,
-    render_complex_activity_summary_tsv,
-    render_complex_activity_unresolved_member_tsv,
-    render_complex_enrichment_entry_tsv,
-    render_complex_enrichment_summary_tsv,
-    render_complex_member_contribution_tsv,
-    render_complex_unresolved_member_tsv,
-    render_disease_phenotype_interpretation_summary_tsv,
-    render_disease_phenotype_interpretation_tsv,
-    render_drug_target_interpretation_summary_tsv,
-    render_drug_target_interpretation_tsv,
-    render_go_enrichment_summary_tsv,
-    render_go_enrichment_term_tsv,
-    render_go_enrichment_unannotated_tsv,
-    render_pathway_activity_condition_comparison_tsv,
-    render_pathway_activity_condition_score_tsv,
-    render_pathway_activity_matrix_tsv,
-    render_pathway_activity_sample_score_tsv,
-    render_pathway_activity_summary_tsv,
-    render_pathway_activity_unresolved_member_tsv,
-    render_pathway_enrichment_entry_tsv,
-    render_pathway_enrichment_summary_tsv,
-    render_pathway_member_contribution_tsv,
-    render_pathway_unresolved_member_tsv,
-    render_protein_annotation_summary_tsv,
-    render_protein_annotation_tsv,
-    render_regulator_inference_summary_tsv,
-    render_regulator_inference_tsv,
-    render_rejected_biological_context_tsv,
-    render_rejected_regulator_evidence_tsv,
-    render_tissue_cell_type_context_summary_tsv,
-    render_tissue_cell_type_interpretation_tsv,
-    render_tissue_cell_type_sample_consistency_tsv,
-    render_tissue_cell_type_unexpected_signal_tsv,
-    render_unknown_disease_phenotype_annotation_tsv,
-    render_unmapped_biological_context_tsv,
-    render_unmapped_protein_annotation_tsv,
-    render_unresolved_regulator_target_tsv,
     require_valid_biological_foreground_background_model,
 )
 from bijux_proteomics.interpretation.compartment_biology import (
     CompartmentBiologyPolicy,
-    CompartmentBiologyReport,
     build_compartment_biology_report,
-    render_compartment_activity_condition_comparison_tsv,
-    render_compartment_activity_condition_score_tsv,
-    render_compartment_activity_matrix_tsv,
-    render_compartment_activity_sample_score_tsv,
-    render_compartment_activity_unresolved_member_tsv,
-    render_compartment_biology_summary_tsv,
-    render_compartment_enrichment_tsv,
-    render_unknown_compartment_localization_tsv,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.lab.protocol_context import (
-    build_lab_protocol_interpretation_profile,
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,
 )
 from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import (
-    DifferentialAbundanceReport,
     LabelFreeQuantTable,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    build_label_free_intensity_table,
-    parse_ms1_feature_table,
-    parse_ms1_feature_table_chunked,
 )
 from bijux_proteomics.quantification.missingness import (
     build_missingness_condition_summary_report,
@@ -151,70 +68,17 @@ from bijux_proteomics.quantification.normalization import (
 from bijux_proteomics.quantification.provenance import (
     HeatmapMissingValuePolicy,
     HeatmapPreparationPolicy,
-    HeatmapPreparationReport,
-    SampleExplorationReport,
     build_heatmap_preparation_report,
     build_sample_exploration_report,
-    export_heatmap_column_metadata_tsv,
-    export_heatmap_matrix_tsv,
-    export_heatmap_row_metadata_tsv,
-    export_heatmap_summary_tsv,
-    export_sample_cluster_tsv,
-    export_sample_distance_tsv,
-    export_sample_exploration_summary_tsv,
-    export_sample_pca_scores_tsv,
-    export_sample_pca_variance_tsv,
 )
 from bijux_proteomics.quantification.statistics import (
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_power_estimation_report,
-    render_differential_abundance_tsv,
-)
-from bijux_proteomics.review.belief.evidence_aware_ranking import (
-    EvidenceAwareRankingCandidate,
-    EvidenceAwareRankingEntityKind,
-    EvidenceAwareRankingReport,
-    build_evidence_aware_ranking_report,
-    normalize_linear_range,
-    render_evidence_aware_ranking_tsv,
-    score_adjusted_p_value,
-    score_effect_size,
-    score_support_count,
-)
-from bijux_proteomics.review.claims.biological_claim_validation import (
-    BiologicalClaimCandidate,
-    BiologicalClaimDirection,
-    BiologicalClaimKind,
-    BiologicalClaimValidationPolicy,
-    BiologicalClaimValidationReport,
-    build_biological_claim_validation_report,
-    render_biological_claim_validation_summary_tsv,
-    render_rejected_biological_claim_tsv,
-    render_supported_biological_claim_tsv,
-)
-from bijux_proteomics.review.claims.biological_hypotheses import (
-    BiologicalHypothesisCandidate,
-    BiologicalHypothesisKind,
-    BiologicalHypothesisReport,
-    build_biological_hypothesis_report,
-    render_biological_hypothesis_summary_tsv,
-    render_biological_hypothesis_tsv,
-    render_rejected_biological_hypothesis_candidate_tsv,
-)
-from bijux_proteomics.review.evidence_graph.evidence_graph_export import (
-    export_proteomics_evidence_graph,
-    render_proteomics_evidence_graph_edges_tsv,
-    render_proteomics_evidence_graph_nodes_tsv,
 )
 from bijux_proteomics.review.explanations.volcano_plots import (
     VolcanoReviewPolicy,
-    VolcanoReviewReport,
     build_quantification_volcano_review,
-    export_volcano_review_html,
-    export_volcano_review_json,
-    export_volcano_review_svg,
-    render_volcano_review_tsv,
 )
 from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
@@ -226,7 +90,6 @@ from bijux_proteomics.sequences.proteogenomic_peptide_support import (
     parse_proteogenomic_variant_peptide_table,
 )
 from bijux_proteomics.study import (
-    ExperimentConfidenceReport,
     ExperimentDesign,
     LcmsRunQcReport,
     QcRunAssessmentReport,
@@ -234,36 +97,21 @@ from bijux_proteomics.study import (
     build_experiment_feasibility_report,
     build_protocol_consistency_report,
     coerce_experiment_design,
-    render_experiment_confidence_component_tsv,
-    render_experiment_confidence_summary_tsv,
 )
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
-    ProteinEvidenceCardReport,
     ProteinEvidenceCardSelectionPolicy,
     build_protein_evidence_card_report,
-    render_protein_evidence_card_summary_tsv,
-    render_protein_evidence_card_tsv,
 )
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
-    ProteinMechanismCard,
-    ProteinMechanismCardReport,
     build_protein_mechanism_card_report,
-    render_protein_mechanism_card_summary_tsv,
-    render_protein_mechanism_card_tsv,
 )
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,
     build_cohort_stratification_report,
-    render_cohort_interaction_candidate_tsv,
-    render_cohort_stratification_summary_tsv,
-    render_cohort_stratum_tsv,
-    render_cohort_subgroup_effect_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_result_graph import (
-    BiologicalResultGraphReport,
     build_biological_result_graph_report,
 )
-from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
     from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
@@ -349,6 +197,9 @@ def build_biological_result_report_bundle(
         regulator_evidence_tsv_path=regulator_evidence_tsv_path,
         regulator_site_signal_tsv_path=regulator_site_signal_tsv_path,
         ptm_evidence_card_report=ptm_evidence_card_report,
+        mapping=mapping,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
         normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
