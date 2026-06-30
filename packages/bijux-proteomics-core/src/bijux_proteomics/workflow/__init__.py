@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from bijux_proteomics.workflow.public_api import (
+from bijux_proteomics.workflow.facade_root_catalog import (
     WORKFLOW_ROOT_OWNERS,
     WORKFLOW_ROOT_SUBMODULES,
+)
+from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
     load_public_export,
     load_public_submodule,
