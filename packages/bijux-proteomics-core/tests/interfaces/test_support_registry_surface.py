@@ -104,6 +104,13 @@ def test_python_api_modules_import_owned_support_modules_directly() -> None:
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the validation evidence support facade instead of an owner module"
                 )
+            if (
+                node.module
+                == "bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs"
+            ):
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the validation evidence card facade instead of an owner module"
+                )
             if node.module == "bijux_proteomics.interfaces.support.targeted_selection_io":
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the targeted selection io facade instead of an owner module"
