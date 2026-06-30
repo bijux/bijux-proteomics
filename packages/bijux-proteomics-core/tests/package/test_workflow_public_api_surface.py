@@ -28,6 +28,8 @@ from bijux_proteomics.workflow.public_api import (
     REPORT_FACADE_OWNERS,
     STUDY_FACADE_OWNERS,
     WORKFLOW_ROOT_OWNERS,
+    WORKFLOW_ROOT_PIPELINE_OWNERS,
+    WORKFLOW_ROOT_SHARED_OWNERS,
     WORKFLOW_ROOT_SUBMODULES,
     build_lazy_export_index,
     facade_owner_modules,
@@ -41,6 +43,28 @@ def test_workflow_root_public_api_matches_governed_owner_ledger() -> None:
     assert tuple(workflow.__all__) == expected_names
     assert set(WORKFLOW_ROOT_SUBMODULES).isdisjoint(workflow.__all__)
     assert all(hasattr(workflow, name) for name in WORKFLOW_ROOT_SUBMODULES)
+
+
+def test_workflow_root_owner_ledger_is_composed_from_shared_and_subpackage_ledgers() -> (
+    None
+):
+    assert WORKFLOW_ROOT_OWNERS == (
+        *WORKFLOW_ROOT_SHARED_OWNERS,
+        *REPORT_FACADE_OWNERS,
+        *EXPORT_FACADE_OWNERS,
+        *WORKFLOW_ROOT_PIPELINE_OWNERS,
+        *STUDY_FACADE_OWNERS,
+        *CARD_FACADE_OWNERS,
+        *BENCHMARK_FACADE_OWNERS,
+        *DEMO_FACADE_OWNERS,
+    )
+
+
+def test_workflow_root_pipeline_owners_exclude_demo_surfaces() -> None:
+    assert all(
+        not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
+        for owner in WORKFLOW_ROOT_PIPELINE_OWNERS
+    )
 
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
