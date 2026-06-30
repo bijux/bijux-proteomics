@@ -4,12 +4,34 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Benchmark Rerun Kits
 
 These rerun kits are the shortest path through the shipped package roots and runtime entrypoints for each workflow family. Each kit names the primary package, the companion package, the exact runtime entrypoints, and the review surfaces that still keep the family bounded.
+
+Use this page when the reader already accepts the family-level trust sentence
+and now wants the exact reopen order. The goal is not to describe every
+artifact in the repository. The goal is to get an independent reviewer from
+the released package root to the strongest checked rerun lane without
+maintainer narration.
+
+## How To Use A Kit
+
+- open the primary package root first because that is the public release anchor
+- open the companion package second because it shows whether the family still
+  holds under a harder adjacent lane
+- open the runtime entrypoint and validating tests before claiming that the
+  shipped rerun route is executable
+- treat the remaining limits as part of the kit, not as optional caveats
+
+## What A Good Rerun Kit Gives A Reviewer
+
+- one public root to start from
+- one companion route that tests whether the family still holds under stress
+- one explicit runtime entrypoint instead of folklore about which script counts
+- one visible list of remaining limits so the rerun lane is not oversold
 
 ## `dda`
 

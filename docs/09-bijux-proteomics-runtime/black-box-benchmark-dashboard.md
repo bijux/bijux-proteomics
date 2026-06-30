@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Black-Box Benchmark Dashboard
@@ -19,6 +19,12 @@ outsider is only allowed to inspect tracked benchmark packages and runtime
 artifacts, which sentence survives? That makes it a runtime-and-evidence
 boundary page, not the final scientific or recommendation verdict.
 
+This distinction matters because the repository is now deeper than a simple
+execution story. Several workflow families have meaningful scientific breadth,
+but this dashboard deliberately asks a harsher question: what can an
+independent reviewer defend from the shipped package and checked runtime lane
+alone?
+
 ## How To Read This Dashboard
 
 - `requested language` is the sentence the broader repository route would like
@@ -29,6 +35,8 @@ boundary page, not the final scientific or recommendation verdict.
   it is the point of the page
 - `artifact completeness` says whether the packet is present enough to inspect,
   not whether the scientific claim is fully generalized
+- `drift status` is operationally important because a family can be honest,
+  complete, and still remain fragile when replay pressure widens
 
 | workflow family | requested language | allowed language | primary run mode | companion run mode | drift status | artifact completeness |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -39,6 +47,17 @@ boundary page, not the final scientific or recommendation verdict.
 | `ptm` | `outsider_auditable_bounded` | `outsider_auditable_bounded` | `raw_executable` | `raw_executable` | `highly_stable` | `complete` |
 | `targeted` | `outsider_auditable_bounded` | `outsider_auditable_bounded` | `raw_executable` | `raw_executable` | `highly_stable` | `complete` |
 
+## Why The Families Diverge Here
+
+- `dda` still drops from requested to allowed language because import-backed
+  review remains the strongest independently inspectable lane
+- `multiplex` proves that complete raw-executable packets are not enough when
+  downstream challenge, consequence, and outsider-facing trust routes remain
+  narrower
+- `dia`, `lfq`, `ptm`, and `targeted` keep stronger allowed language because
+  their checked runtime bundles, companion packages, and benchmark packets now
+  survive the black-box question more cleanly
+
 ## What This Dashboard Proves
 
 - DIA, PTM, targeted, and LFQ now have runtime-and-benchmark packets strong
@@ -47,6 +66,12 @@ boundary page, not the final scientific or recommendation verdict.
   even though the broader family packet is scientifically meaningful
 - multiplex can be real, complete, and raw-executable while still remaining
   internal support only
+
+## What This Dashboard Does Not Prove
+
+- it does not authorize broader biological or recommendation claims on its own
+- it does not erase vendor-parity, generalization, or lab-consequence limits
+- it does not turn runtime completeness into universal scientific confidence
 
 ## Remaining Independent-Rerun Blockers
 
@@ -82,6 +107,15 @@ boundary page, not the final scientific or recommendation verdict.
 
 - vendor-parity and calibration-clean authority are still outside the current proof boundary
 - targeted follow-up remains exploratory and cannot authorize calibration-perfect biological certainty
+
+## Reading Discipline
+
+- start here when you need the strongest outsider-facing sentence the runtime
+  lane can defend
+- drop to the rerun kits and black-box verification pages when the reviewer
+  needs exact opening order rather than family summary
+- hand off to workflow families, decision support, or lab consequence only
+  after the runtime limit has been named explicitly
 
 ## Best Next Routes
 
