@@ -4,96 +4,90 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Execution
 
-This route owns the operator and outsider question: how does a public benchmark
-package become a reviewable runtime bundle without maintainer narration. Its
-owner is `bijux-proteomics-runtime`, because this is where run mode, replay,
-artifact integrity, and failure boundaries become concrete.
+This route answers the operator and outsider question: how does a public
+benchmark package become reviewable runtime evidence without maintainer
+storytelling in the middle.
 
-Execution is one of the places where the repository is much deeper now than
-older docs implied. The runtime surface is no longer only one CLI path. It now
-owns raw versus import honesty, replay and resume pressure, checked run
-registries, preflight and refusal routes, artifact integrity, and runtime
-bundle comparability.
+`bijux-proteomics-runtime` owns this route because runtime proof is not only a
+CLI matter anymore. It now includes run-mode honesty, replay, rerun kits,
+artifact integrity, refusal boundaries, and explicit limits on what execution
+can and cannot prove.
 
-## How To Read Runtime Proof
+## What Execution Means Here
 
-- start by separating run mode honesty from scientific meaning:
-  `raw_executable` and `import_only` are runtime statements, not universal
-  trust statements
-- read checked bundles and comparability surfaces before assuming that one
-  rerun lane authorizes broader language
-- treat replay, refusal, and artifact-stability routes as part of the runtime
-  claim, not as maintenance detail
+Execution evidence is narrower than scientific truth and stronger than a
+convenient demo:
 
-## What Runtime Evidence Means Here
+- it proves what can be rerun or replayed from the current public package set
+- it proves which artifacts, checks, and refusal boundaries still survive
+  without private maintainer glue
+- it does not by itself widen scientific meaning, recommendation posture, or
+  lab-worth claims that belong to other owners
 
-- a workflow family earns stronger runtime language only when its benchmark
-  package, run mode, rerun kit, verification route, and refusal surfaces still
-  agree
-- `raw_executable` means the current strongest public route runs from raw
-  inputs through reviewable runtime artifacts
-- `import_only` means the strongest current route still depends on external
-  engine output even if the downstream review path is honest and useful
-- runtime proof is about reproducible execution and artifact integrity, not
-  about rewriting scientific meaning that belongs to core, knowledge, or lab
+## Current Runtime Ceiling By Family
+
+| family | current runtime lane | what the runtime route proves | current runtime limiter |
+| --- | --- | --- | --- |
+| `dda` | `import_only` | downstream replay and review remain real and auditable | full in-repo live-engine parity is still not the flagship route |
+| `dia` | `raw_executable` | public rerun, replay, and challenge routes are real | runtime proof still narrows under library and consequence limits |
+| `lfq` | `raw_executable` | public rerun and comparability routes are real | execution strength does not erase missingness and cohort-transfer limits |
+| `multiplex` | `raw_executable` | runtime substance is real and reviewable | outsider-facing trust still collapses under the stress packet |
+| `ptm` | `raw_executable` | localization and rerun evidence survive public replay | consequence confidence remains narrower than execution strength |
+| `targeted` | `raw_executable` | public rerun and artifact verification are real | calibration and interference limits still narrow the broader sentence |
+
+## What Is Materially Stronger In 0.3.8
+
+- runtime proof now covers replay, rerun kits, and explicit artifact-boundary
+  expectations instead of implying them
+- refusal surfaces are public now, so degraded or invalid rerun lanes are part
+  of the evidence chain rather than hidden maintainer context
+- runtime evidence now fits visibly into the larger chain from benchmark root
+  to grounded interpretation to downstream consequence
 
 ## Start Here
 
 - Open [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
-  when the question is how to rerun or replay one flagship workflow family from
-  benchmark package to checked output.
-- Open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
-  when the question is whether current workflow language survives live rerun
-  evidence.
-- Open [Flagship Run Registry](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/flagship-run-registry/)
-  when the question is which checked runs the repository is actually using.
+  when the question is how to reopen one family from benchmark package to
+  checked rerun evidence.
+- Open [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/)
+  when the question is which exact package and companion package the rerun
+  should start from.
+- Open [Black-Box Run Verification](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-run-verification/)
+  when the question is which artifacts and checks must appear.
+- Open [Runtime Replay Challenges](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-replay-challenges/)
+  when the question is which invalidation or replay challenge the current lane
+  must survive.
+- Open [Runtime Rerun Refusals](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-rerun-refusals/)
+  when the question is whether the honest next move is to stop rather than
+  improvise a stronger rerun story.
 
-## What Is Materially Stronger In 0.3.8
+## What Execution Still Does Not Prove
 
-- the runtime story now covers both raw-executable and import-backed families
-  without pretending they earn the same sentence
-- replay, rerun, and artifact-boundary routes are now explicit public docs
-  instead of maintainer-only background knowledge
-- the current runtime route now shows how benchmark assets, execution lanes,
-  challenge bundles, and downstream decision pressure connect without hiding
-  refusal or downgrade cases
+- scientific truth independent of benchmark and knowledge owners
+- stronger recommendation posture independent of intelligence review
+- downstream assay worth independent of lab consequence
+- vendor-parity or universal production readiness just because one rerun lane
+  is reproducible
 
-## Runtime Evidence Surfaces
-
-- [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/)
-- [Runtime Execution Boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-execution-boundary/)
-- [Black-Box Run Verification](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-run-verification/)
-- [Runtime Replay Challenges](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-replay-challenges/)
-- [Runtime Environment Contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-environment-contracts/)
-- [Runtime Artifact Stability](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-artifact-stability/)
-- [Runtime Rerun Refusals](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-rerun-refusals/)
-- [Raw Versus Import Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/raw-versus-import-execution/)
-
-## Adjacent Questions
+## Adjacent Routes
 
 - Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-  when the question is whether the public source package itself is complete
-  enough to deserve flagship attention.
+  when the question is whether the public evidence root itself is strong
+  enough.
 - Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-  when the question is which family language survives the current run mode and
-  blocker set.
-- Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
-  when the question becomes which release gates and validation commands must
-  pass before stronger runtime language is published.
-
-## What This Route Still Does Not Prove
-
-- scientific truth independent of benchmark, knowledge, or lab owners
-- vendor-parity claims just because one runtime lane is reproducible
-- downstream assay worth just because execution can be reopened and inspected
+  when the question is which family-level sentence survives the current runtime
+  lane.
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the question becomes whether grounded contradiction or consequence
+  burden still narrows the sentence after runtime proof looks strong.
 
 ## Boundary
 
-This route should answer how execution works and where execution stops. It
-should not quietly absorb benchmark ownership, recommendation truth, or lab
+This route should answer how runtime evidence works and where execution stops.
+It should not quietly absorb benchmark ownership, recommendation truth, or lab
 meaning just because those later surfaces consume runtime artifacts.

@@ -4,110 +4,89 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Benchmark Assets
 
-This route starts from public source identity and ends at the flagship
-benchmark packages that the repository currently asks outsiders to inspect.
-Its owner is `bijux-proteomics-core`, because the benchmark package story is a
-scientific asset question before it becomes a runtime or recommendation
-question.
+This route starts at public source identity and ends at the benchmark packages
+the repository currently asks outsiders to inspect first.
 
-The benchmark surface is more than a folder of static example files now. It is
-the public scientific evidence root for the current flagship families: remote
-source identity, governed package manifests, lineage pages, freshness review,
-acceptance bars, generalization companions, and explicit incompleteness notes.
+The benchmark surface is no longer a thin example-data story. It is the public
+scientific evidence root for flagship workflow language: source identity,
+package manifests, lineage, freshness review, incompleteness notes, licensing
+limits, and paired-package transfer pressure.
 
-## Why This Route Matters More Than Older Docs Admitted
+## What The Benchmark Surface Must Prove
 
-- benchmark assets are where the repository proves it has outsider-readable
-  scientific roots rather than only locally convenient fixtures
-- each flagship family now depends on paired package logic, not one isolated
-  happy-path benchmark packet
-- freshness drift, incompleteness, transfer failure, and licensing limits are
-  now part of the public scientific story instead of maintainers-only context
+A flagship benchmark package has to do more than contain files:
 
-## What The Benchmark Root Now Contains
+- identify the public source and its scientific role
+- document how the packaged assets were selected and rebuilt
+- expose enough evidence for an outsider to challenge the family sentence
+- sit beside a companion pressure package so one convenient showcase does not
+  dominate the release call
+
+If the package is broad-looking but easy, stale, or isolated, it does not earn
+flagship language.
+
+## What Ships Here
 
 - flagship public benchmark packages under
   `benchmark-assets/flagship-public-packages`
-- asset-root and freshness governance such as `asset_root_contract.json`,
-  `freshness_report.json`, and `obsolescence_audit.json`
-- package-level support files such as `source_locator_manifest.json`,
-  `citation_manifest.json`, `generated_boundary.json`, and
-  `rebuild_instructions.md`
-- family-specific lineage pages that explain how a package earns its current
-  flagship sentence and where its transfer limits still begin
+- source and citation manifests, generated boundaries, and rebuild
+  instructions
+- freshness, obsolescence, incompleteness, and licensing review surfaces
+- family-specific lineage pages that explain why each current family sentence
+  survives or narrows
 
-## Why This Is A Scientific Surface
+## Family Coverage
 
-- benchmark assets define what evidence the repository is actually willing to
-  cite, not just what happens to be available locally
-- flagship language now depends on both a primary package and a companion
-  generalization package, so one convenient result set cannot dominate the
-  public sentence
-- incompleteness, licensing, freshness drift, and non-transfer zones are part
-  of the benchmark story rather than hidden operational footnotes
+| family | benchmark strength today | key benchmark limiter | lineage page |
+| --- | --- | --- | --- |
+| `dda` | strong public package pair | strongest packet still routes into an import-backed runtime lane | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) |
+| `dia` | strong public package pair | library incompleteness still narrows broader transfer language | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) |
+| `lfq` | strong public package pair | cohort and missingness pressure still narrow broader public language | [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/) |
+| `multiplex` | real public package pair | current stress packet still collapses outsider-facing trust | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) |
+| `ptm` | strong public package pair | localization evidence still outruns downstream consequence confidence | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) |
+| `targeted` | strong public package pair | calibration and interference still narrow broader certainty | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) |
 
-## Start Here
+## Why This Route Matters More Now
+
+The repository now has enough real scientific depth that evidence-root quality
+has become a first-order product question:
+
+- broader sequence, chemistry, spectra, mzML, DIA, PTM, and quantification
+  surfaces mean benchmark packages are no longer only fixtures
+- paired benchmark logic means one easy flagship packet cannot carry the whole
+  public sentence alone
+- incompleteness, freshness drift, and licensing limits are now part of the
+  public evidence story rather than maintainer-only context
+
+## What A Skeptical Reader Should Check
+
+- does the family have both a flagship package and a companion pressure route
+- does the package expose enough source identity and rebuild detail to be
+  reviewable
+- do incompleteness and transfer limits appear at the evidence root instead of
+  being postponed into later recommendation prose
+- does the lineage page explain why the family sentence narrows where it does
+
+## Best Next Routes
 
 - Open [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
-  when the question is which public packages the repository currently treats as
-  flagship.
-- Open [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/)
-  when the question is whether remote public assets drifted, disappeared, or
-  found stronger replacements.
+  for the current benchmark package set.
 - Open [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
-  when the question is whether a benchmark package deserves flagship language
-  at all.
-
-## Workflow Family Coverage
-
-| workflow family | raw asset route | lineage page | current note |
-| --- | --- | --- | --- |
-| `dda` | flagship public benchmark catalog | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) | current flagship package is still import-backed rather than raw-executable |
-| `dia` | flagship public benchmark catalog | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) | current lane is raw-executable but still bounded by library incompleteness |
-| `lfq` | flagship public benchmark catalog | [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/) | current lane is raw-executable but still bounded by cohort-only generalization |
-| `multiplex` | flagship public benchmark catalog | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) | current package is real but intentionally stops at internal support |
-| `ptm` | flagship public benchmark catalog | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) | localization evidence is stronger than downstream consequence confidence |
-| `targeted` | flagship public benchmark catalog | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) | public assets are strong enough for bounded outsider audit, not calibration-perfect certainty |
-
-## What A Skeptical Reader Should Actually Audit
-
-- whether the public package roots expose real review surfaces instead of thin
-  summary wrappers
-- whether each family has a companion pressure route strong enough to stop one
-  easy package from over-defining the release sentence
-- whether incompleteness and transfer limits are named where the evidence
-  starts rather than postponed into later recommendation prose
-
-## What The Asset Route Cannot Hide
-
-- `dda` still depends on import-backed public evidence even though its package
-  story is strong
-- `lfq` can be benchmark-rich and still remain publicly narrowed by missingness
-  and cohort-transfer pressure
-- `multiplex` can have a real package and still stop at internal support when
-  its companion stress package collapses outsider-facing trust
-- `ptm` and `targeted` can have strong benchmark packages while downstream
-  consequence confidence remains more advisory than definitive
-
-## Next Questions
-
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-  when the question becomes which family currently deserves stronger public
-  language.
+  for the criteria that distinguish flagship evidence from convenience.
 - Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-  when the question becomes how those asset roots turn into runtime bundles and
-  rerun challenges.
+  when the question becomes how these public evidence roots turn into rerun
+  proof.
 - Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the question becomes whether grounding, contradiction, or recommendation
-  posture outruns the asset story.
+  when the question becomes whether grounded contradiction or consequence
+  pressure narrows the sentence further.
 
 ## Boundary
 
-This route should answer where the evidence starts and how complete it is. It
-should hand off before pretending that benchmark lineage alone settles runtime
-trust, recommendation strength, or lab consequence.
+This route should answer where the public scientific evidence starts and how
+complete it is. It should hand off before pretending that benchmark lineage
+alone settles runtime trust, recommendation strength, or lab consequence.
