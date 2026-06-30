@@ -38,17 +38,43 @@ def test_benchmark_weak_evidence_wrapper_stays_thin() -> None:
         "benchmarks/weak_evidence.py should stay a thin compatibility facade"
     )
     assert any(
-        node.module == "bijux_proteomics.workflow.weak_evidence"
+        node.module == "bijux_proteomics.workflow.pipelines.weak_evidence"
         for node in nodes
         if isinstance(node, ast.ImportFrom)
     )
 
 
-def test_benchmark_weak_evidence_exports_delegate_to_workflow_owner() -> None:
+def test_benchmark_modules_import_weak_evidence_pipeline_owner_directly() -> None:
+    violations: list[str] = []
+
+    for path in sorted(_BENCHMARK_ROOT.rglob("*.py")):
+        if path == _BENCHMARK_ROOT / "weak_evidence.py":
+            continue
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module == "bijux_proteomics.workflow.weak_evidence"
+            ):
+                violations.append(
+                    f"{path.relative_to(_BENCHMARK_ROOT)} imports bijux_proteomics.workflow.weak_evidence instead of the pipeline owner module"
+                )
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name == "bijux_proteomics.workflow.weak_evidence":
+                        violations.append(
+                            f"{path.relative_to(_BENCHMARK_ROOT)} imports bijux_proteomics.workflow.weak_evidence instead of the pipeline owner module"
+                        )
+
+    assert not violations, "\n".join(violations)
+
+
+def test_benchmark_weak_evidence_exports_delegate_to_pipeline_owner() -> None:
     benchmark_module = importlib.import_module(
         "bijux_proteomics.benchmarks.weak_evidence"
     )
-    workflow_module = importlib.import_module("bijux_proteomics.workflow.weak_evidence")
+    workflow_module = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.weak_evidence"
+    )
 
     assert (
         benchmark_module.run_weak_evidence_benchmark
