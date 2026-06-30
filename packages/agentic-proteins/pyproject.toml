@@ -23,8 +23,8 @@ keywords = [
   "forwarding",
 ]
 dependencies = [
-  "bijux-proteomics-core>=0.3.7,<0.4.0",
-  "bijux-proteomics-runtime>=0.3.7,<0.4.0",
+  "bijux-proteomics-core>=0.3.8,<0.4.0",
+  "bijux-proteomics-runtime>=0.3.8,<0.4.0",
 ]
 
 [project.urls]
@@ -41,7 +41,7 @@ agentic-proteins = "agentic_proteins.interfaces.cli:cli"
 
 [project.optional-dependencies]
 api = [
-  "bijux-proteomics-runtime[api]>=0.3.7,<0.4.0",
+  "bijux-proteomics-runtime[api]>=0.3.8,<0.4.0",
 ]
 test = [
   "pytest>=9.1.1,<10.0",
@@ -50,19 +50,19 @@ test = [
   "httpx>=0.28.1,<1.0",
 ]
 local-esmfold = [
-  "bijux-proteomics-runtime[local-esmfold]>=0.3.7,<0.4.0",
+  "bijux-proteomics-runtime[local-esmfold]>=0.3.8,<0.4.0",
 ]
 local-rosettafold = [
-  "bijux-proteomics-runtime[local-rosettafold]>=0.3.7,<0.4.0",
+  "bijux-proteomics-runtime[local-rosettafold]>=0.3.8,<0.4.0",
 ]
 nl = [
-  "bijux-proteomics-runtime[nl]>=0.3.7,<0.4.0",
+  "bijux-proteomics-runtime[nl]>=0.3.8,<0.4.0",
 ]
 
 [tool.hatch.version]
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
-fallback-version = "0.3.6"
+fallback-version = "0.3.8"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]

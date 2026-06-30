@@ -27,7 +27,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "bijux-proteomics-core>=0.3.7,<0.4.0",
+  "bijux-proteomics-core>=0.3.8,<0.4.0",
 ]
 
 [project.urls]
@@ -44,7 +44,7 @@ bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
 [tool.hatch.version]
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
-fallback-version = "0.3.6"
+fallback-version = "0.3.8"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]

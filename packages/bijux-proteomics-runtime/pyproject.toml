@@ -42,11 +42,11 @@ dependencies = [
   "pydantic>=2.0.2",
   "loguru>=0.7",
   "slowapi>=0.1",
-  "bijux-proteomics-foundation>=0.3.6",
-  "bijux-proteomics-core>=0.3.6",
-  "bijux-proteomics-knowledge>=0.3.6",
-  "bijux-proteomics-intelligence>=0.3.6",
-  "bijux-proteomics-lab>=0.3.6",
+  "bijux-proteomics-foundation>=0.3.8",
+  "bijux-proteomics-core>=0.3.8",
+  "bijux-proteomics-knowledge>=0.3.8",
+  "bijux-proteomics-intelligence>=0.3.8",
+  "bijux-proteomics-lab>=0.3.8",
 ]
 
 [project.urls]
@@ -63,7 +63,7 @@ bijux-proteomics-runtime = "bijux_proteomics_runtime.api.cli:cli"
 [tool.hatch.version]
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
-fallback-version = "0.3.6"
+fallback-version = "0.3.8"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]
