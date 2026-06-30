@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.sequences import PeptideUniquenessClass
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
+)
 from bijux_proteomics.targeted.panel_design import TargetedPanelWarningCode
 
 from .models import (

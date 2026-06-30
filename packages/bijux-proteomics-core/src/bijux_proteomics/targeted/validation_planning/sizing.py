@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import math
 
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.peptide_chemical_liability import (
     PeptideChemicalLiabilityTier,
+)
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.targeted.assay_interference import (

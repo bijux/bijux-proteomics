@@ -11,8 +11,8 @@ from bijux_proteomics.chemistry import (
     FragmentIonSeries,
 )
 from bijux_proteomics.io import SpectralLibraryEntry
-from bijux_proteomics.sequences import (
-    NormalizedProteinRecord,
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.sequences.digestion import (

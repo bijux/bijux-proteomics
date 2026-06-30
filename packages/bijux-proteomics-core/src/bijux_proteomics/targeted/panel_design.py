@@ -13,9 +13,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
 from bijux_proteomics.io import SpectralLibraryEntry
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.peptide_chemical_liability import (
     PeptideChemicalLiabilityTier,
-    PeptideDetectabilityTier,
+)
+from bijux_proteomics.sequences.peptide_detectability import PeptideDetectabilityTier
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.targeted.assay_interference import (

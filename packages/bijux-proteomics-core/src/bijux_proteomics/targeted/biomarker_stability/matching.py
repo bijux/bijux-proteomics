@@ -8,7 +8,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from statistics import mean
 
-from bijux_proteomics.sequences import PeptideUniquenessClass
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
+)
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport
 from bijux_proteomics.targeted.result_validation import (
     TargetedValidationPanelAssayInput,

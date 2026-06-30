@@ -10,7 +10,9 @@ from pathlib import Path
 
 import click
 
-from bijux_proteomics.sequences import PeptideUniquenessClass
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
+)
 from bijux_proteomics.targeted.assay_interference import (
     TargetedAssayInterferenceRiskTier,
 )

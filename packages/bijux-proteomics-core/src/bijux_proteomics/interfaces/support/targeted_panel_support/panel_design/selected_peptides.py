@@ -11,9 +11,11 @@ from pathlib import Path
 import click
 
 from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.peptide_chemical_liability import (
     PeptideChemicalLiabilityTier,
-    PeptideDetectabilityTier,
+)
+from bijux_proteomics.sequences.peptide_detectability import PeptideDetectabilityTier
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.targeted.panel_design import TargetedPanelSelectedPeptideInput
