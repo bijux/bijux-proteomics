@@ -18,9 +18,12 @@ from bijux_proteomics.study import ExperimentConfidenceReport
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCardReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_ranking_support import (
-    _mean,
-    _tier_score,
+from bijux_proteomics.workflow.reports.biological_report_pathway_member_metrics import (
+    _build_biological_pathway_abundance,
+    _build_biological_pathway_member_metrics,
+    _build_biological_pathway_ranking_penalties,
+    _build_biological_pathway_reproducibility,
+    _build_biological_pathway_support_strength,
 )
 
 
@@ -32,76 +35,28 @@ def _build_biological_pathway_ranking_candidates(
 ) -> tuple[EvidenceAwareRankingCandidate, ...]:
     if pathway_enrichment_report is None:
         return ()
-    support_by_member_id: dict[str, list[float]] = {}
-    abundance_by_member_id: dict[str, list[float]] = {}
-    reproducibility_by_member_id: dict[str, list[float]] = {}
-    for card in protein_mechanism_cards.cards:
-        support_by_member_id.setdefault(card.protein_group_id, []).append(
-            _tier_score(card.confidence_tier.value)
-        )
-        support_by_member_id.setdefault(card.representative_protein_ref, []).append(
-            _tier_score(card.confidence_tier.value)
-        )
-        if card.gene_symbol:
-            support_by_member_id.setdefault(card.gene_symbol, []).append(
-                _tier_score(card.confidence_tier.value)
-            )
-        abundance = abs(card.abundance_change.log2_fold_change)
-        abundance_by_member_id.setdefault(card.protein_group_id, []).append(abundance)
-        abundance_by_member_id.setdefault(card.representative_protein_ref, []).append(
-            abundance
-        )
-        if card.gene_symbol:
-            abundance_by_member_id.setdefault(card.gene_symbol, []).append(abundance)
-        reproducibility = min(
-            1.0,
-            (
-                0.5
-                * score_support_count(
-                    card.peptide_support.unique_peptide_count,
-                    saturation=4,
-                )
-            )
-            + (0.5 * _tier_score(card.evidence_tier.value)),
-        )
-        reproducibility_by_member_id.setdefault(card.protein_group_id, []).append(
-            reproducibility
-        )
-        reproducibility_by_member_id.setdefault(
-            card.representative_protein_ref,
-            [],
-        ).append(reproducibility)
-        if card.gene_symbol:
-            reproducibility_by_member_id.setdefault(card.gene_symbol, []).append(
-                reproducibility
-            )
+    member_metrics = _build_biological_pathway_member_metrics(protein_mechanism_cards)
 
     pathway_abundance = {
-        entry.pathway_id: _mean(
-            abundance_by_member_id.get(member_id, ())
-            for member_id in entry.foreground_member_ids
-        )
+        entry.pathway_id: _build_biological_pathway_abundance(entry, member_metrics)
         for entry in pathway_enrichment_report.entries
     }
     abundance_scores = normalize_linear_range(pathway_abundance)
 
     candidates: list[EvidenceAwareRankingCandidate] = []
     for entry in pathway_enrichment_report.entries:
-        support_strength = _mean(
-            support_by_member_id.get(member_id, ())
-            for member_id in entry.foreground_member_ids
+        support_strength = _build_biological_pathway_support_strength(
+            entry,
+            member_metrics,
         )
-        reproducibility = _mean(
-            reproducibility_by_member_id.get(member_id, ())
-            for member_id in entry.foreground_member_ids
+        reproducibility = _build_biological_pathway_reproducibility(
+            entry,
+            member_metrics,
         )
-        penalties: dict[str, float] = {}
-        if entry.foreground_overlap_count <= 1:
-            penalties["weak_member_support"] = 0.14
-        if support_strength == 0.0:
-            penalties["unresolved_supporting_members"] = 0.1
-        if support_strength < 0.5:
-            penalties["weak_supporting_proteins"] = 0.08
+        penalties = _build_biological_pathway_ranking_penalties(
+            entry,
+            support_strength=support_strength,
+        )
         candidates.append(
             EvidenceAwareRankingCandidate(
                 candidate_id=entry.pathway_id,

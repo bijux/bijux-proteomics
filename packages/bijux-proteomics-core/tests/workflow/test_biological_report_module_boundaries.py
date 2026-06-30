@@ -333,6 +333,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_pathway_ranking.py": (
         "_build_biological_pathway_ranking_candidates",
     ),
+    "biological_report_pathway_member_metrics.py": (
+        "BiologicalPathwayMemberMetrics",
+        "_build_biological_pathway_abundance",
+        "_build_biological_pathway_member_metrics",
+        "_build_biological_pathway_ranking_penalties",
+        "_build_biological_pathway_reproducibility",
+        "_build_biological_pathway_support_strength",
+    ),
     "biological_report_activity_exports.py": (
         "BiologicalActivityExportNames",
         "write_biological_activity_exports",
