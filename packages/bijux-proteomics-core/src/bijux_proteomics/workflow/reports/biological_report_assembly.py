@@ -77,6 +77,9 @@ from bijux_proteomics.workflow.reports.biological_report_claims import (
     _build_biological_evidence_aware_ranking_report,
     _build_biological_hypothesis_report,
 )
+from bijux_proteomics.workflow.reports.biological_report_bundle_summary import (
+    _build_biological_result_report_summary,
+)
 from bijux_proteomics.workflow.reports.biological_report_context_assembly import (
     _build_biological_context_reports,
 )
@@ -84,9 +87,7 @@ from bijux_proteomics.workflow.reports.biological_report_enrichment_assembly imp
     _build_biological_enrichment_reports,
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalReportSectionConfidenceLabel,
     BiologicalResultReportBundle,
-    BiologicalResultReportSummary,
     BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy,
 )
@@ -97,7 +98,6 @@ from bijux_proteomics.workflow.reports.biological_report_section_confidence impo
 from bijux_proteomics.workflow.reports.biological_report_selection import (
     _resolve_contrast,
     _select_heatmap_entity_ids,
-    _select_significant_entity_ids,
 )
 from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (
     _build_biological_regulator_analysis_reports,
@@ -421,11 +421,6 @@ def build_biological_result_report_bundle_from_quant_table(
         pathway_activity_report=pathway_activity_report,
         regulator_inference_report=regulator_inference_report,
     )
-    significant_protein_count = len(
-        _select_significant_entity_ids(
-            differential_report, policy=active_selection_policy
-        )
-    )
     section_confidence_entries = _build_biological_report_section_confidence_entries(
         experiment_confidence_report=experiment_confidence_report,
         evidence_aware_ranking_report=evidence_aware_ranking_report,
@@ -475,90 +470,22 @@ def build_biological_result_report_bundle_from_quant_table(
         sample_exploration_report=sample_exploration_report,
         selection_policy=active_selection_policy,
         section_confidence_entries=section_confidence_entries,
-        summary=BiologicalResultReportSummary(
-            protein_count=len(normalized_table.entity_ids),
-            significant_protein_count=significant_protein_count,
-            sample_count=len(normalized_table.sample_ids),
-            annotation_entry_count=len(annotation_report.result_entries),
-            annotation_unmapped_count=len(annotation_report.unmapped_entries),
-            protein_card_count=protein_cards.summary.protein_result_count,
-            warning_card_count=protein_cards.summary.warning_card_count,
-            tissue_mismatch_warning_count=(
-                0
-                if tissue_cell_type_context_report is None
-                else tissue_cell_type_context_report.summary.mismatch_warning_count
-            ),
-            cohort_blocked_stratum_count=(
-                0
-                if cohort_stratification_report is None
-                else cohort_stratification_report.summary.blocked_stratum_count
-            ),
-            cohort_subgroup_effect_count=(
-                0
-                if cohort_stratification_report is None
-                else cohort_stratification_report.summary.subgroup_effect_count
-            ),
-            cohort_interaction_candidate_count=(
-                0
-                if cohort_stratification_report is None
-                else cohort_stratification_report.summary.interaction_candidate_count
-            ),
-            experiment_confidence_score=experiment_confidence_report.summary.overall_score,
-            experiment_confidence_tier=experiment_confidence_report.summary.overall_tier,
-            low_confidence_component_count=(
-                experiment_confidence_report.summary.low_confidence_component_count
-            ),
-            high_confidence_section_count=section_confidence_counts[
-                BiologicalReportSectionConfidenceLabel.HIGH
-            ],
-            moderate_confidence_section_count=section_confidence_counts[
-                BiologicalReportSectionConfidenceLabel.MODERATE
-            ],
-            weak_confidence_section_count=section_confidence_counts[
-                BiologicalReportSectionConfidenceLabel.WEAK
-            ],
-            exploratory_section_count=section_confidence_counts[
-                BiologicalReportSectionConfidenceLabel.EXPLORATORY
-            ],
-            invalid_section_count=section_confidence_counts[
-                BiologicalReportSectionConfidenceLabel.INVALID
-            ],
-            context_entry_count=(
-                0
-                if context_mapping_report is None
-                else len(context_mapping_report.mapped_entries)
-            ),
-            context_unmapped_count=(
-                0
-                if context_mapping_report is None
-                else len(context_mapping_report.unmapped_entries)
-            ),
-            context_term_count=(
-                0
-                if context_mapping_report is None
-                else len(context_mapping_report.term_entries)
-            ),
-            go_enriched_term_count=(
-                0
-                if go_enrichment_report is None
-                else go_enrichment_report.summary.enriched_term_count
-            ),
-            pathway_enriched_entry_count=(
-                0
-                if pathway_enrichment_report is None
-                else pathway_enrichment_report.summary.enriched_entry_count
-            ),
-            complex_enriched_entry_count=(
-                0
-                if complex_enrichment_report is None
-                else complex_enrichment_report.summary.enriched_entry_count
-            ),
-            heatmap_entity_count=len(heatmap_report.rows),
-            pca_outlier_sample_count=sum(
-                1
-                for entry in sample_exploration_report.sample_pca_report.entries
-                if entry.outlier
-            ),
+        summary=_build_biological_result_report_summary(
+            normalized_table=normalized_table,
+            differential_report=differential_report,
+            selection_policy=active_selection_policy,
+            annotation_report=annotation_report,
+            protein_cards=protein_cards,
+            tissue_cell_type_context_report=tissue_cell_type_context_report,
+            cohort_stratification_report=cohort_stratification_report,
+            experiment_confidence_report=experiment_confidence_report,
+            section_confidence_counts=section_confidence_counts,
+            context_mapping_report=context_mapping_report,
+            go_enrichment_report=go_enrichment_report,
+            pathway_enrichment_report=pathway_enrichment_report,
+            complex_enrichment_report=complex_enrichment_report,
+            heatmap_report=heatmap_report,
+            sample_exploration_report=sample_exploration_report,
         ),
         note=(
             "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
