@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -25,12 +26,37 @@ from bijux_proteomics.workflow.studies.cohort_stratification import (
 )
 
 
+@dataclass(frozen=True)
+class BiologicalCohortContextExportNames:
+    """Artifact names emitted for cohort-context exports."""
+
+    summary_name: str | None
+    stratum_name: str | None
+    effect_name: str | None
+    interaction_name: str | None
+
+
+@dataclass(frozen=True)
+class BiologicalTissueContextExportNames:
+    """Artifact names emitted for tissue-context exports."""
+
+    summary_name: str | None
+    sample_name: str | None
+    unexpected_name: str | None
+    interpretation_name: str | None
+
+
 def _write_biological_cohort_context_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None, str | None]:
+) -> BiologicalCohortContextExportNames:
     if report.cohort_stratification_report is None:
-        return (None, None, None, None)
+        return BiologicalCohortContextExportNames(
+            summary_name=None,
+            stratum_name=None,
+            effect_name=None,
+            interaction_name=None,
+        )
 
     summary_name = "biological_cohort_stratification_summary.tsv"
     stratum_name = "biological_cohort_strata.tsv"
@@ -52,20 +78,25 @@ def _write_biological_cohort_context_exports(
         output_dir / interaction_name,
         render_cohort_interaction_candidate_tsv(report.cohort_stratification_report),
     )
-    return (
-        summary_name,
-        stratum_name,
-        effect_name,
-        interaction_name,
+    return BiologicalCohortContextExportNames(
+        summary_name=summary_name,
+        stratum_name=stratum_name,
+        effect_name=effect_name,
+        interaction_name=interaction_name,
     )
 
 
 def _write_biological_tissue_context_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None, str | None]:
+) -> BiologicalTissueContextExportNames:
     if report.tissue_cell_type_context_report is None:
-        return (None, None, None, None)
+        return BiologicalTissueContextExportNames(
+            summary_name=None,
+            sample_name=None,
+            unexpected_name=None,
+            interpretation_name=None,
+        )
 
     summary_name = "biological_tissue_context_summary.tsv"
     sample_name = "biological_tissue_context_sample_consistency.tsv"
@@ -95,9 +126,17 @@ def _write_biological_tissue_context_exports(
             report.tissue_cell_type_context_report
         ),
     )
-    return (
-        summary_name,
-        sample_name,
-        unexpected_name,
-        interpretation_name,
+    return BiologicalTissueContextExportNames(
+        summary_name=summary_name,
+        sample_name=sample_name,
+        unexpected_name=unexpected_name,
+        interpretation_name=interpretation_name,
     )
+
+
+__all__ = [
+    "BiologicalCohortContextExportNames",
+    "BiologicalTissueContextExportNames",
+    "_write_biological_cohort_context_exports",
+    "_write_biological_tissue_context_exports",
+]

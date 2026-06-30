@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -20,15 +21,32 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
 )
 
 
+@dataclass(frozen=True)
+class BiologicalAnnotationContextExportNames:
+    """Artifact names emitted for annotation-context exports."""
+
+    summary_name: str | None
+    mapping_name: str | None
+    term_name: str | None
+    unmapped_name: str | None
+    rejected_name: str | None
+
+
 def _write_biological_annotation_context_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None, str | None, str | None]:
+) -> BiologicalAnnotationContextExportNames:
     if (
         report.context_import_report is None
         or report.context_mapping_report is None
     ):
-        return (None, None, None, None, None)
+        return BiologicalAnnotationContextExportNames(
+            summary_name=None,
+            mapping_name=None,
+            term_name=None,
+            unmapped_name=None,
+            rejected_name=None,
+        )
 
     summary_name = "biological_context_summary.tsv"
     mapping_name = "biological_context_mappings.tsv"
@@ -55,10 +73,16 @@ def _write_biological_annotation_context_exports(
         output_dir / rejected_name,
         render_rejected_biological_context_tsv(report.context_import_report),
     )
-    return (
-        summary_name,
-        mapping_name,
-        term_name,
-        unmapped_name,
-        rejected_name,
+    return BiologicalAnnotationContextExportNames(
+        summary_name=summary_name,
+        mapping_name=mapping_name,
+        term_name=term_name,
+        unmapped_name=unmapped_name,
+        rejected_name=rejected_name,
     )
+
+
+__all__ = [
+    "BiologicalAnnotationContextExportNames",
+    "_write_biological_annotation_context_exports",
+]

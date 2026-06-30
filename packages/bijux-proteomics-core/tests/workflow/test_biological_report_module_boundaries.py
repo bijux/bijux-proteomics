@@ -305,13 +305,18 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "write_biological_contextual_exports",
     ),
     "biological_report_annotation_context_exports.py": (
+        "BiologicalAnnotationContextExportNames",
         "_write_biological_annotation_context_exports",
     ),
     "biological_report_sample_context_exports.py": (
+        "BiologicalCohortContextExportNames",
+        "BiologicalTissueContextExportNames",
         "_write_biological_cohort_context_exports",
         "_write_biological_tissue_context_exports",
     ),
     "biological_report_molecular_context_exports.py": (
+        "BiologicalDrugTargetExportNames",
+        "BiologicalDiseasePhenotypeExportNames",
         "_write_biological_drug_target_exports",
         "_write_biological_disease_phenotype_exports",
     ),

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -20,12 +21,32 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
 )
 
 
+@dataclass(frozen=True)
+class BiologicalDrugTargetExportNames:
+    """Artifact names emitted for drug-target interpretation exports."""
+
+    summary_name: str | None
+    interpretation_name: str | None
+
+
+@dataclass(frozen=True)
+class BiologicalDiseasePhenotypeExportNames:
+    """Artifact names emitted for disease-phenotype interpretation exports."""
+
+    summary_name: str | None
+    term_name: str | None
+    unknown_name: str | None
+
+
 def _write_biological_drug_target_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None]:
+) -> BiologicalDrugTargetExportNames:
     if report.drug_target_report is None:
-        return (None, None)
+        return BiologicalDrugTargetExportNames(
+            summary_name=None,
+            interpretation_name=None,
+        )
 
     summary_name = "biological_drug_target_summary.tsv"
     interpretation_name = "biological_drug_target_interpretation.tsv"
@@ -37,15 +58,22 @@ def _write_biological_drug_target_exports(
         output_dir / interpretation_name,
         render_drug_target_interpretation_tsv(report.drug_target_report),
     )
-    return (summary_name, interpretation_name)
+    return BiologicalDrugTargetExportNames(
+        summary_name=summary_name,
+        interpretation_name=interpretation_name,
+    )
 
 
 def _write_biological_disease_phenotype_exports(
     report: BiologicalResultReportBundle,
     output_dir: Path,
-) -> tuple[str | None, str | None, str | None]:
+) -> BiologicalDiseasePhenotypeExportNames:
     if report.disease_phenotype_report is None:
-        return (None, None, None)
+        return BiologicalDiseasePhenotypeExportNames(
+            summary_name=None,
+            term_name=None,
+            unknown_name=None,
+        )
 
     summary_name = "biological_disease_phenotype_summary.tsv"
     term_name = "biological_disease_phenotype_terms.tsv"
@@ -68,4 +96,16 @@ def _write_biological_disease_phenotype_exports(
             report.disease_phenotype_report
         ),
     )
-    return (summary_name, term_name, unknown_name)
+    return BiologicalDiseasePhenotypeExportNames(
+        summary_name=summary_name,
+        term_name=term_name,
+        unknown_name=unknown_name,
+    )
+
+
+__all__ = [
+    "BiologicalDiseasePhenotypeExportNames",
+    "BiologicalDrugTargetExportNames",
+    "_write_biological_disease_phenotype_exports",
+    "_write_biological_drug_target_exports",
+]
