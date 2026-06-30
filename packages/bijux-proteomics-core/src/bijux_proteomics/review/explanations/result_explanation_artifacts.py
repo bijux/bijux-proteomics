@@ -291,6 +291,8 @@ def _find_pathway_comparison(
     if subject_id is None:
         return None
     for comparison in pathway_comparisons:
+        if comparison.comparison_row_id == subject_id:
+            return comparison
         if comparison.pathway_id == subject_id:
             return comparison
         if comparison.pathway_name and comparison.pathway_name == subject_id:
