@@ -50,6 +50,7 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
     WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
     WORKFLOW_ROOT_DEMO_OWNERS,
+    WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
     WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
@@ -140,6 +141,17 @@ def test_workflow_root_pipeline_owners_exclude_engine_helpers() -> None:
         engine_owner_offset : engine_owner_offset
         + len(WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS)
     ] == (WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS)
+
+
+def test_workflow_root_pipeline_owners_expose_engine_export_operations() -> None:
+    assert all(
+        hasattr(workflow, name)
+        for name in WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS
+    )
+    assert all(
+        hasattr(pipelines.engines, name)
+        for name in WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS
+    )
 
 
 def test_workflow_root_pipeline_owners_exclude_study_pipeline_reports() -> None:
