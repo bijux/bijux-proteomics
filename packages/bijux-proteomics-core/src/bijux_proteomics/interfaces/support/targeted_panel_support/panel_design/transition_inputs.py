@@ -1,0 +1,135 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Transition TSV loading for targeted panel design entrypoints."""
+
+from __future__ import annotations
+
+import csv
+from pathlib import Path
+
+import click
+
+from bijux_proteomics.targeted.assay_interference import (
+    TargetedAssayInterferenceReason,
+    TargetedAssayInterferenceRiskTier,
+)
+from bijux_proteomics.targeted.panel_design import TargetedPanelTransitionInput
+
+from ...targeted_selection_io.field_parsing import (
+    _parse_cli_bool,
+    _split_semicolon_field,
+)
+
+
+def _load_targeted_panel_transition_inputs(
+    path: Path,
+) -> tuple[TargetedPanelTransitionInput, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException(
+                "assay-interference transition TSV must include a header row for targeted panel building"
+            )
+        required_columns = {
+            "assay_entry_id",
+            "target_protein_ref",
+            "target_protein_group_id",
+            "gene_symbol",
+            "peptide_sequence",
+            "canonical_peptide",
+            "precursor_charge",
+            "precursor_mz",
+            "fragment_label",
+            "ion_type",
+            "fragment_ordinal",
+            "fragment_charge",
+            "fragment_sequence",
+            "fragment_mz",
+            "expected_relative_intensity",
+            "selected_transition_rank",
+            "interference_risk_score",
+            "interference_risk_tier",
+            "downgrade_reasons",
+            "export_allowed",
+            "export_caveat",
+        }
+        missing_columns = required_columns.difference(reader.fieldnames)
+        if missing_columns:
+            raise click.ClickException(
+                "assay-interference transition TSV is missing required columns for targeted panel building: "
+                + ", ".join(sorted(missing_columns))
+            )
+        rows: list[TargetedPanelTransitionInput] = []
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                downgrade_reasons = tuple(
+                    TargetedAssayInterferenceReason(reason)
+                    for reason in _split_semicolon_field(
+                        row.get("downgrade_reasons", "")
+                    )
+                )
+                rows.append(
+                    TargetedPanelTransitionInput(
+                        assay_entry_id=str(row.get("assay_entry_id", "")).strip(),
+                        target_protein_ref=str(
+                            row.get("target_protein_ref", "")
+                        ).strip(),
+                        target_protein_group_id=str(
+                            row.get("target_protein_group_id", "")
+                        ).strip(),
+                        gene_symbol=(
+                            None
+                            if not str(row.get("gene_symbol", "")).strip()
+                            else str(row.get("gene_symbol", "")).strip()
+                        ),
+                        peptide_sequence=str(row.get("peptide_sequence", "")).strip(),
+                        canonical_peptide=str(row.get("canonical_peptide", "")).strip(),
+                        precursor_charge=int(
+                            str(row.get("precursor_charge", "")).strip()
+                        ),
+                        precursor_mz=float(str(row.get("precursor_mz", "")).strip()),
+                        fragment_label=str(row.get("fragment_label", "")).strip(),
+                        ion_type=str(row.get("ion_type", "")).strip(),
+                        fragment_ordinal=int(
+                            str(row.get("fragment_ordinal", "")).strip()
+                        ),
+                        fragment_charge=int(
+                            str(row.get("fragment_charge", "")).strip()
+                        ),
+                        fragment_sequence=str(row.get("fragment_sequence", "")).strip(),
+                        fragment_mz=float(str(row.get("fragment_mz", "")).strip()),
+                        expected_relative_intensity=(
+                            None
+                            if not str(
+                                row.get("expected_relative_intensity", "")
+                            ).strip()
+                            else float(
+                                str(row.get("expected_relative_intensity", "")).strip()
+                            )
+                        ),
+                        selected_transition_rank=int(
+                            str(row.get("selected_transition_rank", "")).strip()
+                        ),
+                        interference_risk_score=float(
+                            str(row.get("interference_risk_score", "")).strip()
+                        ),
+                        interference_risk_tier=TargetedAssayInterferenceRiskTier(
+                            str(row.get("interference_risk_tier", "")).strip()
+                        ),
+                        downgrade_reasons=downgrade_reasons,
+                        export_allowed=_parse_cli_bool(
+                            row.get("export_allowed", ""),
+                            field_name="export_allowed",
+                        ),
+                        export_caveat=str(row.get("export_caveat", "")).strip(),
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise click.ClickException(
+                    f"invalid assay-interference transition row {row_number} in {path.name!r}: {exc}"
+                ) from exc
+    return tuple(rows)
+
+
+__all__ = ("_load_targeted_panel_transition_inputs",)
