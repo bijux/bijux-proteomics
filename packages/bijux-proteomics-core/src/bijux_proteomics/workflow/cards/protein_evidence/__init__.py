@@ -22,6 +22,12 @@ from bijux_proteomics.workflow.cards.protein_evidence.models import (
     ProteinEvidenceCardWarning,
     ProteinEvidenceCardWarningCode,
 )
+from bijux_proteomics.workflow.cards.protein_evidence.rendering import (
+    export_protein_evidence_card_summary_tsv,
+    export_protein_evidence_card_tsv,
+    render_protein_evidence_card_summary_tsv,
+    render_protein_evidence_card_tsv,
+)
 
 __all__ = [
     "ProteinEvidenceCard",
@@ -39,4 +45,8 @@ __all__ = [
     "ProteinEvidenceCardTier",
     "ProteinEvidenceCardWarning",
     "ProteinEvidenceCardWarningCode",
+    "export_protein_evidence_card_summary_tsv",
+    "export_protein_evidence_card_tsv",
+    "render_protein_evidence_card_summary_tsv",
+    "render_protein_evidence_card_tsv",
 ]
