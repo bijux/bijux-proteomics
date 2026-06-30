@@ -7,9 +7,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.interpretation.go_enrichment import (
-    parse_go_annotation_table,
-)
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import (
@@ -29,38 +26,21 @@ from bijux_proteomics.study import (
 if TYPE_CHECKING:
     from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
 
-from bijux_proteomics.workflow.reports.biological_report_claims import (
-    _build_biological_claim_validation_report,
-    _build_biological_evidence_aware_ranking_report,
-    _build_biological_hypothesis_report,
-)
 from bijux_proteomics.workflow.reports.biological_report_bundle_assembly import (
     _assemble_biological_result_report_bundle,
-)
-from bijux_proteomics.workflow.reports.biological_report_context_assembly import (
-    _build_biological_context_reports,
-)
-from bijux_proteomics.workflow.reports.biological_report_enrichment_assembly import (
-    _build_biological_enrichment_reports,
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultSelectionPolicy,
 )
-from bijux_proteomics.workflow.reports.biological_report_experiment_review import (
-    _build_biological_experiment_review_reports,
+from bijux_proteomics.workflow.reports.biological_report_quant_table_review_reports import (
+    _build_biological_quant_table_review_reports,
 )
 from bijux_proteomics.workflow.reports.biological_report_quantification_analysis import (
     _build_biological_quantification_analysis,
 )
-from bijux_proteomics.workflow.reports.biological_report_protein_evidence import (
-    _build_biological_protein_evidence_reports,
-)
-from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (
-    _build_biological_regulator_analysis_reports,
-)
-from bijux_proteomics.workflow.reports.biological_report_source_data import (
-    _build_biological_report_source_data,
+from bijux_proteomics.workflow.reports.biological_report_quant_table_supporting_reports import (
+    _build_biological_quant_table_supporting_reports,
 )
 
 
@@ -175,93 +155,43 @@ def build_biological_result_report_bundle_from_quant_table(
     resolved_condition_a = quantification_analysis.resolved_condition_a
     resolved_condition_b = quantification_analysis.resolved_condition_b
     differential_report = quantification_analysis.differential_report
-    source_data = _build_biological_report_source_data(
+    supporting_reports = _build_biological_quant_table_supporting_reports(
         normalized_table=normalized_table,
         differential_report=differential_report,
+        experiment_design=experiment_design,
+        design_entries=design_entries,
+        active_selection_policy=active_selection_policy,
         proteins_fasta_path=proteins_fasta_path,
         variant_proteins_fasta_path=variant_proteins_fasta_path,
         variant_peptide_tsv_path=variant_peptide_tsv_path,
+        protocol_context_tsv_path=protocol_context_tsv_path,
         annotation_tsv_path=annotation_tsv_path,
+        context_annotation_tsv_path=context_annotation_tsv_path,
+        protein_region_context_tsv_path=protein_region_context_tsv_path,
+        go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
-        protein_region_context_tsv_path=protein_region_context_tsv_path,
-    )
-    annotation_report = source_data.annotation_report
-    context_reports = _build_biological_context_reports(
-        normalized_table=normalized_table,
-        experiment_design=experiment_design,
-        design_entries=design_entries,
-        differential_report=differential_report,
-        differential_reference_entries=source_data.differential_reference_entries,
-        annotation_report=annotation_report,
-        pathway_records=source_data.pathway_records,
-        active_selection_policy=active_selection_policy,
-        context_annotation_tsv_path=context_annotation_tsv_path,
-    )
-    context_import_report = context_reports.context_import_report
-    context_mapping_report = context_reports.context_mapping_report
-    tissue_cell_type_context_report = context_reports.tissue_cell_type_context_report
-    drug_target_report = context_reports.drug_target_report
-    disease_phenotype_report = context_reports.disease_phenotype_report
-    compartment_biology_report = context_reports.compartment_biology_report
-    enrichment_reports = _build_biological_enrichment_reports(
-        normalized_table=normalized_table,
-        differential_report=differential_report,
-        design_entries=design_entries,
-        fasta_records=source_data.fasta_records,
-        custom_annotations=source_data.custom_annotation_records,
-        go_annotation_records=()
-        if go_annotation_tsv_path is None
-        else parse_go_annotation_table(go_annotation_tsv_path).accepted_records,
-        pathway_records=source_data.pathway_records,
-        complex_records=source_data.complex_records,
-        active_selection_policy=active_selection_policy,
-    )
-    foreground_background_model = enrichment_reports.foreground_background_model
-    go_enrichment_report = enrichment_reports.go_enrichment_report
-    pathway_activity_report = enrichment_reports.pathway_activity_report
-    pathway_enrichment_report = enrichment_reports.pathway_enrichment_report
-    complex_activity_report = enrichment_reports.complex_activity_report
-    complex_enrichment_report = enrichment_reports.complex_enrichment_report
-    regulator_reports = _build_biological_regulator_analysis_reports(
         regulator_evidence_tsv_path=regulator_evidence_tsv_path,
         regulator_site_signal_tsv_path=regulator_site_signal_tsv_path,
         ptm_evidence_card_report=ptm_evidence_card_report,
-        differential_report=differential_report,
-        protein_refs_by_entity=normalized_table.entity_protein_refs,
-        annotation_report=annotation_report,
-        pathway_activity_report=pathway_activity_report,
-    )
-    regulator_evidence_import_report = (
-        regulator_reports.regulator_evidence_import_report
-    )
-    regulator_inference_report = regulator_reports.regulator_inference_report
-    protein_evidence_reports = _build_biological_protein_evidence_reports(
-        normalized_table=normalized_table,
-        differential_report=differential_report,
-        design_entries=design_entries,
-        selection_policy=active_selection_policy,
-        annotation_report=annotation_report,
-        fasta_records=source_data.fasta_records,
-        variant_fasta_records=source_data.variant_fasta_records,
-        variant_peptide_records=source_data.variant_peptide_records,
-        context_mapping_report=context_mapping_report,
-        pathway_enrichment_report=pathway_enrichment_report,
-        complex_enrichment_report=complex_enrichment_report,
-        protein_region_context_records=source_data.protein_region_context_records,
-        ptm_evidence_card_report=ptm_evidence_card_report,
         lab_run_qc_feedback_report=lab_run_qc_feedback_report,
     )
-    graph_report = protein_evidence_reports.graph_report
-    protein_cards = protein_evidence_reports.protein_cards
-    protein_mechanism_cards = protein_evidence_reports.protein_mechanism_cards
-    experiment_review_reports = _build_biological_experiment_review_reports(
+    source_data = supporting_reports.source_data
+    context_reports = supporting_reports.context_reports
+    enrichment_reports = supporting_reports.enrichment_reports
+    regulator_reports = supporting_reports.regulator_reports
+    protein_evidence_reports = supporting_reports.protein_evidence_reports
+    review_reports = _build_biological_quant_table_review_reports(
         normalized_table=normalized_table,
         differential_report=differential_report,
         experiment_design=experiment_design,
         design_entries=design_entries,
-        selection_policy=active_selection_policy,
-        protein_cards=protein_cards,
+        active_selection_policy=active_selection_policy,
+        protein_cards=protein_evidence_reports.protein_cards,
+        protein_mechanism_cards=protein_evidence_reports.protein_mechanism_cards,
+        pathway_activity_report=enrichment_reports.pathway_activity_report,
+        pathway_enrichment_report=enrichment_reports.pathway_enrichment_report,
+        regulator_inference_report=regulator_reports.regulator_inference_report,
         resolved_condition_a=resolved_condition_a,
         resolved_condition_b=resolved_condition_b,
         protocol_context_tsv_path=protocol_context_tsv_path,
@@ -269,63 +199,36 @@ def build_biological_result_report_bundle_from_quant_table(
         run_qc_assessments=run_qc_assessments,
         volcano_policy=volcano_policy,
     )
-    volcano_review = experiment_review_reports.volcano_review
-    heatmap_report = experiment_review_reports.heatmap_report
-    sample_exploration_report = experiment_review_reports.sample_exploration_report
-    cohort_stratification_report = (
-        experiment_review_reports.cohort_stratification_report
-    )
-    experiment_confidence_report = (
-        experiment_review_reports.experiment_confidence_report
-    )
-    evidence_aware_ranking_report = _build_biological_evidence_aware_ranking_report(
-        differential_report,
-        protein_cards=protein_cards,
-        protein_mechanism_cards=protein_mechanism_cards,
-        experiment_confidence_report=experiment_confidence_report,
-        pathway_enrichment_report=pathway_enrichment_report,
-    )
-    claim_validation_report = _build_biological_claim_validation_report(
-        differential_report,
-        protein_mechanism_cards=protein_mechanism_cards,
-        pathway_activity_report=pathway_activity_report,
-        regulator_inference_report=regulator_inference_report,
-        selection_policy=active_selection_policy,
-    )
-    biological_hypothesis_report = _build_biological_hypothesis_report(
-        claim_validation_report,
-        protein_mechanism_cards=protein_mechanism_cards,
-        pathway_activity_report=pathway_activity_report,
-        regulator_inference_report=regulator_inference_report,
-    )
     return _assemble_biological_result_report_bundle(
         normalized_table=normalized_table,
         differential_report=differential_report,
-        graph_report=graph_report,
-        annotation_report=annotation_report,
-        protein_cards=protein_cards,
-        protein_mechanism_cards=protein_mechanism_cards,
-        experiment_confidence_report=experiment_confidence_report,
-        evidence_aware_ranking_report=evidence_aware_ranking_report,
-        claim_validation_report=claim_validation_report,
-        biological_hypothesis_report=biological_hypothesis_report,
-        foreground_background_model=foreground_background_model,
-        regulator_evidence_import_report=regulator_evidence_import_report,
-        regulator_inference_report=regulator_inference_report,
-        context_import_report=context_import_report,
-        context_mapping_report=context_mapping_report,
-        cohort_stratification_report=cohort_stratification_report,
-        tissue_cell_type_context_report=tissue_cell_type_context_report,
-        drug_target_report=drug_target_report,
-        disease_phenotype_report=disease_phenotype_report,
-        compartment_biology_report=compartment_biology_report,
-        pathway_activity_report=pathway_activity_report,
-        complex_activity_report=complex_activity_report,
-        go_enrichment_report=go_enrichment_report,
-        pathway_enrichment_report=pathway_enrichment_report,
-        complex_enrichment_report=complex_enrichment_report,
-        volcano_review=volcano_review,
-        heatmap_report=heatmap_report,
-        sample_exploration_report=sample_exploration_report,
+        graph_report=protein_evidence_reports.graph_report,
+        annotation_report=source_data.annotation_report,
+        protein_cards=protein_evidence_reports.protein_cards,
+        protein_mechanism_cards=protein_evidence_reports.protein_mechanism_cards,
+        experiment_confidence_report=review_reports.experiment_confidence_report,
+        evidence_aware_ranking_report=review_reports.evidence_aware_ranking_report,
+        claim_validation_report=review_reports.claim_validation_report,
+        biological_hypothesis_report=review_reports.biological_hypothesis_report,
+        foreground_background_model=enrichment_reports.foreground_background_model,
+        regulator_evidence_import_report=(
+            regulator_reports.regulator_evidence_import_report
+        ),
+        regulator_inference_report=regulator_reports.regulator_inference_report,
+        context_import_report=context_reports.context_import_report,
+        context_mapping_report=context_reports.context_mapping_report,
+        cohort_stratification_report=review_reports.cohort_stratification_report,
+        tissue_cell_type_context_report=context_reports.tissue_cell_type_context_report,
+        drug_target_report=context_reports.drug_target_report,
+        disease_phenotype_report=context_reports.disease_phenotype_report,
+        compartment_biology_report=context_reports.compartment_biology_report,
+        pathway_activity_report=enrichment_reports.pathway_activity_report,
+        complex_activity_report=enrichment_reports.complex_activity_report,
+        go_enrichment_report=enrichment_reports.go_enrichment_report,
+        pathway_enrichment_report=enrichment_reports.pathway_enrichment_report,
+        complex_enrichment_report=enrichment_reports.complex_enrichment_report,
+        volcano_review=review_reports.volcano_review,
+        heatmap_report=review_reports.heatmap_report,
+        sample_exploration_report=review_reports.sample_exploration_report,
         selection_policy=active_selection_policy,
     )

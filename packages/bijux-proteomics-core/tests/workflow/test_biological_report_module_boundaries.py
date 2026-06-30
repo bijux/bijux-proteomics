@@ -121,6 +121,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalExperimentReviewReports",
         "_build_biological_experiment_review_reports",
     ),
+    "biological_report_quant_table_supporting_reports.py": (
+        "BiologicalQuantTableSupportingReports",
+        "_build_biological_quant_table_supporting_reports",
+    ),
+    "biological_report_quant_table_review_reports.py": (
+        "BiologicalQuantTableReviewReports",
+        "_build_biological_quant_table_review_reports",
+    ),
     "biological_report_bundle_summary.py": (
         "_build_biological_result_report_summary",
     ),
