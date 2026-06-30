@@ -323,6 +323,13 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_protein_ranking.py": (
         "_build_biological_protein_ranking_candidates",
     ),
+    "biological_report_protein_ranking_scoring.py": (
+        "_build_protein_annotation_score",
+        "_build_protein_confidence_score",
+        "_build_protein_ranking_penalties",
+        "_build_protein_reproducibility_score",
+        "_build_protein_support_score",
+    ),
     "biological_report_pathway_ranking.py": (
         "_build_biological_pathway_ranking_candidates",
     ),
