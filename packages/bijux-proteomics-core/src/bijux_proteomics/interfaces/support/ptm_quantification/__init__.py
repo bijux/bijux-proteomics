@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interpretation.compartment_biology import (
+from .compartment_biology import (
     CompartmentBiologyPolicy,
     build_compartment_biology_report,
     render_compartment_activity_condition_comparison_tsv,
