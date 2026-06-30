@@ -449,7 +449,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/regulation/regulator_enrichment.py",
             "ptm/cards/__init__.py",
             "ptm/cards/benchmarks.py",
-            "ptm/cards/evidence_cards/__init__.py",
+            "ptm/cards/evidence_cards/report_building.py",
             "ptm/cards/proteoforms.py",
             "ptm/cards/reporting.py",
             "ptm/cards/review.py",

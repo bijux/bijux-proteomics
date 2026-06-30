@@ -18,7 +18,7 @@ MANAGED_FINAL_ROW_OWNERS = (
         ("source_row_refs", "derived_no_source_reason", "SourceRowLineage"),
     ),
     (
-        "ptm/cards/evidence_cards/__init__.py",
+        "ptm/cards/evidence_cards/report_building.py",
         ("source_row_refs", "derived_no_source_reason", "SourceRowLineage"),
     ),
     (
