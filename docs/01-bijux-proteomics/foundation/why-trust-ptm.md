@@ -72,6 +72,16 @@ evidence into stronger regulatory language than the current proof supports.
 - whether targetability and follow-up pressure narrow the same sentence that
   the benchmark package seems to strengthen
 
+## Why This Packet Is Scientifically Real
+
+- PTM now has a public story that includes localization, ambiguity,
+  targetability, and follow-up burden together instead of letting one stronger
+  localization artifact dominate
+- the ambiguity-stress companion package proves the repository is willing to
+  publish where targetability weakens
+- the product value is bounded site-localized review, not broad occupancy or
+  regulatory authority
+
 ## Exact Claims
 
 - PTM review preserves localization confidence, ambiguity, and PSI-MOD
@@ -107,6 +117,13 @@ evidence into stronger regulatory language than the current proof supports.
   evidence
 - ambiguity still weakens targetability under the companion package
 - exploratory-only follow-up keeps the consequence chain bounded
+
+## Honest Reader Outcome
+
+- a reviewer should leave trusting the bounded localization story more than the
+  older docs allowed
+- the same reviewer should still refuse broader PTM promotion language until
+  ambiguity, targetability, and consequence closure improve together
 
 ## What You Should Not Trust Yet
 

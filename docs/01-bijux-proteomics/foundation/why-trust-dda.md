@@ -66,6 +66,16 @@ execution boundary.
 - whether the package, runtime lane, and recommendation posture all admit the
   same downgrade pressure
 
+## Why This Packet Is Scientifically Real
+
+- the DDA story now reaches beyond one exported-result packet into a second
+  engine pairing that keeps peptide- and protein-facing drift visible
+- the surrounding core, runtime, knowledge, intelligence, and lab pages now
+  agree on the same bounded sentence instead of forcing the reader to infer
+  where the downgrade really lives
+- the product value here is not generic search output handling; it is bounded,
+  auditable identification review with explicit rollup caution
+
 ## Exact Claims
 
 - adapter-normalized DDA evidence preserves target-decoy semantics across the
@@ -100,6 +110,12 @@ execution boundary.
 - the strongest current route remains import-backed rather than raw-executable
 - the companion package proves the repository is willing to surface rollup
   drift instead of flattening it into a success story
+
+## Honest Reader Outcome
+
+- a reviewer should leave trusting the bounded review surface more than before
+- the same reviewer should still refuse broader live-engine or cohort-wide DDA
+  language until the execution boundary moves
 
 ## Limits That Stay In Force
 

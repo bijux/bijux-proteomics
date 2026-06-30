@@ -71,6 +71,15 @@ vendor-parity authority.
 - whether absent-peptide and matrix-shift pressure remain visible in the final
   sentence
 
+## Why This Packet Is Scientifically Real
+
+- DIA now has a real paired review surface rather than one convenient
+  library-shaped package being asked to carry the whole trust story
+- the raw-executable runtime lane makes rerun realism part of the public
+  product rather than an internal promise
+- the scientific value is bounded transition- and library-conditioned review,
+  not vague workflow optimism
+
 ## Exact Claims
 
 - DIA adapter normalization preserves library-conditioned transition semantics
@@ -104,6 +113,13 @@ vendor-parity authority.
 - absent-peptide reasoning weakens under the companion matrix-shift package
 - chromatogram-level and vendor-execution parity remain outside the current
   proof boundary
+
+## Honest Reader Outcome
+
+- a reviewer should trust the bounded DIA review packet more than the older
+  docs implied
+- the same reviewer should still stop short of chromatogram-native or
+  vendor-parity authority
 
 ## What You Should Not Trust Yet
 

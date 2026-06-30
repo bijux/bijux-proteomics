@@ -74,6 +74,15 @@ pressure, and downstream burden.
 - whether the recommendation and lab surfaces keep calibration and interference
   burden visible
 
+## Why This Packet Is Scientifically Real
+
+- targeted now exposes QC, approved follow-up, failed follow-up, refused
+  follow-up, and carryover pressure as one connected public review packet
+- the runtime lane and consequence pages now make calibration and interference
+  limits part of the same bounded story
+- the product value is operator-facing targeted review discipline, not
+  calibration-clean vendor-parity biology
+
 ## Exact Claims
 
 - targeted benchmark outputs preserve transition-level QC evidence and explicit
@@ -108,6 +117,13 @@ pressure, and downstream burden.
 - calibration-clean and vendor-parity targeted authority are not earned
 - carryover-stress weakens promotion confidence under the companion package
 - exploratory-only follow-up still bounds downstream consequence
+
+## Honest Reader Outcome
+
+- a reviewer should leave trusting the bounded QC-facing targeted packet more
+  than before
+- the same reviewer should still refuse calibration-clean or vendor-parity
+  targeted authority
 
 ## What You Should Not Trust Yet
 
