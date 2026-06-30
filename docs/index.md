@@ -13,18 +13,11 @@ last_reviewed: 2026-07-01
 scientific workflows, reviewable execution, grounded interpretation,
 recommendation posture, and explicit downstream lab consequence.
 
-This documentation site should help a serious reader answer three questions
-quickly:
-
-- what the repository can honestly defend today
-- which package owns each part of that claim
-- where the current boundary still stops stronger language
-
 The important correction since `v0.3.7` is that this repository is no longer
-best described as governance wrapped around isolated packages. It now has a
-material scientific core, a real runtime proof surface, explicit knowledge and
-intelligence layers, and a lab-consequence owner that keeps downstream burden
-visible.
+best described as governance around isolated packages. It now has a deeper
+scientific core, public benchmark packets, runtime rerun proof, explicit
+knowledge and intelligence pressure, and a lab-consequence owner that keeps the
+cost of being wrong visible.
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
@@ -63,29 +56,71 @@ visible.
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-## Strongest Current Public Sentence
+## Product Scope
 
-The strongest current release sentence is not "the whole repository is ready."
-It is narrower:
+This site should let a serious reader answer four questions quickly:
+
+- what scientific workflow families the repository can defend today
+- which package owns each part of that defense
+- where benchmark, runtime, grounding, recommendation, and lab consequence
+  still cap the wording
+- which page should be opened next without maintainer narration
+
+## Current Credible Workflow Families
+
+The strongest current public sentence is family-specific rather than
+repository-wide:
 
 - outsider-auditable today: `dda`, `dia`, `ptm`, `targeted`
 - review-grade but still bounded: `lfq`
 - internal support only: `multiplex`
 
 That sentence is carried by paired benchmark packages, runtime rerun evidence,
-grounded claim review, recommendation-pressure surfaces, and lab-consequence
+grounded claim review, recommendation challenge, and lab-consequence
 boundaries. It is not carried by polished prose alone.
 
-## Start Here
+## Forbidden Claims
 
-Use these routes in order when you need the shortest honest explanation:
+This home page should never imply the following:
+
+- that one strong workflow family upgrades the whole repository to
+  decision-grade authority
+- that public benchmark depth erases runtime, grounding, recommendation, or
+  assay-burden limits
+- that raw-executable runtime lanes automatically create broader scientific
+  truth
+- that recommendation confidence can outrun the weakest downstream lab
+  consequence
+
+When wording sounds stronger than the weakest owner surface, the right next
+page is [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/).
+
+## Reader Paths
+
+- Scientist: start with
+  [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
+  when the question is what one careful scientific reader should trust and why.
+- Operator: start with the
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
+  when the question is how to reopen a flagship family without guessing what
+  runtime proof surface counts.
+- Maintainer: start with
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
+  when the question is how to evolve the repository without widening dishonest
+  language.
+
+## Reader-First Sections
+
+Open these sections in order if you need the shortest honest route through the
+product:
 
 1. [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
-2. [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-3. [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
-4. [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+2. [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+3. [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+4. [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+5. [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
 
-If the question is already narrower, jump directly to the owner route:
+If the question is already owner-specific, jump directly to:
 
 - evidence root:
   [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
@@ -102,7 +137,7 @@ If the question is already narrower, jump directly to the owner route:
 
 The site is organized around durable package ownership:
 
-| Handbook | Owner question |
+| handbook | owner question |
 | --- | --- |
 | `01-bijux-proteomics` | what the repository claims, where it stops, and how package boundaries fit together |
 | `02-agentic-proteins` | which historical runtime entrypoints still exist and how compatibility is bounded |
@@ -116,37 +151,16 @@ The site is organized around durable package ownership:
 
 ## What Changed Since v0.3.7
 
-The documentation now has to represent a deeper product:
+The docs now need to represent a deeper product:
 
 - broader core biology and chemistry surfaces across sequence handling,
-  digestion, spectra, mzML, quantification, DIA, and PTM review
+  digestion, spectra, mzML, quantification, DIA, PTM, and review artifacts
 - stronger runtime proof through replay, rerun kits, refusal routes, and
-  artifact integrity
+  artifact-integrity surfaces
 - explicit knowledge and intelligence routes for grounding, contradiction,
-  downgrade, and recommendation pressure
-- a real lab-consequence owner that keeps follow-up burden and refusal visible
-
-## Claim Limits
-
-This site should never sound stronger than the checked proof chain. In
-practice that means:
-
-- family-level strength does not automatically widen to repository-wide
-  authority
-- benchmark depth does not erase runtime, grounding, or lab-consequence limits
-- clearer prose must narrow when the weakest live owner surface narrows
-
-When the wording sounds stronger than the evidence, the right next page is
-[Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/).
-
-## Reader Routes
-
-- Scientist:
-  [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
-- Operator:
-  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
-- Maintainer:
-  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
+  downgrade, overconfidence, and regret
+- a real lab-consequence owner that keeps follow-up burden, refusal, and
+  requested-versus-observed learning public
 
 ## Boundary
 

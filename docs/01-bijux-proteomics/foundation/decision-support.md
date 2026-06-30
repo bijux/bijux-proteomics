@@ -13,10 +13,10 @@ This route exists for the question after benchmark and runtime evidence:
 what should a skeptical reader believe now, and which owner surface actually
 earns that sentence.
 
-Decision support is where the repository stops pretending that stronger code or
-cleaner prose automatically creates stronger judgment. The full chain has to
-survive grounded evidence, contradiction pressure, recommendation challenge,
-and downstream lab burden together.
+Decision support is where the repository stops pretending that stronger code,
+cleaner prose, or a successful rerun automatically create stronger judgment.
+The full chain has to survive grounded evidence, contradiction pressure,
+recommendation challenge, and downstream lab burden together.
 
 ## The Decision Chain
 
@@ -29,7 +29,8 @@ Read the current product judgment in this order:
 3. `intelligence` establishes how strong the recommendation may sound after
    evidence loss, comparator pressure, and regret review
 4. `lab` establishes whether the requested follow-up still deserves operator
-   burden once controls, readiness, and refusal surfaces are included
+   burden once controls, readiness, refusal, and observed outcomes are
+   included
 
 The weakest honest sentence across those four layers wins.
 
@@ -40,8 +41,19 @@ something narrower and more important:
 
 - it names the order in which the owner pages should be read
 - it keeps one strong artifact from overruling the weaker limiting layer
-- it explains why public language must narrow when the downstream consequence
-  chain does not support the stronger sentence
+- it explains why public language must narrow when downstream consequence does
+  not support the stronger sentence
+
+## Which Limiter Usually Wins
+
+The most common decision-support failures are not missing prose. They are owner
+conflicts such as:
+
+- a strong benchmark packet with weak grounding under contradiction pressure
+- a grounded sentence with visible recommendation overconfidence
+- a strong recommendation that still triggers costly or low-yield follow-up
+- a successful rerun lane that still does not authorize stronger scientific or
+  release language
 
 ## Start Here
 
@@ -66,8 +78,8 @@ something narrower and more important:
   overreach, or by downstream assay burden?
 - Which owner currently deserves the final word on the family call?
 - Which public artifact should a hostile reviewer open first?
-- Which apparently strong sentence should narrow because another owner surface
-  still refuses it?
+- Which stronger sentence would be dishonest today even if one upstream layer
+  looks impressive?
 
 ## What This Route Refuses
 
