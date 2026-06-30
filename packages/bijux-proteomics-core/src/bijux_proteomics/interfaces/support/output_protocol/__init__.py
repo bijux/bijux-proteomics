@@ -16,38 +16,14 @@ from .protocol_policy import (
     _build_protocol_consistency_report_from_inputs,
     _load_protocol_context,
 )
+from .volcano_review import (
+    _build_volcano_review_policy,
+    _export_volcano_review_assets,
+)
 from .workflow_execution import (
     _run_orchestrated_workflow,
     _validate_proteomics_run_inputs,
 )
-
-
-def _build_volcano_review_policy(
-    *,
-    adjusted_p_value_threshold: float,
-    absolute_log2_fold_change_threshold: float,
-    top_label_count: int,
-) -> VolcanoReviewPolicy:
-    return VolcanoReviewPolicy(
-        adjusted_p_value_threshold=adjusted_p_value_threshold,
-        absolute_log2_fold_change_threshold=absolute_log2_fold_change_threshold,
-        top_label_count=top_label_count,
-    )
-
-
-def _export_volcano_review_assets(
-    *,
-    review_report: Any,
-    json_out: Path | None,
-    svg_out: Path | None,
-    html_out: Path | None,
-) -> None:
-    if json_out is not None:
-        export_volcano_review_json(review_report, json_out)
-    if svg_out is not None:
-        export_volcano_review_svg(review_report, svg_out)
-    if html_out is not None:
-        export_volcano_review_html(review_report, html_out)
 
 
 __all__ = [
