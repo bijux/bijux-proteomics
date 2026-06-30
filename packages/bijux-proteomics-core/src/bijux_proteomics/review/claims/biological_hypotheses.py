@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import ConfidenceTier
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.io.stable_outputs import sort_strings
 from bijux_proteomics_foundation import JsonModel
 

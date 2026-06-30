@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
+from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.review.claims.result_queries import (
     _empty_to_none,
     _find_protein_card,

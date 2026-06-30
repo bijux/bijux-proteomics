@@ -11,7 +11,8 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain import SourceRowLineage, coerce_confidence_tier
+from bijux_proteomics.domain import SourceRowLineage
+from bijux_proteomics.domain.confidence import coerce_confidence_tier
 from bijux_proteomics.io.stable_outputs import sort_strings
 from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
     EvidenceGraphConfidenceTier,

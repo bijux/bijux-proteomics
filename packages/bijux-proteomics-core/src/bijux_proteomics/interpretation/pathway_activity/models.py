@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import ConfidenceTier
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.interpretation.pathway_enrichment import PathwayMemberKind
 from bijux_proteomics.quantification.contracts.input_models import (
     NormalizationMethod,
