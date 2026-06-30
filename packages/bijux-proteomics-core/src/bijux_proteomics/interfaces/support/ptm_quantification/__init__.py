@@ -18,7 +18,7 @@ from .compartment_biology import (
     render_compartment_enrichment_tsv,
     render_unknown_compartment_localization_tsv,
 )
-from bijux_proteomics.ptm import (
+from .ptm import (
     PtmLocalizationColumnMapping,
     PtmMotifBackgroundMode,
     PtmMotifComparisonPolicy,
