@@ -10,7 +10,7 @@ from click.testing import CliRunner
 import pytest
 
 from bijux_proteomics.interfaces.cli.app import cli
-import bijux_proteomics.interfaces.support.output_protocol as output_protocol
+import bijux_proteomics.interfaces.support.output_protocol.workflow_execution as workflow_execution
 from bijux_proteomics.workflow.orchestrator import (
     DdaWorkflowConfig,
     DiannWorkflowConfig,
@@ -69,7 +69,7 @@ def test_biological_report_command_routes_through_core_workflow_orchestrator(
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -101,7 +101,7 @@ def test_dda_biological_report_command_routes_through_core_workflow_orchestrator
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -133,7 +133,7 @@ def test_diann_biological_report_command_routes_through_core_workflow_orchestrat
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -162,7 +162,7 @@ def test_maxquant_biological_report_command_routes_through_core_workflow_orchest
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -204,7 +204,7 @@ def test_tmt_report_command_routes_through_core_workflow_orchestrator(
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -234,7 +234,7 @@ def test_silac_report_command_routes_through_core_workflow_orchestrator(
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -262,7 +262,7 @@ def test_ptm_report_command_routes_through_core_workflow_orchestrator(
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -292,7 +292,7 @@ def test_targeted_target_matrix_command_routes_through_core_workflow_orchestrato
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,
@@ -320,7 +320,7 @@ def test_targeted_assay_qc_command_routes_through_core_workflow_orchestrator(
         captured["config"] = config
         raise RuntimeError("orchestrator sentinel")
 
-    monkeypatch.setattr(output_protocol, "run_proteomics_workflow", _fake_run)
+    monkeypatch.setattr(workflow_execution, "run_proteomics_workflow", _fake_run)
 
     result = CliRunner().invoke(
         cli,

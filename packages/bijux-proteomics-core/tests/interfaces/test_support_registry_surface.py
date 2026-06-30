@@ -74,6 +74,10 @@ def test_python_api_modules_import_owned_support_submodules_directly() -> None:
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the biomarker candidate support facade instead of an owner module"
                 )
+            if node.module == "bijux_proteomics.interfaces.support.output_protocol":
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the output protocol facade instead of an owner module"
+                )
             if node.module == "bijux_proteomics.interfaces.support.workflow" and any(
                 alias.name == "*" for alias in node.names
             ):
