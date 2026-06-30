@@ -26,9 +26,11 @@ from bijux_proteomics.workflow.reports.biological_report_html_support import (
     _render_biological_report_section_confidence_table_html,
     _render_section_heading_html,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalReportSectionKey,
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
+    BiologicalReportSectionKey,
 )
 
 

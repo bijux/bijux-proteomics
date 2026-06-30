@@ -6,15 +6,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_export_contracts import (
+    BiologicalResultReportExportManifest,
+)
 from bijux_proteomics.workflow.reports.biological_report_export_finalization import (
     _finalize_biological_result_report_export,
 )
 from bijux_proteomics.workflow.reports.biological_report_export_writing import (
     _write_biological_result_report_export_names,
-)
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
 )
 from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
     render_biological_report_section_confidence_tsv,

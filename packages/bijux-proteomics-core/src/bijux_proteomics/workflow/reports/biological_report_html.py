@@ -4,15 +4,17 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.workflow.reports.biological_report_artifact_path_contracts import (
+    BiologicalResultReportArtifactPaths,
+)
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.reports.biological_report_html_report_sections import (
     _render_biological_report_section_blocks_html,
 )
 from bijux_proteomics.workflow.reports.biological_report_html_report_summary import (
     _render_biological_report_summary_html,
-)
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportArtifactPaths,
-    BiologicalResultReportBundle,
 )
 
 

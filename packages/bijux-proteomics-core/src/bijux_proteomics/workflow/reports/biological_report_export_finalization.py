@@ -14,15 +14,17 @@ from bijux_proteomics.workflow.reports.biological_report_export_manifest_buildin
     _build_biological_result_report_artifact_paths,
     _build_biological_result_report_export_manifest,
 )
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_export_contracts import (
+    BiologicalResultReportExportManifest,
+)
 from bijux_proteomics.workflow.reports.biological_report_export_writing import (
     BiologicalResultReportExportNames,
 )
 from bijux_proteomics.workflow.reports.biological_report_html import (
     _render_biological_result_report_html,
-)
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
 )
 
 

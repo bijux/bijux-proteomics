@@ -18,7 +18,7 @@ from bijux_proteomics.workflow.reports.biological_report_html_scientific_artifac
 from bijux_proteomics.workflow.reports.biological_report_html_visual_artifact_inventory import (
     _build_biological_visual_artifact_sections,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_artifact_path_contracts import (
     BiologicalResultReportArtifactPaths,
 )
 

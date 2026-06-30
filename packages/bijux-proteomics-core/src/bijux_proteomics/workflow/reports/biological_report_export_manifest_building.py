@@ -4,17 +4,22 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.workflow.reports.biological_report_artifact_path_contracts import (
+    BiologicalResultReportArtifactPaths,
+)
 from bijux_proteomics.workflow.reports.biological_report_artifact_path_building import (
     _build_biological_result_report_artifact_paths,
+)
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_export_contracts import (
+    BiologicalResultReportExportManifest,
 )
 from bijux_proteomics.workflow.reports.biological_report_export_manifest_metadata import (
     _build_biological_result_report_export_metadata,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportArtifactPaths,
-    BiologicalResultReportBundle,
-    BiologicalResultReportExportManifest,
-)
+
 
 def _build_biological_result_report_export_manifest(
     report: BiologicalResultReportBundle,
