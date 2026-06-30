@@ -26,7 +26,7 @@ from bijux_proteomics.targeted.validation_evidence_cards import (
     ValidationEvidencePanelAssayInput,
 )
 
-from ..targeted_selection_io.field_parsing import _split_semicolon_field
+from ...targeted_selection_io.field_parsing import _split_semicolon_field
 
 
 def _load_validation_evidence_discovery_candidates(
