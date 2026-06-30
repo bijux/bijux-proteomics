@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
+from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
     BiologicalScientificExportNames,
 )
 

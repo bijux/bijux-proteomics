@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics.workflow.reports.biological_report_claim_exports import (
@@ -26,44 +25,13 @@ from bijux_proteomics.workflow.reports.biological_report_regulator_exports impor
 from bijux_proteomics.workflow.reports.biological_report_scientific_required_exports import (
     _write_biological_required_scientific_exports,
 )
+from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
+    BiologicalScientificExportNames,
+)
 from bijux_proteomics.workflow.reports.biological_report_scientific_summary_tables import (
     render_biological_report_section_confidence_tsv as _render_section_confidence_tsv,
     render_biological_result_report_summary_tsv as _render_report_summary_tsv,
 )
-
-
-@dataclass(frozen=True)
-class BiologicalScientificExportNames:
-    """Artifact names emitted for core scientific report outputs."""
-
-    summary_name: str
-    differential_name: str
-    protein_card_summary_name: str
-    protein_card_name: str
-    protein_mechanism_card_summary_name: str
-    protein_mechanism_card_name: str
-    evidence_graph_nodes_name: str
-    evidence_graph_edges_name: str
-    experiment_confidence_summary_name: str
-    experiment_confidence_components_name: str
-    section_confidence_name: str
-    evidence_aware_ranking_name: str | None
-    claim_validation_summary_name: str | None
-    supported_claim_name: str | None
-    rejected_claim_name: str | None
-    biological_hypothesis_summary_name: str | None
-    biological_hypothesis_name: str | None
-    rejected_hypothesis_candidate_name: str | None
-    foreground_background_summary_name: str
-    foreground_background_entry_name: str
-    foreground_background_issue_name: str
-    regulator_inference_summary_name: str | None
-    regulator_inference_name: str | None
-    regulator_unresolved_name: str | None
-    regulator_rejected_name: str | None
-    annotation_summary_name: str
-    annotation_name: str
-    annotation_unmapped_name: str
 
 
 def render_biological_result_report_summary_tsv(

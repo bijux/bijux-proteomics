@@ -22,8 +22,10 @@ from bijux_proteomics.workflow.reports.biological_report_enrichment_exports impo
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
+from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
     BiologicalScientificExportNames,
+)
+from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
     write_biological_scientific_exports,
 )
 from bijux_proteomics.workflow.reports.biological_report_visual_exports import (

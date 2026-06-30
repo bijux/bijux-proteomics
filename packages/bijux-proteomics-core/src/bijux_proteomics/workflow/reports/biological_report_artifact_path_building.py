@@ -25,7 +25,7 @@ from bijux_proteomics.workflow.reports.biological_report_export_contracts import
 from bijux_proteomics.workflow.reports.biological_report_scientific_artifact_paths import (
     _build_biological_scientific_artifact_path_fields,
 )
-from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
+from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
     BiologicalScientificExportNames,
 )
 from bijux_proteomics.workflow.reports.biological_report_visual_enrichment_artifact_paths import (
