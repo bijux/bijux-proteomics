@@ -501,6 +501,7 @@ def test_workflow_result_types_import_contract() -> None:
 
 def test_workflow_pipeline_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow.pipelines")
+    advanced = importlib.import_module("bijux_proteomics.workflow.pipelines.advanced")
     advanced_tmt = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.advanced_tmt"
     )
@@ -515,6 +516,8 @@ def test_workflow_pipeline_package_import_contract() -> None:
     )
 
     assert module.__name__ == "bijux_proteomics.workflow.pipelines"
+    assert advanced.__name__ == "bijux_proteomics.workflow.pipelines.advanced"
+    assert hasattr(advanced, "build_advanced_workflow_family_contract")
     assert hasattr(advanced_tmt, "run_advanced_tmt_workflow")
     assert hasattr(orchestrator, "run_proteomics_workflow")
     assert hasattr(trust_bundle, "build_trust_bundle")

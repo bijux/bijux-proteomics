@@ -189,6 +189,12 @@ REPORT_FACADE_OWNERS = (
 
 PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
+        ),
+        rationale="advanced workflow family ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.advanced_diann",
         rationale="advanced DIA-NN pipeline ownership",
     ),
@@ -211,10 +217,6 @@ PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.advanced_tmt",
         rationale="advanced TMT pipeline ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_workflow_family",
-        rationale="advanced workflow family ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.dda_biological_workflow",
@@ -300,6 +302,19 @@ PIPELINE_FACADE_OWNERS = (
     ),
 )
 
+ADVANCED_PIPELINE_FACADE_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
+        ),
+        rationale="advanced workflow family ownership",
+    ),
+)
+
+PIPELINE_SUBMODULES = {
+    "advanced": "bijux_proteomics.workflow.pipelines.advanced",
+}
+
 WORKFLOW_ROOT_SUBMODULES = {
     "benchmarks": "bijux_proteomics.workflow.benchmarks",
     "cards": "bijux_proteomics.workflow.cards",
@@ -344,7 +359,9 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="workflow output validation ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_workflow_family",
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
+        ),
         rationale="advanced workflow family ownership",
     ),
     WorkflowFacadeOwner(

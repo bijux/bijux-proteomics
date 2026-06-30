@@ -5,10 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from bijux_proteomics.workflow.public_api import (
+    PIPELINE_SUBMODULES,
     PIPELINE_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
     load_public_export,
+    load_public_submodule,
     module_directory,
 )
 
@@ -18,8 +20,19 @@ __all__, _PIPELINE_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> Any:
+    if name in PIPELINE_SUBMODULES:
+        return load_public_submodule(
+            __name__,
+            globals(),
+            PIPELINE_SUBMODULES,
+            name,
+        )
     return load_public_export(__name__, globals(), _PIPELINE_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:
-    return module_directory(globals(), __all__)
+    return module_directory(
+        globals(),
+        __all__,
+        submodule_names=tuple(PIPELINE_SUBMODULES),
+    )

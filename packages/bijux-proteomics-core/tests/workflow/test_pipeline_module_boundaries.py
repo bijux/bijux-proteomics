@@ -186,3 +186,24 @@ def test_demo_pipeline_wrappers_delegate_to_demo_owners() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its owned demo surface"
+
+
+def test_advanced_pipeline_wrappers_delegate_to_advanced_owners() -> None:
+    root = _workflow_source_root() / "pipelines"
+    expected_targets = {
+        "advanced_workflow_family.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
+        ),
+    }
+
+    for filename, expected_target in expected_targets.items():
+        nodes = _significant_nodes(root / filename)
+        assert nodes, f"{filename} should contain an advanced workflow re-export"
+        assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
+            f"{filename} should stay a thin compatibility facade"
+        )
+        assert any(
+            node.module == expected_target
+            for node in nodes
+            if isinstance(node, ast.ImportFrom)
+        ), f"{filename} should re-export its advanced owner surface"
