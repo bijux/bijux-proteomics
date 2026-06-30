@@ -10,15 +10,17 @@ from io import StringIO
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.domain import (
-    ConfidenceTier,
+from bijux_proteomics.domain.card_schema import (
     StandardCardEntry,
     StandardCardKind,
     StandardCardSubjectKind,
-    build_pathway_card_id,
-    coerce_confidence_tier,
     render_standard_card_row,
 )
+from bijux_proteomics.domain.confidence import (
+    ConfidenceTier,
+    coerce_confidence_tier,
+)
+from bijux_proteomics.domain.semantic_ids import build_pathway_card_id
 from bijux_proteomics.interpretation import (
     PathwayActivityReport,
     PathwayConditionComparisonEntry,
