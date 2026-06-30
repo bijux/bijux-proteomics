@@ -7,10 +7,6 @@
 from __future__ import annotations
 
 from bijux_proteomics.lab.qc import LcmsRunQcReport
-from bijux_proteomics.workflow.pipelines.orchestrator import (
-    WorkflowConfig,
-    WorkflowResult,
-)
 
 from ..imports import *  # noqa: F401,F403
 from ..workflow import *  # noqa: F401,F403
@@ -19,6 +15,10 @@ from .protocol_policy import (
     _build_protocol_aware_selection_policy,
     _build_protocol_consistency_report_from_inputs,
     _load_protocol_context,
+)
+from .workflow_execution import (
+    _run_orchestrated_workflow,
+    _validate_proteomics_run_inputs,
 )
 
 
@@ -33,64 +33,6 @@ def _build_volcano_review_policy(
         absolute_log2_fold_change_threshold=absolute_log2_fold_change_threshold,
         top_label_count=top_label_count,
     )
-
-
-def _run_orchestrated_workflow(config: WorkflowConfig) -> WorkflowResult:
-    try:
-        return run_proteomics_workflow(config)
-    except Exception as exc:  # noqa: BLE001
-        workflow_name = getattr(getattr(config, "mode", None), "value", None)
-        report = build_failure_explanation_report(
-            (
-                FailureExplanationRequest(
-                    failure_id="workflow_failure",
-                    workflow_name=workflow_name,
-                    failure_text=str(exc),
-                ),
-            )
-        )
-        raise click.ClickException(
-            format_failure_explanation_for_cli(report.explanations[0])
-        ) from exc
-
-
-def _validate_proteomics_run_inputs(
-    *,
-    engine: ProteomicsRunEngine,
-    report_path: Path | None,
-    peptides_path: Path | None,
-    protein_groups_path: Path | None,
-    source_protein_tsv: Path | None,
-    config_path: Path | None,
-) -> None:
-    if report_path is None:
-        raise click.ClickException("--report is required")
-    if engine is ProteomicsRunEngine.MAXQUANT:
-        if peptides_path is None:
-            raise click.ClickException(
-                "MaxQuant runs require --peptides with peptides.txt"
-            )
-        if protein_groups_path is None:
-            raise click.ClickException(
-                "MaxQuant runs require --protein-groups with proteinGroups.txt"
-            )
-        return
-    if peptides_path is not None:
-        raise click.ClickException(
-            f"{engine.value} runs do not accept --peptides; that input is MaxQuant-specific"
-        )
-    if protein_groups_path is not None:
-        raise click.ClickException(
-            f"{engine.value} runs do not accept --protein-groups; that input is MaxQuant-specific"
-        )
-    if engine is not ProteomicsRunEngine.FRAGPIPE and source_protein_tsv is not None:
-        raise click.ClickException(
-            f"{engine.value} runs do not accept --source-protein-tsv; that input is FragPipe-specific"
-        )
-    if engine is ProteomicsRunEngine.FRAGPIPE and config_path is not None:
-        raise click.ClickException(
-            "fragpipe runs do not accept --config-path in the flagship command"
-        )
 
 
 def _export_volcano_review_assets(
