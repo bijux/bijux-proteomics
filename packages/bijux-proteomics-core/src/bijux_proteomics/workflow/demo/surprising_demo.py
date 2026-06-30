@@ -57,7 +57,7 @@ from bijux_proteomics.workflow.reports.biological_reporting import (
     build_biological_result_report_bundle_from_quant_table,
     write_biological_result_report_bundle,
 )
-from bijux_proteomics.workflow.study_result import (
+from bijux_proteomics.workflow.studies.study_result import (
     ProteomicsStudyResult,
     build_proteomics_study_result_from_biological_report_bundle,
 )

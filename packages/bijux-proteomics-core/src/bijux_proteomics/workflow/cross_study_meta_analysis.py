@@ -30,7 +30,7 @@ from bijux_proteomics.workflow.cross_study_effect_comparison import (
 from bijux_proteomics.workflow.cross_study_protein_harmonization import (
     CrossStudyProteinStudyInput,
 )
-from bijux_proteomics.workflow.study_result import ProteomicsStudyKind
+from bijux_proteomics.workflow.studies.study_result import ProteomicsStudyKind
 from bijux_proteomics_foundation import JsonModel
 
 

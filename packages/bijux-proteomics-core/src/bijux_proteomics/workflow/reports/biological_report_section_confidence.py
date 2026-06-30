@@ -243,7 +243,7 @@ from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     render_protein_mechanism_card_summary_tsv,
     render_protein_mechanism_card_tsv,
 )
-from bijux_proteomics.workflow.cohort_stratification import (
+from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,
     build_cohort_stratification_report,
     render_cohort_interaction_candidate_tsv,

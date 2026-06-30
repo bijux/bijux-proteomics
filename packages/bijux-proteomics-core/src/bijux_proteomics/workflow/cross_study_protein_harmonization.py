@@ -17,7 +17,7 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.ptm.cards.evidence_cards import PtmEvidenceCard
 from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
-from bijux_proteomics.workflow.study_result import (
+from bijux_proteomics.workflow.studies.study_result import (
     ProteomicsStudyKind,
     ProteomicsStudyResult,
 )

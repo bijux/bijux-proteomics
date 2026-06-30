@@ -63,6 +63,10 @@ _ROOT_WRAPPER_TARGETS = {
     "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
     "result_search_index.py": ("bijux_proteomics.workflow.exports.result_search_index"),
     "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
+    "cohort_stratification.py": (
+        "bijux_proteomics.workflow.studies.cohort_stratification"
+    ),
+    "study_result.py": "bijux_proteomics.workflow.studies.study_result",
     "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
 
@@ -103,6 +107,7 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     cards = importlib.import_module("bijux_proteomics.workflow.cards")
     exports = importlib.import_module("bijux_proteomics.workflow.exports")
     demo = importlib.import_module("bijux_proteomics.workflow.demo")
+    studies = importlib.import_module("bijux_proteomics.workflow.studies")
 
     assert hasattr(reports, "build_biological_result_report_bundle")
     assert hasattr(reports, "export_biological_result_report_bundle")
@@ -127,3 +132,7 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(demo, "run_surprising_demo")
     assert hasattr(demo, "build_surprising_demo_example_requests")
     assert hasattr(demo, "build_surprising_demo_interrogation_report")
+
+    assert hasattr(studies, "build_cohort_stratification_report")
+    assert hasattr(studies, "build_proteomics_study_result")
+    assert hasattr(studies, "ProteomicsStudyKind")

@@ -91,6 +91,17 @@ DEMO_FACADE_OWNERS = (
     ),
 )
 
+STUDY_FACADE_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.studies.cohort_stratification",
+        rationale="cohort stratification ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.studies.study_result",
+        rationale="study result ownership",
+    ),
+)
+
 REPORT_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.reports.biological_reporting",
@@ -221,6 +232,7 @@ WORKFLOW_ROOT_SUBMODULES = {
     "exports": "bijux_proteomics.workflow.exports",
     "pipelines": "bijux_proteomics.workflow.pipelines",
     "reports": "bijux_proteomics.workflow.reports",
+    "studies": "bijux_proteomics.workflow.studies",
 }
 
 WORKFLOW_ROOT_OWNERS = (
@@ -289,7 +301,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="advanced DIA-NN pipeline ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.cohort_stratification",
+        owner_module="bijux_proteomics.workflow.studies.cohort_stratification",
         rationale="cohort stratification ownership",
     ),
     WorkflowFacadeOwner(
@@ -412,7 +424,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="generated scale demo ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.study_result",
+        owner_module="bijux_proteomics.workflow.studies.study_result",
         rationale="study result ownership",
     ),
     WorkflowFacadeOwner(
@@ -605,6 +617,7 @@ __all__ = [
     "EXPORT_FACADE_OWNERS",
     "PIPELINE_FACADE_OWNERS",
     "REPORT_FACADE_OWNERS",
+    "STUDY_FACADE_OWNERS",
     "WORKFLOW_ROOT_OWNERS",
     "WORKFLOW_ROOT_SUBMODULES",
     "WorkflowFacadeOwner",

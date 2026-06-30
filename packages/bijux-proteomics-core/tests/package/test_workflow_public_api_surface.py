@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics import workflow
-from bijux_proteomics.workflow import cards, demo, exports, pipelines, reports
+from bijux_proteomics.workflow import cards, demo, exports, pipelines, reports, studies
 from bijux_proteomics.workflow import cross_study_protein_harmonization
 from bijux_proteomics.workflow import public_benchmark_descriptors
 from bijux_proteomics.workflow.public_api import (
@@ -13,6 +13,7 @@ from bijux_proteomics.workflow.public_api import (
     EXPORT_FACADE_OWNERS,
     PIPELINE_FACADE_OWNERS,
     REPORT_FACADE_OWNERS,
+    STUDY_FACADE_OWNERS,
     WORKFLOW_ROOT_OWNERS,
     WORKFLOW_ROOT_SUBMODULES,
     build_lazy_export_index,
@@ -41,12 +42,16 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     expected_reports, _ = build_lazy_export_index(
         facade_owner_modules(REPORT_FACADE_OWNERS)
     )
+    expected_studies, _ = build_lazy_export_index(
+        facade_owner_modules(STUDY_FACADE_OWNERS)
+    )
 
     assert tuple(cards.__all__) == expected_cards
     assert tuple(demo.__all__) == expected_demo
     assert tuple(exports.__all__) == expected_exports
     assert tuple(pipelines.__all__) == expected_pipelines
     assert tuple(reports.__all__) == expected_reports
+    assert tuple(studies.__all__) == expected_studies
 
 
 def test_workflow_root_prefers_canonical_owner_for_colliding_exports() -> None:

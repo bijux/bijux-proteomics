@@ -36,7 +36,7 @@ from bijux_proteomics.workflow.cards.protein_mechanism_cards import ProteinMecha
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.study_result import ProteomicsStudyResult
+from bijux_proteomics.workflow.studies.study_result import ProteomicsStudyResult
 from bijux_proteomics_foundation import JsonModel
 
 
