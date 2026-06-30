@@ -45,19 +45,9 @@ from bijux_proteomics.study import (
     build_protocol_consistency_report,
     coerce_experiment_design,
 )
-from bijux_proteomics.workflow.cards.protein_evidence_cards import (
-    ProteinEvidenceCardSelectionPolicy,
-    build_protein_evidence_card_report,
-)
-from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
-    build_protein_mechanism_card_report,
-)
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,
     build_cohort_stratification_report,
-)
-from bijux_proteomics.workflow.reports.biological_result_graph import (
-    build_biological_result_graph_report,
 )
 
 if TYPE_CHECKING:
@@ -90,6 +80,9 @@ from bijux_proteomics.workflow.reports.biological_report_contrast_selection impo
 )
 from bijux_proteomics.workflow.reports.biological_report_quantification_analysis import (
     _build_biological_quantification_analysis,
+)
+from bijux_proteomics.workflow.reports.biological_report_protein_evidence import (
+    _build_biological_protein_evidence_reports,
 )
 from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (
     _build_biological_regulator_analysis_reports,
@@ -271,45 +264,25 @@ def build_biological_result_report_bundle_from_quant_table(
         regulator_reports.regulator_evidence_import_report
     )
     regulator_inference_report = regulator_reports.regulator_inference_report
-    protein_cards = build_protein_evidence_card_report(
-        graph_report := build_biological_result_graph_report(
-            normalized_table,
-            differential_report,
-            design_entries,
-            max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-            min_absolute_log2_fold_change=active_selection_policy.min_absolute_log2_fold_change,
-            lab_run_qc_feedback_report=lab_run_qc_feedback_report,
-        ),
-        normalized_table,
-        differential_report,
-        annotation_report,
-        protein_sequences={
-            record.canonical_accession: record.residues
-            for record in source_data.fasta_records
-        },
-        protein_records=source_data.fasta_records,
-        variant_protein_records=source_data.variant_fasta_records,
+    protein_evidence_reports = _build_biological_protein_evidence_reports(
+        normalized_table=normalized_table,
+        differential_report=differential_report,
+        design_entries=design_entries,
+        selection_policy=active_selection_policy,
+        annotation_report=annotation_report,
+        fasta_records=source_data.fasta_records,
+        variant_fasta_records=source_data.variant_fasta_records,
         variant_peptide_records=source_data.variant_peptide_records,
-        selection_policy=ProteinEvidenceCardSelectionPolicy(
-            max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-            min_absolute_log2_fold_change=(
-                active_selection_policy.min_absolute_log2_fold_change
-            ),
-        ),
-        sample_conditions={
-            entry.sample_id: entry.condition for entry in design_entries
-        },
         context_mapping_report=context_mapping_report,
         pathway_enrichment_report=pathway_enrichment_report,
         complex_enrichment_report=complex_enrichment_report,
         protein_region_context_records=source_data.protein_region_context_records,
         ptm_evidence_card_report=ptm_evidence_card_report,
+        lab_run_qc_feedback_report=lab_run_qc_feedback_report,
     )
-    protein_mechanism_cards = build_protein_mechanism_card_report(
-        graph_report,
-        protein_cards,
-        ptm_evidence_card_report=ptm_evidence_card_report,
-    )
+    graph_report = protein_evidence_reports.graph_report
+    protein_cards = protein_evidence_reports.protein_cards
+    protein_mechanism_cards = protein_evidence_reports.protein_mechanism_cards
     volcano_review = build_quantification_volcano_review(
         differential_report,
         protein_refs_by_entity=normalized_table.entity_protein_refs,
