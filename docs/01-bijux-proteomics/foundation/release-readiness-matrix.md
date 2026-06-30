@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Release Readiness Matrix
@@ -18,6 +18,11 @@ The machine-readable matrix lives in
 `configs/package-governance/release-readiness-matrix.toml`. It is generated
 from live package-boundary, workflow, runtime, evidence, and consequence
 validators so the root wording cannot drift ahead of the actual repository.
+
+The matrix matters more now because the repository has stronger scientific and
+runtime substance than before. Once that happens, the real risk is not only
+missing capability. It is overclaiming from one strong surface while another
+surface still narrows the release boundary.
 
 ## Matrix Categories
 
@@ -36,6 +41,23 @@ validators so the root wording cannot drift ahead of the actual repository.
 Use this page when someone asks whether the repository is ready for stronger
 public claims. The answer should begin with the matrix categories above, not
 with badges, package count, or handbook volume.
+
+## What This Matrix Is Protecting
+
+- it keeps one strong family packet from being mistaken for repository-wide
+  readiness
+- it keeps runtime proof from outrunning benchmark, grounding, or consequence
+  weakness
+- it keeps docs from sounding cleaner than the checked release evidence
+- it keeps package-boundary drift from quietly eroding the owner model
+
+## How To Read A Failure Honestly
+
+- a blocked category is not a documentation nuisance; it is a release-language
+  boundary
+- one green category does not compensate for a red category in another owner
+  surface
+- if the matrix still blocks a category, the stronger sentence is not earned
 
 ## First Proof Check
 

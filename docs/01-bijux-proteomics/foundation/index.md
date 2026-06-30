@@ -18,6 +18,12 @@ family instead of collapsing into a blur of shared code and mixed ownership. If
 that question is unresolved, the rest of the handbook will only restate the
 same confusion in smaller pieces.
 
+That question is more important now because the repository has grown far beyond
+lightweight governance and package bookkeeping. The current platform carries
+real sequence, chemistry, benchmark, execution, grounding, recommendation, and
+lab surfaces. If the foundation section does not explain how those surfaces fit
+together, the rest of the docs will understate the product.
+
 ```mermaid
 flowchart TB
     question["cross-package question"]
@@ -42,6 +48,16 @@ This section should move a reader from system-level confusion to a package-level
 - it gives reviewers a language for stopping ownership drift early
 - it helps the reader see the family as a designed system instead of a pile of
   sibling packages
+
+## What Changed Since v0.3.7
+
+- the repository now has materially deeper scientific owner surfaces in core
+- runtime now contributes public rerun and replay proof instead of only
+  operator-facing command surfaces
+- knowledge, intelligence, and lab now contribute a visible consequence chain
+  rather than background explanation
+- release trust now depends on public scrutiny routes, not only package-local
+  handbooks
 
 ## Start With
 
@@ -73,6 +89,16 @@ This section should move a reader from system-level confusion to a package-level
   open [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
   and [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
   when the question is what still forbids stronger release language.
+
+## Fastest Proof Route
+
+- Start with [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  to understand the end-to-end chain.
+- Continue to [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  to see which categories still block stronger language.
+- Finish at [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  and [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
+  to see what an outsider can actually open today.
 
 ## Section Pages
 

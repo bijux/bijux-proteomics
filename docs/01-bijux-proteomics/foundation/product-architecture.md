@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Product Architecture
@@ -19,6 +19,13 @@ The package split exists because those steps do not own the same truth. Shared
 contracts, scientific meaning, runtime execution, evidence review,
 recommendation posture, and lab consequence must stay explicit enough that a
 skeptical reviewer can point to one owner for each move.
+
+What is stronger now is the substance inside that chain. The repository has
+deeper core scientific surfaces, stronger public benchmark packaging, more
+concrete runtime rerun proof, clearer grounding and recommendation routes, and
+more visible lab consequence than the earlier docs suggested. The architecture
+page should make that product depth legible instead of sounding like a neutral
+package inventory.
 
 ## Lifecycle
 
@@ -37,6 +44,16 @@ Two repository surfaces sit beside that chain rather than inside it:
   callers migrate to canonical runtime ownership.
 - `bijux-proteomics-dev` owns repository-health automation, docs integrity, and
   release governance.
+
+## What The Architecture Protects
+
+- core can grow broader scientific logic without silently taking over runtime,
+  recommendation, or lab ownership
+- runtime can become more reproducible without rewriting scientific truth
+- knowledge and intelligence can challenge workflow claims without hiding the
+  underlying benchmark and execution surfaces
+- lab can narrow public language when downstream burden remains weaker than
+  upstream signal
 
 ## Cross-Package Rules
 
@@ -63,6 +80,17 @@ Two repository surfaces sit beside that chain rather than inside it:
   when the question is what the repository still refuses to claim.
 - Start with [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
   when the question is whether public wording currently outruns the evidence.
+
+## Strongest Product Proof Route
+
+- benchmark-backed scientific claim from core
+- runtime lane and rerun boundary from runtime
+- grounding and contradiction pressure from knowledge
+- recommendation posture from intelligence
+- downstream consequence from lab
+
+If one of those hops is weak, the public sentence must narrow even when the
+other hops look strong.
 
 ## First Proof Check
 

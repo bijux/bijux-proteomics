@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Repository Handbook
@@ -18,6 +18,12 @@ still blocked.
 The root discipline is restraint. The handbook should make the full product
 legible, then hand the reader to the true owner before repository prose starts
 pretending it owns package-local behavior.
+
+What matters more now than older docs admitted is that the repository has a
+real scientific and operational chain to explain. The handbook is not here to
+decorate package boundaries. It is here to show how benchmark assets, runtime
+proof, grounded evidence, recommendation posture, and lab consequence fit
+together as one bounded product.
 
 ```mermaid
 flowchart TB
@@ -46,6 +52,21 @@ flowchart TB
   lab action
 - it keeps the reader from blaming the wrong package for the wrong kind of
   change
+
+## Strongest Repository Proof Surfaces
+
+- Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  when the question is which workflow-family sentences currently survive public
+  scrutiny.
+- Open [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  when the question is which outsider-facing artifacts are actually meant to be
+  opened and why they coexist.
+- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  when the question is whether the current repository language outruns checked
+  evidence.
+- Open [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
+  when the question is how to challenge the strongest current repository claim
+  without maintainer narration.
 
 ## Shared Reader Routes
 
@@ -87,6 +108,8 @@ flowchart TB
 - Why is one concern a package boundary while another is only a module?
 - Which package should own a disputed behavior?
 - Which repository surfaces are truly shared and which are only adjacent?
+- Which current public sentences are real proof surfaces and which are only
+  supporting routes?
 
 ## Canonical Package Handbooks
 
