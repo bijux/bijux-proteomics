@@ -7,43 +7,19 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.interpretation import (
-    BiologicalContextKind,
-    BiologicalSetSourceKind,
-    ComplexEnrichmentCorrectionPolicy,
-    DiseasePhenotypeInterpretationPolicy,
-    DrugTargetInterpretationPolicy,
-    GoEnrichmentCorrectionPolicy,
-    PathwayEnrichmentCorrectionPolicy,
-    ProteinAnnotationColumnMapping,
-    apply_complex_enrichment_multiple_testing,
-    apply_go_enrichment_multiple_testing,
-    apply_pathway_enrichment_multiple_testing,
-    build_biological_context_mapping_report,
-    build_biological_foreground_background_model,
-    build_complex_activity_report,
-    build_complex_enrichment_report,
-    build_disease_phenotype_interpretation_report,
-    build_drug_target_interpretation_report,
-    build_go_enrichment_report,
-    build_pathway_activity_report,
-    build_pathway_enrichment_report,
-    build_protein_annotation_mapping_report,
-    build_regulator_inference_report,
-    build_regulator_site_signal_entries_from_ptm_evidence_cards,
-    build_tissue_cell_type_context_report,
-    parse_biological_context_table,
+from bijux_proteomics.interpretation.complex_enrichment import (
     parse_complex_membership_table,
-    parse_go_annotation_table,
-    parse_pathway_membership_table,
-    parse_protein_annotation_table,
-    parse_regulator_evidence_table,
-    parse_regulator_site_signal_table,
-    require_valid_biological_foreground_background_model,
 )
-from bijux_proteomics.interpretation.compartment_biology import (
-    CompartmentBiologyPolicy,
-    build_compartment_biology_report,
+from bijux_proteomics.interpretation.go_enrichment import (
+    parse_go_annotation_table,
+)
+from bijux_proteomics.interpretation.pathway_enrichment import (
+    parse_pathway_membership_table,
+)
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinAnnotationColumnMapping,
+    build_protein_annotation_mapping_report,
+    parse_protein_annotation_table,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.lab.protocol_context import (
@@ -121,6 +97,12 @@ from bijux_proteomics.workflow.reports.biological_report_claims import (
     _build_biological_evidence_aware_ranking_report,
     _build_biological_hypothesis_report,
 )
+from bijux_proteomics.workflow.reports.biological_report_context_assembly import (
+    _build_biological_context_reports,
+)
+from bijux_proteomics.workflow.reports.biological_report_enrichment_assembly import (
+    _build_biological_enrichment_reports,
+)
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalReportSectionConfidenceLabel,
     BiologicalResultReportBundle,
@@ -133,12 +115,7 @@ from bijux_proteomics.workflow.reports.biological_report_section_confidence impo
     _count_section_confidence_labels,
 )
 from bijux_proteomics.workflow.reports.biological_report_selection import (
-    _build_background_reference_entries,
-    _build_biological_background_filtering_policy,
-    _build_biological_foreground_filtering_policy,
     _build_differential_reference_entries,
-    _build_foreground_reference_entries,
-    _build_protein_reference_entries_from_biological_set,
     _resolve_contrast,
     _select_heatmap_entity_ids,
     _select_significant_entity_ids,
@@ -239,6 +216,13 @@ def build_biological_result_report_bundle_from_quant_table(
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle from one governed protein quant table."""
+
+    from bijux_proteomics.interpretation import (
+        build_regulator_inference_report,
+        build_regulator_site_signal_entries_from_ptm_evidence_cards,
+        parse_regulator_evidence_table,
+        parse_regulator_site_signal_table,
+    )
 
     experiment_design = coerce_experiment_design(design_entries)
     design_entries = experiment_design.entries
@@ -346,201 +330,55 @@ def build_biological_result_report_bundle_from_quant_table(
         if custom_annotation_report is None
         else custom_annotation_report.accepted_records,
     )
-    context_import_report = None
-    context_mapping_report = None
-    tissue_cell_type_context_report = None
-    if context_annotation_tsv_path is not None:
-        context_import_report = parse_biological_context_table(
-            context_annotation_tsv_path
-        )
-        context_mapping_report = build_biological_context_mapping_report(
-            differential_reference_entries,
-            context_import_report.accepted_records,
-        )
-        if any(
-            record.context_kind
-            in {
-                BiologicalContextKind.TISSUE_MARKER,
-                BiologicalContextKind.CELL_TYPE_MARKER,
-            }
-            for record in context_import_report.accepted_records
-        ):
-            tissue_cell_type_context_report = build_tissue_cell_type_context_report(
-                normalized_table,
-                experiment_design,
-                context_import_report.accepted_records,
-            )
-    drug_target_report = None
-    if context_import_report is not None and any(
-        record.context_kind is BiologicalContextKind.DRUG_TARGET
-        for record in context_import_report.accepted_records
-    ):
-        drug_target_report = build_drug_target_interpretation_report(
-            normalized_table,
-            differential_report,
-            context_import_report.accepted_records,
-            pathway_records=()
-            if pathway_membership_report is None
-            else pathway_membership_report.accepted_records,
-            annotation_report=annotation_report,
-            policy=DrugTargetInterpretationPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_absolute_log2_fold_change=(
-                    active_selection_policy.min_absolute_log2_fold_change
-                ),
-            ),
-        )
-    disease_phenotype_report = None
-    if context_import_report is not None and any(
-        record.context_kind
-        in {
-            BiologicalContextKind.DISEASE_TERM,
-            BiologicalContextKind.PHENOTYPE_TERM,
-        }
-        for record in context_import_report.accepted_records
-    ):
-        disease_phenotype_report = build_disease_phenotype_interpretation_report(
-            normalized_table,
-            differential_report,
-            context_import_report.accepted_records,
-            policy=DiseasePhenotypeInterpretationPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_absolute_log2_fold_change=(
-                    active_selection_policy.min_absolute_log2_fold_change
-                ),
-                min_enrichment_ratio=1.0,
-            ),
-        )
-    compartment_biology_report = None
-    if context_import_report is not None and any(
-        record.context_kind is BiologicalContextKind.SUBCELLULAR_COMPARTMENT
-        for record in context_import_report.accepted_records
-    ):
-        compartment_biology_report = build_compartment_biology_report(
-            normalized_table,
-            differential_report,
-            context_import_report.accepted_records,
-            design_entries=design_entries,
-            policy=CompartmentBiologyPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_absolute_log2_fold_change=(
-                    active_selection_policy.min_absolute_log2_fold_change
-                ),
-            ),
-        )
+    context_reports = _build_biological_context_reports(
+        normalized_table=normalized_table,
+        experiment_design=experiment_design,
+        design_entries=design_entries,
+        differential_report=differential_report,
+        differential_reference_entries=differential_reference_entries,
+        annotation_report=annotation_report,
+        pathway_records=()
+        if pathway_membership_report is None
+        else pathway_membership_report.accepted_records,
+        active_selection_policy=active_selection_policy,
+        context_annotation_tsv_path=context_annotation_tsv_path,
+    )
+    context_import_report = context_reports.context_import_report
+    context_mapping_report = context_reports.context_mapping_report
+    tissue_cell_type_context_report = context_reports.tissue_cell_type_context_report
+    drug_target_report = context_reports.drug_target_report
+    disease_phenotype_report = context_reports.disease_phenotype_report
+    compartment_biology_report = context_reports.compartment_biology_report
     protein_region_context_records = None
     if protein_region_context_tsv_path is not None:
         protein_region_context_records = parse_protein_region_context_tsv(
             protein_region_context_tsv_path
         ).accepted_records
-    foreground_background_model = build_biological_foreground_background_model(
-        _build_foreground_reference_entries(
-            differential_report,
-            protein_refs_by_entity=normalized_table.entity_protein_refs,
-            policy=active_selection_policy,
-        ),
-        _build_background_reference_entries(normalized_table),
-        foreground_source_kind=BiologicalSetSourceKind.DIFFERENTIAL_SIGNIFICANT_RESULTS,
-        background_source_kind=BiologicalSetSourceKind.MEASURED_QUANT_MATRIX,
-        foreground_policy=_build_biological_foreground_filtering_policy(
-            active_selection_policy
-        ),
-        background_policy=_build_biological_background_filtering_policy(),
+    enrichment_reports = _build_biological_enrichment_reports(
+        normalized_table=normalized_table,
+        differential_report=differential_report,
+        design_entries=design_entries,
+        fasta_records=fasta_report.accepted_records,
+        custom_annotations=()
+        if custom_annotation_report is None
+        else custom_annotation_report.accepted_records,
+        go_annotation_records=()
+        if go_annotation_tsv_path is None
+        else parse_go_annotation_table(go_annotation_tsv_path).accepted_records,
+        pathway_records=()
+        if pathway_membership_report is None
+        else pathway_membership_report.accepted_records,
+        complex_records=()
+        if complex_membership_report is None
+        else complex_membership_report.accepted_records,
+        active_selection_policy=active_selection_policy,
     )
-    enrichment_input_requested = any(
-        path is not None
-        for path in (
-            go_annotation_tsv_path,
-            pathway_membership_tsv_path,
-            complex_membership_tsv_path,
-        )
-    )
-    validated_foreground_background_model = (
-        require_valid_biological_foreground_background_model(
-            foreground_background_model
-        )
-        if enrichment_input_requested
-        else foreground_background_model
-    )
-    enrichment_foreground_entries = (
-        _build_protein_reference_entries_from_biological_set(
-            validated_foreground_background_model.foreground_entries
-        )
-    )
-    enrichment_background_entries = (
-        _build_protein_reference_entries_from_biological_set(
-            validated_foreground_background_model.background_entries
-        )
-    )
-    go_enrichment_report = None
-    if go_annotation_tsv_path is not None:
-        go_enrichment_report = apply_go_enrichment_multiple_testing(
-            build_go_enrichment_report(
-                enrichment_foreground_entries,
-                enrichment_background_entries,
-                parse_go_annotation_table(go_annotation_tsv_path).accepted_records,
-            ),
-            policy=GoEnrichmentCorrectionPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_enrichment_ratio=1.0,
-            ),
-        )
-    pathway_activity_report = None
-    if pathway_membership_report is not None:
-        pathway_activity_report = build_pathway_activity_report(
-            normalized_table,
-            pathway_membership_report.accepted_records,
-            design_entries=design_entries,
-            fasta_records=fasta_report.accepted_records,
-            custom_annotations=()
-            if custom_annotation_report is None
-            else custom_annotation_report.accepted_records,
-        )
-    pathway_enrichment_report = None
-    if pathway_membership_report is not None:
-        pathway_enrichment_report = apply_pathway_enrichment_multiple_testing(
-            build_pathway_enrichment_report(
-                enrichment_foreground_entries,
-                enrichment_background_entries,
-                pathway_membership_report.accepted_records,
-                fasta_records=fasta_report.accepted_records,
-                custom_annotations=()
-                if custom_annotation_report is None
-                else custom_annotation_report.accepted_records,
-            ),
-            policy=PathwayEnrichmentCorrectionPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_enrichment_ratio=1.0,
-            ),
-        )
-    complex_activity_report = None
-    if complex_membership_report is not None:
-        complex_activity_report = build_complex_activity_report(
-            normalized_table,
-            complex_membership_report.accepted_records,
-            design_entries=design_entries,
-            fasta_records=fasta_report.accepted_records,
-            custom_annotations=()
-            if custom_annotation_report is None
-            else custom_annotation_report.accepted_records,
-        )
-    complex_enrichment_report = None
-    if complex_membership_report is not None:
-        complex_enrichment_report = apply_complex_enrichment_multiple_testing(
-            build_complex_enrichment_report(
-                enrichment_foreground_entries,
-                enrichment_background_entries,
-                complex_membership_report.accepted_records,
-                fasta_records=fasta_report.accepted_records,
-                custom_annotations=()
-                if custom_annotation_report is None
-                else custom_annotation_report.accepted_records,
-            ),
-            policy=ComplexEnrichmentCorrectionPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_enrichment_ratio=1.0,
-            ),
-        )
+    foreground_background_model = enrichment_reports.foreground_background_model
+    go_enrichment_report = enrichment_reports.go_enrichment_report
+    pathway_activity_report = enrichment_reports.pathway_activity_report
+    pathway_enrichment_report = enrichment_reports.pathway_enrichment_report
+    complex_activity_report = enrichment_reports.complex_activity_report
+    complex_enrichment_report = enrichment_reports.complex_enrichment_report
     regulator_evidence_import_report = (
         None
         if regulator_evidence_tsv_path is None

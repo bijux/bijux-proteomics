@@ -38,6 +38,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_evidence_aware_ranking_report",
         "_build_biological_hypothesis_report",
     ),
+    "biological_report_context_assembly.py": (
+        "BiologicalContextAssemblyReports",
+        "_build_biological_context_reports",
+    ),
+    "biological_report_enrichment_assembly.py": (
+        "BiologicalEnrichmentAssemblyReports",
+        "_build_biological_enrichment_reports",
+    ),
     "biological_report_claim_candidates.py": (
         "_build_biological_pathway_claim_candidates",
         "_build_biological_protein_claim_candidates",
