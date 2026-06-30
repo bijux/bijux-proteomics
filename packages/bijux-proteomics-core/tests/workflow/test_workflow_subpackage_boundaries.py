@@ -11,6 +11,7 @@ _WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
 _ROOT_WRAPPER_TARGETS = {
+    "mechanisms.py": "bijux_proteomics.workflow.cards.mechanisms",
     "diann_benchmarks.py": "bijux_proteomics.workflow.benchmarks.diann_benchmarks",
     "maxquant_benchmarks.py": (
         "bijux_proteomics.workflow.benchmarks.maxquant_benchmarks"
@@ -93,6 +94,9 @@ _ROOT_WRAPPER_TARGETS = {
     "result_archive.py": "bijux_proteomics.workflow.exports.result_archive",
     "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
     "result_search_index.py": ("bijux_proteomics.workflow.exports.result_search_index"),
+    "targeted_review_workflow.py": (
+        "bijux_proteomics.workflow.exports.targeted_review_workflow"
+    ),
     "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
     "cohort_stratification.py": (
         "bijux_proteomics.workflow.studies.cohort_stratification"
@@ -156,6 +160,8 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(cards, "build_protein_evidence_card_report")
     assert hasattr(cards, "build_protein_mechanism_card_report")
     assert hasattr(cards, "build_cross_study_evidence_card_report")
+    assert hasattr(cards, "build_mechanism_cards")
+    assert hasattr(cards, "render_mechanism_cards_tsv")
 
     assert hasattr(exports, "synchronize_workflow_artifact_layout")
     assert hasattr(exports, "build_interactive_result_bundle_from_artifacts")
@@ -164,6 +170,8 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(exports, "build_result_manifest_from_artifacts")
     assert hasattr(exports, "build_result_search_index_from_artifacts")
     assert hasattr(exports, "load_result_archive")
+    assert hasattr(exports, "export_targeted_matrix_workflow_artifacts")
+    assert hasattr(exports, "export_targeted_assay_qc_workflow_artifacts")
 
     assert hasattr(demo, "ScaleDemoConfig")
     assert hasattr(demo, "run_scale_demo")

@@ -64,7 +64,7 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         ("artifact:",),
     ),
     (
-        "workflow/mechanisms.py",
+        "workflow/cards/mechanisms.py",
         ("build_mechanism_card_id",),
         (
             "pathway-shift-",

@@ -22,7 +22,7 @@ MANAGED_FINAL_ROW_OWNERS = (
         ("source_row_refs", "derived_no_source_reason", "SourceRowLineage"),
     ),
     (
-        "workflow/mechanisms.py",
+        "workflow/cards/mechanisms.py",
         ("source_row_refs", "derived_no_source_reason", "SourceRowLineage"),
     ),
     (

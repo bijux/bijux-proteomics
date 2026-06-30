@@ -542,7 +542,10 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(benchmarks, "generate_quant_truth_dataset")
     assert reports.__name__ == "bijux_proteomics.workflow.reports"
     assert cards.__name__ == "bijux_proteomics.workflow.cards"
+    assert hasattr(cards, "build_mechanism_cards")
     assert exports.__name__ == "bijux_proteomics.workflow.exports"
+    assert hasattr(exports, "export_targeted_matrix_workflow_artifacts")
+    assert hasattr(exports, "export_targeted_assay_qc_workflow_artifacts")
     assert demo.__name__ == "bijux_proteomics.workflow.demo"
     assert studies.__name__ == "bijux_proteomics.workflow.studies"
 

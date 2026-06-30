@@ -65,7 +65,7 @@ from bijux_proteomics.workflow.result_types import (
     build_result_warning,
     render_result_rejected_evidence_tsv,
 )
-from bijux_proteomics.workflow.targeted_review_workflow import (
+from bijux_proteomics.workflow.exports.targeted_review_workflow import (
     TargetedAssayQcWorkflowExportManifest,
     export_targeted_assay_qc_workflow_artifacts,
 )

@@ -25,7 +25,7 @@ MANAGED_WORKFLOW_EXPORT_OWNERS = (
     "workflow/pipelines/ptm_site_workflow.py",
     "workflow/pipelines/tmt_experiment_workflow.py",
     "workflow/reports/biological_report_rendering.py",
-    "workflow/targeted_review_workflow.py",
+    "workflow/exports/targeted_review_workflow.py",
 )
 
 

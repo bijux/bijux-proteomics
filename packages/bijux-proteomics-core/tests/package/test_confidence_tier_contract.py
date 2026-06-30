@@ -23,7 +23,7 @@ ALIAS_OWNERS = {
     "interpretation/complex_activity/__init__.py": "ComplexActivityConfidenceStatus",
     "io/raw/run_qc.py": "SpectrumQualityTier",
     "study/metadata/sample_sheet_repairs.py": "SampleSheetRepairConfidence",
-    "workflow/mechanisms.py": "MechanismCardConfidence",
+    "workflow/cards/mechanisms.py": "MechanismCardConfidence",
 }
 GENERIC_CONFIDENCE_VALUES = {
     "high",

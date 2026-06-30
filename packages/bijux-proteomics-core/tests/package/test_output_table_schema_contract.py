@@ -11,7 +11,7 @@ import pytest
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 MODULE_LOCAL_TSV_WRITE_HELPERS = {
-    "workflow/targeted_review_workflow.py": {"_write_text"},
+    "workflow/exports/targeted_review_workflow.py": {"_write_text"},
 }
 
 

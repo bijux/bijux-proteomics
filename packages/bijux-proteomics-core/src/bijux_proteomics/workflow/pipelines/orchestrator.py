@@ -123,7 +123,7 @@ from bijux_proteomics.workflow.result_types import (
 from bijux_proteomics.workflow.result_types import (
     WorkflowResult as StandardWorkflowResult,
 )
-from bijux_proteomics.workflow.targeted_review_workflow import (
+from bijux_proteomics.workflow.exports.targeted_review_workflow import (
     TargetedAssayQcWorkflowExportManifest,
     TargetedMatrixWorkflowExportManifest,
     export_targeted_assay_qc_workflow_artifacts,

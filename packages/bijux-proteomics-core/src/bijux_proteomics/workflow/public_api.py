@@ -28,6 +28,10 @@ CARD_FACADE_OWNERS = (
         rationale="cross-study evidence card ownership",
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.cards.mechanisms",
+        rationale="mechanism card workflow ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cards.pathway_evidence_cards",
         rationale="pathway evidence card ownership",
     ),
@@ -96,6 +100,10 @@ EXPORT_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.exports.result_search_index",
         rationale="result search index ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.exports.targeted_review_workflow",
+        rationale="targeted review export ownership",
     ),
 )
 
@@ -427,7 +435,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="MaxQuant biological workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.mechanisms",
+        owner_module="bijux_proteomics.workflow.cards.mechanisms",
         rationale="mechanism report ownership",
     ),
     WorkflowFacadeOwner(
@@ -489,7 +497,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="synthetic quantification truth ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.targeted_review_workflow",
+        owner_module="bijux_proteomics.workflow.exports.targeted_review_workflow",
         rationale="targeted review workflow ownership",
     ),
     WorkflowFacadeOwner(
