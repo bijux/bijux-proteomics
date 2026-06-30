@@ -51,6 +51,10 @@ to infer the chain from separate package pages.
   widen the sentence downstream
 - if runtime proof is the weakest hop, move into runtime challenge pages
   immediately
+- if the family sentence already looks stronger than the live proof chain,
+  open
+  [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+  before trying to rescue it with cleaner prose
 - if grounding, downgrade, or burden becomes the real dispute, stop the broad
   journey and move into the decision route
 - if one owner artifact now carries the whole disagreement, leave the

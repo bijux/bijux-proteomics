@@ -24,9 +24,10 @@ evidence.
 | what family sentence am I reopening | repository docs | [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) |
 | which public package roots and companion package do I need first | `bijux-proteomics-runtime` with `core` assets | [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/) |
 | which environment and dependency bounds are actually supported | `bijux-proteomics-runtime` | [Runtime Environment Contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-environment-contracts/) |
-| what run mode and rerun boundary apply right now | `bijux-proteomics-runtime` | [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/) |
+| what run mode and rerun boundary apply right now | `bijux-proteomics-runtime` | [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/) and [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/) |
 | which replay or invalidation challenge should I use | `bijux-proteomics-runtime` | [Runtime Replay Challenges](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-replay-challenges/) |
 | which artifacts must appear and what stability class do they owe | `bijux-proteomics-runtime` | [Black-Box Run Verification](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-run-verification/) and [Runtime Artifact Stability](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-artifact-stability/) |
+| which scientific acceptance bars still cap the family even after rerun success | `bijux-proteomics-core` | [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/) |
 | where do I stop instead of inventing stronger language | repository docs | [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) |
 
 ## Minimal Operator Checklist

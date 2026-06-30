@@ -18,16 +18,16 @@ collapsed into one bounded family call.
 
 ## How To Read The Table
 
-- `public posture` tells you the strongest sentence the repository can publish
+- `trust status` tells you the strongest sentence the repository can publish
   today for that family
-- `runtime lane` tells you whether the strongest current route is
+- `primary run mode` tells you whether the strongest current route is
   `raw_executable` or still `import_only`
-- `evidence root` tells you where a serious reviewer should start
-- `main limiter` tells you why stronger language is still blocked
+- `benchmark coverage` tells you where a serious reviewer should start
+- `current blockers` tells you why stronger language is still blocked
 
 ## Family Comparison
 
-| family | public posture | runtime lane | evidence root | main limiter |
+| family | trust status | primary run mode | benchmark coverage | current blockers |
 | --- | --- | --- | --- | --- |
 | `dda` | outsider-auditable, bounded | `import_only` | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) | in-repo live-engine parity still remains weaker than the reviewed downstream path |
 | `dia` | outsider-auditable, bounded | `raw_executable` | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) | library incompleteness and downstream absent-peptide consequence still narrow the broader sentence |
@@ -62,9 +62,15 @@ More real substance makes overclaiming easier if the limiter is not named.
 
 ## Best Next Questions
 
+- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/)
+  when you want one worked example of how a family route crosses benchmark,
+  runtime, grounding, recommendation, and consequence.
 - Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
   when the question is how the current family calls combine into one release
   bundle.
+- Open [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
+  when the question is how one careful reader should inspect a family from
+  benchmark packet to downstream consequence.
 - Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
   when the question is whether the public evidence root is broad enough and
   honest enough.
