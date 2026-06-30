@@ -60,6 +60,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_select_heatmap_entity_ids",
         "_select_significant_entity_ids",
     ),
+    "biological_report_contrast_selection.py": (
+        "_resolve_contrast",
+        "_select_heatmap_entity_ids",
+        "_select_significant_entity_ids",
+    ),
     "biological_report_claims.py": (
         "_build_biological_claim_validation_report",
         "_build_biological_evidence_aware_ranking_report",

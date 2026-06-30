@@ -95,7 +95,7 @@ from bijux_proteomics.workflow.reports.biological_report_section_confidence impo
     _build_biological_report_section_confidence_entries,
     _count_section_confidence_labels,
 )
-from bijux_proteomics.workflow.reports.biological_report_selection import (
+from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _resolve_contrast,
     _select_heatmap_entity_ids,
 )
