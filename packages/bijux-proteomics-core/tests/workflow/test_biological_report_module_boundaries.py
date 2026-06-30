@@ -238,12 +238,16 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_biological_report_section_confidence_table_html",
         "_render_section_heading_html",
     ),
-    "biological_report_html_scientific_tables.py": (
+    "biological_report_html_scientific_confidence_tables.py": (
         "_render_experiment_confidence_table_html",
-        "_render_protein_mechanism_card_table_html",
+        "_render_foreground_background_model_table_html",
+    ),
+    "biological_report_html_scientific_claim_tables.py": (
         "_render_biological_claim_validation_table_html",
         "_render_biological_hypothesis_table_html",
-        "_render_foreground_background_model_table_html",
+    ),
+    "biological_report_html_scientific_ranking_tables.py": (
+        "_render_protein_mechanism_card_table_html",
         "_render_evidence_aware_ranking_table_html",
     ),
     "biological_report_html_contextual_tables.py": (
