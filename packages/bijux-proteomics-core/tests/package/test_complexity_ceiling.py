@@ -250,16 +250,6 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         31,
     ),
     _exception(
-        "workflow/reports/biological_report_assembly.py",
-        "build_biological_result_report_bundle_from_quant_table",
-        61,
-    ),
-    _exception(
-        "workflow/reports/biological_report_section_confidence.py",
-        "_build_biological_report_section_confidence_entries",
-        68,
-    ),
-    _exception(
         "workflow/studies/cross_species_effect_comparison.py",
         "build_cross_species_effect_comparison_report_from_observations",
         27,
