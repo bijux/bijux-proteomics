@@ -58,8 +58,10 @@ from bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs
 from bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs.panel_assays import (
     _load_validation_evidence_panel_assays,
 )
-from bijux_proteomics.interfaces.support.validation_evidence_support.result_inputs import (
+from bijux_proteomics.interfaces.support.validation_evidence_support.result_inputs.panel_assays import (
     _load_targeted_validation_panel_assays,
+)
+from bijux_proteomics.interfaces.support.validation_evidence_support.result_inputs.result_entries import (
     _load_validation_evidence_result_assays,
     _load_validation_evidence_results,
 )
