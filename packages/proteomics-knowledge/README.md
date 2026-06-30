@@ -149,6 +149,8 @@ assert report.profile_id == "knowledge-default-profile"
 
 ## Documentation
 
+- Release guidance lives in this `README.md`, this package `CHANGELOG.md`, and
+  package `docs/*.md` under the canonical knowledge owner surface.
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical knowledge package docs](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)

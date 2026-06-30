@@ -171,6 +171,8 @@ assert plan.recommendations[0].assay_id == "primary-binding"
 
 ## Documentation
 
+- Release guidance lives in this `README.md`, this package `CHANGELOG.md`, and
+  package `docs/*.md` under the canonical lab owner surface.
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical lab package docs](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
