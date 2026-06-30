@@ -16,7 +16,7 @@ ERROR_OWNER_PATHS = (
     "workflow/study_result.py",
     "review/structure_reports/render.py",
     "targeted/result_validation.py",
-    "interfaces/support/timecourse_support/__init__.py",
+    "interfaces/support/timecourse_support/timepoint_order.py",
 )
 
 
