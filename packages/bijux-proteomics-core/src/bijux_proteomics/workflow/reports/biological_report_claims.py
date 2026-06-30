@@ -218,11 +218,10 @@ from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
     FinalClaimEvidenceTier,
 )
 from bijux_proteomics.sequences import (
-    FastaParseMode,
-    parse_fasta_document,
     parse_protein_region_context_tsv,
     parse_proteogenomic_variant_peptide_table,
 )
+from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,
     ExperimentDesign,

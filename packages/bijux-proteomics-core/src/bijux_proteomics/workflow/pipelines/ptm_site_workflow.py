@@ -35,7 +35,7 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,

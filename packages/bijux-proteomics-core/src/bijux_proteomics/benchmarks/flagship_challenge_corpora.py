@@ -54,7 +54,7 @@ from bijux_proteomics.quantification.contracts.label_based import (
 from bijux_proteomics.quantification.contracts.missingness import (
     MissingValueSummaryReport,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import JsonModel
 
 _CHALLENGE_ROOT = (

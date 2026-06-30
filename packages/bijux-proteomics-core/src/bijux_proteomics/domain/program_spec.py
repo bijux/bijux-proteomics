@@ -18,7 +18,7 @@ from bijux_proteomics.domain.liabilities import ProgramLiability
 from bijux_proteomics.domain.operating_model import OperatingModel
 from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics.domain.targets import ProteinTarget
-from bijux_proteomics.sequences import ProteinSequence
+from bijux_proteomics.sequences.fasta import ProteinSequence
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
 
 

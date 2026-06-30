@@ -9,7 +9,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics.sequences import ProteinSequence
+from bijux_proteomics.sequences.fasta import ProteinSequence
 from bijux_proteomics_foundation import TargetId
 
 

@@ -74,7 +74,7 @@ from bijux_proteomics.io.spectra import (
     parse_mgf,
     render_mgf,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 if TYPE_CHECKING:
