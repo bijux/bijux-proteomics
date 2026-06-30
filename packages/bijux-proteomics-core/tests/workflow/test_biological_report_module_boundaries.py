@@ -295,6 +295,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalScientificRequiredExportNames",
         "_write_biological_required_scientific_exports",
     ),
+    "biological_report_scientific_analysis_exports.py": (
+        "BiologicalScientificAnalysisExportNames",
+        "_write_biological_analysis_scientific_exports",
+    ),
+    "biological_report_scientific_interpretation_exports.py": (
+        "BiologicalScientificInterpretationExportNames",
+        "_write_biological_interpretation_scientific_exports",
+    ),
     "biological_report_scientific_summary_tables.py": (
         "render_biological_report_section_confidence_tsv",
         "render_biological_result_report_summary_tsv",
