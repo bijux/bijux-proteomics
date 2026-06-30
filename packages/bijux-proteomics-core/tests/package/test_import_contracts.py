@@ -526,6 +526,9 @@ def test_workflow_subpackage_import_contract() -> None:
     benchmark_datasets = importlib.import_module(
         "bijux_proteomics.workflow.benchmarks.datasets"
     )
+    benchmark_fidelity = importlib.import_module(
+        "bijux_proteomics.workflow.benchmarks.fidelity"
+    )
     reports = importlib.import_module("bijux_proteomics.workflow.reports")
     cards = importlib.import_module("bijux_proteomics.workflow.cards")
     exports = importlib.import_module("bijux_proteomics.workflow.exports")
@@ -546,6 +549,9 @@ def test_workflow_subpackage_import_contract() -> None:
     assert benchmark_datasets.__name__ == "bijux_proteomics.workflow.benchmarks.datasets"
     assert hasattr(benchmark_datasets, "load_public_benchmark_descriptor")
     assert hasattr(benchmark_datasets, "build_public_benchmark_subset")
+    assert benchmark_fidelity.__name__ == "bijux_proteomics.workflow.benchmarks.fidelity"
+    assert hasattr(benchmark_fidelity, "build_diann_benchmark_report")
+    assert hasattr(benchmark_fidelity, "build_maxquant_benchmark_report")
     assert reports.__name__ == "bijux_proteomics.workflow.reports"
     assert cards.__name__ == "bijux_proteomics.workflow.cards"
     assert hasattr(cards, "build_mechanism_cards")

@@ -18,6 +18,7 @@ from bijux_proteomics.workflow import public_benchmark_descriptors
 from bijux_proteomics.workflow.public_api import (
     BENCHMARK_DATASET_FACADE_OWNERS,
     BENCHMARK_FACADE_OWNERS,
+    BENCHMARK_FIDELITY_FACADE_OWNERS,
     BENCHMARK_SUBMODULES,
     CARD_FACADE_OWNERS,
     DEMO_FACADE_OWNERS,
@@ -42,6 +43,9 @@ def test_workflow_root_public_api_matches_governed_owner_ledger() -> None:
 
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
+    expected_benchmark_fidelity, _ = build_lazy_export_index(
+        facade_owner_modules(BENCHMARK_FIDELITY_FACADE_OWNERS)
+    )
     expected_benchmark_datasets, _ = build_lazy_export_index(
         facade_owner_modules(BENCHMARK_DATASET_FACADE_OWNERS)
     )
@@ -68,6 +72,9 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     assert all(hasattr(benchmarks, name) for name in BENCHMARK_SUBMODULES)
     assert (
         tuple(benchmarks.datasets.__all__) == expected_benchmark_datasets
+    )
+    assert (
+        tuple(benchmarks.fidelity.__all__) == expected_benchmark_fidelity
     )
     assert tuple(cards.__all__) == expected_cards
     assert tuple(demo.__all__) == expected_demo

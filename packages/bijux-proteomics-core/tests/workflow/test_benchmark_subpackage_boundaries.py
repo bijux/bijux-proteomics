@@ -15,6 +15,12 @@ _BENCHMARK_ROOT = (
     / "benchmarks"
 )
 _BENCHMARK_ROOT_WRAPPERS = {
+    "diann_benchmarks.py": (
+        "bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks"
+    ),
+    "maxquant_benchmarks.py": (
+        "bijux_proteomics.workflow.benchmarks.fidelity.maxquant_benchmarks"
+    ),
     "public_benchmark_descriptors.py": (
         "bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors"
     ),
@@ -57,7 +63,12 @@ def test_benchmark_root_wrappers_stay_thin_nested_facades() -> None:
 
 def test_benchmark_subpackages_export_representative_owner_surfaces() -> None:
     datasets = importlib.import_module("bijux_proteomics.workflow.benchmarks.datasets")
+    fidelity = importlib.import_module("bijux_proteomics.workflow.benchmarks.fidelity")
 
     assert hasattr(datasets, "PublicBenchmarkDescriptor")
     assert hasattr(datasets, "load_public_benchmark_descriptor")
     assert hasattr(datasets, "build_public_benchmark_subset")
+    assert hasattr(fidelity, "build_diann_benchmark_report")
+    assert hasattr(fidelity, "render_diann_benchmark_summary_tsv")
+    assert hasattr(fidelity, "build_maxquant_benchmark_report")
+    assert hasattr(fidelity, "render_maxquant_benchmark_summary_tsv")
