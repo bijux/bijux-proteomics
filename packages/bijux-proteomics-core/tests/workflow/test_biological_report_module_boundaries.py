@@ -397,6 +397,10 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalQuantTableBundleStages",
         "_build_biological_quant_table_bundle_stages",
     ),
+    "biological_report_ms1_feature_quant_table.py": (
+        "_build_biological_quant_table_from_ms1_feature_input",
+        "_resolve_biological_ms1_feature_mapping",
+    ),
     "biological_report_html_support.py": (
         "_format_optional_float",
         "_render_biological_report_section_confidence_table_html",
