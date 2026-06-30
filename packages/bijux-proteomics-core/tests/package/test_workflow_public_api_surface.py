@@ -50,6 +50,7 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
     WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
     WORKFLOW_ROOT_DEMO_OWNERS,
+    WORKFLOW_ROOT_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
@@ -60,6 +61,7 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_OWNERS,
     WORKFLOW_ROOT_PIPELINE_OWNERS,
     WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
+    WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_REPORT_OWNERS,
     WORKFLOW_ROOT_SHARED_OWNERS,
     WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
@@ -255,6 +257,11 @@ def test_workflow_root_export_owners_exclude_export_helpers() -> None:
     assert all(hasattr(exports, name) for name in WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS)
 
 
+def test_workflow_root_export_owners_expose_export_operations() -> None:
+    assert all(hasattr(workflow, name) for name in WORKFLOW_ROOT_EXPORT_OPERATIONS)
+    assert all(hasattr(exports, name) for name in WORKFLOW_ROOT_EXPORT_OPERATIONS)
+
+
 def test_workflow_root_card_owners_exclude_card_serialization_helpers() -> None:
     assert (
         tuple(
@@ -277,6 +284,15 @@ def test_workflow_root_report_owners_exclude_report_serialization_helpers() -> N
         == ()
     )
     assert all(hasattr(reports, name) for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS)
+
+
+def test_workflow_root_report_owners_expose_report_export_operations() -> None:
+    assert all(
+        hasattr(workflow, name) for name in WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS
+    )
+    assert all(
+        hasattr(reports, name) for name in WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS
+    )
 
 
 def test_workflow_root_demo_owners_exclude_demo_helpers() -> None:

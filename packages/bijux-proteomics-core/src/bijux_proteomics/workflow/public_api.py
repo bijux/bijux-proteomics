@@ -156,9 +156,15 @@ WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS = (
     "find_workflow_artifact_by_id",
     "find_workflow_artifact_by_legacy_path",
     "index_workflow_artifact_manifest",
-    "load_workflow_artifact_manifest",
     "render_workflow_artifact_inventory_summary_tsv",
     "render_workflow_artifact_inventory_tsv",
+    "load_result_archive",
+    "export_targeted_assay_qc_workflow_artifacts",
+    "export_targeted_matrix_workflow_artifacts",
+)
+
+WORKFLOW_ROOT_EXPORT_OPERATIONS = (
+    "load_workflow_artifact_manifest",
     "validate_workflow_artifact_inventory",
     "validate_workflow_artifact_completeness",
     "validate_workflow_artifact_manifest",
@@ -168,7 +174,6 @@ WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS = (
     "render_interactive_result_comparison_ptm_site_tsv",
     "render_interactive_result_comparison_qc_tsv",
     "render_interactive_result_comparison_summary_tsv",
-    "load_result_archive",
     "write_result_archive_lab_action_packets",
     "render_result_manifest_command_tsv",
     "render_result_manifest_file_tsv",
@@ -177,8 +182,6 @@ WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS = (
     "render_result_manifest_warning_tsv",
     "render_result_search_hit_tsv",
     "render_result_search_summary_tsv",
-    "export_targeted_assay_qc_workflow_artifacts",
-    "export_targeted_matrix_workflow_artifacts",
 )
 
 WORKFLOW_ROOT_EXPORT_OWNERS = tuple(
@@ -348,11 +351,12 @@ REPORT_FACADE_OWNERS = (
 )
 
 WORKFLOW_ROOT_REPORT_HELPER_EXPORTS = (
-    "export_biological_result_report_bundle",
     "write_biological_result_report_bundle",
     "render_biological_report_section_confidence_tsv",
     "render_biological_result_report_summary_tsv",
 )
+
+WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS = ("export_biological_result_report_bundle",)
 
 WORKFLOW_ROOT_REPORT_OWNERS = tuple(
     WorkflowFacadeOwner(
@@ -1013,6 +1017,7 @@ __all__ = [
     "WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS",
     "WORKFLOW_ROOT_DEMO_HELPER_EXPORTS",
     "WORKFLOW_ROOT_DEMO_OWNERS",
+    "WORKFLOW_ROOT_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS",
@@ -1021,6 +1026,7 @@ __all__ = [
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_REPORT_OWNERS",
     "WORKFLOW_ROOT_SHARED_OWNERS",
     "PIPELINE_FACADE_OWNERS",
