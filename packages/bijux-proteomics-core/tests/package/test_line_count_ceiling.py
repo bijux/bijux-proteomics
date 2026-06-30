@@ -76,7 +76,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("identification/protein/protein_inference_benchmarks.py", 1007),
     _exception("io/formats/proteomics_formats.py", 1105),
     _exception("io/raw/raw_signal_evidence_cards.py", 1128),
-    _exception("ptm/cards/evidence_cards/__init__.py", 1403),
     _exception("ptm/contracts.py", 1061),
     _exception("ptm/quant/differential_analysis.py", 1090),
     _exception("quantification/matrix/peptide_intensity_matrix.py", 1044),
