@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -46,6 +47,21 @@ def _artifact_layout_paths() -> list[str]:
     return paths
 
 
+def _python_executable() -> str:
+    candidate_paths = (
+        Path(sys.executable),
+        Path(getattr(sys, "_base_executable", "")),
+    )
+    for candidate in candidate_paths:
+        if candidate.is_file():
+            return str(candidate)
+    for command_name in ("python3", "python"):
+        resolved = shutil.which(command_name)
+        if resolved:
+            return resolved
+    raise AssertionError("no runnable python interpreter found for artifact layout tests")
+
+
 def test_setup_prepares_canonical_artifact_directories(tmp_path: Path) -> None:
     workspace = _workspace_metadata()
     repo_root = tmp_path / "repo"
@@ -59,7 +75,7 @@ def test_setup_prepares_canonical_artifact_directories(tmp_path: Path) -> None:
 
     subprocess.run(
         [
-            sys.executable,
+            _python_executable(),
             str(ARTIFACT_LAYOUT_SCRIPT),
             "root",
             "--repo-root",
@@ -110,7 +126,7 @@ def test_setup_removes_legacy_package_root_aliases(tmp_path: Path) -> None:
 
     subprocess.run(
         [
-            sys.executable,
+            _python_executable(),
             str(ARTIFACT_LAYOUT_SCRIPT),
             "root",
             "--repo-root",
