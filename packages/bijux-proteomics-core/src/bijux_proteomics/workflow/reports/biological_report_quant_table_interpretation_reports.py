@@ -11,7 +11,7 @@ from bijux_proteomics.workflow.reports.biological_report_claims import (
     _build_biological_evidence_aware_ranking_report,
     _build_biological_hypothesis_report,
 )
-from bijux_proteomics.workflow.reports.biological_report_experiment_review import (
+from bijux_proteomics.workflow.reports.biological_report_experiment_review_contracts import (
     BiologicalExperimentReviewReports,
 )
 
