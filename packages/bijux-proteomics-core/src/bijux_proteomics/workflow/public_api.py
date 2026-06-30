@@ -232,10 +232,7 @@ WORKFLOW_ROOT_DEMO_OWNERS = tuple(
     WorkflowFacadeOwner(
         owner_module=owner.owner_module,
         rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
-        ),
+        excluded_exports=owner.excluded_exports,
     )
     for owner in DEMO_FACADE_OWNERS
 )
@@ -706,10 +703,7 @@ WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS = tuple(
     WorkflowFacadeOwner(
         owner_module=owner.owner_module,
         rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS,
-        ),
+        excluded_exports=owner.excluded_exports,
     )
     for owner in PIPELINE_FACADE_OWNERS
     if owner.owner_module in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
@@ -764,11 +758,14 @@ WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS = tuple(
 )
 
 WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS = (
-    "export_proteomics_run_bundle",
     "write_proteomics_run_bundle",
-    "render_proteomics_run_enrichment_tsv",
     "render_proteomics_run_qc_summary_tsv",
     "render_proteomics_run_summary_tsv",
+)
+
+WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS = (
+    "export_proteomics_run_bundle",
+    "render_proteomics_run_enrichment_tsv",
 )
 
 WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS = tuple(
@@ -811,6 +808,7 @@ WORKFLOW_ROOT_SUBMODULES = {
     "demo": "bijux_proteomics.workflow.demo",
     "exports": "bijux_proteomics.workflow.exports",
     "pipelines": "bijux_proteomics.workflow.pipelines",
+    "public_benchmark_descriptors": "bijux_proteomics.workflow.public_benchmark_descriptors",
     "reports": "bijux_proteomics.workflow.reports",
     "studies": "bijux_proteomics.workflow.studies",
 }
@@ -1015,6 +1013,7 @@ __all__ = [
     "WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_EXPORT_OWNERS",
+    "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",

@@ -56,6 +56,7 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
     WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
     WORKFLOW_ROOT_EXPORT_OWNERS,
+    WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS,
     WORKFLOW_ROOT_OWNERS,
@@ -170,14 +171,10 @@ def test_workflow_root_pipeline_owners_expose_study_pipeline_reports() -> None:
     ] == (WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS)
 
 
-def test_workflow_root_pipeline_owners_exclude_benchmark_pipeline_reports() -> None:
-    assert (
-        tuple(
-            name
-            for name in WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS
-            if hasattr(workflow, name)
-        )
-        == ()
+def test_workflow_root_pipeline_owners_expose_benchmark_pipeline_reports() -> None:
+    assert all(
+        hasattr(workflow, name)
+        for name in WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS
     )
     assert all(
         hasattr(pipelines.benchmarking, name)
@@ -220,6 +217,17 @@ def test_workflow_root_pipeline_owners_exclude_flagship_helpers() -> None:
     assert all(
         owner in WORKFLOW_ROOT_PIPELINE_OWNERS
         for owner in WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS
+    )
+
+
+def test_workflow_root_pipeline_owners_expose_flagship_export_operations() -> None:
+    assert all(
+        hasattr(workflow, name)
+        for name in WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS
+    )
+    assert all(
+        hasattr(pipelines.operations, name)
+        for name in WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS
     )
 
 
@@ -282,15 +290,8 @@ def test_workflow_root_report_owners_expose_report_export_operations() -> None:
     )
 
 
-def test_workflow_root_demo_owners_exclude_demo_helpers() -> None:
-    assert (
-        tuple(
-            name
-            for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS
-            if hasattr(workflow, name)
-        )
-        == ()
-    )
+def test_workflow_root_demo_owners_expose_demo_helpers() -> None:
+    assert all(hasattr(workflow, name) for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS)
     assert all(hasattr(demo, name) for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS)
 
 
