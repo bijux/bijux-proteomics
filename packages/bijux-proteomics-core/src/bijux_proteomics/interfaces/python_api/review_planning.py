@@ -44,11 +44,19 @@ from bijux_proteomics.interfaces.support.targeted_panel_support.panel_design.sel
 from bijux_proteomics.interfaces.support.targeted_panel_support.panel_design.transition_inputs import (
     _load_targeted_panel_transition_inputs,
 )
-from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning import (
+from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning.biomarker_candidates import (
     _load_validation_planning_biomarker_candidates,
+)
+from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning.omitted_candidates import (
     _load_validation_planning_omitted_candidates,
+)
+from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning.panel_assays import (
     _load_validation_planning_panel_assays,
+)
+from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning.pilot_variance import (
     _load_validation_planning_pilot_variance,
+)
+from bijux_proteomics.interfaces.support.targeted_panel_support.validation_planning.selected_peptides import (
     _load_validation_planning_selected_peptides,
 )
 from bijux_proteomics.interfaces.support.biomarker_candidate_support.panel_candidate_inputs import (
