@@ -75,6 +75,16 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalActivityExportNames",
         "write_biological_activity_exports",
     ),
+    "biological_report_scientific_exports.py": (
+        "BiologicalScientificExportNames",
+        "render_biological_report_section_confidence_tsv",
+        "render_biological_result_report_summary_tsv",
+        "write_biological_scientific_exports",
+    ),
+    "biological_report_visual_exports.py": (
+        "BiologicalVisualExportNames",
+        "write_biological_visual_exports",
+    ),
     "biological_report_contextual_exports.py": (
         "BiologicalContextualExportNames",
         "write_biological_contextual_exports",
@@ -109,8 +119,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_html.py": ("_render_biological_result_report_html",),
     "biological_report_rendering.py": (
         "export_biological_result_report_bundle",
-        "render_biological_report_section_confidence_tsv",
-        "render_biological_result_report_summary_tsv",
+        "write_biological_result_report_bundle",
     ),
 }
 
