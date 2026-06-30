@@ -88,16 +88,14 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("workflow/demo/surprising_demo.py", 1013),
     _exception("workflow/exports/interactive_result_bundle.py", 1396),
     _exception("workflow/exports/interactive_result_comparison.py", 1002),
-    _exception("workflow/cards/protein_evidence_cards.py", 1454),
-    _exception("workflow/pipelines/advanced_tmt.py", 1035),
+    _exception("workflow/pipelines/advanced/advanced_tmt.py", 1038),
     _exception("workflow/pipelines/dia_dda_comparison.py", 1245),
     _exception("workflow/pipelines/orchestrator.py", 1089),
     _exception("workflow/pipelines/public_benchmark_runner.py", 1151),
-    _exception("workflow/studies/cross_study_effect_comparison.py", 1187),
-    _exception("workflow/studies/cross_study_meta_analysis.py", 1013),
-    _exception("workflow/studies/cross_study_pathway_comparison.py", 1173),
-    _exception("workflow/studies/cross_study_protein_harmonization.py", 1145),
-    _exception("workflow/studies/study_result.py", 1451),
+    _exception("workflow/studies/cross_study/effect_comparison.py", 1187),
+    _exception("workflow/studies/cross_study/meta_analysis.py", 1013),
+    _exception("workflow/studies/cross_study/pathway_comparison.py", 1173),
+    _exception("workflow/studies/cross_study/protein_harmonization.py", 1145),
 )
 
 
