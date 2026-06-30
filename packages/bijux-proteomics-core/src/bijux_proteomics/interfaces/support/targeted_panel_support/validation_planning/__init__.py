@@ -26,11 +26,11 @@ from bijux_proteomics.targeted.validation_planning import (
     ValidationPlanningSelectedPeptideInput,
 )
 
-from ..targeted_selection_io.field_parsing import (
+from ...targeted_selection_io.field_parsing import (
     _parse_cli_bool,
     _split_semicolon_field,
 )
-from .panel_design import _load_targeted_panel_selected_peptides
+from ..panel_design.selected_peptides import _load_targeted_panel_selected_peptides
 
 
 def _load_validation_planning_biomarker_candidates(
