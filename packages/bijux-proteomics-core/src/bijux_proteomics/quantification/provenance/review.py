@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceTestType,
     ImputationMethod,
     ImputationReport,
@@ -38,27 +38,27 @@ from bijux_proteomics.quantification import (
     ReplicateAndBatchQcReport,
     TimeCourseDifferentialReport,
     TimeCourseTestingPolicy,
-    apply_benjamini_hochberg,
-    build_differential_abundance_report,
-    build_imputation_report,
-    build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_multiplex_channel_balance_report,
+    build_quant_artifact_bundle,
+    build_quant_design_matrix_report,
+    fit_quant_design_matrix_model,
+)
+from bijux_proteomics.quantification.missingness import (
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
-    build_multi_condition_differential_abundance_report,
-    build_multiplex_channel_balance_report,
+    summarize_missing_values,
+)
+from bijux_proteomics.quantification.normalization import (
+    build_imputation_report,
+    build_imputation_sensitivity_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
-    build_quant_artifact_bundle,
-    build_quant_design_matrix_report,
-    build_time_course_differential_report,
-    fit_quant_design_matrix_model,
     impute_label_free_table,
     normalize_label_free_table,
-    summarize_missing_values,
 )
 from bijux_proteomics.quantification.missingness.readiness import (
     QuantDecisionReadinessReport,
@@ -75,6 +75,12 @@ from bijux_proteomics.quantification.provenance.missingness_mechanism_profile im
 )
 from bijux_proteomics.quantification.provenance.replicate_qc import (
     build_replicate_and_batch_qc_report,
+)
+from bijux_proteomics.quantification.statistics import (
+    apply_benjamini_hochberg,
+    build_differential_abundance_report,
+    build_multi_condition_differential_abundance_report,
+    build_time_course_differential_report,
 )
 from bijux_proteomics.quantification.statistics.multi_contrast_consistency import (
     MultiContrastConsistencyReport,
