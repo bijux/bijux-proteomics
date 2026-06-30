@@ -619,6 +619,34 @@ WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS = tuple(
     if owner.owner_module in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
 )
 
+WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS = (
+    "render_public_benchmark_suite_failures_tsv",
+    "render_public_benchmark_suite_signal_assessments_tsv",
+    "render_public_benchmark_suite_summary_tsv",
+    "render_trust_bundle_run_summary_tsv",
+    "render_weak_evidence_benchmark_criteria_tsv",
+    "render_weak_evidence_benchmark_summary_tsv",
+)
+
+WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES = {
+    "bijux_proteomics.workflow.pipelines.public_benchmark_runner",
+    "bijux_proteomics.workflow.pipelines.trust_bundle",
+    "bijux_proteomics.workflow.pipelines.weak_evidence",
+}
+
+WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS,
+        ),
+    )
+    for owner in PIPELINE_FACADE_OWNERS
+    if owner.owner_module in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
+)
+
 WORKFLOW_ROOT_PIPELINE_OWNERS = (
     *WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
@@ -628,8 +656,10 @@ WORKFLOW_ROOT_PIPELINE_OWNERS = (
         if owner not in ADVANCED_PIPELINE_FACADE_OWNERS
         and owner not in ENGINE_PIPELINE_FACADE_OWNERS
         and owner.owner_module not in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
+        and owner.owner_module not in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
         and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
     ),
+    *WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
 )
 
@@ -819,6 +849,9 @@ __all__ = [
     "PIPELINE_SUBMODULES",
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES",
+    "WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS",
     "WORKFLOW_ROOT_CARD_HELPER_EXPORTS",
     "WORKFLOW_ROOT_CARD_OWNERS",
     "WORKFLOW_ROOT_DEMO_HELPER_EXPORTS",
