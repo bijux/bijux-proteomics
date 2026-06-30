@@ -71,12 +71,12 @@ claim, not broad cohort-transfer or decision-grade quant authority.
 
 ## Consequence Boundary
 
-- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   before widening LFQ language beyond a bounded recommendation
-- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   before claiming that one extra cohort or follow-up loop materially changed the
   call
-- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the next honest move may still be stop, rerun, narrow, or refuse
 - one doubled assay burden or one weak observed outcome still demotes the
   public sentence faster than this page alone might suggest

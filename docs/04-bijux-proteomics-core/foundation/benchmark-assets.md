@@ -40,13 +40,13 @@ question.
 
 ## Next Questions
 
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the question becomes which family currently deserves stronger public
   language.
-- Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the question becomes how those asset roots turn into runtime bundles and
   rerun challenges.
-- Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question becomes whether grounding, contradiction, or recommendation
   posture outruns the asset story.
 

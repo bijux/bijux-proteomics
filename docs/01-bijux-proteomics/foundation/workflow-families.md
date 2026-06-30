@@ -27,19 +27,19 @@ story.
 
 ## Best Next Routes
 
-- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/workflow-families/dda-cross-package-handbook/)
+- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/)
   when the question is how one real flagship family crosses foundation, core,
   runtime, knowledge, intelligence, and lab without package-handbook hopping.
-- Open [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+- Open [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
   when the question is how one family connects benchmark assets, runtime
   evidence, curated knowledge, recommendation posture, and lab consequence.
-- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
+- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
   when the question is whether the public package roots are complete and
   current enough.
-- Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the question is whether the current run mode and rerun lane deserve the
   published language.
-- Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question is whether grounding, contradiction, recommendation, or
   public artifact roles change the family call.
 

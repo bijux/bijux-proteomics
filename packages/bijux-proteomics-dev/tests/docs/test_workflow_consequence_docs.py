@@ -22,7 +22,7 @@ def test_workflow_consequence_docs_are_up_to_date() -> None:
 def test_workflow_consequence_maps_doc_covers_all_families_and_decision_grade_limits() -> (
     None
 ):
-    text = _read("docs/decision-support/workflow-consequence-maps.md")
+    text = _read("docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md")
 
     assert "# Workflow Consequence Maps" in text
     for workflow_family in ("dda", "dia", "lfq", "multiplex", "ptm", "targeted"):
@@ -37,7 +37,7 @@ def test_workflow_consequence_maps_doc_covers_all_families_and_decision_grade_li
 def test_what_changed_the_recommendation_doc_names_counterfactual_and_outcome_drivers() -> (
     None
 ):
-    text = _read("docs/decision-support/what-changed-the-recommendation.md")
+    text = _read("docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md")
 
     assert "# What Changed The Recommendation" in text
     assert "without comparator evidence" in text
@@ -53,7 +53,7 @@ def test_what_changed_the_recommendation_doc_names_counterfactual_and_outcome_dr
 def test_outcome_learning_loops_doc_names_requested_observed_and_next_adjustments() -> (
     None
 ):
-    text = _read("docs/lab-consequence/outcome-learning-loops.md")
+    text = _read("docs/07-bijux-proteomics-lab/foundation/outcome-learning-loops.md")
 
     assert "# Outcome Learning Loops" in text
     assert "requested assays" in text
@@ -70,7 +70,7 @@ def test_outcome_learning_loops_doc_names_requested_observed_and_next_adjustment
 
 
 def test_workflow_refusal_handbook_doc_names_stop_rerun_narrow_and_refuse() -> None:
-    text = _read("docs/lab-consequence/workflow-refusal-handbook.md")
+    text = _read("docs/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md")
 
     assert "# Workflow Refusal Handbook" in text
     assert "stop when" in text

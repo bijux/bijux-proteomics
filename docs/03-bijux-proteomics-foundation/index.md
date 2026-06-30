@@ -55,9 +55,9 @@ flowchart TB
 
 ## Shared Reader Routes
 
-- Use [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- Use [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
   before this page when the question is still repository-wide.
-- Use [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- Use [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the dispute is about safe change or release gates rather than shared
   payload meaning.
 

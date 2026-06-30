@@ -47,10 +47,10 @@ flowchart LR
 
 ## Shared Reader Routes
 
-- Use [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
+- Use [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
   when the question is about public benchmark packages, lineage, or flagship
   acceptance before it becomes a package-local question.
-- Use [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Use [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the question is which family currently deserves attention.
 
 ## Start Inside This Package

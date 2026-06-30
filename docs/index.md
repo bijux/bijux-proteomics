@@ -22,7 +22,7 @@ runtime entrypoints.
 ## Product Scope
 
 - repository-level route:
-  [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+  [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
 - end-to-end lifecycle:
   [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - owner map and handoff boundaries:
@@ -30,16 +30,18 @@ runtime entrypoints.
 
 ## Current Credible Workflow Families
 
-Outsider-auditable today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable today: `dda`, `dia`, `ptm`, `targeted`.
+
+Review-grade-bounded today: `lfq`.
 
 Internal-support-only today: `multiplex`.
 
 The shortest hostile-review route is:
 
 - [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
-- [Workflow families](https://bijux.io/bijux-proteomics/workflow-families/)
-- [Execution](https://bijux.io/bijux-proteomics/execution/)
-- [Decision support](https://bijux.io/bijux-proteomics/decision-support/)
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+- [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+- [Decision support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
 
 ## Forbidden Claims
 
@@ -91,21 +93,21 @@ for the live limit list.
 ## Reader Paths
 
 - Scientist:
-  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+  [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
 - Operator:
-  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - Maintainer:
-  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
 
 ## Reader-First Sections
 
-- [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
-- [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
-- [Execution](https://bijux.io/bijux-proteomics/execution/)
-- [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
-- [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
-- [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
-- [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+- [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+- [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+- [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+- [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+- [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+- [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
 
 ## Package Family At A Glance
 

@@ -60,11 +60,11 @@ without hiding where the current recommendation posture still breaks.
 
 This page is not the full consequence chain by itself.
 
-Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
 when the recommendation needs to be read beside contradiction pressure and lab
 burden on one shared route.
 
-Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
 when the real question is which evidence loss or observed outcome moved the
 call.
 

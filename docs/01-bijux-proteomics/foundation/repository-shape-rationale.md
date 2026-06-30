@@ -50,5 +50,5 @@ when migration continuity still matters.
   for the current handoff map.
 - Open [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
   for the shortest owner-routing table.
-- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/workflow-families/dda-cross-package-handbook/)
+- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/)
   for one concrete benchmark path that exercises all six product packages.

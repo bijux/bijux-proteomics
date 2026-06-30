@@ -19,19 +19,20 @@ ownership starts to dominate the route.
 - Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
   when the question is how benchmark intake, runtime execution, scientific
   review, recommendation posture, and lab consequence fit together.
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the question is which family is credible today and what still blocks the
   rest.
-- Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the question is how an operator or outsider reruns the current flagship
   evidence.
-- Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question is whether grounding, contradiction, recommendation, or
   public language is actually aligned.
 
 ## Current Credible Families
 
-- outsider-auditable today: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- outsider-auditable today: `dda`, `dia`, `ptm`, `targeted`
+- review-grade-bounded today: `lfq`
 - internal-support-only today: `multiplex`
 - live repository ceiling:
   [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
@@ -39,31 +40,31 @@ ownership starts to dominate the route.
 ## Reader Routes
 
 - Scientist:
-  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+  [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
 - Operator:
-  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - Maintainer:
-  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
 
 ## Category Routes
 
-- [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
+- [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
   owns the route from public source identity to flagship benchmark packages,
   lineage pages, freshness review, and acceptance bars.
-- [Execution](https://bijux.io/bijux-proteomics/execution/)
+- [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   owns run modes, rerun kits, replay challenges, environment contracts, and
   runtime refusal surfaces.
-- [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   owns the family comparison surface and the shortest scientist route from one
   family to benchmark, runtime, knowledge, intelligence, and lab evidence.
-- [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   owns the route through knowledge grounding, literature audits,
   recommendation confidence, public artifact roles, and release-language
   limits.
-- [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
+- [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
   owns the route from recommendation posture to assay consequence, operator
   burden, and refusal limits.
-- [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   owns repository-health routes such as boundary checks, release gates, docs
   integrity, and final preflight.
 

@@ -17,7 +17,7 @@ next.
 
 | question | owner | best page |
 | --- | --- | --- |
-| Which family am I reopening and what language does it currently earn? | repository docs | [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/) |
+| Which family am I reopening and what language does it currently earn? | repository docs | [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) |
 | Which public benchmark package and companion package do I need first? | `bijux-proteomics-core` | [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/) |
 | Which software and dependency combinations are actually supported? | `bijux-proteomics-runtime` | [Runtime Environment Contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-environment-contracts/) |
 | What run mode and rerun blockers apply right now? | `bijux-proteomics-runtime` | [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/) |
@@ -29,7 +29,7 @@ next.
 ## Minimal Operator Checklist
 
 1. Confirm the workflow family sentence and current blocker set in
-   [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/).
+   [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/).
 2. Open the matching rerun kit and benchmark lineage pages before touching the
    runtime handbook.
 3. Verify the supported environment and run mode before rerunning a command.

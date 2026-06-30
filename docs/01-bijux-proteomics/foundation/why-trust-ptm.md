@@ -73,11 +73,11 @@ a bounded sense, not a decision-grade promotion story.
 
 ## Consequence Boundary
 
-- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   before widening PTM language beyond bounded localization support
-- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   before claiming that one targetable site family changed broader PTM posture
-- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the honest next move may still be stop, rerun, narrow, or refuse
 - one doubled assay burden or one wider ambiguity failure still demotes the
   public sentence faster than this page alone might suggest

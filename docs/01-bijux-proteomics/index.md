@@ -49,13 +49,13 @@ flowchart TB
 
 ## Shared Reader Routes
 
-- Open [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- Open [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
   when the question is still product-wide rather than repository-handbook
   specific.
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the reader already knows the question is family credibility rather than
   repository topology.
-- Open [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the question is already about safe change or release validation.
 
 ## Start Inside This Handbook
@@ -76,11 +76,11 @@ flowchart TB
 ## Reader Routes
 
 - Scientist:
-  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+  [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
 - Operator:
-  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - Maintainer:
-  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
 
 ## Questions This Handbook Owns
 

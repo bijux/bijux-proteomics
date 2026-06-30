@@ -64,8 +64,9 @@ Internal-support-only workflow families today: `multiplex`.
   move first
 - if a real capability lands and this page is stale, update this page in the
   same change set as the new proof
-- open `docs/decision-support/workflow-consequence-maps.md` and
-  `docs/decision-support/what-changed-the-recommendation.md` before widening
+- open `docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md` and
+  `docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md`
+  before widening
   LFQ, PTM, or targeted language from bounded recommendation toward
   decision-grade claims
 

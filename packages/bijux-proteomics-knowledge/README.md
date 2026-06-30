@@ -143,13 +143,13 @@ becomes selective, cited, and reviewable scientific memory.
 Knowledge is the first owner in the cross-package consequence chain, not a
 complete trust story by itself.
 
-- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is how contradiction pressure becomes a weaker or stronger
   recommendation and then a real assay burden
-- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   when the question is whether literature pressure, comparator pressure, or
   downstream lab burden actually moved the call
-- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
   when the question is how requested-versus-observed follow-up should tighten
   the next knowledge-facing claim
 

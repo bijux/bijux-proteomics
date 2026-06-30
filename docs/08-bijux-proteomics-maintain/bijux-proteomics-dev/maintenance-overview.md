@@ -15,7 +15,7 @@ or hostile-review evidence.
 
 ## Start Here
 
-- Open [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+- Open [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
   when the question is which route to follow before changing a package.
 - Open [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
   when the answer lives in checked maintainer code, make routing, or GitHub
@@ -33,11 +33,11 @@ or hostile-review evidence.
 
 ## Adjacent Routes
 
-- Open [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- Open [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
   when the reader still does not know which product area their change touches.
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the change could alter a family trust sentence or blocker.
-- Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the change affects rerunability, run mode, or runtime artifacts.
 
 ## Boundary

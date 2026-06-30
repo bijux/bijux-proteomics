@@ -16,7 +16,7 @@ artifact integrity, and failure boundaries become concrete.
 
 ## Start Here
 
-- Open [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+- Open [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
   when the question is how to rerun or replay one flagship workflow family from
   benchmark package to checked output.
 - Open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
@@ -38,13 +38,13 @@ artifact integrity, and failure boundaries become concrete.
 
 ## Adjacent Questions
 
-- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
+- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
   when the question is whether the public source package itself is complete
   enough to deserve flagship attention.
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the question is which family language survives the current run mode and
   blocker set.
-- Open [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the question becomes which release gates and validation commands must
   pass before stronger runtime language is published.
 

@@ -47,19 +47,19 @@ flowchart LR
 
 ## Shared Reader Routes
 
-- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is whether assay burden or the cost of being wrong already
   blocks stronger workflow language.
-- Use [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
+- Use [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
   when the question is still about downstream assay burden, refusal, or outcome
   pressure rather than one lab-owner module.
-- Use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+- Use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
   when the question is how observed outcomes should tighten or weaken the next
   recommendation.
-- Use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- Use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the question is whether the honest next action is to stop, rerun,
   narrow, or refuse.
-- Use [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- Use [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the disagreement is still about recommendation posture rather than
   execution reality.
 

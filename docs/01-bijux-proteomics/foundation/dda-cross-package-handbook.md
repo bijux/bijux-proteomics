@@ -22,7 +22,7 @@ how the repository actually cooperates.
 | `bijux-proteomics-runtime` | Which DDA execution lane is actually supported today, and what does the current rerun limit still block? | [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/) and [Runtime Execution Boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-execution-boundary/) |
 | `bijux-proteomics-knowledge` | Which references, comparators, and contradictions still ground the DDA sentence? | [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/) and [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/) |
 | `bijux-proteomics-intelligence` | Which recommendation pressure, downgrade logic, and outsider challenge surfaces keep DDA language bounded? | [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/) and [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/) |
-| `bijux-proteomics-lab` | Which assay burden and follow-up consequence still cap the DDA story downstream? | [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/) and [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/) |
+| `bijux-proteomics-lab` | Which assay burden and follow-up consequence still cap the DDA story downstream? | [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/) and [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/) |
 
 ## Why DDA Stops Where It Stops
 
@@ -39,7 +39,7 @@ how the repository actually cooperates.
 
 - Open [Why Trust DDA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dda/)
   for the release-facing sentence and blocker list.
-- Open [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+- Open [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
   when the question is the general reader route rather than DDA specifically.
 - Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
   when the question becomes why these owners stay separate at all.

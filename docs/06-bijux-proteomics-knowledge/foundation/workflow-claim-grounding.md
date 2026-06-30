@@ -57,6 +57,6 @@ bounded, and what still needs stronger proof.
 
 This page names the scientific sentence support.
 
-Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
 when the next question is how contradiction pressure changes the allowed
 recommendation and assay posture instead of just the sentence itself.

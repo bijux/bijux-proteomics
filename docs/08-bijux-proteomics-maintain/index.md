@@ -38,10 +38,10 @@ flowchart TB
 
 ## Shared Reader Routes
 
-- Use [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- Use [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the reader still needs the repository-health route before dropping into
   one maintainer owner family.
-- Use [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+- Use [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
   when the question is a concrete package change rather than a general
   repository-health question.
 

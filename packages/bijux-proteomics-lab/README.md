@@ -196,13 +196,13 @@ Lab owns the downstream burden and observed outcome part of the shared
 consequence chain, not a separate trust story that can outrank knowledge or
 intelligence.
 
-- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is whether assay burden or the cost of being wrong already
   blocks stronger public recommendation language
-- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
   when the question is how requested-versus-observed follow-up should tighten
   or weaken the next recommendation
-- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the honest next action is to stop, rerun, narrow, or refuse before more
   assay spend
 

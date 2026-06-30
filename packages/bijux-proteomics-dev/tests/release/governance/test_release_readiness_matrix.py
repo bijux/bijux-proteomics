@@ -56,11 +56,11 @@ def test_release_readiness_matrix_covers_hostile_review_categories() -> None:
         in by_id["artifact-hygiene"].evidence_paths
     )
     assert (
-        "docs/decision-support/workflow-consequence-maps.md"
+        "docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md"
         in by_id["consequence-realism"].evidence_paths
     )
     assert (
-        "docs/lab-consequence/workflow-refusal-handbook.md"
+        "docs/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md"
         in by_id["consequence-realism"].evidence_paths
     )
 

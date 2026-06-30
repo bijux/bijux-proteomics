@@ -217,13 +217,13 @@ runtime transport, or lab scheduling.
 Intelligence owns the recommendation sentence inside the shared consequence
 chain, but it does not own the whole story.
 
-- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is whether the current recommendation already outruns the
   weakest downstream boundary
-- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   when the question is which counterfactual, contradiction, or lab burden
   actually changed the recommendation
-- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the honest next action may still be stop, rerun, narrow, or refuse even
   though a recommendation surface exists
 

@@ -46,16 +46,16 @@ flowchart LR
 
 ## Shared Reader Routes
 
-- Use [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- Use [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question is still about grounding, recommendation posture, or public
   artifact roles rather than one intelligence-owner module.
-- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is whether current recommendation language already outruns
   the weakest downstream boundary.
-- Use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- Use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   when the question is which contradiction, comparator, or lab burden actually
   moved the recommendation.
-- Use [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Use [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the family trust sentence is still the main question.
 
 ## Start Inside This Package

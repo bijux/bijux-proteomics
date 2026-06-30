@@ -15,10 +15,10 @@ surface justifies that belief.
 
 ## Start Here
 
-- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the disagreement is already about the full chain from contradiction
   pressure to recommendation posture to assay burden.
-- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   when the next reviewer question is which evidence axis or observed outcome
   actually moved the call.
 - Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
@@ -47,13 +47,13 @@ surface justifies that belief.
 
 ## Adjacent Routes
 
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when you need the family comparison before choosing a knowledge or
   intelligence page.
-- Open [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
+- Open [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
   when the question becomes whether a recommendation survives downstream assay
   cost, refusal, or outcome burden.
-- Open [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+- Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the question becomes which release gate or docs check should block the
   stronger wording.
 

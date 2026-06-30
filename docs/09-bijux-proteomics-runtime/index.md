@@ -45,10 +45,10 @@ flowchart LR
 
 ## Shared Reader Routes
 
-- Use [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Use [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the question is still about rerun flow rather than one runtime-owned
   surface.
-- Use [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+- Use [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
   when the question starts from a flagship workflow family rather than from a
   runtime subsystem.
 

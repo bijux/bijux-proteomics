@@ -34,7 +34,7 @@ def test_mkdocs_nav_frontloads_reader_first_categories() -> None:
 
 
 def test_workflow_family_index_covers_family_status_run_mode_and_blockers() -> None:
-    text = _read("docs/workflow-families/index.md")
+    text = _read("docs/01-bijux-proteomics/foundation/workflow-families.md")
 
     assert "# Workflow Families" in text
     for workflow_family in (
@@ -58,11 +58,13 @@ def test_workflow_family_index_covers_family_status_run_mode_and_blockers() -> N
 
 
 def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> None:
-    scientist = _read("docs/workflow-families/scientist-journey.md")
-    operator = _read("docs/execution/operator-rerun-journey.md")
-    maintainer = _read("docs/maintenance/maintainer-safe-change.md")
-    decision_support = _read("docs/decision-support/index.md")
-    lab_consequence = _read("docs/lab-consequence/index.md")
+    scientist = _read("docs/01-bijux-proteomics/foundation/scientist-journey.md")
+    operator = _read("docs/09-bijux-proteomics-runtime/operator-rerun-journey.md")
+    maintainer = _read(
+        "docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md"
+    )
+    decision_support = _read("docs/01-bijux-proteomics/foundation/decision-support.md")
+    lab_consequence = _read("docs/07-bijux-proteomics-lab/foundation/lab-consequence.md")
 
     assert "Workflow Claim Grounding" in scientist
     assert "Workflow Recommendation Confidence" in scientist

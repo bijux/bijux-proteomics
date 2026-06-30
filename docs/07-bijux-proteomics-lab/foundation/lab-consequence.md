@@ -15,10 +15,10 @@ boundary still keeps that recommendation honest.
 
 ## Start Here
 
-- Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+- Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
   when the question is how requested-versus-observed follow-up should tighten
   or weaken the next recommendation.
-- Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the question is whether the honest next action is to stop, rerun,
   narrow, or refuse.
 - Open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
@@ -43,13 +43,13 @@ boundary still keeps that recommendation honest.
 
 ## Adjacent Routes
 
-- Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the argument is still about evidence or recommendation rather than assay
   burden.
-- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the disagreement still needs the full contradiction-to-recommendation-to-lab
   chain on one page.
-- Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the disagreement is about runtime rerunability instead of downstream lab
   consequence.
 

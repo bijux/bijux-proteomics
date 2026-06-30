@@ -58,6 +58,21 @@ plugins:
         bijux-proteomics/architecture-invariants.md: 01-bijux-proteomics/foundation/change-principles.md
         bijux-proteomics/design-debt-ledger.md: 01-bijux-proteomics/operations/change-management.md
         bijux-proteomics/dependency-allowlist.md: 01-bijux-proteomics/operations/artifact-governance.md
+        product-overview/index.md: 01-bijux-proteomics/foundation/product-overview.md
+        benchmark-assets/index.md: 04-bijux-proteomics-core/foundation/benchmark-assets.md
+        execution/index.md: 09-bijux-proteomics-runtime/execution-overview.md
+        execution/operator-rerun-journey.md: 09-bijux-proteomics-runtime/operator-rerun-journey.md
+        workflow-families/index.md: 01-bijux-proteomics/foundation/workflow-families.md
+        workflow-families/dda-cross-package-handbook.md: 01-bijux-proteomics/foundation/dda-cross-package-handbook.md
+        workflow-families/scientist-journey.md: 01-bijux-proteomics/foundation/scientist-journey.md
+        decision-support/index.md: 01-bijux-proteomics/foundation/decision-support.md
+        decision-support/workflow-consequence-maps.md: 01-bijux-proteomics/foundation/workflow-consequence-maps.md
+        decision-support/what-changed-the-recommendation.md: 01-bijux-proteomics/foundation/what-changed-the-recommendation.md
+        lab-consequence/index.md: 07-bijux-proteomics-lab/foundation/lab-consequence.md
+        lab-consequence/outcome-learning-loops.md: 07-bijux-proteomics-lab/foundation/outcome-learning-loops.md
+        lab-consequence/workflow-refusal-handbook.md: 07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md
+        maintenance/index.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview.md
+        maintenance/maintainer-safe-change.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md
   - git-revision-date-localized:
       enable_creation_date: false
       fallback_to_build_date: true
@@ -92,7 +107,7 @@ extra:
 nav:
   - Home: index.md
   - Product Overview:
-      - Product Overview: product-overview/index.md
+      - Product Overview: 01-bijux-proteomics/foundation/product-overview.md
       - Repository Handbook: 01-bijux-proteomics/index.md
       - Product Architecture: 01-bijux-proteomics/foundation/product-architecture.md
       - Cross-Package Ownership: 01-bijux-proteomics/foundation/cross-package-ownership.md
@@ -102,7 +117,7 @@ nav:
       - External Review Kits: 01-bijux-proteomics/foundation/external-review-kits.md
       - Independent Rerun Dossiers: 01-bijux-proteomics/foundation/independent-rerun-dossiers.md
   - Benchmark Assets:
-      - Benchmark Assets: benchmark-assets/index.md
+      - Benchmark Assets: 04-bijux-proteomics-core/foundation/benchmark-assets.md
       - Flagship Public Benchmark Catalog: 04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md
       - Flagship Benchmark Assets: 04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md
       - Benchmark Asset Audit: 04-bijux-proteomics-core/foundation/benchmark-asset-audit.md
@@ -119,8 +134,8 @@ nav:
       - PTM Benchmark Lineage: 04-bijux-proteomics-core/foundation/ptm-benchmark-lineage.md
       - Targeted Benchmark Lineage: 04-bijux-proteomics-core/foundation/targeted-benchmark-lineage.md
   - Execution:
-      - Execution: execution/index.md
-      - Operator Rerun Journey: execution/operator-rerun-journey.md
+      - Execution: 09-bijux-proteomics-runtime/execution-overview.md
+      - Operator Rerun Journey: 09-bijux-proteomics-runtime/operator-rerun-journey.md
       - Runtime Handbook: 09-bijux-proteomics-runtime/index.md
       - Flagship Run Registry: 09-bijux-proteomics-runtime/flagship-run-registry.md
       - Benchmark Rerun Kits: 09-bijux-proteomics-runtime/benchmark-rerun-kits.md
@@ -134,9 +149,9 @@ nav:
       - Runtime Rerun Refusals: 09-bijux-proteomics-runtime/runtime-rerun-refusals.md
       - Raw Versus Import Execution: 09-bijux-proteomics-runtime/raw-versus-import-execution.md
   - Workflow Families:
-      - Workflow Families: workflow-families/index.md
-      - DDA Cross-Package Handbook: workflow-families/dda-cross-package-handbook.md
-      - Scientist Journey: workflow-families/scientist-journey.md
+      - Workflow Families: 01-bijux-proteomics/foundation/workflow-families.md
+      - DDA Cross-Package Handbook: 01-bijux-proteomics/foundation/dda-cross-package-handbook.md
+      - Scientist Journey: 01-bijux-proteomics/foundation/scientist-journey.md
       - Flagship Release Candidate: 01-bijux-proteomics/foundation/flagship-release-candidate.md
       - Why Trust DDA: 01-bijux-proteomics/foundation/why-trust-dda.md
       - Why Trust DIA: 01-bijux-proteomics/foundation/why-trust-dia.md
@@ -146,9 +161,9 @@ nav:
       - Why Multiplex Stops At Internal Support: 01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md
       - Workflow Claim Limits: 01-bijux-proteomics/foundation/workflow-claim-limits.md
   - Decision Support:
-      - Decision Support: decision-support/index.md
-      - Workflow Consequence Maps: decision-support/workflow-consequence-maps.md
-      - What Changed The Recommendation: decision-support/what-changed-the-recommendation.md
+      - Decision Support: 01-bijux-proteomics/foundation/decision-support.md
+      - Workflow Consequence Maps: 01-bijux-proteomics/foundation/workflow-consequence-maps.md
+      - What Changed The Recommendation: 01-bijux-proteomics/foundation/what-changed-the-recommendation.md
       - Public Artifact Index: 01-bijux-proteomics/foundation/public-artifact-index.md
       - Public Artifact Role Matrix: 01-bijux-proteomics/foundation/public-artifact-role-matrix.md
       - Workflow Claim Grounding: 06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md
@@ -157,16 +172,16 @@ nav:
       - Workflow Recommendation Challenges: 05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges.md
       - Release Narrowing Protocol: 01-bijux-proteomics/foundation/release-narrowing-protocol.md
   - Lab Consequence:
-      - Lab Consequence: lab-consequence/index.md
-      - Outcome Learning Loops: lab-consequence/outcome-learning-loops.md
-      - Workflow Refusal Handbook: lab-consequence/workflow-refusal-handbook.md
+      - Lab Consequence: 07-bijux-proteomics-lab/foundation/lab-consequence.md
+      - Outcome Learning Loops: 07-bijux-proteomics-lab/foundation/outcome-learning-loops.md
+      - Workflow Refusal Handbook: 07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md
       - bijux-proteomics-lab: 07-bijux-proteomics-lab/index.md
       - Current Capability Limits: 01-bijux-proteomics/foundation/current-capability-limits.md
       - Why This Repository Is Not Ready Yet: 01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet.md
       - What Would Make This Repository Ready: 01-bijux-proteomics/foundation/what-would-make-this-repository-ready.md
   - Maintenance:
-      - Maintenance: maintenance/index.md
-      - Maintainer Safe Change: maintenance/maintainer-safe-change.md
+      - Maintenance: 08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview.md
+      - Maintainer Safe Change: 08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md
       - Maintainer Handbook: 08-bijux-proteomics-maintain/index.md
       - Testing And Validation: 01-bijux-proteomics/operations/testing-and-validation.md
       - Artifact Governance: 01-bijux-proteomics/operations/artifact-governance.md
