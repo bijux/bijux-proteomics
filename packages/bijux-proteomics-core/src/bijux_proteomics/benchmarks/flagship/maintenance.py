@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from bijux_proteomics.benchmarks.dda_reviewable_package import (
+from bijux_proteomics.benchmarks.flagship.dda_reviewable_package import (
     build_dda_reviewable_package,
 )
 from bijux_proteomics.benchmarks.flagship.asset_roots import (
