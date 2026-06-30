@@ -71,7 +71,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("benchmarks/workflow_generalization.py", 2183),
     _exception("chemistry/contracts/modified_peptides.py", 1065),
     _exception("dia/protein_matrix.py", 1138),
-    _exception("identification/adapters/fragpipe_import/__init__.py", 1037),
     _exception("identification/fdr/confidence.py", 1140),
     _exception("identification/protein/protein_inference_benchmarks.py", 1007),
     _exception("io/formats/proteomics_formats.py", 1105),
