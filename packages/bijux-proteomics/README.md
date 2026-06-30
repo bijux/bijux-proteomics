@@ -44,6 +44,16 @@ namespace shipped by core.
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.
 
+## Alias at a glance
+
+- Use `bijux-proteomics` when packaging, documentation, or deployment needs
+  the flagship distribution name rather than the canonical owner package name.
+- Start scientific feature discovery from the
+  [canonical core package docs](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  because this package forwards into the core owner surface.
+- Route all new scientific behavior to `bijux-proteomics-core`; keep this
+  package focused on install-name compatibility and publication metadata.
+
 ## 0.3.8 Release Highlights
 
 - The flagship distribution name now routes readers directly to the current
@@ -76,7 +86,7 @@ assert report.accepted_records[0].canonical_accession == "P11111"
 ## Package identity
 
 - Distribution name: `bijux-proteomics`
-- Public import root: `bijux_proteomics`
+- Import root: `bijux_proteomics`
 - Private metadata helper: `bijux_proteomics_alias`
 - Canonical owner package: `bijux-proteomics-core`
 - Canonical owner docs: `packages/bijux-proteomics-core/README.md`

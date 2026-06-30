@@ -40,6 +40,17 @@ This package owns one thing: legacy compatibility routing for historical CLI,
 HTTP, agent, execution, provider, state, and tool entrypoints while all real
 behavior stays in canonical packages.
 
+## At a glance
+
+- Use `agentic-proteins` only when an existing integration still depends on
+  the legacy command, import root, or bridge submodule tree.
+- Start new execution work from the
+  [canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  and treat this package as a migration bridge, not as a second runtime owner.
+- Route runtime behavior to `bijux-proteomics-runtime`, lower scientific
+  behavior to the canonical `bijux-proteomics-*` packages, and keep this layer
+  forwarding-only.
+
 ## Compatibility contract
 
 - mirrors the canonical runtime root exports at `agentic_proteins`
@@ -201,3 +212,4 @@ assert legacy_cli is canonical_cli
 - [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Compatibility package docs](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
+- [Changelog](CHANGELOG.md)

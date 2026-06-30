@@ -42,6 +42,23 @@ It is the install and import alias for bijux-proteomics-knowledge.
 Use this package when you want a shorter distribution and import name for the
 curated scientific memory surface without creating a second owner.
 
+## Alias at a glance
+
+- Use `proteomics-knowledge` when you want a shorter package name for curated
+  scientific memory without changing who owns the behavior.
+- Start with the
+  [canonical knowledge package docs](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+  because this package only forwards into that owner surface.
+- Route curation and grounding behavior to `bijux-proteomics-knowledge`; keep
+  this package focused on compatibility naming and import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now points readers at the current knowledge handbook instead of
+  reading like a second memory owner.
+- Boundaries, release guidance, and compatibility wording now state the
+  forwarding-only contract more clearly.
+
 ## Installation
 
 ```bash

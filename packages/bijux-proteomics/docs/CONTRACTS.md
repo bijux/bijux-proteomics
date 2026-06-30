@@ -3,7 +3,7 @@
 ## Public package identity
 
 - Distribution name: `bijux-proteomics`
-- Public import root: `bijux_proteomics`
+- Import root: `bijux_proteomics`
 - Private metadata helper: `bijux_proteomics_alias`
 - Canonical owner package: `bijux-proteomics-core`
 

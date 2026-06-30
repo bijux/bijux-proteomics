@@ -42,6 +42,24 @@ It is the install and import alias for bijux-proteomics-intelligence.
 Use this package when you want a shorter distribution and import name for the
 recommendation and review layer without creating a second owner.
 
+## Alias at a glance
+
+- Use `proteomics-intelligence` when a shorter name is useful for the
+  recommendation and review surface, but canonical ownership must stay the
+  same.
+- Start with the
+  [canonical intelligence package docs](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+  because this package only forwards into that owner surface.
+- Route recommendation behavior to `bijux-proteomics-intelligence`; keep this
+  package focused on compatibility naming and import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now routes readers to the current intelligence handbook instead of
+  sounding like a second analytical owner.
+- Documentation and release guidance now state the forwarding contract in
+  direct, audit-friendly language.
+
 ## Installation
 
 ```bash

@@ -42,6 +42,23 @@ It is the install and import alias for bijux-proteomics-runtime.
 Use this package when you want a shorter runtime distribution and import name
 without creating a second execution owner.
 
+## Alias at a glance
+
+- Use `proteomics-runtime` when you want a shorter install or import name for
+  canonical runtime entrypoints.
+- Start with the
+  [canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  because this package only forwards into that execution owner.
+- Route all runtime behavior to `bijux-proteomics-runtime`; keep this package
+  focused on compatibility naming and CLI/import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now sends readers straight to the live runtime handbook and CLI
+  contract instead of looking like a second execution product.
+- Release guidance and boundary language now make the forwarding-only contract
+  easier to review before publishing.
+
 ## Installation
 
 ```bash

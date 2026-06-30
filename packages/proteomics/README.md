@@ -42,6 +42,23 @@ It is the install and import alias for bijux-proteomics-core.
 Use this package when you want the shortest public distribution and import name
 for the core scientific surface without creating a second owner.
 
+## Alias at a glance
+
+- Use `proteomics` when the shortest install and import name matters more than
+  the canonical owner package spelling.
+- Start behavior discovery from the
+  [canonical core package docs](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  because this package is only a short-name forwarding layer.
+- Route all scientific behavior to `bijux-proteomics-core`; keep this package
+  focused on compatibility naming and short-form ergonomics.
+
+## 0.3.8 Release Highlights
+
+- The short-name alias now points readers straight at the current core docs
+  and shipped scientific examples instead of reading like a second owner.
+- Compatibility wording, package boundaries, and release guidance now state
+  directly that `bijux-proteomics-core` owns all real behavior.
+
 ## Installation
 
 ```bash

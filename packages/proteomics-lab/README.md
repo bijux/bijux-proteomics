@@ -42,6 +42,23 @@ It is the install and import alias for bijux-proteomics-lab.
 Use this package when you want a shorter distribution and import name for assay
 planning and handoff behavior without creating a second owner.
 
+## Alias at a glance
+
+- Use `proteomics-lab` when you want a shorter package name for assay
+  planning, readiness, and handoff entrypoints.
+- Start with the
+  [canonical lab package docs](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+  because this package only forwards into that owner surface.
+- Route lab behavior to `bijux-proteomics-lab`; keep this package focused on
+  compatibility naming and import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now sends readers to the current lab handbook instead of sounding
+  like a second operational owner.
+- Release guidance and compatibility wording now make the forwarding contract
+  explicit before a reader reaches the deeper sections.
+
 ## Installation
 
 ```bash

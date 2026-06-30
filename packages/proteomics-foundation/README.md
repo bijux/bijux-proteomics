@@ -43,6 +43,24 @@ Use this package when you want a shorter distribution and import name for the
 serialization, schema, and compatibility kernel without creating a second
 foundation owner.
 
+## Alias at a glance
+
+- Use `proteomics-foundation` when you want a shorter package name for the
+  shared kernel without changing who owns the contracts.
+- Start with the
+  [canonical foundation package docs](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+  because this package only forwards into that owner surface.
+- Route all schema, serialization, and compatibility behavior to
+  `bijux-proteomics-foundation`; keep this package focused on compatibility
+  naming.
+
+## 0.3.8 Release Highlights
+
+- The alias now routes readers to the current foundation handbook instead of
+  reading like a second kernel surface.
+- Compatibility prose now makes the canonical ownership and forwarding-only
+  contract explicit in the first screen.
+
 ## Installation
 
 ```bash
