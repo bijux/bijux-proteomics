@@ -49,7 +49,7 @@ _FAMILY_STABILITY_SCORECARD_PATH = (
 )
 _REFRESH_COMMAND = (
     "uv run --group dev python -m "
-    "bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+    "bijux_proteomics.benchmarks.generalization.assets refresh"
 )
 
 

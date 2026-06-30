@@ -123,6 +123,12 @@ def test_generalization_benchmark_package_import_contract() -> None:
     assert module.build_workflow_generalization_reports is not None
 
 
+def test_generalization_benchmark_support_module_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.benchmarks.generalization.assets")
+
+    assert module.main is not None
+
+
 def test_core_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interfaces.cli")
 
