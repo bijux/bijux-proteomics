@@ -8,7 +8,7 @@ from __future__ import annotations
 import csv
 from io import StringIO
 
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

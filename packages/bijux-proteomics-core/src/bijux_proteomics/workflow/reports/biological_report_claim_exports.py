@@ -14,7 +14,7 @@ from bijux_proteomics.review.claims.biological_claim_validation import (
     render_rejected_biological_claim_tsv,
     render_supported_biological_claim_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

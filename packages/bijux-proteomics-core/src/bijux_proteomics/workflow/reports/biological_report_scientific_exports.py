@@ -7,14 +7,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.reports.biological_report_claim_exports import (
     _write_biological_optional_claim_exports,
 )
 from bijux_proteomics.workflow.reports.biological_report_hypothesis_exports import (
     _write_biological_optional_hypothesis_exports,
-)
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_ranking_exports import (
     _write_biological_optional_ranking_exports,

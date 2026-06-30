@@ -16,7 +16,7 @@ from bijux_proteomics.interpretation import (
     render_protein_annotation_tsv,
     render_unmapped_protein_annotation_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

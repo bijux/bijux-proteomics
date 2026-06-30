@@ -12,7 +12,7 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.review.belief.evidence_aware_ranking import (
     render_evidence_aware_ranking_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

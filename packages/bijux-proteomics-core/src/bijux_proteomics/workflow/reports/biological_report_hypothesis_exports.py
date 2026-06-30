@@ -14,7 +14,7 @@ from bijux_proteomics.review.claims.biological_hypotheses import (
     render_biological_hypothesis_tsv,
     render_rejected_biological_hypothesis_candidate_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

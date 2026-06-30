@@ -28,7 +28,7 @@ from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     render_protein_mechanism_card_summary_tsv,
     render_protein_mechanism_card_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 
