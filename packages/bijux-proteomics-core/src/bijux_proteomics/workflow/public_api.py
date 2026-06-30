@@ -79,26 +79,9 @@ BENCHMARK_DATASET_FACADE_OWNERS = (
 )
 
 BENCHMARK_FACADE_OWNERS = (
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks",
-        rationale="DIA-NN benchmark ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.fidelity.maxquant_benchmarks",
-        rationale="MaxQuant benchmark ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors",
-        rationale="public benchmark descriptor ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset",
-        rationale="public benchmark subset ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth",
-        rationale="synthetic quantification truth ownership",
-    ),
+    *BENCHMARK_FIDELITY_FACADE_OWNERS,
+    *BENCHMARK_DATASET_FACADE_OWNERS,
+    *BENCHMARK_SYNTHETIC_FACADE_OWNERS,
 )
 
 EXPORT_FACADE_OWNERS = (
