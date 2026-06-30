@@ -12,6 +12,7 @@ from bijux_proteomics import benchmarks, sequences, workflow
 from bijux_proteomics.identification import confidence as identification_confidence
 from bijux_proteomics.identification import contracts as identification_contracts
 from bijux_proteomics.quantification import contracts as quantification_contracts
+from bijux_proteomics.workflow import pipelines, reports
 
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
@@ -33,7 +34,7 @@ LEGACY_RENDER_WRAPPERS = {
     "lab/planning.py": {
         "render_lab_review_packet": "build_lab_review_packet_rendering",
     },
-    "sequences/core.py": {"render_fasta_records": "render_records_fasta"},
+    "sequences/fasta/parsing.py": {"render_fasta_records": "render_records_fasta"},
 }
 
 LEGACY_BUNDLE_WRAPPERS = {
@@ -42,24 +43,6 @@ LEGACY_BUNDLE_WRAPPERS = {
     },
     "workflow/reports/biological_report_rendering.py": {
         "export_biological_result_report_bundle": "write_biological_result_report_bundle",
-    },
-    "workflow/pipelines/dda_biological_workflow.py": {
-        "export_dda_biological_workflow_bundle": "write_dda_biological_workflow_bundle",
-    },
-    "workflow/pipelines/diann_biological_workflow.py": {
-        "export_diann_biological_workflow_bundle": "write_diann_biological_workflow_bundle",
-    },
-    "workflow/pipelines/maxquant_biological_workflow.py": {
-        "export_maxquant_biological_workflow_bundle": "write_maxquant_biological_workflow_bundle",
-    },
-    "workflow/pipelines/label_based_reporting.py": {
-        "export_label_based_report_bundle": "write_label_based_report_bundle",
-    },
-    "workflow/pipelines/ptm_site_workflow.py": {
-        "export_ptm_site_workflow_bundle": "write_ptm_site_workflow_bundle",
-    },
-    "workflow/pipelines/tmt_experiment_workflow.py": {
-        "export_tmt_experiment_workflow_bundle": "write_tmt_experiment_workflow_bundle",
     },
     "workflow/pipelines/flagship_run.py": {
         "export_proteomics_run_bundle": "write_proteomics_run_bundle",
@@ -87,6 +70,31 @@ LEGACY_BUNDLE_WRAPPERS = {
             "write_public_biological_case_study_bundle"
         ),
     },
+}
+
+THIN_COMPATIBILITY_FACADES = {
+    "sequences/core.py": "bijux_proteomics.sequences.fasta",
+    "workflow/biological_reporting.py": (
+        "bijux_proteomics.workflow.reports.biological_reporting"
+    ),
+    "workflow/dda_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.dda_biological_workflow"
+    ),
+    "workflow/diann_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.diann_biological_workflow"
+    ),
+    "workflow/maxquant_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.maxquant_biological_workflow"
+    ),
+    "workflow/label_based_reporting.py": (
+        "bijux_proteomics.workflow.pipelines.label_based_reporting"
+    ),
+    "workflow/ptm_site_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.ptm_site_workflow"
+    ),
+    "workflow/tmt_experiment_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.tmt_experiment_workflow"
+    ),
 }
 
 
@@ -134,6 +142,36 @@ def _assert_wrapper(module_path: str, legacy_name: str, canonical_name: str) -> 
     assert _call_target_name(call) == canonical_name
 
 
+def _assert_thin_compatibility_facade(module_path: str, canonical_module: str) -> None:
+    nodes = _parse_module(module_path).body
+    significant_nodes = [
+        node
+        for node in nodes
+        if not (
+            isinstance(node, ast.Expr)
+            and isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
+        )
+        and not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
+    ]
+    assert significant_nodes, f"{module_path} should contain a compatibility re-export"
+    assert all(
+        isinstance(node, ast.ImportFrom)
+        or (
+            isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "__all__"
+                for target in node.targets
+            )
+        )
+        for node in significant_nodes
+    ), f"{module_path} should stay a thin compatibility facade"
+    assert any(
+        isinstance(node, ast.ImportFrom) and node.module == canonical_module
+        for node in significant_nodes
+    ), f"{module_path} should re-export {canonical_module}"
+
+
 @pytest.mark.slow
 def test_renderer_names_use_explicit_format_suffixes_or_wrappers() -> None:
     legacy_wrapper_names = {
@@ -161,6 +199,8 @@ def test_legacy_render_wrappers_delegate_to_canonical_names() -> None:
     for module_path, wrappers in LEGACY_RENDER_WRAPPERS.items():
         for legacy_name, canonical_name in wrappers.items():
             _assert_wrapper(module_path, legacy_name, canonical_name)
+    for module_path, canonical_module in THIN_COMPATIBILITY_FACADES.items():
+        _assert_thin_compatibility_facade(module_path, canonical_module)
 
 
 @pytest.mark.slow
@@ -222,14 +262,20 @@ def test_bundle_writer_names_use_write_prefix_with_legacy_wrappers() -> None:
     for module_path, wrappers in LEGACY_BUNDLE_WRAPPERS.items():
         for legacy_name, canonical_name in wrappers.items():
             _assert_wrapper(module_path, legacy_name, canonical_name)
+    for module_path, canonical_module in THIN_COMPATIBILITY_FACADES.items():
+        if not module_path.startswith("workflow/") and not module_path.startswith(
+            "sequences/"
+        ):
+            continue
+        _assert_thin_compatibility_facade(module_path, canonical_module)
 
 
 def test_package_surfaces_expose_canonical_bundle_writers() -> None:
     assert hasattr(sequences, "write_theoretical_digest_bundle")
-    assert hasattr(workflow, "write_biological_result_report_bundle")
+    assert hasattr(reports, "write_biological_result_report_bundle")
     assert hasattr(workflow, "write_proteomics_run_bundle")
-    assert hasattr(workflow, "write_ptm_site_workflow_bundle")
-    assert hasattr(workflow, "write_tmt_experiment_workflow_bundle")
+    assert hasattr(pipelines.engines, "write_ptm_site_workflow_bundle")
+    assert hasattr(pipelines.engines, "write_tmt_experiment_workflow_bundle")
     assert hasattr(benchmarks, "write_public_biological_case_study_bundle")
     assert hasattr(identification_contracts, "write_review_ready_evidence_bundle")
     assert hasattr(identification_confidence, "write_psm_peptide_protein_trace_bundle")

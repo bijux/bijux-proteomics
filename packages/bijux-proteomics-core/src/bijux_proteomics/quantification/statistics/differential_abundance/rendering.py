@@ -21,7 +21,7 @@ def render_differential_abundance_tsv(
 ) -> str:
     """Render one differential-abundance report as a stable TSV table."""
 
-    return render_differential_rows((report,))
+    return _render_differential_rows((report,))
 
 
 def render_differential_broken_pairs_tsv(
@@ -80,7 +80,7 @@ def render_multi_condition_differential_abundance_tsv(
 ) -> str:
     """Render a multi-condition DA collection as one flattened TSV table."""
 
-    return render_differential_rows(report.reports)
+    return _render_differential_rows(report.reports)
 
 
 def export_multi_condition_differential_abundance_tsv(
@@ -89,10 +89,12 @@ def export_multi_condition_differential_abundance_tsv(
 ) -> None:
     """Write a multi-condition DA collection to one flattened TSV artifact."""
 
-    write_output_table_tsv(path, render_multi_condition_differential_abundance_tsv(report))
+    write_output_table_tsv(
+        path, render_multi_condition_differential_abundance_tsv(report)
+    )
 
 
-def render_differential_rows(
+def _render_differential_rows(
     reports: tuple[DifferentialAbundanceReport, ...],
 ) -> str:
     """Render one or more differential reports into the shared row layout."""
@@ -220,6 +222,5 @@ __all__ = [
     "export_multi_condition_differential_abundance_tsv",
     "render_differential_abundance_tsv",
     "render_differential_broken_pairs_tsv",
-    "render_differential_rows",
     "render_multi_condition_differential_abundance_tsv",
 ]
