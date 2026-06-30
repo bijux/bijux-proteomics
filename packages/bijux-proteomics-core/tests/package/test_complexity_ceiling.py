@@ -204,7 +204,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         31,
     ),
     _exception(
-        "quantification/provenance/review.py",
+        "quantification/provenance/review/__init__.py",
         "build_quant_review_bundle",
         36,
     ),
