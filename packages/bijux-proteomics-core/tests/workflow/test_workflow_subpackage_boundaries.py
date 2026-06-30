@@ -11,6 +11,10 @@ _WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
 _ROOT_WRAPPER_TARGETS = {
+    "diann_benchmarks.py": "bijux_proteomics.workflow.benchmarks.diann_benchmarks",
+    "maxquant_benchmarks.py": (
+        "bijux_proteomics.workflow.benchmarks.maxquant_benchmarks"
+    ),
     "public_benchmark_descriptors.py": (
         "bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors"
     ),
@@ -137,6 +141,8 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(benchmarks, "PublicBenchmarkDescriptor")
     assert hasattr(benchmarks, "load_public_benchmark_descriptor")
     assert hasattr(benchmarks, "build_public_benchmark_subset")
+    assert hasattr(benchmarks, "build_diann_benchmark_report")
+    assert hasattr(benchmarks, "build_maxquant_benchmark_report")
 
     assert hasattr(reports, "build_biological_result_report_bundle")
     assert hasattr(reports, "export_biological_result_report_bundle")

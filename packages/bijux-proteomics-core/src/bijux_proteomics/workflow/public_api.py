@@ -47,6 +47,14 @@ CARD_FACADE_OWNERS = (
 
 BENCHMARK_FACADE_OWNERS = (
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.diann_benchmarks",
+        rationale="DIA-NN benchmark ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.maxquant_benchmarks",
+        rationale="MaxQuant benchmark ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors",
         rationale="public benchmark descriptor ownership",
     ),
@@ -383,7 +391,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="DDA biological workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.diann_benchmarks",
+        owner_module="bijux_proteomics.workflow.benchmarks.diann_benchmarks",
         rationale="DIA-NN benchmark ownership",
     ),
     WorkflowFacadeOwner(
@@ -407,7 +415,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="integrated scientific report ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.maxquant_benchmarks",
+        owner_module="bijux_proteomics.workflow.benchmarks.maxquant_benchmarks",
         rationale="MaxQuant benchmark ownership",
     ),
     WorkflowFacadeOwner(
