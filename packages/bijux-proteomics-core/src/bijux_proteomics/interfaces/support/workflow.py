@@ -6,50 +6,88 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow import (
-    BiologicalResultSelectionPolicy,
-    DiaDifferentialSourceKind,
-    ProteomicsRunEngine,
-    ScaleDemoConfig,
-    SurprisingDemoConfig,
-    SurprisingDemoQueryKind,
-    SurprisingDemoQueryRequest,
-    build_dia_differential_volcano_plot,
+from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
+    resolve_public_benchmark_path,
+    resolve_public_benchmark_root,
+)
+from bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks import (
     build_diann_benchmark_report,
-    build_diann_differential_analysis_report,
-    build_diann_vs_dda_psm_comparison_report,
-    build_integrated_scientific_report,
-    build_interactive_result_bundle_from_artifacts,
-    build_interactive_result_comparison_from_artifacts,
-    build_label_based_differential_volcano_plot,
-    build_maxquant_benchmark_report,
-    build_proteomics_run_bundle,
-    build_public_benchmark_trust_bundle,
-    build_public_dataset_comparison_report,
-    build_public_dataset_evidence_card_report,
-    build_result_manifest_from_artifacts,
-    build_result_search_index_from_artifacts,
-    build_silac_differential_analysis_report,
-    build_spectronaut_differential_analysis_report,
-    build_surprising_demo_example_requests,
-    build_surprising_demo_interrogation_report,
-    build_tmt_differential_analysis_report,
-    ensure_surprising_demo_outputs,
     render_diann_benchmark_count_comparisons_tsv,
     render_diann_benchmark_protein_quantities_tsv,
     render_diann_benchmark_summary_tsv,
+)
+from bijux_proteomics.workflow.benchmarks.fidelity.maxquant_benchmarks import (
+    build_maxquant_benchmark_report,
     render_maxquant_benchmark_summary_tsv,
     render_maxquant_differential_comparison_tsv,
     render_maxquant_filtering_comparison_tsv,
     render_maxquant_lfq_comparison_tsv,
     render_maxquant_protein_identity_comparison_tsv,
-    resolve_public_benchmark_path,
-    resolve_public_benchmark_root,
+)
+from bijux_proteomics.workflow.cards.cross_study_evidence_cards import (
+    build_public_dataset_evidence_card_report,
+)
+from bijux_proteomics.workflow.demo.scale_demo import (
+    ScaleDemoConfig,
+    run_scale_demo,
+)
+from bijux_proteomics.workflow.demo.surprising_demo import (
+    SurprisingDemoConfig,
+    run_surprising_demo,
+)
+from bijux_proteomics.workflow.demo.surprising_demo_interrogation import (
+    SurprisingDemoQueryKind,
+    SurprisingDemoQueryRequest,
+    build_surprising_demo_example_requests,
+    build_surprising_demo_interrogation_report,
+    ensure_surprising_demo_outputs,
+)
+from bijux_proteomics.workflow.exports.interactive_result_bundle import (
+    build_interactive_result_bundle_from_artifacts,
+)
+from bijux_proteomics.workflow.exports.interactive_result_comparison import (
+    build_interactive_result_comparison_from_artifacts,
+)
+from bijux_proteomics.workflow.exports.result_manifest import (
+    build_result_manifest_from_artifacts,
+)
+from bijux_proteomics.workflow.exports.result_search_index import (
+    build_result_search_index_from_artifacts,
+    search_result_index,
+)
+from bijux_proteomics.workflow.pipelines.dia_dda_comparison import (
+    build_diann_vs_dda_psm_comparison_report,
+)
+from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
+    DiaDifferentialSourceKind,
+    build_dia_differential_volcano_plot,
+    build_diann_differential_analysis_report,
+    build_spectronaut_differential_analysis_report,
+)
+from bijux_proteomics.workflow.pipelines.flagship_run import (
+    ProteomicsRunEngine,
+    build_proteomics_run_bundle,
+)
+from bijux_proteomics.workflow.pipelines.integrated_scientific_report import (
+    build_integrated_scientific_report,
+)
+from bijux_proteomics.workflow.pipelines.label_based_differential import (
+    build_label_based_differential_volcano_plot,
+    build_silac_differential_analysis_report,
+    build_tmt_differential_analysis_report,
+)
+from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
-    run_scale_demo,
-    run_surprising_demo,
-    search_result_index,
+)
+from bijux_proteomics.workflow.pipelines.trust_bundle import (
+    build_public_benchmark_trust_bundle,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultSelectionPolicy,
+)
+from bijux_proteomics.workflow.studies.public_dataset_comparison import (
+    build_public_dataset_comparison_report,
 )
 from bijux_proteomics.workflow.cards import (
     render_cross_study_evidence_card_summary_tsv,
