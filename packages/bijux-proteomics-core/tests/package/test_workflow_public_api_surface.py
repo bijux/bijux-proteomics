@@ -28,6 +28,7 @@ from bijux_proteomics.workflow.public_api import (
     DEMO_FACADE_OWNERS,
     ENGINE_PIPELINE_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
+    OPERATIONS_PIPELINE_FACADE_OWNERS,
     PIPELINE_FACADE_OWNERS,
     PIPELINE_SUBMODULES,
     REPORT_FACADE_OWNERS,
@@ -308,6 +309,9 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     expected_pipeline_engines, _ = build_lazy_export_index(
         ordered_facade_owners(ENGINE_PIPELINE_FACADE_OWNERS)
     )
+    expected_pipeline_operations, _ = build_lazy_export_index(
+        ordered_facade_owners(OPERATIONS_PIPELINE_FACADE_OWNERS)
+    )
     expected_pipeline_synthesis, _ = build_lazy_export_index(
         ordered_facade_owners(SYNTHESIS_PIPELINE_FACADE_OWNERS)
     )
@@ -334,6 +338,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     assert tuple(pipelines.benchmarking.__all__) == expected_pipeline_benchmarking
     assert tuple(pipelines.comparative.__all__) == expected_pipeline_comparative
     assert tuple(pipelines.engines.__all__) == expected_pipeline_engines
+    assert tuple(pipelines.operations.__all__) == expected_pipeline_operations
     assert tuple(pipelines.synthesis.__all__) == expected_pipeline_synthesis
     assert tuple(reports.__all__) == expected_reports
     assert tuple(studies.__all__) == expected_studies

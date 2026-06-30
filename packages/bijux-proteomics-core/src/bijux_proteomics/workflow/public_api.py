@@ -510,6 +510,7 @@ PIPELINE_SUBMODULES = {
     "benchmarking": "bijux_proteomics.workflow.pipelines.benchmarking",
     "comparative": "bijux_proteomics.workflow.pipelines.comparative",
     "engines": "bijux_proteomics.workflow.pipelines.engines",
+    "operations": "bijux_proteomics.workflow.pipelines.operations",
     "synthesis": "bijux_proteomics.workflow.pipelines.synthesis",
 }
 
@@ -610,6 +611,17 @@ SYNTHESIS_PIPELINE_FACADE_OWNERS = tuple(
     owner
     for owner in PIPELINE_FACADE_OWNERS
     if owner.owner_module in SYNTHESIS_PIPELINE_OWNER_MODULES
+)
+
+OPERATIONS_PIPELINE_OWNER_MODULES = {
+    "bijux_proteomics.workflow.pipelines.flagship_run",
+    "bijux_proteomics.workflow.pipelines.orchestrator",
+}
+
+OPERATIONS_PIPELINE_FACADE_OWNERS = tuple(
+    owner
+    for owner in PIPELINE_FACADE_OWNERS
+    if owner.owner_module in OPERATIONS_PIPELINE_OWNER_MODULES
 )
 
 WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS = (
@@ -965,6 +977,8 @@ __all__ = [
     "DEMO_FACADE_OWNERS",
     "EXPORT_FACADE_OWNERS",
     "ENGINE_PIPELINE_FACADE_OWNERS",
+    "OPERATIONS_PIPELINE_FACADE_OWNERS",
+    "OPERATIONS_PIPELINE_OWNER_MODULES",
     "PIPELINE_SUBMODULES",
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS",
