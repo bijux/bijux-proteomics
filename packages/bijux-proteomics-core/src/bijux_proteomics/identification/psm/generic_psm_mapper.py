@@ -12,7 +12,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, field_validator, model_validator
 import yaml
 
-from bijux_proteomics.domain import ImportedEvidenceProvenance
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     RejectedPsmRow,
     SearchResultColumnMapping,

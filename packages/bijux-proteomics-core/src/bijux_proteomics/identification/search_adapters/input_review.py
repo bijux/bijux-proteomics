@@ -9,7 +9,7 @@ import csv
 import hashlib
 from pathlib import Path
 
-from bijux_proteomics.domain import ImportedEvidenceProvenance
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     PsmParseReport,
     SearchResultColumnMapping,

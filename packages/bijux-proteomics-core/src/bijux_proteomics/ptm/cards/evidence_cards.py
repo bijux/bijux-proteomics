@@ -14,7 +14,7 @@ import re
 from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.domain import SourceRowLineage
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.card_schema import (
     StandardCardEntry,
     StandardCardKind,
