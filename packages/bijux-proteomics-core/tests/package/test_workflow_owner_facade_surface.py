@@ -32,6 +32,28 @@ _WORKFLOW_WRAPPER_MODULES = {
 }
 
 
+def test_internal_modules_import_workflow_owner_modules_directly() -> None:
+    violations: list[str] = []
+
+    for path in sorted(_PYTHON_ROOT.rglob("*.py")):
+        if path == _WORKFLOW_INIT:
+            continue
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(module):
+            if isinstance(node, ast.ImportFrom) and node.module == "bijux_proteomics.workflow":
+                violations.append(
+                    f"{path.relative_to(_PYTHON_ROOT)} imports bijux_proteomics.workflow instead of an owned workflow module"
+                )
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name == "bijux_proteomics.workflow":
+                        violations.append(
+                            f"{path.relative_to(_PYTHON_ROOT)} imports bijux_proteomics.workflow instead of an owned workflow module"
+                        )
+
+    assert not violations, "\n".join(violations)
+
+
 def test_internal_modules_import_workflow_study_owner_modules_directly() -> None:
     violations: list[str] = []
 
