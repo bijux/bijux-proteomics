@@ -44,6 +44,7 @@ from .digestion_parameters import (
     _resolve_cli_theoretical_digest_modifications,
 )
 from .fasta_inputs import _emit_fasta_profile, _load_fasta_report
+from .multiplex_inputs import _parse_silac_label_spec, _parse_tmt_channel_column_specs
 
 
 def _file_sha256(path: Path) -> str:
@@ -100,36 +101,6 @@ def _load_precursor_mass_error_queries(
                     f"invalid precursor mass-error row at line {row_number}: {exc}"
                 ) from exc
     return tuple(queries)
-
-
-def _parse_tmt_channel_column_specs(
-    specs: tuple[str, ...],
-) -> tuple[TmtReporterChannelColumn, ...]:
-    resolved: list[TmtReporterChannelColumn] = []
-    for spec in specs:
-        if "=" not in spec:
-            raise click.ClickException("channel-column must use CHANNEL=COLUMN syntax")
-        channel, column_name = spec.split("=", 1)
-        channel = channel.strip()
-        column_name = column_name.strip()
-        if not channel or not column_name:
-            raise click.ClickException("channel-column must use CHANNEL=COLUMN syntax")
-        resolved.append(
-            TmtReporterChannelColumn(
-                multiplex_channel=channel,
-                column_name=column_name,
-            )
-        )
-    return tuple(resolved)
-
-
-def _parse_silac_label_spec(spec: str) -> tuple[SilacLabel, ...]:
-    labels = tuple(
-        SilacLabel(token.strip().lower()) for token in spec.split(",") if token.strip()
-    )
-    if len(labels) < 2:
-        raise click.ClickException("labels must name at least two SILAC label states")
-    return labels
 
 
 def _select_design_entry(
