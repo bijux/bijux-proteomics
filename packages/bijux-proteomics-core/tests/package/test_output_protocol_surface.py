@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 import bijux_proteomics._atomic_files as atomic_files
-from bijux_proteomics.interfaces.support import output_protocol
+from bijux_proteomics.interfaces.support.output_protocol import artifact_output
 
 
 def test_emit_json_writes_sorted_json_document(
@@ -16,9 +16,9 @@ def test_emit_json_writes_sorted_json_document(
 ) -> None:
     output_path = tmp_path / "artifact.json"
     echoed: list[str] = []
-    monkeypatch.setattr(output_protocol.click, "echo", echoed.append)
+    monkeypatch.setattr(artifact_output.click, "echo", echoed.append)
 
-    output_protocol._emit_json({"b": 2, "a": 1}, out_path=output_path)
+    artifact_output._emit_json({"b": 2, "a": 1}, out_path=output_path)
 
     assert output_path.read_text(encoding="utf-8") == '{\n  "a": 1,\n  "b": 2\n}\n'
     assert echoed == ['{\n  "a": 1,\n  "b": 2\n}']
@@ -36,7 +36,7 @@ def test_write_text_output_replace_failure_leaves_no_partial_text_artifact(
     monkeypatch.setattr(atomic_files.os, "replace", interrupted_replace)
 
     with pytest.raises(RuntimeError, match="interrupted before replacing"):
-        output_protocol._write_text_output(output_path, "<html>report</html>\n")
+        artifact_output._write_text_output(output_path, "<html>report</html>\n")
 
     assert not output_path.exists()
     assert not tuple(tmp_path.glob(".*.bijux-write-*.tmp"))

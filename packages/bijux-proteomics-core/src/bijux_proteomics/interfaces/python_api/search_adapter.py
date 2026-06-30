@@ -21,7 +21,9 @@ from bijux_proteomics.interfaces.support.identification import (
     parse_search_parameter_file,
     validate_search_parameters,
 )
-from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 
 
 def run_search_adapter_inspect_command(adapter_name: str | None) -> None:

@@ -27,7 +27,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_xic_traces_tsv,
     score_dia_fragment_ratio_stability,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

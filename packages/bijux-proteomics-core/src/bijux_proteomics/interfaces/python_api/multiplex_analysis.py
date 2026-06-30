@@ -38,10 +38,14 @@ from bijux_proteomics.interfaces.support.workflow import (
     export_label_based_differential_volcano_plot_tsv,
     export_label_based_normalization_balance_plot_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
-    _build_volcano_review_policy,
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
+)
+from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
+    _build_volcano_review_policy,
     _export_volcano_review_assets,
+)
+from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
 )
 from bijux_proteomics.interfaces.support.sequence_support import _parse_tmt_channel_column_specs

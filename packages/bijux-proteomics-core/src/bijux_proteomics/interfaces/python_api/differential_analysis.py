@@ -47,11 +47,13 @@ from bijux_proteomics.interfaces.support.workflow import (
     render_dia_dda_protein_overlap_tsv,
     render_dia_dda_shared_intensity_correlation_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
-    _build_volcano_review_policy,
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
-    _export_volcano_review_assets,
     _write_text_output,
+)
+from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
+    _build_volcano_review_policy,
+    _export_volcano_review_assets,
 )
 
 

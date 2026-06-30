@@ -74,7 +74,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("identification/adapters/fragpipe_import.py", 1037),
     _exception("identification/fdr/confidence.py", 1140),
     _exception("identification/protein/protein_inference_benchmarks.py", 1007),
-    _exception("interfaces/support/output_protocol/__init__.py", 1247),
     _exception("interfaces/support/sequence_support.py", 1456),
     _exception("io/formats/proteomics_formats.py", 1105),
     _exception("io/raw/raw_signal_evidence_cards.py", 1128),

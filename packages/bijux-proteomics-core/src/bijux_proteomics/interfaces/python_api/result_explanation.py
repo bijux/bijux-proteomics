@@ -33,7 +33,7 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     render_result_query_evidence_tsv,
     render_result_query_summary_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

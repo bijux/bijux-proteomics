@@ -18,7 +18,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_dia_precursor_q_value_matrix_tsv,
     render_dia_precursor_quantity_matrix_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

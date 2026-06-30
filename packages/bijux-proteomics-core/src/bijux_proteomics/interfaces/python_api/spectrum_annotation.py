@@ -28,7 +28,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_raw_signal_evidence_cards_html,
     score_chimeric_spectra_from_psms,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

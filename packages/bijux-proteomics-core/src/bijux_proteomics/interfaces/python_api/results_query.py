@@ -28,7 +28,7 @@ from bijux_proteomics.interfaces.support.workflow import (
     render_result_search_summary_tsv,
     search_result_index,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

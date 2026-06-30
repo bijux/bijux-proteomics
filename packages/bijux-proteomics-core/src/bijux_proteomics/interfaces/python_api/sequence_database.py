@@ -31,7 +31,9 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     validate_target_decoy_database,
     write_theoretical_digest_bundle,
 )
-from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.sequence_support import (
     _load_fasta_report,
     _resolve_cli_protease_rule,

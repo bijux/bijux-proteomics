@@ -23,7 +23,9 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     parse_fasta_document,
 )
-from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 
 
 def run_ptm_annotate_context_command(

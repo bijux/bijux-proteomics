@@ -45,11 +45,13 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     render_experiment_feasibility_valid_contrasts_tsv,
     render_protocol_consistency_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
-    _build_protocol_consistency_report_from_inputs,
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _read_identifier_lines,
     _write_text_output,
+)
+from bijux_proteomics.interfaces.support.output_protocol.protocol_policy import (
+    _build_protocol_consistency_report_from_inputs,
 )
 from bijux_proteomics.interfaces.support.sequence_support import (
     _default_psm_mapping,

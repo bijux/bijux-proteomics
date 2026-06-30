@@ -63,7 +63,9 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     parse_msstats_result_table,
     summarize_missing_values,
 )
-from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.timecourse_support import _parse_timepoint_order_file
 
 

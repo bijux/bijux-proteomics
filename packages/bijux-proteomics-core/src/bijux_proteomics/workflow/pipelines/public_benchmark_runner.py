@@ -1134,18 +1134,17 @@ def _direction_from_effect_size(value: float | None) -> str | None:
     if value < 0:
         return PublicBenchmarkExpectedSignalDirection.DOWN.value
     return "flat"
-
-
 __all__ = [
     "PublicBenchmarkRunReport",
     "PublicBenchmarkExpectedSignalAssessment",
     "PublicBenchmarkExpectedSignalAssessmentStatus",
-    "PublicBenchmarkFailure",
-    "PublicBenchmarkFailureKind",
+    "PublicBenchmarkFailure", "PublicBenchmarkFailureKind",
     "PublicBenchmarkRunStatus",
     "PublicBenchmarkSuiteReport",
     "load_public_benchmark_descriptor",
+    "render_public_benchmark_suite_failures_tsv",
     "render_public_benchmark_suite_signal_assessments_tsv",
+    "render_public_benchmark_suite_summary_tsv",
     "run_public_benchmark_descriptor",
     "run_public_benchmark_descriptor_suite",
 ]

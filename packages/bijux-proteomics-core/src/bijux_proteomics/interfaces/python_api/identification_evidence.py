@@ -36,7 +36,7 @@ from bijux_proteomics.interfaces.support.identification import (
     render_rejected_evidence_tsv,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

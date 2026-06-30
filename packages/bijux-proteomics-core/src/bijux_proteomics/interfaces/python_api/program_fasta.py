@@ -25,7 +25,9 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     render_records_fasta,
     sequence_checksum,
 )
-from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.sequence_support import (
     _emit_fasta_profile,
     _load_fasta_report,

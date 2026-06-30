@@ -38,8 +38,10 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     parse_fasta_document,
 )
 from bijux_proteomics.interfaces.support.workflow import PtmWorkflowConfig
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
+)
+from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
 )
 from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (

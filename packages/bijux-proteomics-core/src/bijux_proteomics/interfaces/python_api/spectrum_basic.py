@@ -32,7 +32,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_spectrum_run_qc_trace_tsv,
     render_spectrum_summary_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

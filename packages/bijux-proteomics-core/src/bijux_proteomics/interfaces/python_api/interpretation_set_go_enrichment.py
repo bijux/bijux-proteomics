@@ -31,7 +31,7 @@ from bijux_proteomics.interfaces.support.interpretation import (
     render_rejected_go_annotation_tsv,
     render_rejected_protein_set_membership_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
 

@@ -31,7 +31,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     normalize_label_free_table,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
 from bijux_proteomics.interfaces.support.contrast_resolution import _resolve_cli_contrast

@@ -24,9 +24,13 @@ from bijux_proteomics.interfaces.support.workflow import (
     render_proteomics_run_summary_tsv,
     write_proteomics_run_bundle,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
-    _build_volcano_review_policy,
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
+)
+from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
+    _build_volcano_review_policy,
+)
+from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _validate_proteomics_run_inputs,
 )
 

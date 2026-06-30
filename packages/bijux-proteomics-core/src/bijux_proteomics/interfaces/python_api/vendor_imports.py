@@ -22,7 +22,7 @@ from bijux_proteomics.interfaces.support.identification import (
     render_spectronaut_protein_group_tsv,
     render_spectronaut_summary_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

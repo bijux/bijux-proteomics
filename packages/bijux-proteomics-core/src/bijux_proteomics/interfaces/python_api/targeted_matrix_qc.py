@@ -48,10 +48,12 @@ from bijux_proteomics.interfaces.support.workflow import (
     TargetedWorkflowConfig,
     TargetedWorkflowStage,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
-    _run_orchestrated_workflow,
     _write_text_output,
+)
+from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
+    _run_orchestrated_workflow,
 )
 from bijux_proteomics.targeted.assay_qc import TargetedAssayQcReport
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport

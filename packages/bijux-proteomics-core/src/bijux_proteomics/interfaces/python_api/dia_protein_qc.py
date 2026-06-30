@@ -36,7 +36,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_dia_run_qc_run_table_tsv,
     render_dia_run_qc_summary_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

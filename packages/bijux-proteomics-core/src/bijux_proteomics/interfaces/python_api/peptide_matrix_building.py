@@ -26,7 +26,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     render_peptide_intensity_missingness_mask_tsv,
     render_peptide_intensity_missingness_tsv,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

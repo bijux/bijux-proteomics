@@ -40,7 +40,9 @@ from bijux_proteomics.interfaces.support.multiplex_targeted import (
     export_tmt_report_summary_tsv,
     parse_tmt_reporter_table,
 )
-from bijux_proteomics.interfaces.support.output_protocol import _emit_json
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.sequence_support import _parse_tmt_channel_column_specs
 
 

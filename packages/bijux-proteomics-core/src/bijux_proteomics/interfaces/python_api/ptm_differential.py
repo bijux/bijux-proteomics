@@ -36,9 +36,11 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     build_ptm_volcano_review,
     parse_fasta_document,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
-    _build_volcano_review_policy,
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
+)
+from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
+    _build_volcano_review_policy,
     _export_volcano_review_assets,
 )
 

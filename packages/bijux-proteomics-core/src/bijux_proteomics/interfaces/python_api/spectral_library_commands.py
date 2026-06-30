@@ -24,7 +24,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_spectrum_similarity_tsv,
     search_spectral_library,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )

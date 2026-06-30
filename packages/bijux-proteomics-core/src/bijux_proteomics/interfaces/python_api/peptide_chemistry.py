@@ -27,7 +27,7 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     build_peptide_database_lookup_report,
     build_peptide_property_report,
 )
-from bijux_proteomics.interfaces.support.output_protocol import (
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )
