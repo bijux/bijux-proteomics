@@ -78,7 +78,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("ptm/contracts.py", 1061),
     _exception("ptm/quant/differential_analysis.py", 1090),
     _exception("quantification/matrix/peptide_intensity_matrix.py", 1044),
-    _exception("review/belief/belief_audit.py", 1007),
     _exception("workflow/demo/surprising_demo.py", 1013),
     _exception("workflow/exports/interactive_result_bundle.py", 1396),
     _exception("workflow/exports/interactive_result_comparison.py", 1002),
