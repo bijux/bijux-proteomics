@@ -88,6 +88,18 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_qc_claim_state",
         "_qc_trust_class",
     ),
+    "biological_result_graph_run_context.py": (
+        "BiologicalResultGraphRunContext",
+        "_add_biological_result_graph_run_context",
+    ),
+    "biological_result_graph_protein_claims.py": (
+        "_add_biological_result_graph_protein_claims",
+        "_claim_confidence",
+        "_claim_state",
+        "_protein_label",
+        "_protein_trust_class",
+        "_quant_trust_class",
+    ),
     "biological_report_claims.py": (
         "_build_biological_claim_validation_report",
         "_build_biological_evidence_aware_ranking_report",
