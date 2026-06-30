@@ -414,6 +414,13 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_biological_report_section_blocks_html",
     ),
     "biological_report_html.py": ("_render_biological_result_report_html",),
+    "biological_report_export_writing.py": (
+        "BiologicalResultReportExportNames",
+        "_write_biological_result_report_export_names",
+    ),
+    "biological_report_export_finalization.py": (
+        "_finalize_biological_result_report_export",
+    ),
     "biological_report_rendering.py": (
         "export_biological_result_report_bundle",
         "write_biological_result_report_bundle",
