@@ -582,10 +582,9 @@ COMPARATIVE_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.label_based_differential",
 }
 
-COMPARATIVE_PIPELINE_FACADE_OWNERS = tuple(
-    owner
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in COMPARATIVE_PIPELINE_OWNER_MODULES
+COMPARATIVE_PIPELINE_FACADE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    COMPARATIVE_PIPELINE_OWNER_MODULES,
 )
 
 BENCHMARKING_PIPELINE_OWNER_MODULES = {
@@ -594,10 +593,9 @@ BENCHMARKING_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
 
-BENCHMARKING_PIPELINE_FACADE_OWNERS = tuple(
-    owner
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in BENCHMARKING_PIPELINE_OWNER_MODULES
+BENCHMARKING_PIPELINE_FACADE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    BENCHMARKING_PIPELINE_OWNER_MODULES,
 )
 
 SYNTHESIS_PIPELINE_OWNER_MODULES = {
@@ -606,10 +604,9 @@ SYNTHESIS_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.multi_study",
 }
 
-SYNTHESIS_PIPELINE_FACADE_OWNERS = tuple(
-    owner
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in SYNTHESIS_PIPELINE_OWNER_MODULES
+SYNTHESIS_PIPELINE_FACADE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    SYNTHESIS_PIPELINE_OWNER_MODULES,
 )
 
 OPERATIONS_PIPELINE_OWNER_MODULES = {
@@ -617,21 +614,20 @@ OPERATIONS_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.orchestrator",
 }
 
-OPERATIONS_PIPELINE_FACADE_OWNERS = tuple(
-    owner
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in OPERATIONS_PIPELINE_OWNER_MODULES
+OPERATIONS_PIPELINE_FACADE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    OPERATIONS_PIPELINE_OWNER_MODULES,
 )
 
-PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES = {
-    *(owner.owner_module for owner in ADVANCED_PIPELINE_FACADE_OWNERS),
-    *BENCHMARKING_PIPELINE_OWNER_MODULES,
-    *COMPARATIVE_PIPELINE_OWNER_MODULES,
-    *(owner.owner_module for owner in DEMO_FACADE_OWNERS),
-    *(owner.owner_module for owner in ENGINE_PIPELINE_FACADE_OWNERS),
-    *OPERATIONS_PIPELINE_OWNER_MODULES,
-    *SYNTHESIS_PIPELINE_OWNER_MODULES,
-}
+PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES = frozenset().union(
+    facade_owner_modules(ADVANCED_PIPELINE_FACADE_OWNERS),
+    BENCHMARKING_PIPELINE_OWNER_MODULES,
+    COMPARATIVE_PIPELINE_OWNER_MODULES,
+    facade_owner_modules(DEMO_FACADE_OWNERS),
+    facade_owner_modules(ENGINE_PIPELINE_FACADE_OWNERS),
+    OPERATIONS_PIPELINE_OWNER_MODULES,
+    SYNTHESIS_PIPELINE_OWNER_MODULES,
+)
 
 PIPELINE_ROOT_OWNERS = tuple(
     owner
@@ -672,14 +668,9 @@ WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.multi_study",
 }
 
-WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=owner.excluded_exports,
-    )
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
+WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES,
 )
 
 WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS = (
@@ -697,14 +688,9 @@ WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
 
-WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=owner.excluded_exports,
-    )
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
+WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES,
 )
 
 WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS = (
@@ -745,14 +731,9 @@ WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES = {
     "bijux_proteomics.workflow.pipelines.label_based_differential",
 }
 
-WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=owner.excluded_exports,
-    )
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
+WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES,
 )
 
 WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS = (
@@ -766,17 +747,10 @@ WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS = (
     "render_proteomics_run_enrichment_tsv",
 )
 
-WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS,
-        ),
-    )
-    for owner in PIPELINE_FACADE_OWNERS
-    if owner.owner_module == "bijux_proteomics.workflow.pipelines.flagship_run"
+WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS = select_facade_owners(
+    PIPELINE_FACADE_OWNERS,
+    {"bijux_proteomics.workflow.pipelines.flagship_run"},
+    excluded_exports=WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS,
 )
 
 WORKFLOW_ROOT_PIPELINE_OWNERS = (
