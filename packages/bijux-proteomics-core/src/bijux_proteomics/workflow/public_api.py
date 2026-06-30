@@ -222,12 +222,21 @@ ADVANCED_PIPELINE_FACADE_OWNERS = (
     ),
 )
 
+ENGINE_PIPELINE_FACADE_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.engines.label_based_reporting",
+        rationale="label-based reporting workflow ownership",
+    ),
+)
+
 PIPELINE_SUBMODULES = {
     "advanced": "bijux_proteomics.workflow.pipelines.advanced",
+    "engines": "bijux_proteomics.workflow.pipelines.engines",
 }
 
 PIPELINE_FACADE_OWNERS = (
     *ADVANCED_PIPELINE_FACADE_OWNERS,
+    *ENGINE_PIPELINE_FACADE_OWNERS,
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.dda_biological_workflow",
         rationale="DDA biological workflow ownership",
@@ -259,10 +268,6 @@ PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.label_based_differential",
         rationale="label-based differential workflow ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.label_based_reporting",
-        rationale="label-based reporting workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.maxquant_biological_workflow",
@@ -360,6 +365,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="workflow blueprint ownership",
     ),
     *ADVANCED_PIPELINE_FACADE_OWNERS,
+    *ENGINE_PIPELINE_FACADE_OWNERS,
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.studies.cohort_stratification",
         rationale="cohort stratification ownership",
@@ -526,10 +532,6 @@ WORKFLOW_ROOT_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.label_based_differential",
         rationale="label-based differential workflow ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.label_based_reporting",
-        rationale="label-based reporting workflow ownership",
     ),
 )
 

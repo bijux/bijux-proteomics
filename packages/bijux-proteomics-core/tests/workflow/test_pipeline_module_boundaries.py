@@ -225,3 +225,24 @@ def test_advanced_pipeline_wrappers_delegate_to_advanced_owners() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its advanced owner surface"
+
+
+def test_engine_pipeline_wrappers_delegate_to_engine_owners() -> None:
+    root = _workflow_source_root() / "pipelines"
+    expected_targets = {
+        "label_based_reporting.py": (
+            "bijux_proteomics.workflow.pipelines.engines.label_based_reporting"
+        ),
+    }
+
+    for filename, expected_target in expected_targets.items():
+        nodes = _significant_nodes(root / filename)
+        assert nodes, f"{filename} should contain an engine workflow re-export"
+        assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
+            f"{filename} should stay a thin compatibility facade"
+        )
+        assert any(
+            node.module == expected_target
+            for node in nodes
+            if isinstance(node, ast.ImportFrom)
+        ), f"{filename} should re-export its engine owner surface"
