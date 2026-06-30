@@ -7,15 +7,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from bijux_proteomics.workflow.reports.biological_report_bundle_confidence_state import (
+    _build_biological_report_bundle_confidence_state,
+)
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_summary import (
     _build_biological_result_report_summary,
-)
-from bijux_proteomics.workflow.reports.biological_report_section_confidence import (
-    _build_biological_report_section_confidence_entries,
-    _count_section_confidence_labels,
 )
 
 if TYPE_CHECKING:
@@ -104,7 +103,7 @@ def _assemble_biological_result_report_bundle(
     sample_exploration_report: SampleExplorationReport,
     selection_policy: BiologicalResultSelectionPolicy,
 ) -> BiologicalResultReportBundle:
-    section_confidence_entries = _build_biological_report_section_confidence_entries(
+    confidence_state = _build_biological_report_bundle_confidence_state(
         experiment_confidence_report=experiment_confidence_report,
         evidence_aware_ranking_report=evidence_aware_ranking_report,
         claim_validation_report=claim_validation_report,
@@ -119,9 +118,6 @@ def _assemble_biological_result_report_bundle(
         pathway_activity_report=pathway_activity_report,
         complex_activity_report=complex_activity_report,
         protein_mechanism_cards=protein_mechanism_cards,
-    )
-    section_confidence_counts = _count_section_confidence_labels(
-        section_confidence_entries
     )
     return BiologicalResultReportBundle(
         differential_report=differential_report,
@@ -152,7 +148,7 @@ def _assemble_biological_result_report_bundle(
         heatmap_report=heatmap_report,
         sample_exploration_report=sample_exploration_report,
         selection_policy=selection_policy,
-        section_confidence_entries=section_confidence_entries,
+        section_confidence_entries=confidence_state.entries,
         summary=_build_biological_result_report_summary(
             normalized_table=normalized_table,
             differential_report=differential_report,
@@ -162,7 +158,7 @@ def _assemble_biological_result_report_bundle(
             tissue_cell_type_context_report=tissue_cell_type_context_report,
             cohort_stratification_report=cohort_stratification_report,
             experiment_confidence_report=experiment_confidence_report,
-            section_confidence_counts=section_confidence_counts,
+            section_confidence_counts=confidence_state.counts,
             context_mapping_report=context_mapping_report,
             go_enrichment_report=go_enrichment_report,
             pathway_enrichment_report=pathway_enrichment_report,
