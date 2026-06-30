@@ -21,7 +21,7 @@ from bijux_proteomics.interpretation import (
     render_pathway_unresolved_member_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalEnrichmentReportBundle,
 )
 
 
@@ -41,7 +41,7 @@ class BiologicalEnrichmentExportNames:
 
 
 def write_biological_enrichment_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalEnrichmentReportBundle,
     output_dir: Path,
 ) -> BiologicalEnrichmentExportNames:
     """Write optional GO, pathway, and complex enrichment artifacts."""

@@ -19,7 +19,7 @@ from bijux_proteomics.interpretation import (
     render_complex_member_contribution_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalActivityReportBundle,
 )
 
 
@@ -37,7 +37,7 @@ class BiologicalComplexActivityExportNames:
 
 
 def _write_biological_complex_activity_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalActivityReportBundle,
     output_dir: Path,
 ) -> BiologicalComplexActivityExportNames:
     if report.complex_activity_report is None:

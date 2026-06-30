@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalActivityReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_complex_activity_exports import (
     _write_biological_complex_activity_exports,
@@ -52,7 +52,7 @@ class BiologicalActivityExportNames:
 
 
 def write_biological_activity_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalActivityReportBundle,
     output_dir: Path,
 ) -> BiologicalActivityExportNames:
     """Write optional compartment, pathway, and complex activity artifacts."""

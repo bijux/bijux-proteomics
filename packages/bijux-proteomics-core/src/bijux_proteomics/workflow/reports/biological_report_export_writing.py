@@ -53,10 +53,10 @@ def _write_biological_result_report_export_names(
 ) -> BiologicalResultReportExportNames:
     return BiologicalResultReportExportNames(
         scientific=write_biological_scientific_exports(report, output_dir),
-        contextual=write_biological_contextual_exports(report, output_dir),
-        activity=write_biological_activity_exports(report, output_dir),
-        enrichment=write_biological_enrichment_exports(report, output_dir),
-        visual=write_biological_visual_exports(report, output_dir),
+        contextual=write_biological_contextual_exports(report.contextual, output_dir),
+        activity=write_biological_activity_exports(report.activity, output_dir),
+        enrichment=write_biological_enrichment_exports(report.enrichment, output_dir),
+        visual=write_biological_visual_exports(report.visual, output_dir),
     )
 
 

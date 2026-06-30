@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalContextualReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_annotation_context_exports import (
     _write_biological_annotation_context_exports,
@@ -49,7 +49,7 @@ class BiologicalContextualExportNames:
 
 
 def write_biological_contextual_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalContextualExportNames:
     """Write optional contextual report artifacts."""

@@ -17,7 +17,7 @@ from bijux_proteomics.interpretation import (
     render_unknown_disease_phenotype_annotation_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalContextualReportBundle,
 )
 
 
@@ -39,7 +39,7 @@ class BiologicalDiseasePhenotypeExportNames:
 
 
 def _write_biological_drug_target_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalDrugTargetExportNames:
     if report.drug_target_report is None:
@@ -65,7 +65,7 @@ def _write_biological_drug_target_exports(
 
 
 def _write_biological_disease_phenotype_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalDiseasePhenotypeExportNames:
     if report.disease_phenotype_report is None:

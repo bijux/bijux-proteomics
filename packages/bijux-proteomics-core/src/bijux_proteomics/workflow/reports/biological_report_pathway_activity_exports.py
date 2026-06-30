@@ -22,7 +22,7 @@ from bijux_proteomics.workflow.cards.pathway_evidence_cards import (
     render_pathway_evidence_card_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalActivityReportBundle,
 )
 
 
@@ -41,7 +41,7 @@ class BiologicalPathwayActivityExportNames:
 
 
 def _write_biological_pathway_activity_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalActivityReportBundle,
     output_dir: Path,
 ) -> BiologicalPathwayActivityExportNames:
     if report.pathway_activity_report is None:

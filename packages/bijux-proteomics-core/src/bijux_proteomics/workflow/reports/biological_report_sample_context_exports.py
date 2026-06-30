@@ -15,7 +15,7 @@ from bijux_proteomics.interpretation import (
     render_tissue_cell_type_unexpected_signal_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalContextualReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_sample_context_export_contracts import (
     BiologicalCohortContextExportNames,
@@ -30,7 +30,7 @@ from bijux_proteomics.workflow.studies.cohort_stratification import (
 
 
 def _write_biological_cohort_context_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalCohortContextExportNames:
     if report.cohort_stratification_report is None:
@@ -70,7 +70,7 @@ def _write_biological_cohort_context_exports(
 
 
 def _write_biological_tissue_context_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalTissueContextExportNames:
     if report.tissue_cell_type_context_report is None:

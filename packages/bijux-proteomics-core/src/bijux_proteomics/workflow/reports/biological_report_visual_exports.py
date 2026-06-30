@@ -29,7 +29,7 @@ from bijux_proteomics.workflow.cards.sample_evidence_cards import (
     render_sample_evidence_card_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalVisualReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_visual_export_naming import (
     _build_biological_visual_export_names,
@@ -40,7 +40,7 @@ from bijux_proteomics.workflow.reports.biological_report_visual_export_contracts
 
 
 def write_biological_visual_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalVisualReportBundle,
     output_dir: Path,
 ) -> BiologicalVisualExportNames:
     """Write volcano, heatmap, and sample exploration artifacts."""

@@ -20,7 +20,7 @@ from bijux_proteomics.interpretation.compartment_biology import (
     render_unknown_compartment_localization_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalActivityReportBundle,
 )
 
 
@@ -39,7 +39,7 @@ class BiologicalCompartmentActivityExportNames:
 
 
 def _write_biological_compartment_activity_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalActivityReportBundle,
     output_dir: Path,
 ) -> BiologicalCompartmentActivityExportNames:
     if report.compartment_biology_report is None:

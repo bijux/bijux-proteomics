@@ -17,7 +17,7 @@ from bijux_proteomics.interpretation import (
     render_unmapped_biological_context_tsv,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+    BiologicalContextualReportBundle,
 )
 
 
@@ -33,7 +33,7 @@ class BiologicalAnnotationContextExportNames:
 
 
 def _write_biological_annotation_context_exports(
-    report: BiologicalResultReportBundle,
+    report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalAnnotationContextExportNames:
     if (
