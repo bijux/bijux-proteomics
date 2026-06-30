@@ -11,6 +11,7 @@ WORKFLOW_ROOT_OWNER_FILES = frozenset(
         "__init__.py",
         "blueprint.py",
         "facade_catalog.py",
+        "facade_pipeline_catalog.py",
         "facade_runtime.py",
         "facade_targets.py",
         "public_api.py",
