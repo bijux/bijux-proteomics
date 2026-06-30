@@ -53,7 +53,7 @@ def test_support_registry_exports_modules_not_symbol_soup() -> None:
     assert cli_support.output_protocol is support_registry.output_protocol
 
 
-def test_python_api_modules_import_owned_support_submodules_directly() -> None:
+def test_python_api_modules_import_owned_support_modules_directly() -> None:
     violations: list[str] = []
     for path in sorted(PYTHON_API_ROOT.glob("*.py")):
         if path.name == "__init__.py":
@@ -89,6 +89,10 @@ def test_python_api_modules_import_owned_support_submodules_directly() -> None:
             if node.module == "bijux_proteomics.interfaces.support.sequence_support":
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the sequence support facade instead of an owner module"
+                )
+            if node.module == "bijux_proteomics.interfaces.support.timecourse_support":
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the timecourse support facade instead of an owner module"
                 )
             if node.module == "bijux_proteomics.interfaces.support.workflow" and any(
                 alias.name == "*" for alias in node.names
