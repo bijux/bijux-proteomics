@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import Counter
 from statistics import median
 
-from bijux_proteomics.chemistry import calculate_peptide_mz
+from bijux_proteomics.chemistry.mass import calculate_peptide_mz
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.identification.contaminant_evidence import (
     build_contaminant_evidence_report,

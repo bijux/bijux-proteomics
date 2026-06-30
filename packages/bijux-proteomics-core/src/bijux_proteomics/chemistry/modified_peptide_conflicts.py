@@ -9,7 +9,7 @@ from collections import defaultdict
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.contracts.models import (
     ModificationPosition,
     ParsedModifiedPeptide,
 )

@@ -13,7 +13,8 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import calculate_fragment_ions, calculate_peptide_mz
+from bijux_proteomics.chemistry.fragments import calculate_fragment_ions
+from bijux_proteomics.chemistry.mass import calculate_peptide_mz
 from bijux_proteomics.identification.contracts import (
     PsmRecord,
     TargetDecoyLabel,

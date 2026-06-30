@@ -12,10 +12,12 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.fragments import (
     FragmentIon,
-    ParsedModifiedPeptide,
     calculate_fragment_ions,
+)
+from bijux_proteomics.chemistry.modifications import (
+    ParsedModifiedPeptide,
     canonicalize_modified_peptide,
 )
 from bijux_proteomics.io.raw.noise import SpectrumPeakClass, estimate_peak_noise

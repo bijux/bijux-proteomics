@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 from typing import Literal
 
-from bijux_proteomics.chemistry import calculate_monoisotopic_peptide_mass
+from bijux_proteomics.chemistry.mass import calculate_monoisotopic_peptide_mass
 from bijux_proteomics.sequences.digestion.models import (
     DigestBenchmarkReport,
     DigestDuplicateAccounting,

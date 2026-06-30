@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.fragments import (
     FragmentIonSeries,
 )
 from bijux_proteomics.io import SpectralLibraryEntry

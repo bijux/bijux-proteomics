@@ -11,7 +11,7 @@ from typing import TypedDict
 
 import click
 
-from bijux_proteomics.chemistry import FragmentIonSeries
+from bijux_proteomics.chemistry.fragments import FragmentIonSeries
 from bijux_proteomics.targeted.transition_selection import (
     TargetedTransitionInterferenceRisk,
     TargetedTransitionSelectionFragment,

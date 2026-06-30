@@ -16,12 +16,14 @@ import re
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.fragments import (
     FragmentIon,
+    calculate_fragment_ions,
+)
+from bijux_proteomics.chemistry.mass import calculate_peptide_mz
+from bijux_proteomics.chemistry.modifications import (
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
-    calculate_fragment_ions,
-    calculate_peptide_mz,
     canonicalize_modified_peptide,
 )
 from bijux_proteomics.domain.records import SpectrumRecord as CanonicalSpectrumRecord
