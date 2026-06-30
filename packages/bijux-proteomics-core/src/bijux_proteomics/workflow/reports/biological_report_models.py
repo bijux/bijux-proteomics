@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle as _BiologicalResultReportBundle,
-    BiologicalResultReportSummary as _BiologicalResultReportSummary,
 )
 from bijux_proteomics.workflow.reports.biological_report_export_contracts import (
     BiologicalResultReportArtifactPaths as _BiologicalResultReportArtifactPaths,
@@ -23,6 +22,9 @@ from bijux_proteomics.workflow.reports.biological_report_section_metadata import
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy as _BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy as _resolve_selection_policy,
+)
+from bijux_proteomics.workflow.reports.biological_report_summary_contracts import (
+    BiologicalResultReportSummary as _BiologicalResultReportSummary,
 )
 
 BiologicalReportSectionKey = _BiologicalReportSectionKey

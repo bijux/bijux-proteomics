@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from bijux_proteomics.workflow.reports.biological_report_summary_contracts import (
     BiologicalResultReportSummary,
 )
 from bijux_proteomics_foundation import JsonModel

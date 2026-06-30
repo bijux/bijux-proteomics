@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_summary_contracts import (
     BiologicalResultReportSummary,
 )
 

@@ -9,10 +9,12 @@ from typing import TYPE_CHECKING
 
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalReportSectionConfidenceLabel,
-    BiologicalResultReportSummary,
 )
 from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _select_significant_entity_ids,
+)
+from bijux_proteomics.workflow.reports.biological_report_summary_contracts import (
+    BiologicalResultReportSummary,
 )
 
 if TYPE_CHECKING:
