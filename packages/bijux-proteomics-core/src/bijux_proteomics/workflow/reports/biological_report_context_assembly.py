@@ -7,25 +7,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
-from bijux_proteomics.interpretation.biological_context_mapping import (
-    BiologicalContextKind,
-    build_biological_context_mapping_report,
-    parse_biological_context_table,
+from bijux_proteomics.workflow.reports.biological_report_annotation_context_assembly import (
+    _build_biological_annotation_context_reports,
 )
-from bijux_proteomics.interpretation.compartment_biology import (
-    CompartmentBiologyPolicy,
-    build_compartment_biology_report,
+from bijux_proteomics.workflow.reports.biological_report_compartment_biology_assembly import (
+    _build_biological_compartment_biology_report,
 )
-from bijux_proteomics.interpretation.disease_phenotype_interpretation import (
-    DiseasePhenotypeInterpretationPolicy,
-    build_disease_phenotype_interpretation_report,
+from bijux_proteomics.workflow.reports.biological_report_molecular_context_assembly import (
+    _build_biological_molecular_context_reports,
 )
-from bijux_proteomics.interpretation.drug_target_interpretation import (
-    DrugTargetInterpretationPolicy,
-    build_drug_target_interpretation_report,
-)
-from bijux_proteomics.interpretation.tissue_cell_type_context import (
-    build_tissue_cell_type_context_report,
+from bijux_proteomics.workflow.reports.biological_report_sample_context_assembly import (
+    _build_biological_sample_context_report,
 )
 
 if TYPE_CHECKING:
@@ -88,102 +80,43 @@ def _build_biological_context_reports(
 ) -> BiologicalContextAssemblyReports:
     """Build optional biological context reports from one imported context table."""
 
-    if context_annotation_tsv_path is None:
-        return BiologicalContextAssemblyReports(
-            context_import_report=None,
-            context_mapping_report=None,
-            tissue_cell_type_context_report=None,
-            drug_target_report=None,
-            disease_phenotype_report=None,
-            compartment_biology_report=None,
-        )
-
-    context_import_report = parse_biological_context_table(context_annotation_tsv_path)
-    context_records = context_import_report.accepted_records
-    context_mapping_report = build_biological_context_mapping_report(
-        differential_reference_entries,
-        context_records,
+    annotation_context_reports = _build_biological_annotation_context_reports(
+        differential_reference_entries=differential_reference_entries,
+        context_annotation_tsv_path=context_annotation_tsv_path,
+    )
+    context_records = (
+        ()
+        if annotation_context_reports.context_import_report is None
+        else annotation_context_reports.context_import_report.accepted_records
+    )
+    sample_context_report = _build_biological_sample_context_report(
+        normalized_table=normalized_table,
+        experiment_design=experiment_design,
+        context_records=context_records,
+    )
+    molecular_context_reports = _build_biological_molecular_context_reports(
+        normalized_table=normalized_table,
+        differential_report=differential_report,
+        context_records=context_records,
+        pathway_records=pathway_records,
+        annotation_report=annotation_report,
+        active_selection_policy=active_selection_policy,
+    )
+    compartment_biology_report = _build_biological_compartment_biology_report(
+        normalized_table=normalized_table,
+        differential_report=differential_report,
+        design_entries=design_entries,
+        context_records=context_records,
+        active_selection_policy=active_selection_policy,
     )
 
-    tissue_cell_type_context_report = None
-    if any(
-        record.context_kind
-        in {
-            BiologicalContextKind.TISSUE_MARKER,
-            BiologicalContextKind.CELL_TYPE_MARKER,
-        }
-        for record in context_records
-    ):
-        tissue_cell_type_context_report = build_tissue_cell_type_context_report(
-            normalized_table,
-            experiment_design,
-            context_records,
-        )
-
-    drug_target_report = None
-    if any(
-        record.context_kind is BiologicalContextKind.DRUG_TARGET
-        for record in context_records
-    ):
-        drug_target_report = build_drug_target_interpretation_report(
-            normalized_table,
-            differential_report,
-            context_records,
-            pathway_records=pathway_records,
-            annotation_report=annotation_report,
-            policy=DrugTargetInterpretationPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_absolute_log2_fold_change=(
-                    active_selection_policy.min_absolute_log2_fold_change
-                ),
-            ),
-        )
-
-    disease_phenotype_report = None
-    if any(
-        record.context_kind
-        in {
-            BiologicalContextKind.DISEASE_TERM,
-            BiologicalContextKind.PHENOTYPE_TERM,
-        }
-        for record in context_records
-    ):
-        disease_phenotype_report = build_disease_phenotype_interpretation_report(
-            normalized_table,
-            differential_report,
-            context_records,
-            policy=DiseasePhenotypeInterpretationPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_absolute_log2_fold_change=(
-                    active_selection_policy.min_absolute_log2_fold_change
-                ),
-                min_enrichment_ratio=1.0,
-            ),
-        )
-
-    compartment_biology_report = None
-    if any(
-        record.context_kind is BiologicalContextKind.SUBCELLULAR_COMPARTMENT
-        for record in context_records
-    ):
-        compartment_biology_report = build_compartment_biology_report(
-            normalized_table,
-            differential_report,
-            context_records,
-            design_entries=design_entries,
-            policy=CompartmentBiologyPolicy(
-                max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
-                min_absolute_log2_fold_change=(
-                    active_selection_policy.min_absolute_log2_fold_change
-                ),
-            ),
-        )
-
     return BiologicalContextAssemblyReports(
-        context_import_report=context_import_report,
-        context_mapping_report=context_mapping_report,
-        tissue_cell_type_context_report=tissue_cell_type_context_report,
-        drug_target_report=drug_target_report,
-        disease_phenotype_report=disease_phenotype_report,
+        context_import_report=annotation_context_reports.context_import_report,
+        context_mapping_report=annotation_context_reports.context_mapping_report,
+        tissue_cell_type_context_report=sample_context_report,
+        drug_target_report=molecular_context_reports.drug_target_report,
+        disease_phenotype_report=(
+            molecular_context_reports.disease_phenotype_report
+        ),
         compartment_biology_report=compartment_biology_report,
     )

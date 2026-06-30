@@ -125,6 +125,20 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalContextAssemblyReports",
         "_build_biological_context_reports",
     ),
+    "biological_report_annotation_context_assembly.py": (
+        "BiologicalAnnotationContextReports",
+        "_build_biological_annotation_context_reports",
+    ),
+    "biological_report_sample_context_assembly.py": (
+        "_build_biological_sample_context_report",
+    ),
+    "biological_report_molecular_context_assembly.py": (
+        "BiologicalMolecularContextReports",
+        "_build_biological_molecular_context_reports",
+    ),
+    "biological_report_compartment_biology_assembly.py": (
+        "_build_biological_compartment_biology_report",
+    ),
     "biological_report_enrichment_assembly.py": (
         "BiologicalEnrichmentAssemblyReports",
         "_build_biological_enrichment_reports",
