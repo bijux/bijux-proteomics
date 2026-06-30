@@ -25,8 +25,10 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultSelectionPolicy,
 )
+from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (
+    _build_biological_report_quant_table_build_options,
+)
 from bijux_proteomics.workflow.reports.biological_report_quant_table_bundle_building import (
-    BiologicalReportQuantTableBuildOptions,
     _build_biological_result_report_bundle_from_quant_table_owned,
 )
 
@@ -129,7 +131,7 @@ def build_biological_result_report_bundle_from_quant_table(
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle from one governed protein quant table."""
 
-    build_options = BiologicalReportQuantTableBuildOptions(
+    build_options = _build_biological_report_quant_table_build_options(
         proteins_fasta_path=proteins_fasta_path,
         variant_proteins_fasta_path=variant_proteins_fasta_path,
         variant_peptide_tsv_path=variant_peptide_tsv_path,

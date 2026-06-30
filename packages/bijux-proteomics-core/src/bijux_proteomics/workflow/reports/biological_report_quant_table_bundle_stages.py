@@ -27,7 +27,7 @@ from bijux_proteomics.workflow.reports.biological_report_quantification_analysis
 )
 
 if TYPE_CHECKING:
-    from bijux_proteomics.workflow.reports.biological_report_quant_table_bundle_building import (
+    from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (
         BiologicalReportQuantTableBuildOptions,
     )
 

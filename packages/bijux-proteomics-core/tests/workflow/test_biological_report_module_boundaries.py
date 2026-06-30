@@ -387,8 +387,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "build_biological_result_report_bundle_from_quant_table",
     ),
     "biological_report_quant_table_bundle_building.py": (
-        "BiologicalReportQuantTableBuildOptions",
         "_build_biological_result_report_bundle_from_quant_table_owned",
+    ),
+    "biological_report_quant_table_build_options.py": (
+        "BiologicalReportQuantTableBuildOptions",
+        "_build_biological_report_quant_table_build_options",
     ),
     "biological_report_quant_table_bundle_stages.py": (
         "BiologicalQuantTableBundleStages",
