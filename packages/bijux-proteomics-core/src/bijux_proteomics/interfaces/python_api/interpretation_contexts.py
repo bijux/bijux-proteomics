@@ -26,18 +26,9 @@ from bijux_proteomics.interfaces.support.interpretation import (
     render_rejected_pathway_membership_tsv,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.compartment_biology import (
     CompartmentBiologyPolicy,
-    Ms1FeatureColumnMapping,
-    NormalizationMethod,
-    QuantEntityLevel,
-    QuantRollupMethod,
-    apply_benjamini_hochberg,
     build_compartment_biology_report,
-    build_differential_abundance_report,
-    build_label_free_intensity_table,
-    normalize_label_free_table,
-    parse_ms1_feature_table,
     render_compartment_activity_condition_comparison_tsv,
     render_compartment_activity_condition_score_tsv,
     render_compartment_activity_matrix_tsv,
@@ -46,6 +37,17 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     render_compartment_biology_summary_tsv,
     render_compartment_enrichment_tsv,
     render_unknown_compartment_localization_tsv,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    Ms1FeatureColumnMapping,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    apply_benjamini_hochberg,
+    build_differential_abundance_report,
+    build_label_free_intensity_table,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
 )
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,

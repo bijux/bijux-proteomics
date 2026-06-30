@@ -144,6 +144,10 @@ def test_python_api_modules_import_owned_support_modules_directly() -> None:
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the output protocol facade instead of an owner module"
                 )
+            if node.module == "bijux_proteomics.interfaces.support.ptm_quantification":
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the ptm quantification facade instead of an owner module"
+                )
             if node.module == "bijux_proteomics.interfaces.support.sequence_support":
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the sequence support facade instead of an owner module"
@@ -161,7 +165,7 @@ def test_python_api_modules_import_owned_support_modules_directly() -> None:
     assert not violations, "\n".join(violations)
 
 
-def test_cli_command_modules_import_owned_sequence_support_submodules_directly() -> None:
+def test_cli_command_modules_import_owned_interface_support_modules_directly() -> None:
     violations: list[str] = []
     for path in sorted(CLI_COMMAND_ROOT.glob("*.py")):
         if path.name == "__init__.py":
@@ -173,6 +177,10 @@ def test_cli_command_modules_import_owned_sequence_support_submodules_directly()
             if node.module == "bijux_proteomics.interfaces.support.sequence_support":
                 violations.append(
                     f"{path.relative_to(CLI_COMMAND_ROOT)} imports the sequence support facade instead of an owner module"
+                )
+            if node.module == "bijux_proteomics.interfaces.support.ptm_quantification":
+                violations.append(
+                    f"{path.relative_to(CLI_COMMAND_ROOT)} imports the ptm quantification facade instead of an owner module"
                 )
     assert not violations, "\n".join(violations)
 
