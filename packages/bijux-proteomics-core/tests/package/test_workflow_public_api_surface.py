@@ -50,7 +50,9 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
     WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
     WORKFLOW_ROOT_DEMO_OWNERS,
+    WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS,
     WORKFLOW_ROOT_EXPORT_OPERATIONS,
+    WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
@@ -144,6 +146,16 @@ def test_workflow_root_pipeline_owners_exclude_engine_helpers() -> None:
         engine_owner_offset : engine_owner_offset
         + len(WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS)
     ] == (WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS)
+
+
+def test_workflow_root_pipeline_owners_expose_engine_render_exports() -> None:
+    assert all(
+        hasattr(workflow, name) for name in WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS
+    )
+    assert all(
+        hasattr(pipelines.engines, name)
+        for name in WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS
+    )
 
 
 def test_workflow_root_pipeline_owners_expose_engine_export_operations() -> None:
@@ -257,15 +269,8 @@ def test_workflow_root_export_owners_expose_export_operations() -> None:
     assert all(hasattr(exports, name) for name in WORKFLOW_ROOT_EXPORT_OPERATIONS)
 
 
-def test_workflow_root_card_owners_exclude_card_serialization_helpers() -> None:
-    assert (
-        tuple(
-            name
-            for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS
-            if hasattr(workflow, name)
-        )
-        == ()
-    )
+def test_workflow_root_card_owners_expose_card_serialization_helpers() -> None:
+    assert all(hasattr(workflow, name) for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS)
     assert all(hasattr(cards, name) for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS)
 
 
@@ -293,6 +298,17 @@ def test_workflow_root_report_owners_expose_report_export_operations() -> None:
 def test_workflow_root_demo_owners_expose_demo_helpers() -> None:
     assert all(hasattr(workflow, name) for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS)
     assert all(hasattr(demo, name) for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS)
+
+
+def test_workflow_root_pipeline_owners_expose_advanced_validation_exports() -> None:
+    assert all(
+        hasattr(workflow, name)
+        for name in WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS
+    )
+    assert all(
+        hasattr(pipelines.advanced, name)
+        for name in WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS
+    )
 
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:

@@ -73,10 +73,7 @@ WORKFLOW_ROOT_CARD_OWNERS = tuple(
     WorkflowFacadeOwner(
         owner_module=owner.owner_module,
         rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
-        ),
+        excluded_exports=owner.excluded_exports,
     )
     for owner in CARD_FACADE_OWNERS
 )
@@ -398,7 +395,6 @@ ADVANCED_PIPELINE_FACADE_OWNERS = (
 )
 
 WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS = (
-    "validate_advanced_workflow_family_contract",
     "render_advanced_diann_protein_decisions_tsv",
     "render_advanced_diann_workflow_summary_tsv",
     "render_advanced_fragpipe_discrepancy_tsv",
@@ -414,6 +410,10 @@ WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS = (
     "render_advanced_tmt_peptide_confidence_tsv",
     "render_advanced_tmt_protein_compression_tsv",
     "render_advanced_tmt_workflow_summary_tsv",
+)
+
+WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS = (
+    "validate_advanced_workflow_family_contract",
 )
 
 WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS = tuple(
@@ -465,8 +465,6 @@ WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS = (
     "write_dda_biological_workflow_bundle",
     "render_diann_biological_workflow_summary_tsv",
     "write_diann_biological_workflow_bundle",
-    "render_label_based_report_summary_tsv",
-    "render_label_based_sample_qc_tsv",
     "write_label_based_report_bundle",
     "render_maxquant_biological_workflow_summary_tsv",
     "render_filtered_maxquant_protein_groups_tsv",
@@ -483,6 +481,11 @@ WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS = (
     "render_tmt_workflow_accepted_reporter_rows_tsv",
     "render_tmt_workflow_rejected_reporter_rows_tsv",
     "write_tmt_experiment_workflow_bundle",
+)
+
+WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS = (
+    "render_label_based_report_summary_tsv",
+    "render_label_based_sample_qc_tsv",
 )
 
 WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS = (
@@ -1007,7 +1010,9 @@ __all__ = [
     "WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS",
     "WORKFLOW_ROOT_DEMO_HELPER_EXPORTS",
     "WORKFLOW_ROOT_DEMO_OWNERS",
+    "WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS",
     "WORKFLOW_ROOT_EXPORT_OPERATIONS",
+    "WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS",
