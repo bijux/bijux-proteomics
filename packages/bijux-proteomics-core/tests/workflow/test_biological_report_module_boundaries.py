@@ -133,6 +133,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_pathway_hypothesis_opposing_evidence",
         "_regulator_hypothesis_opposing_evidence",
     ),
+    "biological_report_hypothesis_scoring.py": (
+        "_protein_hypothesis_base_confidence",
+        "_pathway_hypothesis_base_confidence",
+        "_regulator_hypothesis_base_confidence",
+        "_evidence_tier_score",
+        "_confidence_tier_score",
+        "_pathway_confidence_score",
+    ),
     "biological_report_ranking.py": (
         "_build_biological_pathway_ranking_candidates",
         "_build_biological_protein_ranking_candidates",

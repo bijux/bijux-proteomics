@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.domain.confidence import coerce_confidence_tier
 from bijux_proteomics.domain.semantic_ids import build_regulator_claim_id
 from bijux_proteomics.interpretation import (
     PathwayActivityReport,
@@ -29,6 +28,14 @@ from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCard,
     ProteinMechanismCardReport,
+)
+from bijux_proteomics.workflow.reports.biological_report_hypothesis_scoring import (
+    _confidence_tier_score as _hypothesis_confidence_tier_score,
+    _evidence_tier_score as _hypothesis_evidence_tier_score,
+    _pathway_confidence_score as _hypothesis_pathway_confidence_score,
+    _pathway_hypothesis_base_confidence as _build_pathway_hypothesis_confidence,
+    _protein_hypothesis_base_confidence as _build_protein_hypothesis_confidence,
+    _regulator_hypothesis_base_confidence as _build_regulator_hypothesis_confidence,
 )
 
 
@@ -259,12 +266,7 @@ def _protein_hypothesis_base_confidence(
     *,
     card: ProteinMechanismCard | None,
 ) -> float:
-    component_scores = [
-        claim.robustness_score if claim.robustness_score is not None else 0.55,
-        _evidence_tier_score(None if card is None else card.evidence_tier),
-        _confidence_tier_score(None if card is None else card.confidence_tier.value),
-    ]
-    return round(sum(component_scores) / len(component_scores), 3)
+    return _build_protein_hypothesis_confidence(claim, card=card)
 
 
 def _pathway_hypothesis_base_confidence(
@@ -272,11 +274,7 @@ def _pathway_hypothesis_base_confidence(
     *,
     comparison: PathwayConditionComparisonEntry | None,
 ) -> float:
-    delta_score = min(1.0, abs(claim.pathway_delta or 0.0) / 1.0)
-    comparison_score = _pathway_confidence_score(
-        None if comparison is None else comparison.comparison_confidence_status.value
-    )
-    return float(round((delta_score + comparison_score) / 2.0, 3))
+    return _build_pathway_hypothesis_confidence(claim, comparison=comparison)
 
 
 def _regulator_hypothesis_base_confidence(
@@ -284,38 +282,22 @@ def _regulator_hypothesis_base_confidence(
     *,
     regulator_score: float | None,
 ) -> float:
-    score = regulator_score if regulator_score is not None else claim.regulator_score
-    if score is None:
-        return 0.55
-    return round(score, 3)
+    return _build_regulator_hypothesis_confidence(
+        claim,
+        regulator_score=regulator_score,
+    )
 
 
 def _evidence_tier_score(evidence_tier: FinalClaimEvidenceTier | None) -> float:
-    if evidence_tier is None:
-        return 0.55
-    if evidence_tier.value == "high_confidence":
-        return 0.9
-    if evidence_tier.value == "moderate_confidence":
-        return 0.7
-    return 0.55
+    return _hypothesis_evidence_tier_score(evidence_tier)
 
 
 def _confidence_tier_score(confidence_tier: str | None) -> float:
-    normalized = coerce_confidence_tier(confidence_tier)
-    if normalized is None:
-        return 0.55
-    if normalized.value == "high":
-        return 0.9
-    if normalized.value == "moderate":
-        return 0.7
-    return 0.55
+    return _hypothesis_confidence_tier_score(confidence_tier)
 
 
 def _pathway_confidence_score(confidence_status: str | None) -> float:
-    normalized = coerce_confidence_tier(confidence_status)
-    if normalized is not None and normalized.value == "high":
-        return 0.85
-    return 0.55
+    return _hypothesis_pathway_confidence_score(confidence_status)
 
 
 def _protein_hypothesis_opposing_evidence(
