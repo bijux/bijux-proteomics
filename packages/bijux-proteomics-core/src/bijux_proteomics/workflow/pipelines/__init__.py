@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Any
 
 from bijux_proteomics.workflow.public_api import (
+    PIPELINE_ROOT_OWNERS,
     PIPELINE_SUBMODULES,
-    PIPELINE_FACADE_OWNERS,
     build_lazy_export_index,
     load_public_export,
     load_public_submodule,
@@ -15,7 +15,7 @@ from bijux_proteomics.workflow.public_api import (
 )
 
 __all__, _PIPELINE_EXPORT_INDEX = build_lazy_export_index(
-    ordered_facade_owners(PIPELINE_FACADE_OWNERS)
+    ordered_facade_owners(PIPELINE_ROOT_OWNERS)
 )
 
 

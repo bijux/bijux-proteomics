@@ -1367,7 +1367,8 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
         workflow.public_benchmark_root()
     )
     assert hasattr(
-        workflow.pipelines, "render_public_benchmark_suite_signal_assessments_tsv"
+        workflow.pipelines.benchmarking,
+        "render_public_benchmark_suite_signal_assessments_tsv",
     )
 
 
@@ -1455,7 +1456,10 @@ def test_workflow_package_exports_weak_evidence_surface(tmp_path: Path) -> None:
 
     assert hasattr(workflow, "build_flagship_weak_evidence_benchmark_descriptor")
     assert hasattr(workflow, "run_weak_evidence_benchmark")
-    assert hasattr(workflow.pipelines, "render_weak_evidence_benchmark_summary_tsv")
+    assert hasattr(
+        workflow.pipelines.benchmarking,
+        "render_weak_evidence_benchmark_summary_tsv",
+    )
     assert report.summary.failed_qc_block_count >= 1
     assert report.summary.refused_claim_count >= 1
     assert report.refused_claims

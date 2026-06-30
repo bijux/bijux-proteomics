@@ -18,6 +18,7 @@ from bijux_proteomics.workflow import public_benchmark_descriptors
 from bijux_proteomics.workflow.public_api import (
     ADVANCED_PIPELINE_FACADE_OWNERS,
     BENCHMARKING_PIPELINE_FACADE_OWNERS,
+    BENCHMARKING_PIPELINE_OWNER_MODULES,
     BENCHMARK_DATASET_FACADE_OWNERS,
     BENCHMARK_FACADE_OWNERS,
     BENCHMARK_FIDELITY_FACADE_OWNERS,
@@ -29,6 +30,8 @@ from bijux_proteomics.workflow.public_api import (
     ENGINE_PIPELINE_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
     OPERATIONS_PIPELINE_FACADE_OWNERS,
+    PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES,
+    PIPELINE_ROOT_OWNERS,
     PIPELINE_FACADE_OWNERS,
     PIPELINE_SUBMODULES,
     REPORT_FACADE_OWNERS,
@@ -163,7 +166,7 @@ def test_workflow_root_pipeline_owners_exclude_benchmark_pipeline_reports() -> N
         == ()
     )
     assert all(
-        hasattr(pipelines, name)
+        hasattr(pipelines.benchmarking, name)
         for name in WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS
     )
     assert all(
@@ -295,7 +298,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
         ordered_facade_owners(EXPORT_FACADE_OWNERS)
     )
     expected_pipelines, _ = build_lazy_export_index(
-        ordered_facade_owners(PIPELINE_FACADE_OWNERS)
+        ordered_facade_owners(PIPELINE_ROOT_OWNERS)
     )
     expected_pipeline_advanced, _ = build_lazy_export_index(
         ordered_facade_owners(ADVANCED_PIPELINE_FACADE_OWNERS)
@@ -342,6 +345,23 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     assert tuple(pipelines.synthesis.__all__) == expected_pipeline_synthesis
     assert tuple(reports.__all__) == expected_reports
     assert tuple(studies.__all__) == expected_studies
+
+
+def test_workflow_pipeline_root_prefers_benchmarking_subfacade() -> None:
+    assert PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES == (
+        BENCHMARKING_PIPELINE_OWNER_MODULES
+    )
+    expected_pipeline_benchmarking, _ = build_lazy_export_index(
+        ordered_facade_owners(BENCHMARKING_PIPELINE_FACADE_OWNERS)
+    )
+
+    assert tuple(
+        name for name in expected_pipeline_benchmarking if hasattr(pipelines, name)
+    ) == ()
+    assert all(
+        hasattr(pipelines.benchmarking, name)
+        for name in expected_pipeline_benchmarking
+    )
 
 
 def test_workflow_root_prefers_canonical_owner_for_colliding_exports() -> None:
