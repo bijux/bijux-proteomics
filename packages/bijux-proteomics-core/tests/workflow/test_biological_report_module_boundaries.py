@@ -80,6 +80,17 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_pathway_ranking_candidates",
         "_build_biological_protein_ranking_candidates",
     ),
+    "biological_report_ranking_support.py": (
+        "_mean",
+        "_tier_score",
+        "_biological_result_uncertainty",
+    ),
+    "biological_report_protein_ranking.py": (
+        "_build_biological_protein_ranking_candidates",
+    ),
+    "biological_report_pathway_ranking.py": (
+        "_build_biological_pathway_ranking_candidates",
+    ),
     "biological_report_activity_exports.py": (
         "BiologicalActivityExportNames",
         "write_biological_activity_exports",
