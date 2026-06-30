@@ -13,11 +13,11 @@ from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_review_reports import (
+from bijux_proteomics.workflow.reports.quant_table.review_reports import (
     BiologicalQuantTableReviewReports,
     _build_biological_quant_table_review_reports,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_supporting_reports import (
+from bijux_proteomics.workflow.reports.quant_table.supporting_reports import (
     BiologicalQuantTableSupportingReports,
     _build_biological_quant_table_supporting_reports,
 )
@@ -27,7 +27,7 @@ from bijux_proteomics.workflow.reports.biological_report_quantification_analysis
 )
 
 if TYPE_CHECKING:
-    from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (
+    from bijux_proteomics.workflow.reports.quant_table.build_options import (
         BiologicalReportQuantTableBuildOptions,
     )
 

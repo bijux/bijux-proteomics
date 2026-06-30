@@ -15,7 +15,7 @@ from bijux_proteomics.study import (
 from bijux_proteomics.workflow.reports.biological_report_experiment_review import (
     _build_biological_experiment_review_reports,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_interpretation_reports import (
+from bijux_proteomics.workflow.reports.quant_table.interpretation_reports import (
     _build_biological_quant_table_interpretation_reports,
 )
 

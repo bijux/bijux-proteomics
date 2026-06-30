@@ -17,7 +17,7 @@ from bijux_proteomics.workflow.reports.biological_report_protein_evidence import
     BiologicalProteinEvidenceReports,
     _build_biological_protein_evidence_reports,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_foundation_reports import (
+from bijux_proteomics.workflow.reports.quant_table.foundation_reports import (
     BiologicalQuantTableFoundationReports,
 )
 from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (

@@ -26,10 +26,10 @@ from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (
+from bijux_proteomics.workflow.reports.quant_table.build_options import (
     _build_biological_report_quant_table_build_options,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_bundle_building import (
+from bijux_proteomics.workflow.reports.quant_table.bundle_building import (
     _build_biological_result_report_bundle_from_quant_table_owned,
 )
 

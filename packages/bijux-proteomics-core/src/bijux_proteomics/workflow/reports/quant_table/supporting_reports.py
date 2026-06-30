@@ -17,10 +17,10 @@ from bijux_proteomics.workflow.reports.biological_report_selection_policy import
 from bijux_proteomics.workflow.reports.biological_report_protein_evidence import (
     BiologicalProteinEvidenceReports,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_evidence_reports import (
+from bijux_proteomics.workflow.reports.quant_table.evidence_reports import (
     _build_biological_quant_table_evidence_reports,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_foundation_reports import (
+from bijux_proteomics.workflow.reports.quant_table.foundation_reports import (
     _build_biological_quant_table_foundation_reports,
 )
 from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (

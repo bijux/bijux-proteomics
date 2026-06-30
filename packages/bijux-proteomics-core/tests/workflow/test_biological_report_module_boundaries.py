@@ -273,23 +273,23 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_experiment_confidence_assembly.py": (
         "_build_biological_experiment_confidence_report",
     ),
-    "biological_report_quant_table_supporting_reports.py": (
+    "quant_table/supporting_reports.py": (
         "BiologicalQuantTableSupportingReports",
         "_build_biological_quant_table_supporting_reports",
     ),
-    "biological_report_quant_table_foundation_reports.py": (
+    "quant_table/foundation_reports.py": (
         "BiologicalQuantTableFoundationReports",
         "_build_biological_quant_table_foundation_reports",
     ),
-    "biological_report_quant_table_evidence_reports.py": (
+    "quant_table/evidence_reports.py": (
         "BiologicalQuantTableEvidenceReports",
         "_build_biological_quant_table_evidence_reports",
     ),
-    "biological_report_quant_table_review_reports.py": (
+    "quant_table/review_reports.py": (
         "BiologicalQuantTableReviewReports",
         "_build_biological_quant_table_review_reports",
     ),
-    "biological_report_quant_table_interpretation_reports.py": (
+    "quant_table/interpretation_reports.py": (
         "BiologicalQuantTableInterpretationReports",
         "_build_biological_quant_table_interpretation_reports",
     ),
@@ -469,14 +469,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_quant_table_input.py": (
         "build_biological_result_report_bundle_from_quant_table",
     ),
-    "biological_report_quant_table_bundle_building.py": (
+    "quant_table/bundle_building.py": (
         "_build_biological_result_report_bundle_from_quant_table_owned",
     ),
-    "biological_report_quant_table_build_options.py": (
+    "quant_table/build_options.py": (
         "BiologicalReportQuantTableBuildOptions",
         "_build_biological_report_quant_table_build_options",
     ),
-    "biological_report_quant_table_bundle_stages.py": (
+    "quant_table/bundle_stages.py": (
         "BiologicalQuantTableBundleStages",
         "_build_biological_quant_table_bundle_stages",
     ),
@@ -779,9 +779,9 @@ def test_section_confidence_modules_avoid_compatibility_barrel() -> None:
 def test_quant_table_modules_avoid_compatibility_barrel() -> None:
     quant_table_modules = (
         "biological_report_ms1_feature_input.py",
-        "biological_report_quant_table_build_options.py",
-        "biological_report_quant_table_bundle_building.py",
-        "biological_report_quant_table_bundle_stages.py",
+        "quant_table/build_options.py",
+        "quant_table/bundle_building.py",
+        "quant_table/bundle_stages.py",
         "biological_report_quant_table_input.py",
         "biological_report_quantification_analysis.py",
     )
@@ -813,8 +813,8 @@ def test_context_and_enrichment_assembly_modules_avoid_compatibility_barrel() ->
         "biological_report_molecular_context_assembly.py",
         "biological_report_pathway_enrichment_assembly.py",
         "biological_report_complex_enrichment_assembly.py",
-        "biological_report_quant_table_foundation_reports.py",
-        "biological_report_quant_table_supporting_reports.py",
+        "quant_table/foundation_reports.py",
+        "quant_table/supporting_reports.py",
     )
 
     violations: list[str] = []
@@ -838,7 +838,7 @@ def test_claim_and_evidence_modules_avoid_compatibility_barrel() -> None:
     internal_modules = (
         "biological_report_claims.py",
         "biological_report_claim_validation_reports.py",
-        "biological_report_quant_table_evidence_reports.py",
+        "quant_table/evidence_reports.py",
     )
 
     violations: list[str] = []
