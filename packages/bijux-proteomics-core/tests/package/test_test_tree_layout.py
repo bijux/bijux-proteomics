@@ -74,6 +74,7 @@ def test_root_level_core_tests_stay_empty_after_package_family_split() -> None:
         "test_targeted_public_api_contract.py",
         "test_test_tree_layout.py",
         "test_workflow_output_schema_contract.py",
+        "test_workflow_owner_facade_surface.py",
         "test_workflow_package_surface.py",
         "test_workflow_public_api_surface.py",
         "test_chemistry_contracts_public_api.py",

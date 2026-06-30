@@ -14,7 +14,7 @@ from bijux_proteomics_foundation.testing.source_tree_limits import (
 
 pytestmark = pytest.mark.governance
 
-CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
+CORE_SRC_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 LINE_COUNT_CEILING = 1000
 
 
@@ -85,19 +85,19 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("review/belief/belief_audit.py", 1007),
     _exception("review/claims/result_queries.py", 1075),
     _exception("review/explanations/result_explanations.py", 1341),
-    _exception("workflow/cards/protein_evidence_cards.py", 1454),
-    _exception("workflow/cross_study_effect_comparison.py", 1187),
-    _exception("workflow/cross_study_meta_analysis.py", 1013),
-    _exception("workflow/cross_study_pathway_comparison.py", 1173),
-    _exception("workflow/cross_study_protein_harmonization.py", 1145),
     _exception("workflow/demo/surprising_demo.py", 1013),
     _exception("workflow/exports/interactive_result_bundle.py", 1396),
     _exception("workflow/exports/interactive_result_comparison.py", 1002),
+    _exception("workflow/cards/protein_evidence_cards.py", 1454),
     _exception("workflow/pipelines/advanced_tmt.py", 1035),
     _exception("workflow/pipelines/dia_dda_comparison.py", 1245),
     _exception("workflow/pipelines/orchestrator.py", 1089),
     _exception("workflow/pipelines/public_benchmark_runner.py", 1151),
-    _exception("workflow/study_result.py", 1451),
+    _exception("workflow/studies/cross_study_effect_comparison.py", 1187),
+    _exception("workflow/studies/cross_study_meta_analysis.py", 1013),
+    _exception("workflow/studies/cross_study_pathway_comparison.py", 1173),
+    _exception("workflow/studies/cross_study_protein_harmonization.py", 1145),
+    _exception("workflow/studies/study_result.py", 1451),
 )
 
 

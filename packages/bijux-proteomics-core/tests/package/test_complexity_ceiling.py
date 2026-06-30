@@ -14,7 +14,7 @@ from bijux_proteomics_foundation.testing.source_tree_complexity import (
 
 pytestmark = [pytest.mark.governance, pytest.mark.slow]
 
-CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
+CORE_SRC_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 COMPLEXITY_CEILING = 25
 
 
@@ -250,34 +250,9 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         31,
     ),
     _exception(
-        "workflow/cross_species_effect_comparison.py",
-        "build_cross_species_effect_comparison_report_from_observations",
-        27,
-    ),
-    _exception(
-        "workflow/cross_study_meta_analysis.py",
-        "_build_meta_analysis_entry",
-        31,
-    ),
-    _exception(
-        "workflow/cross_study_pathway_comparison.py",
-        "_build_pathway_comparison_entry",
-        26,
-    ),
-    _exception(
-        "workflow/cross_study_protein_harmonization.py",
-        "build_cross_study_protein_harmonization_report_from_observations",
-        35,
-    ),
-    _exception(
         "workflow/pipelines/dia_dda_comparison.py",
         "build_dia_dda_comparison_report",
         31,
-    ),
-    _exception(
-        "workflow/public_dataset_comparison.py",
-        "build_public_dataset_comparison_report_from_suite",
-        27,
     ),
     _exception(
         "workflow/reports/biological_report_assembly.py",
@@ -288,6 +263,31 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         "workflow/reports/biological_report_section_confidence.py",
         "_build_biological_report_section_confidence_entries",
         68,
+    ),
+    _exception(
+        "workflow/studies/cross_species_effect_comparison.py",
+        "build_cross_species_effect_comparison_report_from_observations",
+        27,
+    ),
+    _exception(
+        "workflow/studies/cross_study_meta_analysis.py",
+        "_build_meta_analysis_entry",
+        31,
+    ),
+    _exception(
+        "workflow/studies/cross_study_pathway_comparison.py",
+        "_build_pathway_comparison_entry",
+        26,
+    ),
+    _exception(
+        "workflow/studies/cross_study_protein_harmonization.py",
+        "build_cross_study_protein_harmonization_report_from_observations",
+        35,
+    ),
+    _exception(
+        "workflow/studies/public_dataset_comparison.py",
+        "build_public_dataset_comparison_report_from_suite",
+        27,
     ),
 )
 
