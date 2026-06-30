@@ -60,6 +60,17 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_select_heatmap_entity_ids",
         "_select_significant_entity_ids",
     ),
+    "biological_report_reference_entries.py": (
+        "_build_background_reference_entries",
+        "_build_differential_reference_entries",
+        "_build_foreground_reference_entries",
+        "_build_protein_reference_entries",
+        "_build_protein_reference_entries_from_biological_set",
+    ),
+    "biological_report_filtering_policies.py": (
+        "_build_biological_background_filtering_policy",
+        "_build_biological_foreground_filtering_policy",
+    ),
     "biological_report_contrast_selection.py": (
         "_resolve_contrast",
         "_select_heatmap_entity_ids",

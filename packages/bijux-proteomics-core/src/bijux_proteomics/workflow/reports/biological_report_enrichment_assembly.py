@@ -32,10 +32,12 @@ from bijux_proteomics.interpretation.pathway_enrichment import (
     apply_pathway_enrichment_multiple_testing,
     build_pathway_enrichment_report,
 )
-from bijux_proteomics.workflow.reports.biological_report_selection import (
-    _build_background_reference_entries,
+from bijux_proteomics.workflow.reports.biological_report_filtering_policies import (
     _build_biological_background_filtering_policy,
     _build_biological_foreground_filtering_policy,
+)
+from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
+    _build_background_reference_entries,
     _build_foreground_reference_entries,
     _build_protein_reference_entries_from_biological_set,
 )

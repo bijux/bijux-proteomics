@@ -39,7 +39,7 @@ from bijux_proteomics.sequences.proteogenomic_peptide_support import (
     ProteogenomicVariantPeptideRecord,
     parse_proteogenomic_variant_peptide_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_selection import (
+from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_differential_reference_entries,
 )
 
