@@ -15,6 +15,7 @@ from bijux_proteomics.workflow.public_api import (
 _WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
+_WORKFLOW_STUDIES_ROOT = _WORKFLOW_ROOT / "studies"
 
 
 def _significant_nodes(path: Path) -> list[ast.stmt]:
@@ -46,6 +47,35 @@ def test_workflow_root_wrappers_stay_thin_subpackage_facades() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its canonical workflow owner"
+
+
+def test_workflow_study_wrappers_stay_thin_compatibility_facades() -> None:
+    expected_targets = {
+        "cross_study_effect_comparison.py": (
+            "bijux_proteomics.workflow.studies.cross_study.effect_comparison"
+        ),
+        "cross_study_meta_analysis.py": (
+            "bijux_proteomics.workflow.studies.cross_study.meta_analysis"
+        ),
+        "cross_study_pathway_comparison.py": (
+            "bijux_proteomics.workflow.studies.cross_study.pathway_comparison"
+        ),
+        "cross_study_protein_harmonization.py": (
+            "bijux_proteomics.workflow.studies.cross_study.protein_harmonization"
+        ),
+    }
+
+    for filename, expected_target in expected_targets.items():
+        nodes = _significant_nodes(_WORKFLOW_STUDIES_ROOT / filename)
+        assert nodes, f"{filename} should contain a compatibility re-export"
+        assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
+            f"{filename} should stay a thin compatibility facade"
+        )
+        assert any(
+            node.module == expected_target
+            for node in nodes
+            if isinstance(node, ast.ImportFrom)
+        ), f"{filename} should re-export its canonical study owner"
 
 
 def test_workflow_root_keeps_only_shared_facade_owners() -> None:
