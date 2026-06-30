@@ -14,7 +14,7 @@ from bijux_proteomics.interpretation import (
     render_tissue_cell_type_sample_consistency_tsv,
     render_tissue_cell_type_unexpected_signal_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_sample_context_export_contracts import (

@@ -16,7 +16,7 @@ from bijux_proteomics.interpretation import (
     render_rejected_biological_context_tsv,
     render_unmapped_biological_context_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

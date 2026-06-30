@@ -8,6 +8,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.reports.biological_report_complex_activity_exports import (
     _write_biological_complex_activity_exports,
 )
@@ -16,9 +19,6 @@ from bijux_proteomics.workflow.reports.biological_report_compartment_activity_ex
 )
 from bijux_proteomics.workflow.reports.biological_report_pathway_activity_exports import (
     _write_biological_pathway_activity_exports,
-)
-from bijux_proteomics.workflow.reports.biological_report_models import (
-    BiologicalResultReportBundle,
 )
 
 

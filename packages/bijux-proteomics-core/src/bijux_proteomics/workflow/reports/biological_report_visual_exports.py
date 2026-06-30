@@ -28,7 +28,7 @@ from bijux_proteomics.review.explanations.volcano_plots import (
 from bijux_proteomics.workflow.cards.sample_evidence_cards import (
     render_sample_evidence_card_tsv,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_visual_export_naming import (
