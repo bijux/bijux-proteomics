@@ -353,6 +353,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
 
 def test_workflow_pipeline_root_prefers_benchmarking_subfacade() -> None:
     assert PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES == {
+        *(owner.owner_module for owner in ADVANCED_PIPELINE_FACADE_OWNERS),
         *BENCHMARKING_PIPELINE_OWNER_MODULES,
         *COMPARATIVE_PIPELINE_OWNER_MODULES,
         *OPERATIONS_PIPELINE_OWNER_MODULES,
@@ -381,6 +382,19 @@ def test_workflow_pipeline_root_prefers_synthesis_subfacade() -> None:
     ) == ()
     assert all(
         hasattr(pipelines.synthesis, name) for name in expected_pipeline_synthesis
+    )
+
+
+def test_workflow_pipeline_root_prefers_advanced_subfacade() -> None:
+    expected_pipeline_advanced, _ = build_lazy_export_index(
+        ordered_facade_owners(ADVANCED_PIPELINE_FACADE_OWNERS)
+    )
+
+    assert tuple(
+        name for name in expected_pipeline_advanced if hasattr(pipelines, name)
+    ) == ()
+    assert all(
+        hasattr(pipelines.advanced, name) for name in expected_pipeline_advanced
     )
 
 
