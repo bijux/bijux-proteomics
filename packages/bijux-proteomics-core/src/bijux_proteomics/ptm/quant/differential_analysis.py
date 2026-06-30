@@ -14,7 +14,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.chemistry.modifications import parse_modified_peptide
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.localization.localization_scoring import (

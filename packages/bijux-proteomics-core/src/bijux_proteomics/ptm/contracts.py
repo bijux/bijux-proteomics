@@ -19,7 +19,7 @@ from bijux_proteomics._scientific_tables import (
     build_ptm_evidence_schema,
     validate_scientific_table,
 )
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     AppliedModification,
     ModificationLocalizationCandidate,
     ModificationPosition,

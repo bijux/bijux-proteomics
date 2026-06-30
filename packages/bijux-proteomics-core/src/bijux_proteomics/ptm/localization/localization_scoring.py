@@ -11,16 +11,18 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
-    AppliedModification,
+from bijux_proteomics.chemistry.fragments import (
     FragmentIonSeries,
+    calculate_fragment_ions,
+)
+from bijux_proteomics.chemistry.modifications import (
+    AppliedModification,
     ModificationLocalizationCandidate,
     ModificationPosition,
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
     build_modification_localization_advisory,
     build_modified_peptide,
-    calculate_fragment_ions,
     parse_modified_peptide,
 )
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord

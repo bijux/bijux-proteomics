@@ -14,7 +14,7 @@ from typing import Any, cast
 import numpy as np
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.chemistry.modifications import parse_modified_peptide
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm.contracts import (

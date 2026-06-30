@@ -9,12 +9,14 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
-    ModificationRegistryDocument,
-    build_modified_peptide,
+from bijux_proteomics.chemistry.mass import (
     calculate_average_peptide_mass,
     calculate_monoisotopic_peptide_mass,
     calculate_peptide_mz,
+)
+from bijux_proteomics.chemistry.modifications import (
+    ModificationRegistryDocument,
+    build_modified_peptide,
     canonicalize_modified_peptide,
 )
 from bijux_proteomics.sequences.digestion import (

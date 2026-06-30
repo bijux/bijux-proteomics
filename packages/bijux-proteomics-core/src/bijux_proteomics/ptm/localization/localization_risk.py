@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import ModificationRegistryDocument
+from bijux_proteomics.chemistry.modifications import ModificationRegistryDocument
 from bijux_proteomics.io.spectra import SpectrumPeak
 from bijux_proteomics.ptm.contracts import PtmEvidenceRecord
 from bijux_proteomics.ptm.localization.fragment_scoring import score_ptm_fragments
