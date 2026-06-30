@@ -18,6 +18,7 @@ UV_SYNC ?= UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --gro
 ROOT_DEV_PYTHONPATH ?=
 ROOT_CHECK_STAMP_SYNC_MESSAGE ?= @true
 ROOT_ARTIFACT_ALIAS_SCRIPT ?= $(ROOT_MAKEFILE_DIR)/bijux-py/repository/artifact_aliases.py
+ROOT_ARTIFACT_SETUP_COMMAND ?= "$(PYTHON)" "$(ROOT_ARTIFACT_ALIAS_SCRIPT)"
 ROOT_SETUP_PACKAGES_DIR ?= $(CURDIR)/packages
 
 ifneq ($(strip $(ROOT_DEV_PYTHONPATH)),)
@@ -43,7 +44,7 @@ ROOT_FORBIDDEN_ARTIFACTS := $(filter-out \
 	$(ROOT_FORBIDDEN_ARTIFACTS))
 
 setup: ## Materialize repository and package artifact alias links
-	@"$(PYTHON)" "$(ROOT_ARTIFACT_ALIAS_SCRIPT)" root --repo-root "$(CURDIR)" --packages-dir "$(ROOT_SETUP_PACKAGES_DIR)"
+	@$(ROOT_ARTIFACT_SETUP_COMMAND) root --repo-root "$(CURDIR)" --packages-dir "$(ROOT_SETUP_PACKAGES_DIR)"
 
 $(ROOT_CHECK_STAMP): pyproject.toml uv.lock | setup
 	@mkdir -p "$(ROOT_ARTIFACTS_DIR)"

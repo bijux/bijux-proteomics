@@ -151,9 +151,10 @@ include $(ROOT_MAKE_DIR)/bijux-py/api.mk
 include $(ROOT_MAKE_DIR)/publish.mk
 
 PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(ROOT_MAKE_DIR)/bijux-py/repository/artifact_aliases.py
+PACKAGE_ARTIFACT_SETUP_COMMAND ?= "$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)"
 
 setup: ## Materialize package artifact alias links
-	@"$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)" package --repo-root "$(MONOREPO_ROOT)" --package-dir "$(PROJECT_DIR)"
+	@$(PACKAGE_ARTIFACT_SETUP_COMMAND) package --repo-root "$(MONOREPO_ROOT)" --package-dir "$(PROJECT_DIR)"
 .PHONY: setup
 
 ifeq ($(PACKAGE_DEFINE_VENV),1)

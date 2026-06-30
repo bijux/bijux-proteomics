@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Prepare canonical artifact directories and remove legacy alias spillover."""
+"""Prepare canonical repository artifact directories and remove spillover paths."""
 
 from __future__ import annotations
 
@@ -40,14 +39,18 @@ def _remove_spillover_path(path: Path) -> None:
         return
 
 
-def _prepare_root_artifacts(*, repo_root: Path) -> None:
+def prepare_root_artifacts(*, repo_root: Path) -> None:
+    """Create canonical root artifact directories and remove legacy spillover."""
+
     for relative_path in ROOT_ARTIFACT_DIRECTORIES:
         _prepare_directory(repo_root / relative_path)
     for relative_path in ROOT_SPILLOVER_PATHS:
         _remove_spillover_path(repo_root / relative_path)
 
 
-def _prepare_package_artifacts(*, repo_root: Path, package_dir: Path) -> None:
+def prepare_package_artifacts(*, repo_root: Path, package_dir: Path) -> None:
+    """Create canonical package artifact directories and remove package spillover."""
+
     for spillover_name in PACKAGE_SPILLOVER_PATHS:
         _remove_spillover_path(package_dir / spillover_name)
 
@@ -57,7 +60,9 @@ def _prepare_package_artifacts(*, repo_root: Path, package_dir: Path) -> None:
         _prepare_directory(repo_root / relative_path)
 
 
-def _discover_package_dirs(*, packages_dir: Path) -> list[Path]:
+def discover_package_dirs(*, packages_dir: Path) -> list[Path]:
+    """Return repository package roots that own a local ``pyproject.toml``."""
+
     if not packages_dir.is_dir():
         return []
     return sorted(
@@ -91,6 +96,8 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Run the artifact layout preparation CLI."""
+
     args = _parse_args()
     repo_root = args.repo_root.resolve()
 
@@ -100,13 +107,13 @@ def main() -> int:
             if args.packages_dir is not None
             else repo_root / "packages"
         )
-        _prepare_root_artifacts(repo_root=repo_root)
-        for package_dir in _discover_package_dirs(packages_dir=packages_dir):
-            _prepare_package_artifacts(repo_root=repo_root, package_dir=package_dir)
+        prepare_root_artifacts(repo_root=repo_root)
+        for package_dir in discover_package_dirs(packages_dir=packages_dir):
+            prepare_package_artifacts(repo_root=repo_root, package_dir=package_dir)
         return 0
 
     if args.command == "package":
-        _prepare_package_artifacts(
+        prepare_package_artifacts(
             repo_root=repo_root,
             package_dir=args.package_dir.resolve(),
         )

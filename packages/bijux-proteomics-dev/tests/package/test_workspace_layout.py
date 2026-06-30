@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -14,7 +15,7 @@ REPO_ROOT = next(
     for parent in Path(__file__).resolve().parents
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
-ARTIFACT_LAYOUT_SCRIPT = REPO_ROOT / "makes" / "repository_artifact_layout.py"
+ARTIFACT_LAYOUT_MODULE = "bijux_proteomics_dev.workspace.artifact_layout"
 PACKAGE_ARTIFACT_DIRECTORIES = ("", "venv", "hypothesis", "benchmarks")
 ROOT_ARTIFACT_DIRECTORIES = (
     "artifacts/root",
@@ -62,6 +63,16 @@ def _python_executable() -> str:
     raise AssertionError("no runnable python interpreter found for artifact layout tests")
 
 
+def _tool_env() -> dict[str, str]:
+    pythonpath_entries = [
+        str(REPO_ROOT / "packages" / "bijux-proteomics-dev" / "src"),
+    ]
+    existing_pythonpath = os.environ.get("PYTHONPATH")
+    if existing_pythonpath:
+        pythonpath_entries.append(existing_pythonpath)
+    return {**os.environ, "PYTHONPATH": ":".join(pythonpath_entries)}
+
+
 def test_setup_prepares_canonical_artifact_directories(tmp_path: Path) -> None:
     workspace = _workspace_metadata()
     repo_root = tmp_path / "repo"
@@ -76,7 +87,8 @@ def test_setup_prepares_canonical_artifact_directories(tmp_path: Path) -> None:
     subprocess.run(
         [
             _python_executable(),
-            str(ARTIFACT_LAYOUT_SCRIPT),
+            "-m",
+            ARTIFACT_LAYOUT_MODULE,
             "root",
             "--repo-root",
             str(repo_root),
@@ -86,6 +98,7 @@ def test_setup_prepares_canonical_artifact_directories(tmp_path: Path) -> None:
         check=True,
         capture_output=True,
         text=True,
+        env=_tool_env(),
     )
 
     for relative_path in ROOT_ARTIFACT_DIRECTORIES:
@@ -127,7 +140,8 @@ def test_setup_removes_legacy_package_root_aliases(tmp_path: Path) -> None:
     subprocess.run(
         [
             _python_executable(),
-            str(ARTIFACT_LAYOUT_SCRIPT),
+            "-m",
+            ARTIFACT_LAYOUT_MODULE,
             "root",
             "--repo-root",
             str(repo_root),
@@ -137,6 +151,7 @@ def test_setup_removes_legacy_package_root_aliases(tmp_path: Path) -> None:
         check=True,
         capture_output=True,
         text=True,
+        env=_tool_env(),
     )
 
     assert not legacy_root_benchmarks.exists()
