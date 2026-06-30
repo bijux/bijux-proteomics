@@ -6,6 +6,12 @@ from __future__ import annotations
 from importlib import import_module
 from pathlib import Path
 
+from bijux_proteomics.identification.search_adapters.public_api import (
+    SEARCH_ADAPTER_FACADE_BUDGET,
+    build_search_adapter_export_owner_map,
+    list_search_adapter_export_names,
+)
+
 _SEARCH_ADAPTER_ROOT = (
     Path(__file__).resolve().parents[2]
     / "src"
@@ -121,5 +127,16 @@ def test_search_adapter_modules_expose_owned_surfaces() -> None:
 def test_search_adapter_facade_preserves_representative_exports() -> None:
     facade = import_module("bijux_proteomics.identification.search_adapters")
 
+    assert tuple(facade.__all__) == list_search_adapter_export_names()
+    assert len(facade.__all__) <= SEARCH_ADAPTER_FACADE_BUDGET.max_public_symbols
+    assert len(build_search_adapter_export_owner_map()) == len(facade.__all__)
+
     for export_name in _FACADE_EXPORTS:
         assert hasattr(facade, export_name), export_name
+
+
+def test_search_adapter_facade_init_stays_within_budget() -> None:
+    init_path = _SEARCH_ADAPTER_ROOT / "__init__.py"
+    line_count = sum(1 for line in init_path.read_text(encoding="utf-8").splitlines() if line.strip())
+
+    assert line_count <= SEARCH_ADAPTER_FACADE_BUDGET.max_init_lines
