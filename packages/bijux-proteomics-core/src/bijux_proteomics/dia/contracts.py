@@ -10,7 +10,9 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
-from bijux_proteomics.sequences import build_peptide_chemical_liability_report
+from bijux_proteomics.sequences.peptide_chemical_liability import (
+    build_peptide_chemical_liability_report,
+)
 from bijux_proteomics_foundation import JsonModel
 
 

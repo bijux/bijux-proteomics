@@ -69,15 +69,19 @@ from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantRow,
 )
 from bijux_proteomics.quantification.contracts.input_models import MissingValueKind
-from bijux_proteomics.sequences import (
-    NormalizedProteinRecord,
-    ProteinFunctionalRegionEvidence,
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.protein_identity_resolution import (
     ProteinIdentityLevel,
     ProteinIdentityReference,
     ProteinIdentityResolutionEntry,
+    build_protein_identity_resolution_report,
+)
+from bijux_proteomics.sequences.protein_region_context_models import (
+    ProteinFunctionalRegionEvidence,
     ProteinRegionContextRecord,
     ProteinSiteRegionReference,
-    build_protein_identity_resolution_report,
+)
+from bijux_proteomics.sequences.protein_region_context_workflows import (
     build_protein_site_region_context_report,
 )
 from bijux_proteomics_foundation import JsonModel

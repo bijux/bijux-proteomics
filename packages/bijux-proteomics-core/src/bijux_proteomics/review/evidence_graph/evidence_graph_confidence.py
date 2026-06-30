@@ -24,7 +24,9 @@ from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
 )
-from bijux_proteomics.sequences import PeptideChemicalLiabilityReport
+from bijux_proteomics.sequences.peptide_chemical_liability import (
+    PeptideChemicalLiabilityReport,
+)
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:

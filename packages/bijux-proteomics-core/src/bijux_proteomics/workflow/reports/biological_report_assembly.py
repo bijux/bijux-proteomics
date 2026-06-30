@@ -204,14 +204,14 @@ from bijux_proteomics.review import (
     score_effect_size,
     score_support_count,
 )
-from bijux_proteomics.sequences import (
-    parse_protein_region_context_tsv,
-    parse_proteogenomic_variant_peptide_table,
-)
 from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.protein_region_context_workflows import (
+    parse_protein_region_context_tsv,
+)
 from bijux_proteomics.sequences.proteogenomic_peptide_support import (
     ProteogenomicVariantPeptideRecord,
+    parse_proteogenomic_variant_peptide_table,
 )
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,

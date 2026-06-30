@@ -53,21 +53,27 @@ from bijux_proteomics.review import (
     ProteomicsEvidenceNodeKind,
     query_protein_evidence_summary,
 )
-from bijux_proteomics.sequences import (
-    NormalizedProteinRecord,
-    ProteinFunctionalRegionEvidence,
-    ProteinFunctionalRegionKind,
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.protein_identity_resolution import (
     ProteinIdentityLevel,
     ProteinIdentityReference,
     ProteinIdentityResolutionEntry,
-    ProteinPeptideRegionContextReport,
+    build_protein_identity_resolution_report,
+)
+from bijux_proteomics.sequences.protein_region_context_models import (
+    ProteinFunctionalRegionEvidence,
+    ProteinFunctionalRegionKind,
     ProteinPeptideRegionReference,
+    ProteinPeptideRegionContextReport,
     ProteinRegionContextRecord,
+)
+from bijux_proteomics.sequences.protein_region_context_workflows import (
+    build_protein_peptide_region_context_report,
+)
+from bijux_proteomics.sequences.proteogenomic_peptide_support import (
     ProteogenomicPeptideReference,
     ProteogenomicPeptideSupportEntry,
     ProteogenomicVariantPeptideRecord,
-    build_protein_identity_resolution_report,
-    build_protein_peptide_region_context_report,
     build_proteogenomic_peptide_support_report,
 )
 from bijux_proteomics.workflow.reports.biological_result_graph import (

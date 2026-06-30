@@ -102,8 +102,8 @@ from bijux_proteomics.review import (
     score_effect_size,
     score_support_count,
 )
-from bijux_proteomics.sequences import (
-    NormalizedProteinRecord,
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.protein_region_context_models import (
     ProteinRegionContextRecord,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import (

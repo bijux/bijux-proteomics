@@ -24,10 +24,10 @@ from bijux_proteomics.review import (
     ProteomicsEvidenceNodeKind,
     query_protein_evidence_summary,
 )
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.protein_identity_resolution import ProteinIdentityLevel
+from bijux_proteomics.sequences.protein_region_context_models import (
     ProteinFunctionalRegionEvidence,
     ProteinFunctionalRegionKind,
-    ProteinIdentityLevel,
 )
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
     ProteinEvidenceCard,
