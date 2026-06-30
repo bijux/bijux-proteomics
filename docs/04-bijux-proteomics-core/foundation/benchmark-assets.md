@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Benchmark Assets
@@ -14,6 +14,33 @@ benchmark packages that the repository currently asks outsiders to inspect.
 Its owner is `bijux-proteomics-core`, because the benchmark package story is a
 scientific asset question before it becomes a runtime or recommendation
 question.
+
+The benchmark surface is more than a folder of static example files now. It is
+the public scientific evidence root for the current flagship families: remote
+source identity, governed package manifests, lineage pages, freshness review,
+acceptance bars, generalization companions, and explicit incompleteness notes.
+
+## What The Benchmark Root Now Contains
+
+- flagship public benchmark packages under
+  `benchmark-assets/flagship-public-packages`
+- asset-root and freshness governance such as `asset_root_contract.json`,
+  `freshness_report.json`, and `obsolescence_audit.json`
+- package-level support files such as `source_locator_manifest.json`,
+  `citation_manifest.json`, `generated_boundary.json`, and
+  `rebuild_instructions.md`
+- family-specific lineage pages that explain how a package earns its current
+  flagship sentence and where its transfer limits still begin
+
+## Why This Is A Scientific Surface
+
+- benchmark assets define what evidence the repository is actually willing to
+  cite, not just what happens to be available locally
+- flagship language now depends on both a primary package and a companion
+  generalization package, so one convenient result set cannot dominate the
+  public sentence
+- incompleteness, licensing, freshness drift, and non-transfer zones are part
+  of the benchmark story rather than hidden operational footnotes
 
 ## Start Here
 
@@ -37,6 +64,17 @@ question.
 | `multiplex` | flagship public benchmark catalog | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) | current package is real but intentionally stops at internal support |
 | `ptm` | flagship public benchmark catalog | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) | localization evidence is stronger than downstream consequence confidence |
 | `targeted` | flagship public benchmark catalog | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) | public assets are strong enough for bounded outsider audit, not calibration-perfect certainty |
+
+## What The Asset Route Cannot Hide
+
+- `dda` still depends on import-backed public evidence even though its package
+  story is strong
+- `lfq` can be benchmark-rich and still remain publicly narrowed by missingness
+  and cohort-transfer pressure
+- `multiplex` can have a real package and still stop at internal support when
+  its companion stress package collapses outsider-facing trust
+- `ptm` and `targeted` can have strong benchmark packages while downstream
+  consequence confidence remains more advisory than definitive
 
 ## Next Questions
 
