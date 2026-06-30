@@ -766,6 +766,8 @@ WORKFLOW_ROOT_OWNER_FILES = frozenset(
     {
         "__init__.py",
         "blueprint.py",
+        "facade_catalog.py",
+        "facade_runtime.py",
         "public_api.py",
         "result_types.py",
     }
