@@ -20,8 +20,10 @@ from bijux_proteomics.study import (
     LcmsRunQcReport,
     QcRunAssessmentReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (

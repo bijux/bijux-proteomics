@@ -755,6 +755,33 @@ def test_section_confidence_modules_avoid_compatibility_barrel() -> None:
     assert not violations, "\n".join(violations)
 
 
+def test_quant_table_modules_avoid_compatibility_barrel() -> None:
+    quant_table_modules = (
+        "biological_report_ms1_feature_input.py",
+        "biological_report_quant_table_build_options.py",
+        "biological_report_quant_table_bundle_building.py",
+        "biological_report_quant_table_bundle_stages.py",
+        "biological_report_quant_table_input.py",
+        "biological_report_quantification_analysis.py",
+    )
+
+    violations: list[str] = []
+    for filename in quant_table_modules:
+        module = ast.parse((REPORTS_ROOT / filename).read_text(encoding="utf-8"))
+        imported_modules = {
+            node.module
+            for node in module.body
+            if isinstance(node, ast.ImportFrom) and node.module is not None
+        }
+        if (
+            "bijux_proteomics.workflow.reports.biological_report_models"
+            in imported_modules
+        ):
+            violations.append(filename)
+
+    assert not violations, "\n".join(violations)
+
+
 def test_biological_report_assembly_forwards_quant_table_input_ownership() -> None:
     module = ast.parse(
         (REPORTS_ROOT / "biological_report_assembly.py").read_text(encoding="utf-8")

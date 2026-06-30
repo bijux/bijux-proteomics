@@ -16,7 +16,7 @@ from bijux_proteomics.workflow.reports.biological_report_bundle_assembly import 
 from bijux_proteomics.workflow.reports.biological_report_bundle_assembly_inputs import (
     BiologicalReportBundleAssemblyInputs,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (

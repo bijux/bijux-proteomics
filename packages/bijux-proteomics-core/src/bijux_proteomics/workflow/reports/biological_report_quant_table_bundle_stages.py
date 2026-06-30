@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, NamedTuple
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import LabelFreeQuantTable
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_quant_table_review_reports import (

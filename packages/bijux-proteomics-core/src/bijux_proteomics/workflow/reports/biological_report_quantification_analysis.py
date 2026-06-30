@@ -27,7 +27,7 @@ from bijux_proteomics.study import ExperimentDesign
 from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _resolve_contrast,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy,
 )

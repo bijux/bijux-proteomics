@@ -22,8 +22,10 @@ from bijux_proteomics.study import (
     QcRunAssessmentReport,
     coerce_experiment_design,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy,
 )
