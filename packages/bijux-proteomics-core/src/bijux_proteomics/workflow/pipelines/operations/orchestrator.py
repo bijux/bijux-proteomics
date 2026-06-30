@@ -48,7 +48,7 @@ from bijux_proteomics.quantification.contracts import (
     NormalizationMethod,
     QuantRollupMethod,
 )
-from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
 from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics.targeted import (
     TargetedAssayQcReport,

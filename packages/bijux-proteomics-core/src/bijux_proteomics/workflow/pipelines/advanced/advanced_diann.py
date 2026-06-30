@@ -31,17 +31,21 @@ from bijux_proteomics.io import (
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification.contracts import NormalizationMethod
-from bijux_proteomics.review import (
+from bijux_proteomics.review.belief.belief_audit import (
     BeliefAuditReport,
+    build_belief_audit_report_from_artifacts,
+    render_belief_audit_summary_tsv,
+    render_belief_audit_tsv,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
+    ProteomicsEvidenceGraph,
+    ProteomicsEvidenceNodeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
     EvidenceGraphFinalResultEntry,
     EvidenceGraphFinalResultReport,
     FinalClaimEvidenceTier,
-    ProteomicsEvidenceGraph,
-    ProteomicsEvidenceNodeKind,
-    build_belief_audit_report_from_artifacts,
     build_evidence_graph_final_result_table,
-    render_belief_audit_summary_tsv,
-    render_belief_audit_tsv,
     render_evidence_graph_final_results_tsv,
 )
 from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (

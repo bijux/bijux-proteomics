@@ -26,7 +26,7 @@ from bijux_proteomics.quantification.normalization import (
 from bijux_proteomics.quantification.statistics import (
     render_differential_abundance_tsv,
 )
-from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
