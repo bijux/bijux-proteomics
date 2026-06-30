@@ -21,6 +21,16 @@ scrutiny all depend on core continuing to state runtime-agnostic workflow
 contracts, benchmark-acceptance bars, and lifecycle transitions in terms that
 remain inspectable outside execution code.
 
+## Why Readers Should Start Here More Often
+
+- core is where the repository proves it has scientific law instead of only
+  opinionated runtime wrappers
+- benchmark trust, family transfer, and package lineage all depend on the
+  contracts named here staying explicit and reviewable
+- the deeper chemistry, sequence, identification, quantification, PTM, DIA,
+  and targeted surfaces only become trustworthy when their workflow contracts
+  and acceptance bars stay visible before downstream interpretation begins
+
 ```mermaid
 flowchart LR
     lifecycle["lifecycle states"]
@@ -118,6 +128,16 @@ flowchart LR
 - which benchmark-acceptance and lifecycle surfaces are still owned here
 - when a proposed change is really evidence policy, runtime delivery, or lab
   consequence and should leave this package
+
+## Reader Questions This Section Can Answer Well
+
+- where does the repository define workflow truth before benchmark prose or
+  recommendation prose starts narrowing it
+- which public benchmark roots actually anchor the current flagship families
+- why a workflow family can look benchmark-rich and still stay bounded by
+  transfer, acceptance, or lifecycle limits
+- which neighboring package is allowed to add judgment, grounding, or
+  consequence only after core has named the scientific contract clearly
 
 ## Strongest Core Proof
 

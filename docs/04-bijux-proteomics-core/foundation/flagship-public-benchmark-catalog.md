@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-07-01
 ---
 
 # Flagship Public Benchmark Catalog
@@ -19,6 +19,15 @@ answer possible:
 Which public packages exist for this workflow family, what exact artifacts do
 they expose, and what authority still stays blocked when the family is forced
 off its easiest package?
+
+## Reading Rule
+
+- treat each flagship package root as a reviewable scientific packet, not as a
+  branded folder name
+- treat each companion package root as the first pressure test on whether the
+  flagship sentence survives beyond its easiest benchmark
+- treat the family-transfer report as the release-language brake, not as an
+  optional appendix
 
 ## Current Catalog
 
@@ -93,6 +102,14 @@ off its easiest package?
 - every downstream surface can point to one concrete paired-package evidence set
   instead of describing a benchmark family abstractly
 
+## What This Catalog Makes Easier To See
+
+- which workflow families now have genuinely inspectable outsider packets
+- which scientific surfaces each family exposes at package level before runtime
+  or intelligence turns them into another narrative layer
+- why multiplex still stops at internal support even though its benchmark
+  surface looks materially more real than older docs admitted
+
 ## What This Catalog Does Not Guarantee
 
 - outsider-auditable authority for every workflow family
@@ -136,3 +153,10 @@ to break the claims these package roots would otherwise make too comfortably.
 - Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question becomes whether grounding, recommendation posture, or
   release language outruns the package story.
+
+## Boundary
+
+This catalog should settle package identity, paired-package coverage, and the
+first-order transfer surface. It should not pretend that catalog presence by
+itself earns runtime parity, grounded scientific support, or downstream assay
+confidence.

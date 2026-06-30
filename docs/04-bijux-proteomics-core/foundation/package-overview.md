@@ -22,6 +22,16 @@ surface across sequence handling, chemistry, spectra and mzML intake,
 identification, quantification, PTM review, DIA support, benchmark assets,
 review artifacts, and workflow planning.
 
+## Why This Package Feels Bigger Now
+
+- chemistry, mass calculation, modification, fragment, and isotope work now
+  sit in the same public package story as workflow contracts and benchmark
+  review surfaces
+- benchmark packages, lineage roots, challenge corpora, and acceptance bars
+  are part of core scientific law rather than downstream decoration
+- readers can now inspect more of the real scientific machinery directly
+  instead of inferring it from runtime, reports, or recommendation summaries
+
 ## Concrete Scientific Families
 
 - sequence and study contracts under `domain`, `sequences`, and `study`
@@ -54,6 +64,15 @@ review artifacts, and workflow planning.
 - publish benchmark-acceptance and scientific contract surfaces to downstream
   packages
 
+## What Readers Commonly Underestimate
+
+- this package owns the repository's cleanest chemistry and assay semantics,
+  not only its workflow grammar
+- this package decides which benchmark evidence roots are structured enough to
+  become public flagship surfaces
+- this package is where biological and analytical packages inherit durable
+  reviewable inputs instead of inventing them ad hoc
+
 ## What It Refuses
 
 - shared schema primitives that belong in foundation
@@ -69,6 +88,15 @@ review artifacts, and workflow planning.
   claim starts from enough public evidence
 - open the runtime handbook only after the core scientific contract is clear
   enough to execute honestly
+
+## Best Reader Route
+
+- start here when the question is whether `bijux-proteomics` has real
+  scientific depth or only governance around smaller utilities
+- continue to [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  when you need the public evidence roots that make the contracts auditable
+- continue to the family lineage and challenge corpus pages when you need to
+  know whether one comfortable package still survives transfer pressure
 
 ## First Proof Check
 

@@ -20,6 +20,15 @@ the public scientific evidence root for the current flagship families: remote
 source identity, governed package manifests, lineage pages, freshness review,
 acceptance bars, generalization companions, and explicit incompleteness notes.
 
+## Why This Route Matters More Than Older Docs Admitted
+
+- benchmark assets are where the repository proves it has outsider-readable
+  scientific roots rather than only locally convenient fixtures
+- each flagship family now depends on paired package logic, not one isolated
+  happy-path benchmark packet
+- freshness drift, incompleteness, transfer failure, and licensing limits are
+  now part of the public scientific story instead of maintainers-only context
+
 ## What The Benchmark Root Now Contains
 
 - flagship public benchmark packages under
@@ -64,6 +73,15 @@ acceptance bars, generalization companions, and explicit incompleteness notes.
 | `multiplex` | flagship public benchmark catalog | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) | current package is real but intentionally stops at internal support |
 | `ptm` | flagship public benchmark catalog | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) | localization evidence is stronger than downstream consequence confidence |
 | `targeted` | flagship public benchmark catalog | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) | public assets are strong enough for bounded outsider audit, not calibration-perfect certainty |
+
+## What A Skeptical Reader Should Actually Audit
+
+- whether the public package roots expose real review surfaces instead of thin
+  summary wrappers
+- whether each family has a companion pressure route strong enough to stop one
+  easy package from over-defining the release sentence
+- whether incompleteness and transfer limits are named where the evidence
+  starts rather than postponed into later recommendation prose
 
 ## What The Asset Route Cannot Hide
 
