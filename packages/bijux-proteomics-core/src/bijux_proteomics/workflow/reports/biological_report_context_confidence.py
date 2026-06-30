@@ -19,15 +19,13 @@ from bijux_proteomics.workflow.reports.biological_report_molecular_context_confi
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalReportSectionConfidenceEntry,
-    BiologicalReportSectionConfidenceLabel,
-    BiologicalReportSectionKey,
+)
+from bijux_proteomics.workflow.reports.biological_report_compartment_confidence import (
+    _build_compartment_entry,
 )
 from bijux_proteomics.workflow.reports.biological_report_sample_context_confidence import (
     _build_cohort_entry,
     _build_tissue_context_entry,
-)
-from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
-    _build_biological_report_section_confidence_entry,
 )
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,
@@ -50,35 +48,4 @@ def _build_context_section_confidence_entries(
         _build_cohort_entry(cohort_stratification_report),
         _build_tissue_context_entry(tissue_cell_type_context_report),
         _build_compartment_entry(compartment_biology_report),
-    )
-
-
-def _build_compartment_entry(
-    report: CompartmentBiologyReport | None,
-) -> BiologicalReportSectionConfidenceEntry:
-    if report is None or report.summary.compartment_count == 0:
-        return _build_biological_report_section_confidence_entry(
-            BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
-            BiologicalReportSectionConfidenceLabel.INVALID,
-            "no compartments were evaluable from the supplied localization context",
-        )
-    summary = report.summary
-    if (
-        summary.condition_comparison_count > 0
-        and summary.low_confidence_sample_score_count == 0
-        and summary.unresolved_member_count == 0
-        and summary.unknown_foreground_protein_count == 0
-    ):
-        label = BiologicalReportSectionConfidenceLabel.HIGH
-    elif summary.condition_comparison_count > 0:
-        label = BiologicalReportSectionConfidenceLabel.MODERATE
-    else:
-        label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_biological_report_section_confidence_entry(
-        BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
-        label,
-        (
-            "compartment confidence derives from condition comparisons, unresolved members, "
-            "and unknown-localization counts"
-        ),
     )

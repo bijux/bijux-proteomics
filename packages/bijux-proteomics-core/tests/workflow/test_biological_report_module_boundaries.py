@@ -87,6 +87,9 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_cohort_entry",
         "_build_tissue_context_entry",
     ),
+    "biological_report_compartment_confidence.py": (
+        "_build_compartment_entry",
+    ),
     "biological_report_activity_confidence.py": (
         "_build_activity_section_confidence_entries",
     ),
