@@ -17,11 +17,17 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_protein_mechanism_card_id
 from bijux_proteomics.ptm import PtmEvidenceCardReport, PtmMechanismClass
-from bijux_proteomics.review import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
+    ProteomicsEvidenceNodeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
     EvidenceGraphConfidenceTier,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
     EvidenceGraphDowngradeReason,
     FinalClaimEvidenceTier,
-    ProteomicsEvidenceNodeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_queries import (
     query_protein_evidence_summary,
 )
 from bijux_proteomics.sequences.protein_identity_resolution import ProteinIdentityLevel

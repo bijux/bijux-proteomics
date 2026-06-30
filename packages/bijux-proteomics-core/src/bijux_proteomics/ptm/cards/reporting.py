@@ -94,7 +94,7 @@ from bijux_proteomics.quantification.contracts import (
     Ms1FeatureRecord,
     NormalizationMethod,
 )
-from bijux_proteomics.review import (
+from bijux_proteomics.review.belief.evidence_aware_ranking import (
     EvidenceAwareRankingCandidate,
     EvidenceAwareRankingEntityKind,
     EvidenceAwareRankingReport,

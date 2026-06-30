@@ -24,7 +24,7 @@ from bijux_proteomics.interpretation.regulator_inference import (
     RegulatorEvidenceType,
     RegulatorInferenceDirection,
 )
-from bijux_proteomics.review import (
+from bijux_proteomics.review.belief.biomarker_candidate_ranking import (
     BiomarkerCandidateKind,
     BiomarkerCandidateRankingInput,
     build_biomarker_candidate_ranking_report,

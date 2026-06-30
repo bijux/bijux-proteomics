@@ -18,10 +18,14 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     MissingValueKind,
 )
-from bijux_proteomics.review import (
-    EvidenceGraphFinalResultEntry,
-    ProteinEvidenceSummaryReport,
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceNodeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
+    EvidenceGraphFinalResultEntry,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_queries import (
+    ProteinEvidenceSummaryReport,
 )
 from bijux_proteomics.sequences.protein_identity_resolution import (
     ProteinIdentityLevel,

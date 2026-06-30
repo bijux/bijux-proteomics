@@ -20,10 +20,14 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
 )
-from bijux_proteomics.review import (
-    FinalClaimEvidenceTier,
-    ProteinEvidenceSummaryReport,
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceNodeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
+    FinalClaimEvidenceTier,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_queries import (
+    ProteinEvidenceSummaryReport,
     query_protein_evidence_summary,
 )
 from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
