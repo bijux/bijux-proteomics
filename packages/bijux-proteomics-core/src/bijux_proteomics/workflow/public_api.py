@@ -62,6 +62,10 @@ BENCHMARK_FACADE_OWNERS = (
         owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_subset",
         rationale="public benchmark subset ownership",
     ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.synthetic_quant_truth",
+        rationale="synthetic quantification truth ownership",
+    ),
 )
 
 EXPORT_FACADE_OWNERS = (
@@ -481,7 +485,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="surprising demo interrogation ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.synthetic_quant_truth",
+        owner_module="bijux_proteomics.workflow.benchmarks.synthetic_quant_truth",
         rationale="synthetic quantification truth ownership",
     ),
     WorkflowFacadeOwner(

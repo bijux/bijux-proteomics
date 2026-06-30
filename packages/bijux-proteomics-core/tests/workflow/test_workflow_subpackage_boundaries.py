@@ -21,6 +21,9 @@ _ROOT_WRAPPER_TARGETS = {
     "public_benchmark_subset.py": (
         "bijux_proteomics.workflow.benchmarks.public_benchmark_subset"
     ),
+    "synthetic_quant_truth.py": (
+        "bijux_proteomics.workflow.benchmarks.synthetic_quant_truth"
+    ),
     "biological_report_assembly.py": (
         "bijux_proteomics.workflow.reports.biological_report_assembly"
     ),
@@ -143,6 +146,8 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(benchmarks, "build_public_benchmark_subset")
     assert hasattr(benchmarks, "build_diann_benchmark_report")
     assert hasattr(benchmarks, "build_maxquant_benchmark_report")
+    assert hasattr(benchmarks, "generate_quant_truth_dataset")
+    assert hasattr(benchmarks, "render_synthetic_quant_truth_tsv")
 
     assert hasattr(reports, "build_biological_result_report_bundle")
     assert hasattr(reports, "export_biological_result_report_bundle")
