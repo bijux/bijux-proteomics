@@ -10,7 +10,7 @@ from pathlib import Path
 
 import click
 
-from .field_parsing import _parse_cli_bool
+from ..field_parsing import _parse_cli_bool
 
 
 def _load_protein_group_map(path: Path) -> dict[str, str]:
