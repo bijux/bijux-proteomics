@@ -200,6 +200,15 @@ def test_advanced_pipeline_wrappers_delegate_to_advanced_owners() -> None:
         "advanced_maxquant.py": (
             "bijux_proteomics.workflow.pipelines.advanced.advanced_maxquant"
         ),
+        "advanced_ptm.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_ptm"
+        ),
+        "advanced_targeted.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_targeted"
+        ),
+        "advanced_tmt.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_tmt"
+        ),
         "advanced_workflow_family.py": (
             "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
         ),

@@ -208,6 +208,18 @@ ADVANCED_PIPELINE_FACADE_OWNERS = (
         ),
         rationale="advanced MaxQuant pipeline ownership",
     ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_ptm",
+        rationale="advanced PTM pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_targeted",
+        rationale="advanced targeted pipeline ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_tmt",
+        rationale="advanced TMT pipeline ownership",
+    ),
 )
 
 PIPELINE_SUBMODULES = {
@@ -216,18 +228,6 @@ PIPELINE_SUBMODULES = {
 
 PIPELINE_FACADE_OWNERS = (
     *ADVANCED_PIPELINE_FACADE_OWNERS,
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_ptm",
-        rationale="advanced PTM pipeline ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_targeted",
-        rationale="advanced targeted pipeline ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_tmt",
-        rationale="advanced TMT pipeline ownership",
-    ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.dda_biological_workflow",
         rationale="DDA biological workflow ownership",
@@ -376,15 +376,15 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="advanced MaxQuant pipeline ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_ptm",
+        owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_ptm",
         rationale="advanced PTM pipeline ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_targeted",
+        owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_targeted",
         rationale="advanced targeted pipeline ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.advanced_tmt",
+        owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_tmt",
         rationale="advanced TMT pipeline ownership",
     ),
     WorkflowFacadeOwner(
