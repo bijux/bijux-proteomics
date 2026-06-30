@@ -331,10 +331,7 @@ WORKFLOW_ROOT_STUDY_OWNERS = tuple(
     WorkflowFacadeOwner(
         owner_module=owner.owner_module,
         rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS,
-        ),
+        excluded_exports=owner.excluded_exports,
     )
     for owner in STUDY_FACADE_OWNERS
 )
@@ -684,10 +681,7 @@ WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS = tuple(
     WorkflowFacadeOwner(
         owner_module=owner.owner_module,
         rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS,
-        ),
+        excluded_exports=owner.excluded_exports,
     )
     for owner in PIPELINE_FACADE_OWNERS
     if owner.owner_module in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
@@ -763,10 +757,7 @@ WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS = tuple(
     WorkflowFacadeOwner(
         owner_module=owner.owner_module,
         rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
-        ),
+        excluded_exports=owner.excluded_exports,
     )
     for owner in PIPELINE_FACADE_OWNERS
     if owner.owner_module in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
@@ -816,6 +807,7 @@ WORKFLOW_ROOT_PIPELINE_OWNERS = (
 WORKFLOW_ROOT_SUBMODULES = {
     "benchmarks": "bijux_proteomics.workflow.benchmarks",
     "cards": "bijux_proteomics.workflow.cards",
+    "cross_study_protein_harmonization": "bijux_proteomics.workflow.cross_study_protein_harmonization",
     "demo": "bijux_proteomics.workflow.demo",
     "exports": "bijux_proteomics.workflow.exports",
     "pipelines": "bijux_proteomics.workflow.pipelines",

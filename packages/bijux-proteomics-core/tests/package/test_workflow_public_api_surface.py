@@ -156,14 +156,10 @@ def test_workflow_root_pipeline_owners_expose_engine_export_operations() -> None
     )
 
 
-def test_workflow_root_pipeline_owners_exclude_study_pipeline_reports() -> None:
-    assert (
-        tuple(
-            name
-            for name in WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS
-            if hasattr(workflow, name)
-        )
-        == ()
+def test_workflow_root_pipeline_owners_expose_study_pipeline_reports() -> None:
+    assert all(
+        hasattr(workflow, name)
+        for name in WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS
     )
     assert all(
         hasattr(pipelines.synthesis, name)
@@ -193,14 +189,10 @@ def test_workflow_root_pipeline_owners_exclude_benchmark_pipeline_reports() -> N
     )
 
 
-def test_workflow_root_pipeline_owners_exclude_comparative_pipeline_reports() -> None:
-    assert (
-        tuple(
-            name
-            for name in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS
-            if hasattr(workflow, name)
-        )
-        == ()
+def test_workflow_root_pipeline_owners_expose_comparative_pipeline_reports() -> None:
+    assert all(
+        hasattr(workflow, name)
+        for name in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS
     )
     assert all(
         hasattr(pipelines.comparative, name)
@@ -231,14 +223,9 @@ def test_workflow_root_pipeline_owners_exclude_flagship_helpers() -> None:
     )
 
 
-def test_workflow_root_study_owners_exclude_study_serialization_helpers() -> None:
-    assert (
-        tuple(
-            name
-            for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS
-            if hasattr(workflow, name)
-        )
-        == ()
+def test_workflow_root_study_owners_expose_study_serialization_exports() -> None:
+    assert all(
+        hasattr(workflow, name) for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS
     )
     assert all(
         hasattr(studies, name) for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS
