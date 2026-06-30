@@ -26,6 +26,7 @@ from bijux_proteomics.workflow.public_api import (
     BENCHMARK_SUBMODULES,
     CARD_FACADE_OWNERS,
     COMPARATIVE_PIPELINE_FACADE_OWNERS,
+    COMPARATIVE_PIPELINE_OWNER_MODULES,
     DEMO_FACADE_OWNERS,
     ENGINE_PIPELINE_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
@@ -188,7 +189,7 @@ def test_workflow_root_pipeline_owners_exclude_comparative_pipeline_reports() ->
         == ()
     )
     assert all(
-        hasattr(pipelines, name)
+        hasattr(pipelines.comparative, name)
         for name in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS
     )
     assert all(
@@ -353,6 +354,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
 def test_workflow_pipeline_root_prefers_benchmarking_subfacade() -> None:
     assert PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES == {
         *BENCHMARKING_PIPELINE_OWNER_MODULES,
+        *COMPARATIVE_PIPELINE_OWNER_MODULES,
         *OPERATIONS_PIPELINE_OWNER_MODULES,
         *SYNTHESIS_PIPELINE_OWNER_MODULES,
     }
@@ -392,6 +394,19 @@ def test_workflow_pipeline_root_prefers_operations_subfacade() -> None:
     ) == ()
     assert all(
         hasattr(pipelines.operations, name) for name in expected_pipeline_operations
+    )
+
+
+def test_workflow_pipeline_root_prefers_comparative_subfacade() -> None:
+    expected_pipeline_comparative, _ = build_lazy_export_index(
+        ordered_facade_owners(COMPARATIVE_PIPELINE_FACADE_OWNERS)
+    )
+
+    assert tuple(
+        name for name in expected_pipeline_comparative if hasattr(pipelines, name)
+    ) == ()
+    assert all(
+        hasattr(pipelines.comparative, name) for name in expected_pipeline_comparative
     )
 
 
