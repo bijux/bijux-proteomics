@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-05-08
+last_reviewed: 2026-07-01
 ---
 
 # Workflow Claim Grounding
@@ -15,6 +15,15 @@ workflow family.
 The point is simple:
 public trust language should be inspectable sentence by sentence rather than
 treated as a block of prose that happens to sound careful.
+
+## Why This Surface Matters
+
+- this is where the repository proves that public trust language is anchored to
+  named evidence owners instead of stylistic restraint
+- sentence grounding is now one of the clearest signs that the repository has
+  matured beyond benchmark packets into reviewable scientific explanation
+- when this page is weak, every stronger release sentence above it becomes
+  easier to overstate
 
 ## What Ships
 
@@ -34,6 +43,15 @@ treated as a block of prose that happens to sound careful.
 These surfaces intentionally do **not** treat section headers, artifact-link
 labels, or raw citation digest lines as scientific claims.
 
+## How To Read The Grounding Pack
+
+- read the claim citation table when the question is which sentence has direct
+  named support
+- read the unsupported-claim ledger when the wording sounds smoother than the
+  actual proof
+- read the contradiction triage report when a sentence is supported and still
+  scientifically narrowed by conflicting evidence
+
 ## Workflow IDs
 
 - `dda`: `outsider_review:dda`, `unsupported_claim_ledger:dda`
@@ -52,6 +70,13 @@ Sentence grounding belongs in the same owner because it is still evidence truth
 work:
 the job is to show exactly what public wording is supported, what is merely
 bounded, and what still needs stronger proof.
+
+## What This Still Does Not Do
+
+- it does not decide recommendation posture by itself
+- it does not hide contradiction just because a sentence has some support
+- it does not replace runtime, lab, or benchmark review surfaces that test the
+  same sentence under execution or consequence pressure
 
 ## Combined Consequence Route
 

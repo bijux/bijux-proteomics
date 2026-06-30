@@ -18,6 +18,16 @@ mean this section has to own exact grounding, contradiction discipline,
 literature audit routes, and biological context with enough clarity that the
 rest of the repository cannot improvise why a sentence should be believed.
 
+## Why Readers Should Start Here More Deliberately
+
+- this is where the repository proves it has memory, contradiction, and
+  grounding discipline instead of only benchmark packets and careful prose
+- the package now carries more real biological context than older docs
+  admitted, including pathway, complex, kinase, disease, drug, and ortholog
+  lookup owners
+- if this section is weak, every stronger recommendation or trust sentence
+  above it becomes less honest immediately
+
 ```mermaid
 flowchart TB
     observations["observations"]
@@ -88,6 +98,15 @@ flowchart TB
 - how confidence and contradiction should remain explicit
 - when a proposed change belongs in intelligence, lab, or runtime instead of
   here
+
+## Reader Questions This Section Can Answer Well
+
+- why a public trust sentence is grounded rather than only rhetorically careful
+- where contradiction pressure still keeps a family sentence narrow
+- which biological context the repository really owns instead of borrowing
+  loosely from external memory
+- how literature and evidence state differ from recommendation posture or lab
+  consequence
 
 ## Strongest Knowledge Proof
 

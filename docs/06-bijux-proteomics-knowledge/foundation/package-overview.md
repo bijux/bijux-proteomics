@@ -19,6 +19,16 @@ not only hold generic evidence records. It owns selective scientific memory,
 grounding references, contradiction-aware reconciliation, and concrete
 biological lookup surfaces that downstream packages use to keep claims honest.
 
+## Why This Package Feels More Scientific Now
+
+- the package now makes biological context a public owner surface instead of an
+  implied helper behind trust pages
+- claim grounding, contradiction handling, and curated references now sit
+  beside pathway, complex, kinase, disease, drug-target, and ortholog lookups
+  in one coherent scientific memory layer
+- readers can now see where the repository keeps evidence discipline without
+  confusing that role with recommendation policy
+
 ## Concrete Knowledge Families
 
 - `memory` for evidence bundles, claims, normalization, integrity, and
@@ -47,6 +57,15 @@ biological lookup surfaces that downstream packages use to keep claims honest.
 - resolve grounded biological context that later recommendation and lab routes
   should not improvise independently
 
+## What Readers Commonly Underestimate
+
+- this package is where public scientific memory lives after benchmark packets
+  are assembled and before recommendations are phrased
+- this package decides whether a sentence is grounded, contradicted, stale, or
+  context-thin before intelligence gets to sound confident about it
+- this package now carries concrete biology rather than just generic evidence
+  bookkeeping
+
 ## What It Refuses
 
 - scoring policy
@@ -62,6 +81,16 @@ biological lookup surfaces that downstream packages use to keep claims honest.
 - start in the biological lookup owners when the question is whether pathway,
   complex, kinase, disease, drug-target, or ortholog context is actually
   available and reviewable
+
+## Best Reader Route
+
+- start here when the question is whether `bijux-proteomics` really owns
+  scientific memory and context or only benchmark packets plus careful wording
+- continue to [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+  when the dispute is about exact sentence support
+- continue to [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
+  when the dispute is about citation freshness, gap pressure, or scientific
+  backdrop honesty
 
 ## First Proof Check
 
