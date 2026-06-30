@@ -10,7 +10,7 @@ from typing import Any, cast
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmEvidenceCardReport
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,

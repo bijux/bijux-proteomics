@@ -39,7 +39,7 @@ from bijux_proteomics.interpretation import (
     ProteinAnnotationStatus,
 )
 from bijux_proteomics.ptm import PtmEvidenceCardReport
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     LabelFreeQuantTable,

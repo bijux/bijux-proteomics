@@ -18,7 +18,7 @@ from bijux_proteomics.domain.card_schema import (
 )
 from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.domain.semantic_ids import build_sample_card_id
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.provenance import (
     SampleExplorationReport,
     SampleOutlierEntry,
     SamplePcaEntry,

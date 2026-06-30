@@ -11,13 +11,13 @@ from typing import TYPE_CHECKING
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
     MissingValueKind,
+    QuantValue,
 )
-from bijux_proteomics.quantification.contracts.matrix_models import QuantValue
 from bijux_proteomics.review import (
     EvidenceGraphFinalResultReport,
     ProteomicsEvidenceContextRef,

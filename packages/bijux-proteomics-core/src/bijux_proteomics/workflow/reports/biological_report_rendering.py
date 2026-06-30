@@ -60,7 +60,7 @@ from bijux_proteomics.interpretation.compartment_biology import (
     render_compartment_enrichment_tsv,
     render_unknown_compartment_localization_tsv,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.provenance import (
     export_heatmap_column_metadata_tsv,
     export_heatmap_matrix_tsv,
     export_heatmap_row_metadata_tsv,
@@ -70,6 +70,8 @@ from bijux_proteomics.quantification import (
     export_sample_exploration_summary_tsv,
     export_sample_pca_scores_tsv,
     export_sample_pca_variance_tsv,
+)
+from bijux_proteomics.quantification.statistics import (
     render_differential_abundance_tsv,
 )
 from bijux_proteomics.review import (

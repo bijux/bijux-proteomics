@@ -130,22 +130,30 @@ from bijux_proteomics.lab.protocol_context import (
     require_single_lab_protocol_context,
 )
 from bijux_proteomics.ptm import PtmEvidenceCardReport
-from bijux_proteomics.quantification import (
-    HeatmapMissingValuePolicy,
-    HeatmapPreparationPolicy,
-    HeatmapPreparationReport,
+from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceReport,
     LabelFreeQuantTable,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    SampleExplorationReport,
-    build_differential_abundance_report,
-    build_heatmap_preparation_report,
     build_label_free_intensity_table,
+    parse_ms1_feature_table,
+    parse_ms1_feature_table_chunked,
+)
+from bijux_proteomics.quantification.missingness import (
     build_missingness_condition_summary_report,
-    build_power_estimation_report,
+)
+from bijux_proteomics.quantification.normalization import (
+    normalize_label_free_table,
+)
+from bijux_proteomics.quantification.provenance import (
+    HeatmapMissingValuePolicy,
+    HeatmapPreparationPolicy,
+    HeatmapPreparationReport,
+    SampleExplorationReport,
+    build_heatmap_preparation_report,
     build_sample_exploration_report,
     export_heatmap_column_metadata_tsv,
     export_heatmap_matrix_tsv,
@@ -156,16 +164,12 @@ from bijux_proteomics.quantification import (
     export_sample_exploration_summary_tsv,
     export_sample_pca_scores_tsv,
     export_sample_pca_variance_tsv,
-    normalize_label_free_table,
-    parse_ms1_feature_table,
-    parse_ms1_feature_table_chunked,
-    render_differential_abundance_tsv,
 )
-from bijux_proteomics.quantification.contracts.differential import (
-    DifferentialAbundanceReport,
-)
-from bijux_proteomics.quantification.differential_abundance import (
+from bijux_proteomics.quantification.statistics import (
     apply_benjamini_hochberg,
+    build_differential_abundance_report,
+    build_power_estimation_report,
+    render_differential_abundance_tsv,
 )
 from bijux_proteomics.review import (
     BiologicalClaimCandidate,

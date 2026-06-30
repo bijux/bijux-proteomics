@@ -14,9 +14,11 @@ from itertools import combinations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     LabelFreeQuantTable,
+)
+from bijux_proteomics.quantification.statistics import (
     build_differential_abundance_report,
 )
 from bijux_proteomics.study import (
