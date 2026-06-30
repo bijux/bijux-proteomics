@@ -53,7 +53,7 @@ from bijux_proteomics.interfaces.support.output_protocol.artifact_output import 
 from bijux_proteomics.interfaces.support.output_protocol.protocol_policy import (
     _build_protocol_consistency_report_from_inputs,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
     _default_psm_mapping,
     _infer_input_kind,
 )

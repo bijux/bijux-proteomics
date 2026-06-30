@@ -22,7 +22,7 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     PeptideDigestionMode,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _decoy_mode_choice,
     _digestion_mode_choice,
     _duplicate_accession_policy_choice,

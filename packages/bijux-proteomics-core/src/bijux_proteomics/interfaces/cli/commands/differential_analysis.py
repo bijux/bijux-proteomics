@@ -17,7 +17,9 @@ from bijux_proteomics.interfaces.python_api.differential_analysis import (
 from bijux_proteomics.interfaces.support.io_and_dia import TargetPanelSourceKind
 from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
 from bijux_proteomics.interfaces.support.workflow import DiaDifferentialSourceKind
-from bijux_proteomics.interfaces.support.sequence_support import _normalization_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _normalization_choice,
+)
 
 
 @click.command("dia-differential")

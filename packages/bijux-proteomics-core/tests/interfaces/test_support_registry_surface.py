@@ -16,6 +16,14 @@ PYTHON_API_ROOT = (
     / "interfaces"
     / "python_api"
 )
+CLI_COMMAND_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "bijux_proteomics"
+    / "interfaces"
+    / "cli"
+    / "commands"
+)
 
 
 def test_support_registry_exports_modules_not_symbol_soup() -> None:
@@ -78,10 +86,30 @@ def test_python_api_modules_import_owned_support_submodules_directly() -> None:
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the output protocol facade instead of an owner module"
                 )
+            if node.module == "bijux_proteomics.interfaces.support.sequence_support":
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the sequence support facade instead of an owner module"
+                )
             if node.module == "bijux_proteomics.interfaces.support.workflow" and any(
                 alias.name == "*" for alias in node.names
             ):
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} still uses workflow star imports"
+                )
+    assert not violations, "\n".join(violations)
+
+
+def test_cli_command_modules_import_owned_sequence_support_submodules_directly() -> None:
+    violations: list[str] = []
+    for path in sorted(CLI_COMMAND_ROOT.glob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in module.body:
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if node.module == "bijux_proteomics.interfaces.support.sequence_support":
+                violations.append(
+                    f"{path.relative_to(CLI_COMMAND_ROOT)} imports the sequence support facade instead of an owner module"
                 )
     assert not violations, "\n".join(violations)

@@ -16,7 +16,9 @@ from bijux_proteomics.interfaces.python_api.fdr_review import (
     run_picked_protein_fdr_command,
 )
 from bijux_proteomics.interfaces.support.identification import ScoreOrientation
-from bijux_proteomics.interfaces.support.sequence_support import _score_orientation_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _score_orientation_choice,
+)
 
 
 @click.command("fdr")

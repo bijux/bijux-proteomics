@@ -20,7 +20,9 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     PtmProteinCorrectionMode,
     PtmSiteQuantAmbiguityPolicy,
 )
-from bijux_proteomics.interfaces.support.sequence_support import _normalization_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _normalization_choice,
+)
 
 
 @click.command("motif-enrichment")

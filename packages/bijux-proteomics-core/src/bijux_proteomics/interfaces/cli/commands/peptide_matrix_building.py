@@ -16,7 +16,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     PeptideMatrixGroupingMode,
     QuantRollupMethod,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _peptide_matrix_builder_input_kind_choice,
     _peptide_matrix_grouping_choice,
     _quant_rollup_choice,

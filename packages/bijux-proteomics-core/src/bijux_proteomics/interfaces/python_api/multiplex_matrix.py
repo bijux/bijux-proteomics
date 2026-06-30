@@ -43,7 +43,9 @@ from bijux_proteomics.interfaces.support.multiplex_targeted import (
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
-from bijux_proteomics.interfaces.support.sequence_support import _parse_tmt_channel_column_specs
+from bijux_proteomics.interfaces.support.sequence_support.multiplex_inputs import (
+    _parse_tmt_channel_column_specs,
+)
 
 
 def run_multiplex_validate_metadata_command(

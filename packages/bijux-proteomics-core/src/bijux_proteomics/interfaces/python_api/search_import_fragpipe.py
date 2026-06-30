@@ -37,7 +37,9 @@ from bijux_proteomics.interfaces.support.output_protocol.artifact_output import 
     _emit_json,
     _write_text_output,
 )
-from bijux_proteomics.interfaces.support.sequence_support import _build_psm_mapping
+from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
+    _build_psm_mapping,
+)
 
 
 def run_psm_contaminants_command(

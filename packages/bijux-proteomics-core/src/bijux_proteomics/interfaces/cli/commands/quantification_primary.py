@@ -19,7 +19,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     QuantMeasureKind,
     QuantRollupMethod,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _imputation_choice,
     _normalization_choice,
     _quant_entity_level_choice,

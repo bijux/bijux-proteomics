@@ -48,7 +48,9 @@ from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
 from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
 )
-from bijux_proteomics.interfaces.support.sequence_support import _parse_tmt_channel_column_specs
+from bijux_proteomics.interfaces.support.sequence_support.multiplex_inputs import (
+    _parse_tmt_channel_column_specs,
+)
 from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,

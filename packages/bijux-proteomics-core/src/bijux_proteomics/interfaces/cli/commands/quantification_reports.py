@@ -20,7 +20,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _heatmap_missing_value_choice,
     _normalization_choice,
     _quant_entity_level_choice,

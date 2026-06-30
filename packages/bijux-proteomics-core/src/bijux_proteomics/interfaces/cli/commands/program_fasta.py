@@ -24,7 +24,7 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     DuplicateAccessionPolicy,
     FastaParseMode,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _duplicate_accession_policy_choice,
     _mode_choice,
 )

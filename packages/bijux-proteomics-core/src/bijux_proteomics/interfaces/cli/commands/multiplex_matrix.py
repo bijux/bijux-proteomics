@@ -19,7 +19,7 @@ from bijux_proteomics.interfaces.support.multiplex_targeted import (
     TmtNormalizationMethod,
     TmtSearchResultSourceKind,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _tmt_normalization_method_choice,
     _tmt_source_kind_choice,
 )

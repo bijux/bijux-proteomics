@@ -19,7 +19,7 @@ from bijux_proteomics.interfaces.support.identification import SearchAdapterKind
 from bijux_proteomics.interfaces.support.io_and_dia import WorkflowSchedulerKind
 from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
 from bijux_proteomics.interfaces.support.workflow import ProteomicsRunEngine
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _normalization_choice,
     _search_adapter_choice,
     _workflow_scheduler_choice,

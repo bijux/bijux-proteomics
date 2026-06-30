@@ -40,7 +40,7 @@ from bijux_proteomics.interfaces.support.output_protocol.protocol_policy import 
     _build_protocol_consistency_report_from_inputs,
     _load_protocol_context,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
     _file_sha256,
     _select_design_entry,
 )

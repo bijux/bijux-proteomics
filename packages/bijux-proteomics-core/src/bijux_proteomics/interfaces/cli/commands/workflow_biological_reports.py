@@ -20,7 +20,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     DiaSharedPeptidePolicy,
 )
 from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
-from bijux_proteomics.interfaces.support.sequence_support import _normalization_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _normalization_choice,
+)
 
 
 @click.command("diann-biological-report")

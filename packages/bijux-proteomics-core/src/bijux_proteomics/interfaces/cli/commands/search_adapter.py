@@ -17,7 +17,9 @@ from bijux_proteomics.interfaces.python_api.search_adapter import (
     run_search_adapter_params_command,
     run_search_adapter_validate_config_command,
 )
-from bijux_proteomics.interfaces.support.sequence_support import _search_adapter_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _search_adapter_choice,
+)
 
 
 @click.command("inspect")

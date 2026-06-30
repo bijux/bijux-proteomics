@@ -17,7 +17,9 @@ from bijux_proteomics.interfaces.python_api.identification_evidence import (
     run_psm_map_command,
 )
 from bijux_proteomics.interfaces.support.identification import ScoreOrientation
-from bijux_proteomics.interfaces.support.sequence_support import _score_orientation_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _score_orientation_choice,
+)
 
 
 @click.command("psm-map")

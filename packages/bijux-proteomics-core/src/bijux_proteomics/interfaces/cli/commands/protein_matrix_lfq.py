@@ -18,7 +18,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     ProteinMatrixTargetKind,
     QuantRollupMethod,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _peptide_matrix_grouping_choice,
     _peptide_matrix_input_kind_choice,
     _protein_matrix_target_choice,

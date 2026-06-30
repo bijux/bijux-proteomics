@@ -21,7 +21,7 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _normalization_choice,
     _quant_rollup_choice,
 )

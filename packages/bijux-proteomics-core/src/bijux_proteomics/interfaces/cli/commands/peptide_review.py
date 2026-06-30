@@ -16,7 +16,9 @@ from bijux_proteomics.interfaces.python_api.peptide_review import (
     run_precursor_mass_error_command,
 )
 from bijux_proteomics.interfaces.support.review_sequences_study import PeptideUniquenessClass
-from bijux_proteomics.interfaces.support.sequence_support import _modified_peptide_dialect_choice
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _modified_peptide_dialect_choice,
+)
 
 
 @click.command("peptide-detectability")

@@ -18,7 +18,7 @@ from bijux_proteomics.interfaces.python_api.workflow_inputs import (
     run_validate_command,
 )
 from bijux_proteomics.interfaces.support.review_sequences_study import FastaParseMode
-from bijux_proteomics.interfaces.support.sequence_support import (
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _conversion_target_choice,
     _mode_choice,
     _validate_kind_choice,
