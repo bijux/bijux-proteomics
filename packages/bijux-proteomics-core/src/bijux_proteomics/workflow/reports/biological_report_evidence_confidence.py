@@ -26,7 +26,7 @@ from bijux_proteomics.workflow.reports.biological_report_mechanistic_confidence 
     _build_protein_mechanism_entry,
     _build_regulator_inference_entry,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
 )
 from bijux_proteomics.review.belief.evidence_aware_ranking import (

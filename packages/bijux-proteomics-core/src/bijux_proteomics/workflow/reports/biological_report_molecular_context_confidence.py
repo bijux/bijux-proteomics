@@ -9,7 +9,7 @@ from bijux_proteomics.interpretation import (
     DiseasePhenotypeInterpretationReport,
     DrugTargetInterpretationReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,

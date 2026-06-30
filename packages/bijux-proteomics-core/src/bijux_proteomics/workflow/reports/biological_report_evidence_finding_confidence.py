@@ -14,7 +14,7 @@ from bijux_proteomics.review.claims.biological_claim_validation import (
 from bijux_proteomics.review.claims.biological_hypotheses import (
     BiologicalHypothesisReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,

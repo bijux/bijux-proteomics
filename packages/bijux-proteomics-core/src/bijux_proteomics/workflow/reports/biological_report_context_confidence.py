@@ -17,7 +17,7 @@ from bijux_proteomics.workflow.reports.biological_report_molecular_context_confi
     _build_disease_phenotype_entry,
     _build_drug_target_entry,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
 )
 from bijux_proteomics.workflow.reports.biological_report_compartment_confidence import (

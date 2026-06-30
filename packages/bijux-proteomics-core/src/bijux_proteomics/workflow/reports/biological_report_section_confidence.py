@@ -39,7 +39,7 @@ from bijux_proteomics.workflow.reports.biological_report_context_confidence impo
 from bijux_proteomics.workflow.reports.biological_report_evidence_confidence import (
     _build_evidence_section_confidence_entries,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
 )

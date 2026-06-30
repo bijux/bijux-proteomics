@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     _BIOLOGICAL_REPORT_SECTION_TITLES,
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
