@@ -37,9 +37,13 @@ from bijux_proteomics.workflow.reports.biological_report_claim_candidates import
     _build_biological_protein_claim_candidates,
     _build_biological_regulator_claim_candidates,
 )
-from bijux_proteomics.workflow.reports.biological_report_hypothesis_candidates import (
+from bijux_proteomics.workflow.reports.biological_report_pathway_hypothesis_candidates import (
     _build_biological_pathway_hypothesis_candidates,
+)
+from bijux_proteomics.workflow.reports.biological_report_protein_hypothesis_candidates import (
     _build_biological_protein_hypothesis_candidates,
+)
+from bijux_proteomics.workflow.reports.biological_report_regulator_hypothesis_candidates import (
     _build_biological_regulator_hypothesis_candidates,
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
@@ -49,11 +53,6 @@ from bijux_proteomics.workflow.reports.biological_report_ranking import (
     _build_biological_pathway_ranking_candidates,
     _build_biological_protein_ranking_candidates,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph import (
-    BiologicalResultGraphReport,
-    build_biological_result_graph_report,
-)
-
 
 def _build_biological_evidence_aware_ranking_report(
     differential_report: DifferentialAbundanceReport,

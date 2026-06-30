@@ -125,21 +125,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_protein_claim_candidates",
         "_build_biological_regulator_claim_candidates",
     ),
-    "biological_report_hypothesis_candidates.py": (
-        "_build_biological_pathway_hypothesis_candidates",
+    "biological_report_protein_hypothesis_candidates.py": (
         "_build_biological_protein_hypothesis_candidates",
+    ),
+    "biological_report_pathway_hypothesis_candidates.py": (
+        "_build_biological_pathway_hypothesis_candidates",
+    ),
+    "biological_report_regulator_hypothesis_candidates.py": (
         "_build_biological_regulator_hypothesis_candidates",
-        "_graph_node_ids_from_cards",
-        "_protein_hypothesis_base_confidence",
-        "_pathway_hypothesis_base_confidence",
-        "_regulator_hypothesis_base_confidence",
-        "_evidence_tier_score",
-        "_confidence_tier_score",
-        "_pathway_confidence_score",
-        "_protein_hypothesis_opposing_evidence",
-        "_pathway_hypothesis_supporting_protein_refs",
-        "_pathway_hypothesis_opposing_evidence",
-        "_regulator_hypothesis_opposing_evidence",
     ),
     "biological_report_hypothesis_scoring.py": (
         "_protein_hypothesis_base_confidence",
