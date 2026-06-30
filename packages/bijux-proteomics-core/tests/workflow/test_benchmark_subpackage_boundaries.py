@@ -7,6 +7,11 @@ import ast
 import importlib
 from pathlib import Path
 
+from bijux_proteomics.workflow.public_api import (
+    WORKFLOW_BENCHMARK_ROOT_OWNER_FILES,
+    WORKFLOW_BENCHMARK_WRAPPER_TARGETS,
+)
+
 _BENCHMARK_ROOT = (
     Path(__file__).resolve().parents[2]
     / "src"
@@ -14,24 +19,6 @@ _BENCHMARK_ROOT = (
     / "workflow"
     / "benchmarks"
 )
-_BENCHMARK_ROOT_OWNER_FILES = {"__init__.py"}
-_BENCHMARK_ROOT_WRAPPERS = {
-    "diann_benchmarks.py": (
-        "bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks"
-    ),
-    "maxquant_benchmarks.py": (
-        "bijux_proteomics.workflow.benchmarks.fidelity.maxquant_benchmarks"
-    ),
-    "public_benchmark_descriptors.py": (
-        "bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors"
-    ),
-    "public_benchmark_subset.py": (
-        "bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset"
-    ),
-    "synthetic_quant_truth.py": (
-        "bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth"
-    ),
-}
 
 
 def _significant_nodes(path: Path) -> list[ast.stmt]:
@@ -52,7 +39,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
 
 
 def test_benchmark_root_wrappers_stay_thin_nested_facades() -> None:
-    for filename, expected_target in _BENCHMARK_ROOT_WRAPPERS.items():
+    for filename, expected_target in WORKFLOW_BENCHMARK_WRAPPER_TARGETS.items():
         nodes = _significant_nodes(_BENCHMARK_ROOT / filename)
         assert nodes, f"{filename} should contain a compatibility re-export"
         assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
@@ -72,7 +59,7 @@ def test_benchmark_root_keeps_only_shared_facade_owner() -> None:
         if nodes and all(isinstance(node, ast.ImportFrom) for node in nodes):
             continue
         owner_files.add(path.name)
-    assert owner_files == _BENCHMARK_ROOT_OWNER_FILES
+    assert owner_files == WORKFLOW_BENCHMARK_ROOT_OWNER_FILES
 
 
 def test_benchmark_subpackages_export_representative_owner_surfaces() -> None:

@@ -942,6 +942,26 @@ WORKFLOW_ROOT_WRAPPER_TARGETS = {
     "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
 }
 
+WORKFLOW_BENCHMARK_ROOT_OWNER_FILES = frozenset({"__init__.py"})
+
+WORKFLOW_BENCHMARK_WRAPPER_TARGETS = {
+    "diann_benchmarks.py": (
+        "bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks"
+    ),
+    "maxquant_benchmarks.py": (
+        "bijux_proteomics.workflow.benchmarks.fidelity.maxquant_benchmarks"
+    ),
+    "public_benchmark_descriptors.py": (
+        "bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors"
+    ),
+    "public_benchmark_subset.py": (
+        "bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset"
+    ),
+    "synthetic_quant_truth.py": (
+        "bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth"
+    ),
+}
+
 
 def ordered_facade_owners(
     owners: tuple[WorkflowFacadeOwner, ...],
@@ -1104,6 +1124,8 @@ __all__ = [
     "PIPELINE_SUBMODULES",
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS",
+    "WORKFLOW_BENCHMARK_ROOT_OWNER_FILES",
+    "WORKFLOW_BENCHMARK_WRAPPER_TARGETS",
     "WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES",
     "WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS",
