@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # bijux-proteomics-lab
@@ -39,11 +39,25 @@ flowchart LR
   runtime tasks
 - outcomes must return to the evidence layer without losing experimental context
 
+This package matters more now because the upstream scientific and analytical
+surfaces are stronger. More signal creates more downstream burden. The lab
+layer is where the repository proves it can turn recommendation into practical
+follow-up honestly instead of pretending every strong analytical sentence is
+cheap or easy to validate.
+
 ## What It Owns
 
 - assay planning and experiment-facing workflows
 - outcome capture, promotion, and closed-loop lab decisions
 - lab-facing artifacts that connect recommendations to real execution
+
+## Why This Package Matters More Now
+
+- stronger workflow packets create stronger assay-cost and control-demand
+  questions
+- downstream burden is now a visible release boundary instead of a final
+  afterthought
+- observed outcomes now feed back into the recommendation chain more explicitly
 
 ## Shared Reader Routes
 
@@ -77,6 +91,16 @@ flowchart LR
 - evidence truth that belongs in knowledge
 - recommendation policy that belongs in intelligence
 - general execution orchestration that belongs in runtime
+
+## Strongest Proof Route
+
+- start at [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+  when the question is still about shared downstream burden
+- continue to [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/)
+  when the question is which planning, readiness, refusal, or outcome surfaces
+  this package truly owns
+- open outcome-learning and refusal routes when the real question is whether
+  the next honest action is to spend, narrow, rerun, or stop
 
 ## First Proof Check
 

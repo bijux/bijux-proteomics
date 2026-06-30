@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # bijux-proteomics-intelligence
@@ -14,6 +14,11 @@ last_reviewed: 2026-04-26
 rankings, scenarios, and explanations that remain inspectable instead of
 pretending to be upstream fact. This is where the system stops only describing
 the world and starts making judgments about what should happen next.
+
+This package is also more concrete now than older docs suggested. It is not a
+vague "decision layer." It owns recommendation posture, benchmark-backed
+challenge routes, confidence and regret surfaces, interpretation summaries, and
+learning-facing judgment that stays visibly separate from scientific truth.
 
 ```mermaid
 flowchart LR
@@ -44,6 +49,15 @@ flowchart LR
 - scenario evaluation and recommendation logic
 - explanation and reporting surfaces for those decisions
 
+## Why This Package Matters More Now
+
+- the repository now has enough benchmark, runtime, and grounding depth that
+  recommendation posture can no longer hide behind generic prose
+- stronger workflow families create stronger overconfidence risk, which this
+  package must expose rather than smooth away
+- lab consequence now depends on explicit analytical judgment instead of an
+  implied handoff
+
 ## Shared Reader Routes
 
 - Use [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
@@ -72,6 +86,15 @@ flowchart LR
 - evidence truth and contradiction handling
 - durable program contracts and shared payload meaning
 - execution and operator-facing runtime behavior
+
+## Strongest Proof Route
+
+- start at [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the question is still repository-wide
+- continue to [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
+  for package-owned recommendation surfaces
+- open the workflow confidence and challenge handbooks once the question is no
+  longer about trust language and is clearly about analytical judgment
 
 ## First Proof Check
 

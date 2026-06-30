@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # bijux-proteomics-core
@@ -15,6 +15,13 @@ long-lived rules are defined before downstream packages score, execute, or act
 on them. If foundation is the shared language, core is the constitutional
 layer: it decides which states exist, which transitions are legal, and which
 constraints the rest of the system is not allowed to improvise around.
+
+That role is broader and more concrete now than this page used to admit. Core
+is not only a workflow-rule package. It is the repository's deepest scientific
+owner: sequences, chemistry, spectra and mzML intake, identification,
+quantification, PTM-facing review surfaces, benchmark asset packaging, and
+workflow contracts all converge here before downstream packages interpret or
+operationalize them.
 
 ```mermaid
 flowchart LR
@@ -45,6 +52,14 @@ flowchart LR
 - gate semantics and durable workflow constraints
 - core contracts that downstream packages depend on
 
+## What Makes This Package Scientifically Heavy
+
+- benchmark-backed public workflow evidence starts here
+- runtime, knowledge, intelligence, and lab all inherit scientific structure
+  from this package before they add their own owner logic
+- family-level trust pages depend on core package breadth more than any other
+  owner surface in the repository
+
 ## Shared Reader Routes
 
 - Use [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
@@ -68,6 +83,17 @@ flowchart LR
 - shared serialization primitives that belong in foundation
 - evidence truth and confidence policy that belong in knowledge
 - execution orchestration that belongs in runtime
+
+## Strongest Proof Route
+
+- start at [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  when the question is whether the repository has real public scientific
+  evidence
+- continue to [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/)
+  when the question is which scientific contracts and benchmark routes core
+  actually owns
+- hand off to runtime, knowledge, intelligence, or lab only after the core
+  scientific contract is clear
 
 ## First Proof Check
 

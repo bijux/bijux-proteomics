@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # bijux-proteomics-foundation
@@ -15,6 +15,12 @@ deterministic serialization stable enough that the rest of the package family
 can exchange meaning without ambiguity. This is the quiet substrate of the
 system. When it is right, every downstream package can speak clearly. When it
 drifts, every package starts inventing its own dialect.
+
+This package remains intentionally narrow, but it is not trivial. The current
+product depth in core, runtime, knowledge, intelligence, and lab only stays
+coherent because foundation keeps identifiers, compatibility, migrations,
+canonical serialization, and shared document semantics stable enough for the
+other owners to build on one meaning instead of five competing ones.
 
 ```mermaid
 flowchart TB
@@ -53,6 +59,14 @@ flowchart TB
 - schema and serialization compatibility helpers
 - migration rules for shared payload evolution
 
+## Why This Surface Matters More Now
+
+- more benchmark and workflow depth in core increases the cost of shared-model
+  drift
+- stronger runtime proof increases the cost of unstable serialization
+- deeper knowledge and intelligence routes increase the cost of ambiguous
+  identifiers and document meaning
+
 ## Shared Reader Routes
 
 - Use [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
@@ -75,6 +89,15 @@ flowchart TB
 - program policy and lifecycle decisions
 - evidence truth and contradiction state
 - execution, provider, or operator-facing runtime behavior
+
+## Strongest Proof Route
+
+- start at [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/)
+  for the narrow owner statement
+- continue to [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
+  for boundary and invariant routes
+- hand off to [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  once the question stops being about shared meaning
 
 ## First Proof Check
 

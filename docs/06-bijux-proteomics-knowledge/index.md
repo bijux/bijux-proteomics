@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # bijux-proteomics-knowledge
@@ -14,6 +14,11 @@ where claims, confidence, contradiction handling, and knowledge-level review
 rules stay explicit instead of being spread across runtime or scoring code.
 This package matters because serious systems do not only need facts; they need
 structured disagreement, confidence, and traceable reasons to hesitate.
+
+This package is also much richer now than a simple evidence ledger. It owns
+selective scientific memory, contradiction-aware review, claim grounding,
+literature audit routes, and biological context surfaces that stop the rest of
+the product from improvising why a workflow result should be believed.
 
 ```mermaid
 flowchart LR
@@ -49,6 +54,14 @@ flowchart LR
 - confidence semantics and contradiction handling
 - knowledge-level review boundaries used by downstream packages
 
+## Why This Package Matters More Now
+
+- public trust language is now challenged by explicit grounding routes instead
+  of general scientific tone
+- stronger workflow packets need stronger contradiction and citation discipline
+- downstream recommendation and lab consequence can now be traced back to
+  visible evidence state instead of inferred background knowledge
+
 ## Shared Reader Routes
 
 - Use [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
@@ -78,6 +91,15 @@ flowchart LR
 - scoring and recommendation policy
 - execution orchestration and operator surfaces
 - assay planning and outcome promotion
+
+## Strongest Proof Route
+
+- start at [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the question is still cross-package
+- continue to [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
+  for package-owned evidence and grounding routes
+- open the workflow grounding and literature audit pages when the real question
+  is whether the current public sentence has earned its scientific backing
 
 ## First Proof Check
 
