@@ -66,7 +66,9 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
-from bijux_proteomics.interfaces.support.timecourse_support import _parse_timepoint_order_file
+from bijux_proteomics.interfaces.support.timecourse_support.timepoint_order import (
+    _parse_timepoint_order_file,
+)
 
 
 def _normalize_optional_field_name(value: str | None) -> str | None:
