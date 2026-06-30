@@ -803,7 +803,7 @@ def test_workflow_package_exports_cross_study_protein_harmonization_surface() ->
     )
     assert report.summary.harmonized_group_count == 1
     assert report.unresolved_entries == ()
-    assert "harmonized_id" in workflow.render_cross_study_protein_harmonization_tsv(
+    assert "harmonized_id" in workflow.studies.render_cross_study_protein_harmonization_tsv(
         report
     )
 
@@ -867,10 +867,12 @@ def test_workflow_package_exports_cross_study_effect_comparison_surface() -> Non
     )
     assert report.summary.replicated_hit_count == 1
     assert report.comparisons[0].replicated_hit is True
-    assert "comparison_status" in workflow.render_cross_study_effect_comparison_tsv(
+    assert "comparison_status" in workflow.studies.render_cross_study_effect_comparison_tsv(
         report
     )
-    assert "replicated_hit" in workflow.render_cross_study_replicated_hit_tsv(report)
+    assert "replicated_hit" in workflow.studies.render_cross_study_replicated_hit_tsv(
+        report
+    )
 
 
 def test_workflow_package_exports_cross_study_meta_analysis_surface() -> None:
@@ -938,12 +940,12 @@ def test_workflow_package_exports_cross_study_meta_analysis_surface() -> None:
     )
     assert report.summary.combined_entry_count == 1
     assert report.combined_entries[0].combined_log2_fold_change > 0.0
-    assert "combined_log2_fold_change" in workflow.render_cross_study_meta_analysis_tsv(
+    assert "combined_log2_fold_change" in workflow.studies.render_cross_study_meta_analysis_tsv(
         report
     )
     assert (
         "fixed_weight_fraction"
-        in workflow.render_cross_study_meta_analysis_study_weight_tsv(report)
+        in workflow.studies.render_cross_study_meta_analysis_study_weight_tsv(report)
     )
 
 
@@ -1002,10 +1004,10 @@ def test_workflow_package_exports_cross_study_pathway_comparison_surface() -> No
     )
     assert report.summary.shared_signal_count == 1
     assert report.comparisons[0].coverage_fraction_range == 0.4
-    assert "comparison_status" in workflow.render_cross_study_pathway_comparison_tsv(
+    assert "comparison_status" in workflow.studies.render_cross_study_pathway_comparison_tsv(
         report
     )
-    assert "shared_signal" in workflow.render_cross_study_shared_pathway_signal_tsv(
+    assert "shared_signal" in workflow.studies.render_cross_study_shared_pathway_signal_tsv(
         report
     )
 
@@ -1153,7 +1155,7 @@ def test_workflow_package_exports_cross_species_effect_comparison_surface() -> N
     )
     assert report.summary.conserved_effect_count == 1
     assert report.comparisons[0].target_protein_ref == "Q9MOUSE1"
-    assert "evidence_status" in workflow.render_cross_species_effect_comparison_tsv(
+    assert "evidence_status" in workflow.studies.render_cross_species_effect_comparison_tsv(
         report
     )
 
@@ -1290,7 +1292,7 @@ def test_workflow_package_exports_cohort_stratification_surface() -> None:
         == "blocked_low_subgroup_sample_count"
     )
     assert report.summary.supported_stratum_count == 2
-    assert "interaction_delta" in workflow.render_cohort_interaction_candidate_tsv(
+    assert "interaction_delta" in workflow.studies.render_cohort_interaction_candidate_tsv(
         report
     )
 
@@ -1518,7 +1520,7 @@ def test_workflow_package_exports_public_dataset_comparison_surface(
     assert report.summary.successful_study_count == 8
     assert report.summary.effect_support_study_count == 6
     assert report.summary.meta_analysis_entry_count == 6
-    assert "failure_entry_count" in workflow.render_public_dataset_combined_summary_tsv(
+    assert "failure_entry_count" in workflow.studies.render_public_dataset_combined_summary_tsv(
         report
     )
 

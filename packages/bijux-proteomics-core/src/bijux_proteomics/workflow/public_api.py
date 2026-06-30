@@ -176,6 +176,69 @@ STUDY_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS = (
+    "render_cohort_interaction_candidate_tsv",
+    "render_cohort_stratification_summary_tsv",
+    "render_cohort_stratum_tsv",
+    "render_cohort_subgroup_effect_tsv",
+    "export_cross_study_conflicting_hit_tsv",
+    "export_cross_study_effect_comparison_tsv",
+    "export_cross_study_effect_detail_tsv",
+    "export_cross_study_replicated_hit_tsv",
+    "export_cross_study_study_specific_hit_tsv",
+    "render_cross_study_conflicting_hit_tsv",
+    "render_cross_study_effect_comparison_tsv",
+    "render_cross_study_effect_detail_tsv",
+    "render_cross_study_replicated_hit_tsv",
+    "render_cross_study_study_specific_hit_tsv",
+    "export_cross_study_meta_analysis_rejected_tsv",
+    "export_cross_study_meta_analysis_study_weight_tsv",
+    "export_cross_study_meta_analysis_tsv",
+    "render_cross_study_meta_analysis_rejected_tsv",
+    "render_cross_study_meta_analysis_study_weight_tsv",
+    "render_cross_study_meta_analysis_tsv",
+    "export_cross_study_opposite_pathway_signal_tsv",
+    "export_cross_study_pathway_comparison_tsv",
+    "export_cross_study_pathway_detail_tsv",
+    "export_cross_study_shared_pathway_signal_tsv",
+    "export_cross_study_study_specific_pathway_tsv",
+    "render_cross_study_opposite_pathway_signal_tsv",
+    "render_cross_study_pathway_comparison_tsv",
+    "render_cross_study_pathway_detail_tsv",
+    "render_cross_study_shared_pathway_signal_tsv",
+    "render_cross_study_study_specific_pathway_tsv",
+    "export_cross_study_protein_harmonization_tsv",
+    "export_cross_study_protein_unresolved_tsv",
+    "render_cross_study_protein_harmonization_tsv",
+    "render_cross_study_protein_unresolved_tsv",
+    "export_cross_species_effect_comparison_tsv",
+    "render_cross_species_effect_comparison_tsv",
+    "export_public_dataset_combined_summary_tsv",
+    "export_public_dataset_dataset_summary_tsv",
+    "export_public_dataset_effect_comparison_tsv",
+    "export_public_dataset_failure_tsv",
+    "export_public_dataset_meta_analysis_tsv",
+    "export_public_dataset_pathway_comparison_tsv",
+    "render_public_dataset_combined_summary_tsv",
+    "render_public_dataset_dataset_summary_tsv",
+    "render_public_dataset_effect_comparison_tsv",
+    "render_public_dataset_failure_tsv",
+    "render_public_dataset_meta_analysis_tsv",
+    "render_public_dataset_pathway_comparison_tsv",
+)
+
+WORKFLOW_ROOT_STUDY_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS,
+        ),
+    )
+    for owner in STUDY_FACADE_OWNERS
+)
+
 REPORT_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.reports.biological_reporting",
@@ -351,7 +414,7 @@ WORKFLOW_ROOT_OWNERS = (
     *REPORT_FACADE_OWNERS,
     *EXPORT_FACADE_OWNERS,
     *WORKFLOW_ROOT_PIPELINE_OWNERS,
-    *STUDY_FACADE_OWNERS,
+    *WORKFLOW_ROOT_STUDY_OWNERS,
     *CARD_FACADE_OWNERS,
     *BENCHMARK_FACADE_OWNERS,
     *DEMO_FACADE_OWNERS,
@@ -510,6 +573,8 @@ __all__ = [
     "STUDY_FACADE_OWNERS",
     "WORKFLOW_ROOT_OWNERS",
     "WORKFLOW_ROOT_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_STUDY_OWNERS",
+    "WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS",
     "WORKFLOW_ROOT_SUBMODULES",
     "WorkflowFacadeOwner",
     "build_lazy_export_index",
