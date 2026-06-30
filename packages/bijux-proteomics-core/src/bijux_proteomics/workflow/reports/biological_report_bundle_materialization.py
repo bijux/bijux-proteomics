@@ -1,23 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Owned final bundle composition for biological report assembly."""
+"""Final bundle materialization for biological report assembly."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.workflow.reports.biological_report_bundle_confidence_state import (
-    _build_biological_report_bundle_confidence_state,
-)
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
-)
-from bijux_proteomics.workflow.reports.biological_report_bundle_materialization import (
-    _materialize_biological_result_report_bundle,
-)
-from bijux_proteomics.workflow.reports.biological_report_bundle_summary import (
-    _build_biological_result_report_summary,
+    BiologicalResultReportSummary,
 )
 
 if TYPE_CHECKING:
@@ -38,10 +30,7 @@ if TYPE_CHECKING:
         RegulatorInferenceReport,
         TissueCellTypeContextReport,
     )
-    from bijux_proteomics.quantification.contracts import (
-        DifferentialAbundanceReport,
-        LabelFreeQuantTable,
-    )
+    from bijux_proteomics.quantification.contracts import DifferentialAbundanceReport
     from bijux_proteomics.quantification.provenance import (
         HeatmapPreparationReport,
         SampleExplorationReport,
@@ -63,7 +52,8 @@ if TYPE_CHECKING:
     from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
         ProteinMechanismCardReport,
     )
-    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
+    from bijux_proteomics.workflow.reports.biological_report_models import (
+        BiologicalReportSectionConfidenceEntry,
         BiologicalResultSelectionPolicy,
     )
     from bijux_proteomics.workflow.reports.biological_result_graph import (
@@ -74,9 +64,18 @@ if TYPE_CHECKING:
     )
 
 
-def _assemble_biological_result_report_bundle(
+_BIOLOGICAL_RESULT_REPORT_BUNDLE_NOTE = (
+    "biological reporting assembles governed protein differential analysis, "
+    "protein evidence cards, annotation mapping, optional user-supplied "
+    "biological context mapping, enrichment, volcano review, heatmap "
+    "preparation, and sample exploration into one owned workflow bundle with "
+    "experiment-level confidence scoring, tissue and cell-type context review, "
+    "claim validation, biological hypotheses, and explicit component reasons"
+)
+
+
+def _materialize_biological_result_report_bundle(
     *,
-    normalized_table: LabelFreeQuantTable,
     differential_report: DifferentialAbundanceReport,
     graph_report: BiologicalResultGraphReport,
     annotation_report: ProteinAnnotationMappingReport,
@@ -105,24 +104,10 @@ def _assemble_biological_result_report_bundle(
     heatmap_report: HeatmapPreparationReport,
     sample_exploration_report: SampleExplorationReport,
     selection_policy: BiologicalResultSelectionPolicy,
+    section_confidence_entries: tuple[BiologicalReportSectionConfidenceEntry, ...],
+    summary: BiologicalResultReportSummary,
 ) -> BiologicalResultReportBundle:
-    confidence_state = _build_biological_report_bundle_confidence_state(
-        experiment_confidence_report=experiment_confidence_report,
-        evidence_aware_ranking_report=evidence_aware_ranking_report,
-        claim_validation_report=claim_validation_report,
-        biological_hypothesis_report=biological_hypothesis_report,
-        foreground_background_model=foreground_background_model,
-        regulator_inference_report=regulator_inference_report,
-        drug_target_report=drug_target_report,
-        disease_phenotype_report=disease_phenotype_report,
-        cohort_stratification_report=cohort_stratification_report,
-        tissue_cell_type_context_report=tissue_cell_type_context_report,
-        compartment_biology_report=compartment_biology_report,
-        pathway_activity_report=pathway_activity_report,
-        complex_activity_report=complex_activity_report,
-        protein_mechanism_cards=protein_mechanism_cards,
-    )
-    return _materialize_biological_result_report_bundle(
+    return BiologicalResultReportBundle(
         differential_report=differential_report,
         graph_report=graph_report,
         annotation_report=annotation_report,
@@ -151,22 +136,13 @@ def _assemble_biological_result_report_bundle(
         heatmap_report=heatmap_report,
         sample_exploration_report=sample_exploration_report,
         selection_policy=selection_policy,
-        section_confidence_entries=confidence_state.entries,
-        summary=_build_biological_result_report_summary(
-            normalized_table=normalized_table,
-            differential_report=differential_report,
-            selection_policy=selection_policy,
-            annotation_report=annotation_report,
-            protein_cards=protein_cards,
-            tissue_cell_type_context_report=tissue_cell_type_context_report,
-            cohort_stratification_report=cohort_stratification_report,
-            experiment_confidence_report=experiment_confidence_report,
-            section_confidence_counts=confidence_state.counts,
-            context_mapping_report=context_mapping_report,
-            go_enrichment_report=go_enrichment_report,
-            pathway_enrichment_report=pathway_enrichment_report,
-            complex_enrichment_report=complex_enrichment_report,
-            heatmap_report=heatmap_report,
-            sample_exploration_report=sample_exploration_report,
-        ),
+        section_confidence_entries=section_confidence_entries,
+        summary=summary,
+        note=_BIOLOGICAL_RESULT_REPORT_BUNDLE_NOTE,
     )
+
+
+__all__ = [
+    "_BIOLOGICAL_RESULT_REPORT_BUNDLE_NOTE",
+    "_materialize_biological_result_report_bundle",
+]
