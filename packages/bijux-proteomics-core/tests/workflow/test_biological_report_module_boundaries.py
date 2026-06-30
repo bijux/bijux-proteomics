@@ -110,6 +110,8 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     ),
     "biological_result_graph_protein_claims.py": (
         "_add_biological_result_graph_protein_claims",
+    ),
+    "biological_result_graph_claim_policy.py": (
         "_claim_confidence",
         "_claim_state",
         "_protein_label",
