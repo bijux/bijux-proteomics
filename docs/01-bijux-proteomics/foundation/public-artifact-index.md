@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Public Artifact Index
@@ -34,6 +34,15 @@ to narrow or stabilize language around it.
 - treat coexistence rationale as a non-duplication rule: if two artifacts look
   similar, this page should explain why both still deserve space
 
+## What This Registry Protects
+
+- it protects readers from starting with the most polished page instead of the
+  hardest review route
+- it protects the docs tree from accumulating artifact pages that no longer
+  add distinct scrutiny value
+- it protects stronger public sentences from riding on weaker neighboring
+  surfaces without naming the difference
+
 | artifact id | owner package | audience | question answered | coexistence rationale |
 | --- | --- | --- | --- | --- |
 | `artifact-index:release-candidate` | `bijux-proteomics-docs` | `scientist` | Which workflow families can the repository defend today? | The release-candidate page names the bounded family set, while the hostile review kit is the harder challenge route and the scorecard is the narrower language ceiling. |
@@ -62,6 +71,14 @@ to narrow or stabilize language around it.
 The index exists so a hostile reader can open the strongest current surfaces in a stable order instead of reverse-engineering the repository by package structure.
 
 The registry is intentionally stricter than a link list. If a new public artifact cannot name a distinct audience, question, and coexistence reason, it should replace an older surface instead of shipping beside it.
+
+## What Reviewers Should Notice
+
+- repository-wide entries answer whether any broader language is earned at all
+- workflow-family entries answer whether one family still survives the harder
+  packet-specific route
+- coexistence rationale is replacement pressure: once a weaker page stops
+  narrowing or stabilizing a stronger page, the weaker page should go
 
 ## What This Says About The Product
 

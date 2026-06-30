@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Hostile Review Kit
@@ -36,6 +36,15 @@ opening order so the review starts at the hardest route, not the nicest prose.
 - bundle id: `flagship-release-candidate-bundle`
 - root challenge: ask whether every public sentence stays inside the current outsider-auditable bounded family set and its published limits
 - first refusal: if a claim cannot be traced from the root page into one flagship family packet, its rerun dossier, and its external review kit, reject the sentence
+
+## Immediate Rejection Rules
+
+- reject any sentence that skips the blocker pages because that route is
+  already trying to outrun the live release ceiling
+- reject any family claim that cannot be reopened through its benchmark,
+  rerun, and external review surfaces
+- reject any cleaner repository-wide sentence that sounds broader than the
+  current bundle and limits pages together
 
 ## What This Route Is Testing
 
@@ -102,6 +111,15 @@ opening order so the review starts at the hardest route, not the nicest prose.
 ## Non-Negotiable Reading Rule
 
 If the current release-readiness matrix still shows blocked categories, no reviewer should widen the root promise by interpretation alone. The blocker pages below are part of the review kit because they keep the failure modes visible before maintainers start explaining them away.
+
+## Why A Hostile Route Is Good For A Stronger Repository
+
+- the stronger the benchmark and runtime packets become, the easier it is to
+  overread them in isolation
+- this route keeps the repository from being judged only by its best-shaped
+  surfaces
+- a real scientific product should survive adversarial reading of its own
+  published materials
 
 ## Strongest Honest Outcome
 

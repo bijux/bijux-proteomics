@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # External Review Kits
@@ -27,6 +27,15 @@ Each kit combines:
 - the benchmark-backed recommendation surface
 - the requested-versus-observed outcome dossier
 
+## How An Outsider Should Use A Kit
+
+- open the flagship benchmark package before reading any trust summary
+- open the companion challenge package before assuming transfer is stable
+- open the rerun dossier before treating the runtime story as broader than it
+  is
+- open the recommendation and consequence surfaces before deciding whether the
+  analytical story actually survives downstream burden
+
 ## What A Strong Kit Proves
 
 - the family has enough benchmark substance to survive opening with files
@@ -35,6 +44,14 @@ Each kit combines:
   challengeable
 - the analytical sentence is grounded and narrowed before lab consequence is
   allowed to sound stronger than the evidence
+
+## What A Kit Adds Beyond A Dossier
+
+- the dossier asks whether the sentence survives a second checked lane
+- the kit asks whether an outsider can challenge the whole family packet
+  without private maintainer glue
+- the kit keeps benchmark, rerun, recommendation, and consequence pressure in
+  one route instead of forcing the reader to reconstruct the chain manually
 
 ## What A Kit Refuses To Hide
 
@@ -68,6 +85,13 @@ Each kit combines:
 Open the flagship package first, then the companion rerun package, then the
 outsider packet, then the remaining limits. The order matters because a trust
 sentence is only worth reading after the underlying challenge surfaces are open.
+
+## Honest Outcome
+
+- if the family still survives after the reader opens the weaker surfaces, the
+  kit worked
+- if the reader lands on a downgrade or refusal boundary, the kit also worked
+  because the bounded sentence remained visible
 
 ## Honest Boundary
 

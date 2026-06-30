@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Independent Rerun Dossiers
@@ -37,6 +37,16 @@ changes the pressure shape:
 - the exact drift questions the companion lane is supposed to answer
 - the limits that still block broader authority language
 
+## How To Read A Dossier Honestly
+
+- open the flagship lane first so the baseline sentence is visible
+- open the companion lane second so stress arrives before anyone widens the
+  family claim
+- treat validating tests as part of the dossier because a challenge lane that
+  cannot be rechecked is only a story
+- keep the remaining limits attached to the dossier instead of treating them
+  as optional footnotes
+
 ## Why These Dossiers Exist Beside Trust Pages
 
 - a trust page can still sound too claim-oriented on its own
@@ -51,6 +61,13 @@ changes the pressure shape:
 - drift remains visible instead of being normalized away
 - the repository is willing to keep narrower language when the companion lane
   weakens the primary result
+
+## What A Dossier Does Not Prove
+
+- it does not prove broad third-party reproduction outside the repository
+- it does not erase runtime, comparator, or consequence limits from the family
+- it does not replace the external review kit, which still packages the wider
+  outsider route
 
 ## Honest Boundary
 

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Flagship Release Candidate
@@ -55,6 +55,14 @@ today after all known narrowing pressure has already been applied.
   posture.
 - lab now contributes more than aspirational follow-up: the bundle assumes a
   requested-versus-observed outcome dossier and visible consequence pressure.
+
+## What This Bundle Still Refuses To Claim
+
+- it does not claim repository-wide elite or universal proteomics authority
+- it does not erase the difference between outsider-auditable, review-grade,
+  and internal-support-only family language
+- it does not pretend that one strong family packet closes weaker rerun,
+  comparator, or consequence gaps elsewhere
 
 ## Why The Bundle Still Stays Narrow
 
@@ -120,6 +128,15 @@ bundle.
 The release narrowing protocol is the stable language-demotion rule set for the
 bundle.
 
+## How To Read The Bundle Correctly
+
+- start here only after the product overview when the real question is release
+  posture
+- keep the hostile review kit and readiness matrix adjacent because this page
+  names the strongest current sentence, not the whole repository
+- use the family packet inventory to see why one family survives while another
+  still narrows
+
 Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 when the right next question is family comparison instead of bundle inventory.
 Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
@@ -160,6 +177,14 @@ role overlap.
 - `multiplex` has real package and runtime substance, but it is intentionally
   narrowed to internal support only because its companion stress package still
   collapses outsider-facing trust in the published family-transfer report
+
+## Why This Page Matters More Now
+
+- the repository now has enough real benchmark, runtime, grounding, and
+  consequence depth that a release-candidate page can summarize substance
+  rather than aspiration
+- the bundle needs to stay narrow precisely because the stronger current
+  product makes overclaiming easier if the release sentence is not pinned down
 
 ## Boundary
 
