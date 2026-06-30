@@ -40,15 +40,15 @@ MISSINGNESS_COMPANION_OWNERS = {
 }
 
 MISSINGNESS_SIDE_CAR_EXPORT_OWNERS = {
-    "workflow/pipelines/maxquant_biological_workflow.py": (
+    "workflow/pipelines/engines/maxquant_biological_workflow.py": (
         "lfq_missingness_tsv",
         "render_label_free_quant_missingness_matrix_tsv",
     ),
-    "workflow/pipelines/dda_biological_workflow.py": (
+    "workflow/pipelines/engines/dda_biological_workflow.py": (
         "protein_lfq_missingness_tsv",
         "protein_lfq_missingness_mask_tsv",
     ),
-    "workflow/pipelines/diann_biological_workflow.py": (
+    "workflow/pipelines/engines/diann_biological_workflow.py": (
         "precursor_missingness_tsv",
         "peptide_missingness_tsv",
         "protein_missingness_tsv",
