@@ -224,8 +224,22 @@ ADVANCED_PIPELINE_FACADE_OWNERS = (
 
 ENGINE_PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow",
+        rationale="DDA biological workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow",
+        rationale="DIA-NN biological workflow ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.engines.label_based_reporting",
         rationale="label-based reporting workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow"
+        ),
+        rationale="MaxQuant biological workflow ownership",
     ),
 )
 
@@ -238,20 +252,12 @@ PIPELINE_FACADE_OWNERS = (
     *ADVANCED_PIPELINE_FACADE_OWNERS,
     *ENGINE_PIPELINE_FACADE_OWNERS,
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.dda_biological_workflow",
-        rationale="DDA biological workflow ownership",
-    ),
-    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.dia_dda_comparison",
         rationale="DIA versus DDA comparison ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.dia_differential_analysis",
         rationale="DIA differential analysis ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.diann_biological_workflow",
-        rationale="DIA-NN biological workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.discovery_to_assay",
@@ -268,10 +274,6 @@ PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.label_based_differential",
         rationale="label-based differential workflow ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.maxquant_biological_workflow",
-        rationale="MaxQuant biological workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.multi_study",
@@ -408,16 +410,8 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="sample evidence card ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.dda_biological_workflow",
-        rationale="DDA biological workflow ownership",
-    ),
-    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks",
         rationale="DIA-NN benchmark ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.diann_biological_workflow",
-        rationale="DIA-NN biological workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.flagship_run",
@@ -438,10 +432,6 @@ WORKFLOW_ROOT_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.fidelity.maxquant_benchmarks",
         rationale="MaxQuant benchmark ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.maxquant_biological_workflow",
-        rationale="MaxQuant biological workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cards.mechanisms",

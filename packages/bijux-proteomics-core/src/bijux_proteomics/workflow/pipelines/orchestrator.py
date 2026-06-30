@@ -68,14 +68,14 @@ from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     TargetedValidationWorkflowReport,
     run_targeted_validation_workflow,
 )
-from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
     DdaPsmAcceptancePolicy,
     build_dda_biological_workflow_bundle,
     write_dda_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
@@ -87,7 +87,7 @@ from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     build_silac_label_based_report_bundle,
     write_label_based_report_bundle,
 )
-from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantProteinGroupAcceptancePolicy,

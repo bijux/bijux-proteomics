@@ -519,6 +519,8 @@ def test_workflow_pipeline_package_import_contract() -> None:
     assert module.__name__ == "bijux_proteomics.workflow.pipelines"
     assert advanced.__name__ == "bijux_proteomics.workflow.pipelines.advanced"
     assert engines.__name__ == "bijux_proteomics.workflow.pipelines.engines"
+    assert hasattr(engines, "build_dda_biological_workflow_bundle")
+    assert hasattr(engines, "build_diann_biological_workflow_bundle")
     assert hasattr(advanced, "build_advanced_workflow_family_contract")
     assert hasattr(advanced, "run_advanced_diann_workflow")
     assert hasattr(advanced, "run_advanced_fragpipe_workflow")
@@ -527,6 +529,7 @@ def test_workflow_pipeline_package_import_contract() -> None:
     assert hasattr(advanced, "run_targeted_validation_workflow")
     assert hasattr(advanced, "run_advanced_tmt_workflow")
     assert hasattr(engines, "build_tmt_label_based_report_bundle")
+    assert hasattr(engines, "build_maxquant_biological_workflow_bundle")
     assert hasattr(advanced_tmt, "run_advanced_tmt_workflow")
     assert hasattr(orchestrator, "run_proteomics_workflow")
     assert hasattr(trust_bundle, "build_trust_bundle")

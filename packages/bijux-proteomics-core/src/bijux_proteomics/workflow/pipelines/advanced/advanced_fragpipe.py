@@ -28,7 +28,7 @@ from bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family impor
     AdvancedWorkflowFamilyContract,
     build_advanced_workflow_family_contract,
 )
-from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
     DdaProteinGroupDiscrepancyEntry,

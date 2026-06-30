@@ -55,7 +55,7 @@ from bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family impor
     AdvancedWorkflowFamilyContract,
     build_advanced_workflow_family_contract,
 )
-from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,

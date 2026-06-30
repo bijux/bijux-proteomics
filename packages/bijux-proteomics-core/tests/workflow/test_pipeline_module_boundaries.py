@@ -230,8 +230,17 @@ def test_advanced_pipeline_wrappers_delegate_to_advanced_owners() -> None:
 def test_engine_pipeline_wrappers_delegate_to_engine_owners() -> None:
     root = _workflow_source_root() / "pipelines"
     expected_targets = {
+        "dda_biological_workflow.py": (
+            "bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow"
+        ),
+        "diann_biological_workflow.py": (
+            "bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow"
+        ),
         "label_based_reporting.py": (
             "bijux_proteomics.workflow.pipelines.engines.label_based_reporting"
+        ),
+        "maxquant_biological_workflow.py": (
+            "bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow"
         ),
     }
 

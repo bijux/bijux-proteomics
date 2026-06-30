@@ -24,7 +24,7 @@ from bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family impor
     AdvancedWorkflowFamilyContract,
     build_advanced_workflow_family_contract,
 )
-from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
     MaxquantBiologicalWorkflowExportManifest,
     MaxquantFilteredProteinGroupEntry,
