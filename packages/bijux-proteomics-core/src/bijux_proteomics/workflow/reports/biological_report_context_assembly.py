@@ -50,7 +50,7 @@ if TYPE_CHECKING:
         DifferentialAbundanceReport,
     )
     from bijux_proteomics.study import ExperimentDesign
-    from bijux_proteomics.workflow.reports.biological_report_models import (
+    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
         BiologicalResultSelectionPolicy,
     )
 

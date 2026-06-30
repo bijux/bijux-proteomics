@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.quantification.contracts.differential import (
         DifferentialAbundanceReport,
     )
-    from bijux_proteomics.workflow.reports.biological_report_models import (
+    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
         BiologicalResultSelectionPolicy,
     )
 

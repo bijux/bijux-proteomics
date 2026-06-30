@@ -11,7 +11,7 @@ from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_protein_evidence import (

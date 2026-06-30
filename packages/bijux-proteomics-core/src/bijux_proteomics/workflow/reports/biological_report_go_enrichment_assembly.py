@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.interpretation.protein_annotation_mapping import (
         ProteinReferenceEntry,
     )
-    from bijux_proteomics.workflow.reports.biological_report_models import (
+    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
         BiologicalResultSelectionPolicy,
     )
 

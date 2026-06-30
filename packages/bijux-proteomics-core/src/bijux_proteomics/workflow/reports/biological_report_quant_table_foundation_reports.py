@@ -21,7 +21,7 @@ from bijux_proteomics.workflow.reports.biological_report_enrichment_assembly imp
     BiologicalEnrichmentAssemblyReports,
     _build_biological_enrichment_reports,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_source_data import (

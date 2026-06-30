@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
     from bijux_proteomics.quantification.contracts import LabelFreeQuantTable
     from bijux_proteomics.sequences.core import NormalizedProteinRecord
-    from bijux_proteomics.workflow.reports.biological_report_models import (
+    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
         BiologicalResultSelectionPolicy,
     )
 
