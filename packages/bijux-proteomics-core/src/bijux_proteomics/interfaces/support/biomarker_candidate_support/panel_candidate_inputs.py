@@ -5,7 +5,11 @@
 
 from __future__ import annotations
 
-from ..imports import *  # noqa: F401,F403
+from ..foundation import Path, click, csv
+from ..multiplex_targeted import (
+    TargetedPanelBiomarkerCandidateInput,
+    TargetedPanelCandidateKind,
+)
 from ..targeted_selection_io.field_parsing import _split_semicolon_field
 
 
