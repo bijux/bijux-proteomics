@@ -109,6 +109,14 @@ MISSINGNESS_FACADE_OWNERS = (
     _owner(
         "bijux_proteomics.quantification.missingness.summaries",
         "missingness summary ownership",
+        excluded_exports=(
+            "_build_missingness_condition_summary_report_pure",
+            "_build_missingness_condition_summary_report_vectorized",
+            "_build_missingness_entity_summary_report_pure",
+            "_build_missingness_entity_summary_report_vectorized",
+            "_summarize_missing_values_pure",
+            "_summarize_missing_values_vectorized",
+        ),
     ),
     _owner(
         "bijux_proteomics.quantification.missingness.intensity_dependence",
