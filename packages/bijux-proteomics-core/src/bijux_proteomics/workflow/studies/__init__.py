@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from bijux_proteomics.workflow.public_api import (
-    STUDY_FACADE_OWNERS,
+from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
     load_public_export,
     module_directory,
     ordered_facade_owners,
+)
+from bijux_proteomics.workflow.facade_study_catalog import (
+    STUDY_FACADE_OWNERS,
 )
 
 __all__, _STUDY_EXPORT_INDEX = build_lazy_export_index(

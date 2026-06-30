@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from bijux_proteomics.workflow.public_api import (
+from bijux_proteomics.workflow.facade_benchmark_catalog import (
     BENCHMARK_SYNTHETIC_FACADE_OWNERS,
+)
+from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
     load_public_export,
     module_directory,
