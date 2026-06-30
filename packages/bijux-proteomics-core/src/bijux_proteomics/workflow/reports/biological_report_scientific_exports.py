@@ -28,6 +28,9 @@ from bijux_proteomics.workflow.reports.biological_report_scientific_required_exp
 from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
     BiologicalScientificExportNames,
 )
+from bijux_proteomics.workflow.reports.biological_report_scientific_export_name_building import (
+    _build_biological_scientific_export_names,
+)
 from bijux_proteomics.workflow.reports.biological_report_scientific_summary_tables import (
     render_biological_report_section_confidence_tsv as _render_section_confidence_tsv,
     render_biological_result_report_summary_tsv as _render_report_summary_tsv,
@@ -72,53 +75,10 @@ def write_biological_scientific_exports(
         report, output_dir
     )
 
-    return BiologicalScientificExportNames(
-        summary_name=required_export_names.summary_name,
-        differential_name=required_export_names.differential_name,
-        protein_card_summary_name=required_export_names.protein_card_summary_name,
-        protein_card_name=required_export_names.protein_card_name,
-        protein_mechanism_card_summary_name=(
-            required_export_names.protein_mechanism_card_summary_name
-        ),
-        protein_mechanism_card_name=required_export_names.protein_mechanism_card_name,
-        evidence_graph_nodes_name=required_export_names.evidence_graph_nodes_name,
-        evidence_graph_edges_name=required_export_names.evidence_graph_edges_name,
-        experiment_confidence_summary_name=(
-            required_export_names.experiment_confidence_summary_name
-        ),
-        experiment_confidence_components_name=(
-            required_export_names.experiment_confidence_components_name
-        ),
-        section_confidence_name=required_export_names.section_confidence_name,
-        evidence_aware_ranking_name=ranking_export_names.evidence_aware_ranking_name,
-        claim_validation_summary_name=(
-            claim_export_names.claim_validation_summary_name
-        ),
-        supported_claim_name=claim_export_names.supported_claim_name,
-        rejected_claim_name=claim_export_names.rejected_claim_name,
-        biological_hypothesis_summary_name=(
-            hypothesis_export_names.biological_hypothesis_summary_name
-        ),
-        biological_hypothesis_name=hypothesis_export_names.biological_hypothesis_name,
-        rejected_hypothesis_candidate_name=(
-            hypothesis_export_names.rejected_hypothesis_candidate_name
-        ),
-        foreground_background_summary_name=(
-            required_export_names.foreground_background_summary_name
-        ),
-        foreground_background_entry_name=(
-            required_export_names.foreground_background_entry_name
-        ),
-        foreground_background_issue_name=(
-            required_export_names.foreground_background_issue_name
-        ),
-        regulator_inference_summary_name=(
-            regulator_export_names.regulator_inference_summary_name
-        ),
-        regulator_inference_name=regulator_export_names.regulator_inference_name,
-        regulator_unresolved_name=regulator_export_names.regulator_unresolved_name,
-        regulator_rejected_name=regulator_export_names.regulator_rejected_name,
-        annotation_summary_name=required_export_names.annotation_summary_name,
-        annotation_name=required_export_names.annotation_name,
-        annotation_unmapped_name=required_export_names.annotation_unmapped_name,
+    return _build_biological_scientific_export_names(
+        required_export_names=required_export_names,
+        ranking_export_names=ranking_export_names,
+        claim_export_names=claim_export_names,
+        hypothesis_export_names=hypothesis_export_names,
+        regulator_export_names=regulator_export_names,
     )
