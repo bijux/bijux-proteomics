@@ -14,38 +14,22 @@ from bijux_proteomics.interpretation import (
     render_rejected_regulator_evidence_tsv,
     render_unresolved_regulator_target_tsv,
 )
-from bijux_proteomics.review.belief.evidence_aware_ranking import (
-    render_evidence_aware_ranking_tsv,
-)
-from bijux_proteomics.review.claims.biological_claim_validation import (
-    render_biological_claim_validation_summary_tsv,
-    render_rejected_biological_claim_tsv,
-    render_supported_biological_claim_tsv,
-)
 from bijux_proteomics.review.claims.biological_hypotheses import (
     render_biological_hypothesis_summary_tsv,
     render_biological_hypothesis_tsv,
     render_rejected_biological_hypothesis_candidate_tsv,
 )
+from bijux_proteomics.workflow.reports.biological_report_claim_exports import (
+    BiologicalClaimExportNames,
+    _write_biological_optional_claim_exports,
+)
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
-
-
-@dataclass(frozen=True)
-class BiologicalRankingExportNames:
-    """Artifact names emitted for optional evidence-aware ranking outputs."""
-
-    evidence_aware_ranking_name: str | None
-
-
-@dataclass(frozen=True)
-class BiologicalClaimExportNames:
-    """Artifact names emitted for optional claim validation outputs."""
-
-    claim_validation_summary_name: str | None
-    supported_claim_name: str | None
-    rejected_claim_name: str | None
+from bijux_proteomics.workflow.reports.biological_report_ranking_exports import (
+    BiologicalRankingExportNames,
+    _write_biological_optional_ranking_exports,
+)
 
 
 @dataclass(frozen=True)
@@ -65,55 +49,6 @@ class BiologicalRegulatorExportNames:
     regulator_inference_name: str | None
     regulator_unresolved_name: str | None
     regulator_rejected_name: str | None
-
-
-def _write_biological_optional_ranking_exports(
-    report: BiologicalResultReportBundle,
-    output_dir: Path,
-) -> BiologicalRankingExportNames:
-    evidence_aware_ranking_name = None
-    if report.evidence_aware_ranking_report is not None:
-        evidence_aware_ranking_name = "biological_evidence_aware_ranking.tsv"
-        write_output_table_tsv(
-            output_dir / evidence_aware_ranking_name,
-            render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
-        )
-    return BiologicalRankingExportNames(
-        evidence_aware_ranking_name=evidence_aware_ranking_name
-    )
-
-
-def _write_biological_optional_claim_exports(
-    report: BiologicalResultReportBundle,
-    output_dir: Path,
-) -> BiologicalClaimExportNames:
-    claim_validation_summary_name = None
-    supported_claim_name = None
-    rejected_claim_name = None
-    if report.claim_validation_report is not None:
-        claim_validation_summary_name = "biological_claim_validation_summary.tsv"
-        supported_claim_name = "biological_supported_claims.tsv"
-        rejected_claim_name = "biological_rejected_claims.tsv"
-        write_output_table_tsv(
-            output_dir / claim_validation_summary_name,
-            render_biological_claim_validation_summary_tsv(
-                report.claim_validation_report
-            ),
-        )
-        write_output_table_tsv(
-            output_dir / supported_claim_name,
-            render_supported_biological_claim_tsv(report.claim_validation_report),
-        )
-        write_output_table_tsv(
-            output_dir / rejected_claim_name,
-            render_rejected_biological_claim_tsv(report.claim_validation_report),
-        )
-    return BiologicalClaimExportNames(
-        claim_validation_summary_name=claim_validation_summary_name,
-        supported_claim_name=supported_claim_name,
-        rejected_claim_name=rejected_claim_name,
-    )
-
 
 def _write_biological_optional_hypothesis_exports(
     report: BiologicalResultReportBundle,

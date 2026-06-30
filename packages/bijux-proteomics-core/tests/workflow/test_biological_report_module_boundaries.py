@@ -321,14 +321,18 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "write_biological_scientific_exports",
     ),
     "biological_report_scientific_optional_exports.py": (
-        "BiologicalClaimExportNames",
         "BiologicalHypothesisExportNames",
-        "BiologicalRankingExportNames",
         "BiologicalRegulatorExportNames",
-        "_write_biological_optional_claim_exports",
         "_write_biological_optional_hypothesis_exports",
-        "_write_biological_optional_ranking_exports",
         "_write_biological_optional_regulator_exports",
+    ),
+    "biological_report_ranking_exports.py": (
+        "BiologicalRankingExportNames",
+        "_write_biological_optional_ranking_exports",
+    ),
+    "biological_report_claim_exports.py": (
+        "BiologicalClaimExportNames",
+        "_write_biological_optional_claim_exports",
     ),
     "biological_report_scientific_required_exports.py": (
         "BiologicalScientificRequiredExportNames",
