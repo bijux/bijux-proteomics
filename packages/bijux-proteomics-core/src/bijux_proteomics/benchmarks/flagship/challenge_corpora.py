@@ -13,7 +13,7 @@ from typing import cast
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.benchmarks.workflow_generalization import (
+from bijux_proteomics.benchmarks.generalization.reports import (
     WorkflowGeneralizationReport,
     build_workflow_generalization_reports,
 )

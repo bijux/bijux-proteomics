@@ -12,7 +12,7 @@ from pathlib import Path
 from bijux_proteomics.benchmarks.flagship.public_packages import (
     FlagshipPublicBenchmarkPackage,
 )
-from bijux_proteomics.benchmarks.workflow_generalization import (
+from bijux_proteomics.benchmarks.generalization.reports import (
     SecondaryPublicPackageAssetRegistry,
     WorkflowFamilyStabilityScorecard,
     WorkflowGeneralizationReport,

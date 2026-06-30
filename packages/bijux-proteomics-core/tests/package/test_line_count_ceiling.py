@@ -68,7 +68,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("benchmarks/flagship/asset_roots.py", 1093),
     _exception("benchmarks/flagship/challenge_corpora.py", 1167),
     _exception("benchmarks/flagship/public_packages.py", 1542),
-    _exception("benchmarks/workflow_generalization.py", 2183),
+    _exception("benchmarks/generalization/reports.py", 2183),
     _exception("chemistry/contracts/modified_peptides.py", 1065),
     _exception("dia/protein_matrix.py", 1138),
     _exception("identification/fdr/confidence.py", 1140),

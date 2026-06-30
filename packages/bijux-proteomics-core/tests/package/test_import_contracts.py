@@ -117,6 +117,12 @@ def test_flagship_dda_reviewable_package_import_contract() -> None:
     assert module.build_dda_reviewable_package is not None
 
 
+def test_generalization_benchmark_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.benchmarks.generalization")
+
+    assert module.build_workflow_generalization_reports is not None
+
+
 def test_core_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interfaces.cli")
 

@@ -1,4 +1,4 @@
-"""Compatibility facade for workflow-generalization report owners."""
+"""Workflow-family generalization report owners."""
 
 from __future__ import annotations
 
