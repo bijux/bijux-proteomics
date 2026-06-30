@@ -8,13 +8,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics.workflow.reports.biological_report_claim_exports import (
+    _write_biological_optional_claim_exports,
+)
+from bijux_proteomics.workflow.reports.biological_report_hypothesis_exports import (
+    _write_biological_optional_hypothesis_exports,
+)
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.reports.biological_report_scientific_optional_exports import (
-    _write_biological_optional_claim_exports,
-    _write_biological_optional_hypothesis_exports,
+from bijux_proteomics.workflow.reports.biological_report_ranking_exports import (
     _write_biological_optional_ranking_exports,
+)
+from bijux_proteomics.workflow.reports.biological_report_regulator_exports import (
     _write_biological_optional_regulator_exports,
 )
 from bijux_proteomics.workflow.reports.biological_report_scientific_required_exports import (
