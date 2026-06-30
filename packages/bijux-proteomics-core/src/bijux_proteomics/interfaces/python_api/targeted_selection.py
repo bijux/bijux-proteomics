@@ -47,10 +47,16 @@ from bijux_proteomics.interfaces.support.targeted_selection_io.protein_support i
     _load_assay_interference_support_by_protein,
     _load_selected_peptide_support_by_protein,
 )
-from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables import (
+from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables.peptide_evidence import (
     _load_peptide_evidence_entries,
+)
+from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables.selected_peptides import (
     _load_selected_targeted_peptides,
+)
+from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables.selected_transitions import (
     _load_selected_targeted_transitions,
+)
+from bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables.targets import (
     _load_targeted_selection_targets,
 )
 from bijux_proteomics.interfaces.support.biomarker_candidate_support.biological_candidates import (
