@@ -26,6 +26,15 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_report_section_confidence_entries",
         "_count_section_confidence_labels",
     ),
+    "biological_report_evidence_confidence.py": (
+        "_build_evidence_section_confidence_entries",
+    ),
+    "biological_report_context_confidence.py": (
+        "_build_context_section_confidence_entries",
+    ),
+    "biological_report_activity_confidence.py": (
+        "_build_activity_section_confidence_entries",
+    ),
     "biological_report_selection.py": (
         "_build_background_reference_entries",
         "_build_biological_foreground_filtering_policy",
