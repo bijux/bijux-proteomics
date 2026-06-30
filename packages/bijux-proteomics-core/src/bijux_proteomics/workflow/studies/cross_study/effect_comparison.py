@@ -13,7 +13,6 @@ from statistics import median
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.quantification.contracts.differential import (
     DifferentialResultRobustnessQcStatus,
@@ -26,6 +25,10 @@ from bijux_proteomics.workflow.studies.cross_study.protein_harmonization import 
     CrossStudyProteinStudyInput,
     UnsupportedCrossStudyProteinStudy,
     build_cross_study_protein_harmonization_report_from_observations,
+)
+from bijux_proteomics.workflow.studies.cross_study.tsv_support import (
+    export_tsv_table,
+    format_optional_float,
 )
 from bijux_proteomics.workflow.studies.study_results import ProteomicsStudyKind
 from bijux_proteomics_foundation import JsonModel
@@ -486,11 +489,11 @@ def render_cross_study_effect_comparison_tsv(
                     direction.value
                     for direction in entry.normalized_significant_directions
                 ),
-                _format_float(entry.min_log2_fold_change),
-                _format_float(entry.max_log2_fold_change),
-                _format_float(entry.median_absolute_log2_fold_change),
-                _format_float(entry.min_adjusted_p_value),
-                _format_float(entry.median_robustness_score),
+                format_optional_float(entry.min_log2_fold_change),
+                format_optional_float(entry.max_log2_fold_change),
+                format_optional_float(entry.median_absolute_log2_fold_change),
+                format_optional_float(entry.min_adjusted_p_value),
+                format_optional_float(entry.median_robustness_score),
                 ";".join(entry.low_robustness_study_ids),
                 entry.note,
             ]
@@ -557,18 +560,18 @@ def render_cross_study_effect_detail_tsv(
                 "" if entry.contrast_label is None else entry.contrast_label,
                 entry.condition_a,
                 entry.condition_b,
-                _format_float(entry.log2_fold_change),
+                format_optional_float(entry.log2_fold_change),
                 entry.direction.value,
-                _format_float(entry.normalized_log2_fold_change),
+                format_optional_float(entry.normalized_log2_fold_change),
                 ""
                 if entry.normalized_direction is None
                 else entry.normalized_direction.value,
-                _format_float(entry.p_value),
-                _format_float(entry.adjusted_p_value),
-                _format_float(entry.standard_error),
-                _format_float(entry.confidence_interval_low),
-                _format_float(entry.confidence_interval_high),
-                _format_float(entry.robustness_score),
+                format_optional_float(entry.p_value),
+                format_optional_float(entry.adjusted_p_value),
+                format_optional_float(entry.standard_error),
+                format_optional_float(entry.confidence_interval_low),
+                format_optional_float(entry.confidence_interval_high),
+                format_optional_float(entry.robustness_score),
                 (
                     ""
                     if entry.robustness_qc_status is None
@@ -620,7 +623,7 @@ def export_cross_study_effect_comparison_tsv(
 ) -> None:
     """Write cross-study effect comparison summaries to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_effect_comparison_tsv(report))
+    export_tsv_table(path, render_cross_study_effect_comparison_tsv(report))
 
 
 def export_cross_study_effect_detail_tsv(
@@ -629,7 +632,7 @@ def export_cross_study_effect_detail_tsv(
 ) -> None:
     """Write per-study cross-study effect details to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_effect_detail_tsv(report))
+    export_tsv_table(path, render_cross_study_effect_detail_tsv(report))
 
 
 def export_cross_study_replicated_hit_tsv(
@@ -638,7 +641,7 @@ def export_cross_study_replicated_hit_tsv(
 ) -> None:
     """Write replicated cross-study hits to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_replicated_hit_tsv(report))
+    export_tsv_table(path, render_cross_study_replicated_hit_tsv(report))
 
 
 def export_cross_study_study_specific_hit_tsv(
@@ -647,7 +650,7 @@ def export_cross_study_study_specific_hit_tsv(
 ) -> None:
     """Write study-specific cross-study hits to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_study_specific_hit_tsv(report))
+    export_tsv_table(path, render_cross_study_study_specific_hit_tsv(report))
 
 
 def export_cross_study_conflicting_hit_tsv(
@@ -656,7 +659,7 @@ def export_cross_study_conflicting_hit_tsv(
 ) -> None:
     """Write conflicting cross-study hits to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_conflicting_hit_tsv(report))
+    export_tsv_table(path, render_cross_study_conflicting_hit_tsv(report))
 
 
 def _extract_study_effect_observations(
@@ -1152,10 +1155,6 @@ def _render_filtered_effect_tsv(
         note=report.note,
     )
     return render_cross_study_effect_comparison_tsv(filtered_report)
-
-
-def _format_float(value: float | None) -> str:
-    return "" if value is None else f"{value:.6f}"
 
 
 __all__ = [

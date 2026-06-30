@@ -13,10 +13,10 @@ from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.ptm.cards.evidence_cards import PtmEvidenceCard
 from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
+from bijux_proteomics.workflow.studies.cross_study.tsv_support import export_tsv_table
 from bijux_proteomics.workflow.studies.study_results import (
     ProteomicsStudyKind,
     ProteomicsStudyResult,
@@ -680,7 +680,7 @@ def export_cross_study_protein_harmonization_tsv(
 ) -> None:
     """Write harmonized cross-study protein memberships to a TSV artifact."""
 
-    write_output_table_tsv(path, render_cross_study_protein_harmonization_tsv(report))
+    export_tsv_table(path, render_cross_study_protein_harmonization_tsv(report))
 
 
 def export_cross_study_protein_unresolved_tsv(
@@ -689,7 +689,7 @@ def export_cross_study_protein_unresolved_tsv(
 ) -> None:
     """Write unresolved cross-study protein identities to a TSV artifact."""
 
-    write_output_table_tsv(path, render_cross_study_protein_unresolved_tsv(report))
+    export_tsv_table(path, render_cross_study_protein_unresolved_tsv(report))
 
 
 def _extract_study_observations(

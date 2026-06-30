@@ -14,7 +14,6 @@ import re
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.workflow.studies.cross_study.effect_comparison import (
     CrossStudyEffectContrastAlignmentStatus,
@@ -29,6 +28,10 @@ from bijux_proteomics.workflow.studies.cross_study.effect_comparison import (
 )
 from bijux_proteomics.workflow.studies.cross_study.protein_harmonization import (
     CrossStudyProteinStudyInput,
+)
+from bijux_proteomics.workflow.studies.cross_study.tsv_support import (
+    export_tsv_table,
+    format_optional_float,
 )
 from bijux_proteomics.workflow.studies.study_results import ProteomicsStudyKind
 from bijux_proteomics_foundation import JsonModel
@@ -417,22 +420,22 @@ def render_cross_study_meta_analysis_tsv(report: CrossStudyMetaAnalysisReport) -
                 entry.anchor_condition_b,
                 entry.included_study_count,
                 entry.effect_model.value,
-                _format_float(entry.combined_log2_fold_change),
-                _format_float(entry.combined_standard_error),
-                _format_float(entry.combined_confidence_interval_low),
-                _format_float(entry.combined_confidence_interval_high),
-                _format_float(entry.combined_p_value),
-                _format_float(entry.combined_adjusted_p_value),
-                _format_float(entry.fixed_effect_log2_fold_change),
-                _format_float(entry.fixed_effect_standard_error),
-                _format_float(entry.fixed_effect_p_value),
-                _format_float(entry.random_effect_log2_fold_change),
-                _format_float(entry.random_effect_standard_error),
-                _format_float(entry.random_effect_p_value),
-                _format_float(entry.heterogeneity_q),
+                format_optional_float(entry.combined_log2_fold_change),
+                format_optional_float(entry.combined_standard_error),
+                format_optional_float(entry.combined_confidence_interval_low),
+                format_optional_float(entry.combined_confidence_interval_high),
+                format_optional_float(entry.combined_p_value),
+                format_optional_float(entry.combined_adjusted_p_value),
+                format_optional_float(entry.fixed_effect_log2_fold_change),
+                format_optional_float(entry.fixed_effect_standard_error),
+                format_optional_float(entry.fixed_effect_p_value),
+                format_optional_float(entry.random_effect_log2_fold_change),
+                format_optional_float(entry.random_effect_standard_error),
+                format_optional_float(entry.random_effect_p_value),
+                format_optional_float(entry.heterogeneity_q),
                 entry.heterogeneity_degrees_of_freedom,
-                _format_float(entry.heterogeneity_i_squared),
-                _format_float(entry.between_study_variance_tau_squared),
+                format_optional_float(entry.heterogeneity_i_squared),
+                format_optional_float(entry.between_study_variance_tau_squared),
                 entry.heterogeneity_tier.value,
                 str(entry.direction_conflict).lower(),
                 ";".join(entry.conflicting_study_ids),
@@ -478,13 +481,13 @@ def render_cross_study_meta_analysis_study_weight_tsv(
                 entry.study_kind.value,
                 "" if entry.species is None else entry.species,
                 entry.normalized_direction.value,
-                _format_float(entry.normalized_log2_fold_change),
-                _format_float(entry.standard_error),
-                _format_float(entry.variance),
-                _format_float(entry.fixed_weight),
-                _format_float(entry.fixed_weight_fraction),
-                _format_float(entry.random_weight),
-                _format_float(entry.random_weight_fraction),
+                format_optional_float(entry.normalized_log2_fold_change),
+                format_optional_float(entry.standard_error),
+                format_optional_float(entry.variance),
+                format_optional_float(entry.fixed_weight),
+                format_optional_float(entry.fixed_weight_fraction),
+                format_optional_float(entry.random_weight),
+                format_optional_float(entry.random_weight_fraction),
                 str(entry.significant).lower(),
                 entry.note,
             ]
@@ -535,7 +538,7 @@ def export_cross_study_meta_analysis_tsv(
 ) -> None:
     """Write combined meta-analysis entries to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_meta_analysis_tsv(report))
+    export_tsv_table(path, render_cross_study_meta_analysis_tsv(report))
 
 
 def export_cross_study_meta_analysis_study_weight_tsv(
@@ -544,7 +547,7 @@ def export_cross_study_meta_analysis_study_weight_tsv(
 ) -> None:
     """Write per-study meta-analysis weights to TSV."""
 
-    write_output_table_tsv(
+    export_tsv_table(
         path, render_cross_study_meta_analysis_study_weight_tsv(report)
     )
 
@@ -555,7 +558,7 @@ def export_cross_study_meta_analysis_rejected_tsv(
 ) -> None:
     """Write rejected meta-analysis groups to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_meta_analysis_rejected_tsv(report))
+    export_tsv_table(path, render_cross_study_meta_analysis_rejected_tsv(report))
 
 
 def _meta_analysis_rejection(
@@ -985,10 +988,6 @@ def _rejection_id(
 def _stable_token(value: str) -> str:
     token = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
     return token or "unspecified"
-
-
-def _format_float(value: float | None) -> str:
-    return "" if value is None else f"{value:.6f}"
 
 
 __all__ = [

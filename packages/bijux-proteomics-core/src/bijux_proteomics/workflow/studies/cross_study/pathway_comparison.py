@@ -14,7 +14,6 @@ from statistics import mean
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import (
     PathwayActivityConfidenceStatus,
     PathwayActivityReport,
@@ -23,6 +22,10 @@ from bijux_proteomics.interpretation import (
 )
 from bijux_proteomics.workflow.studies.cross_study.protein_harmonization import (
     CrossStudyProteinStudyInput,
+)
+from bijux_proteomics.workflow.studies.cross_study.tsv_support import (
+    export_tsv_table,
+    format_optional_float,
 )
 from bijux_proteomics.workflow.studies.study_results import ProteomicsStudyKind
 from bijux_proteomics_foundation import JsonModel
@@ -467,17 +470,17 @@ def render_cross_study_pathway_comparison_tsv(
                     direction.value
                     for direction in entry.normalized_significant_directions
                 ),
-                _format_float(entry.minimum_coverage_fraction),
-                _format_float(entry.maximum_coverage_fraction),
-                _format_float(entry.coverage_fraction_range),
+                format_optional_float(entry.minimum_coverage_fraction),
+                format_optional_float(entry.maximum_coverage_fraction),
+                format_optional_float(entry.coverage_fraction_range),
                 ""
                 if entry.minimum_total_member_count is None
                 else entry.minimum_total_member_count,
                 ""
                 if entry.maximum_total_member_count is None
                 else entry.maximum_total_member_count,
-                _format_float(entry.minimum_adjusted_p_value),
-                _format_float(entry.maximum_enrichment_ratio),
+                format_optional_float(entry.minimum_adjusted_p_value),
+                format_optional_float(entry.maximum_enrichment_ratio),
                 entry.note,
             ]
         )
@@ -544,14 +547,14 @@ def render_cross_study_pathway_detail_tsv(
                 ""
                 if entry.normalized_direction is None
                 else entry.normalized_direction.value,
-                _format_float(entry.activity_score_delta),
-                _format_float(entry.normalized_activity_score_delta),
+                format_optional_float(entry.activity_score_delta),
+                format_optional_float(entry.normalized_activity_score_delta),
                 ""
                 if entry.activity_confidence_status is None
                 else entry.activity_confidence_status.value,
-                _format_float(entry.p_value),
-                _format_float(entry.adjusted_p_value),
-                _format_float(entry.enrichment_ratio),
+                format_optional_float(entry.p_value),
+                format_optional_float(entry.adjusted_p_value),
+                format_optional_float(entry.enrichment_ratio),
                 str(entry.significant).lower(),
                 "" if entry.total_member_count is None else entry.total_member_count,
                 ""
@@ -560,9 +563,9 @@ def render_cross_study_pathway_detail_tsv(
                 ""
                 if entry.background_member_count is None
                 else entry.background_member_count,
-                _format_float(entry.condition_a_coverage_fraction),
-                _format_float(entry.condition_b_coverage_fraction),
-                _format_float(entry.coverage_fraction),
+                format_optional_float(entry.condition_a_coverage_fraction),
+                format_optional_float(entry.condition_b_coverage_fraction),
+                format_optional_float(entry.coverage_fraction),
                 entry.note,
             ]
         )
@@ -608,7 +611,7 @@ def export_cross_study_pathway_comparison_tsv(
 ) -> None:
     """Write pathway comparison summaries to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_pathway_comparison_tsv(report))
+    export_tsv_table(path, render_cross_study_pathway_comparison_tsv(report))
 
 
 def export_cross_study_pathway_detail_tsv(
@@ -617,7 +620,7 @@ def export_cross_study_pathway_detail_tsv(
 ) -> None:
     """Write pathway comparison details to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_pathway_detail_tsv(report))
+    export_tsv_table(path, render_cross_study_pathway_detail_tsv(report))
 
 
 def export_cross_study_shared_pathway_signal_tsv(
@@ -626,7 +629,7 @@ def export_cross_study_shared_pathway_signal_tsv(
 ) -> None:
     """Write shared pathway signals to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_shared_pathway_signal_tsv(report))
+    export_tsv_table(path, render_cross_study_shared_pathway_signal_tsv(report))
 
 
 def export_cross_study_opposite_pathway_signal_tsv(
@@ -635,7 +638,7 @@ def export_cross_study_opposite_pathway_signal_tsv(
 ) -> None:
     """Write opposite pathway signals to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_opposite_pathway_signal_tsv(report))
+    export_tsv_table(path, render_cross_study_opposite_pathway_signal_tsv(report))
 
 
 def export_cross_study_study_specific_pathway_tsv(
@@ -644,7 +647,7 @@ def export_cross_study_study_specific_pathway_tsv(
 ) -> None:
     """Write study-specific pathway signals to TSV."""
 
-    write_output_table_tsv(path, render_cross_study_study_specific_pathway_tsv(report))
+    export_tsv_table(path, render_cross_study_study_specific_pathway_tsv(report))
 
 
 def _extract_study_pathway_observations(
@@ -1138,10 +1141,6 @@ def _render_filtered_pathway_tsv(
         }
     )
     return render_cross_study_pathway_comparison_tsv(filtered)
-
-
-def _format_float(value: float | None) -> str:
-    return "" if value is None else f"{value:.6f}"
 
 
 __all__ = [
