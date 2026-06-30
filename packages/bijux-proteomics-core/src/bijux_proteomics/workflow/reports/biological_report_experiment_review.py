@@ -21,18 +21,13 @@ from bijux_proteomics.quantification.missingness import (
     build_missingness_condition_summary_report,
 )
 from bijux_proteomics.quantification.provenance import (
-    HeatmapMissingValuePolicy,
-    HeatmapPreparationPolicy,
     HeatmapPreparationReport,
     SampleExplorationReport,
-    build_heatmap_preparation_report,
-    build_sample_exploration_report,
 )
 from bijux_proteomics.quantification.statistics import build_power_estimation_report
 from bijux_proteomics.review.explanations.volcano_plots import (
-    VolcanoReviewPolicy,
     VolcanoReviewReport,
-    build_quantification_volcano_review,
+    VolcanoReviewPolicy,
 )
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,
@@ -46,15 +41,14 @@ from bijux_proteomics.study import (
 from bijux_proteomics.workflow.cards.protein_evidence_cards import (
     ProteinEvidenceCardReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
-    _select_heatmap_entity_ids,
+from bijux_proteomics.workflow.reports.biological_report_experiment_diagnostics import (
+    _build_biological_experiment_diagnostics_reports,
 )
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,
-    build_cohort_stratification_report,
 )
 
 
@@ -83,43 +77,16 @@ def _build_biological_experiment_review_reports(
     run_qc_assessments: tuple[QcRunAssessmentReport, ...],
     volcano_policy: VolcanoReviewPolicy | None,
 ) -> BiologicalExperimentReviewReports:
-    volcano_review = build_quantification_volcano_review(
-        differential_report,
-        protein_refs_by_entity=normalized_table.entity_protein_refs,
-        policy=volcano_policy,
-    )
-    selected_entity_ids = _select_heatmap_entity_ids(
-        differential_report,
-        policy=selection_policy,
-    )
-    heatmap_report = build_heatmap_preparation_report(
-        normalized_table,
+    diagnostics_reports = _build_biological_experiment_diagnostics_reports(
+        normalized_table=normalized_table,
+        differential_report=differential_report,
+        experiment_design=experiment_design,
         design_entries=design_entries,
-        policy=HeatmapPreparationPolicy(
-            entity_ids=selected_entity_ids,
-            min_observed_fraction=selection_policy.heatmap_min_observed_fraction,
-            max_entity_count=selection_policy.heatmap_max_entity_count,
-            z_score_rows=True,
-            missing_value_policy=HeatmapMissingValuePolicy.FILL_ROW_MEDIAN,
-        ),
+        selection_policy=selection_policy,
+        resolved_condition_a=resolved_condition_a,
+        resolved_condition_b=resolved_condition_b,
+        volcano_policy=volcano_policy,
     )
-    sample_exploration_report = build_sample_exploration_report(
-        normalized_table,
-        design_entries,
-    )
-    cohort_stratification_report: CohortStratificationReport | None = (
-        build_cohort_stratification_report(
-            normalized_table,
-            experiment_design,
-            condition_a=resolved_condition_a,
-            condition_b=resolved_condition_b,
-        )
-    )
-    if (
-        cohort_stratification_report is not None
-        and cohort_stratification_report.summary.field_count == 0
-    ):
-        cohort_stratification_report = None
     feasibility_report = build_experiment_feasibility_report(
         experiment_design,
         condition_a=resolved_condition_a,
@@ -152,9 +119,11 @@ def _build_biological_experiment_review_reports(
         protein_card_count=protein_cards.summary.protein_result_count,
     )
     return BiologicalExperimentReviewReports(
-        volcano_review=volcano_review,
-        heatmap_report=heatmap_report,
-        sample_exploration_report=sample_exploration_report,
-        cohort_stratification_report=cohort_stratification_report,
+        volcano_review=diagnostics_reports.volcano_review,
+        heatmap_report=diagnostics_reports.heatmap_report,
+        sample_exploration_report=diagnostics_reports.sample_exploration_report,
+        cohort_stratification_report=(
+            diagnostics_reports.cohort_stratification_report
+        ),
         experiment_confidence_report=experiment_confidence_report,
     )
