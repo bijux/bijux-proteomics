@@ -550,6 +550,52 @@ PIPELINE_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS = (
+    "render_discovery_to_assay_assay_tsv",
+    "render_discovery_to_assay_omitted_targets_tsv",
+    "render_discovery_to_assay_panel_tsv",
+    "render_discovery_to_assay_rejected_peptides_tsv",
+    "render_discovery_to_assay_rejected_transitions_tsv",
+    "render_discovery_to_assay_selected_peptides_tsv",
+    "render_discovery_to_assay_selected_transitions_tsv",
+    "render_discovery_to_assay_summary_tsv",
+    "render_discovery_to_assay_targets_tsv",
+    "render_discovery_to_assay_validation_candidate_assays_tsv",
+    "render_discovery_to_assay_validation_candidate_cards_tsv",
+    "render_discovery_to_assay_validation_candidate_summary_tsv",
+    "render_discovery_to_assay_validation_candidate_warnings_tsv",
+    "render_integrated_scientific_report_examples_tsv",
+    "render_integrated_scientific_report_html",
+    "render_integrated_scientific_report_sentences_tsv",
+    "render_integrated_scientific_report_summary_tsv",
+    "render_multi_study_comparison_summary_tsv",
+    "render_multi_study_conflicting_effects_tsv",
+    "render_multi_study_harmonized_proteins_tsv",
+    "render_multi_study_shared_effects_tsv",
+    "render_multi_study_shared_pathways_tsv",
+    "render_multi_study_study_specific_pathways_tsv",
+    "render_multi_study_unresolved_proteins_tsv",
+)
+
+WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES = {
+    "bijux_proteomics.workflow.pipelines.discovery_to_assay",
+    "bijux_proteomics.workflow.pipelines.integrated_scientific_report",
+    "bijux_proteomics.workflow.pipelines.multi_study",
+}
+
+WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS,
+        ),
+    )
+    for owner in PIPELINE_FACADE_OWNERS
+    if owner.owner_module in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
+)
+
 WORKFLOW_ROOT_PIPELINE_OWNERS = (
     *WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
@@ -558,8 +604,10 @@ WORKFLOW_ROOT_PIPELINE_OWNERS = (
         for owner in PIPELINE_FACADE_OWNERS
         if owner not in ADVANCED_PIPELINE_FACADE_OWNERS
         and owner not in ENGINE_PIPELINE_FACADE_OWNERS
+        and owner.owner_module not in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
         and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
     ),
+    *WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
 )
 
 WORKFLOW_ROOT_SUBMODULES = {
@@ -762,6 +810,9 @@ __all__ = [
     "STUDY_FACADE_OWNERS",
     "WORKFLOW_ROOT_OWNERS",
     "WORKFLOW_ROOT_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES",
+    "WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS",
     "WORKFLOW_ROOT_STUDY_OWNERS",
     "WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS",
     "WORKFLOW_ROOT_SUBMODULES",

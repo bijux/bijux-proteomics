@@ -789,15 +789,22 @@ def test_workflow_package_exports_discovery_to_assay_surface() -> None:
     )
 
     assert hasattr(workflow, "design_assay_from_discovery")
-    assert hasattr(workflow, "render_discovery_to_assay_targets_tsv")
-    assert hasattr(workflow, "render_discovery_to_assay_validation_candidate_cards_tsv")
+    assert hasattr(workflow.pipelines, "render_discovery_to_assay_targets_tsv")
+    assert hasattr(
+        workflow.pipelines, "render_discovery_to_assay_validation_candidate_cards_tsv"
+    )
     assert report.summary.target_count == 1
     assert report.summary.assay_ready_target_count == 1
     assert report.validation_candidate_cards.summary.candidate_count == 1
-    assert "assay_feasibility" in workflow.render_discovery_to_assay_targets_tsv(report)
+    assert (
+        "assay_feasibility"
+        in workflow.pipelines.render_discovery_to_assay_targets_tsv(report)
+    )
     assert (
         "final_status"
-        in workflow.render_discovery_to_assay_validation_candidate_cards_tsv(report)
+        in workflow.pipelines.render_discovery_to_assay_validation_candidate_cards_tsv(
+            report
+        )
     )
 
 
@@ -1088,15 +1095,16 @@ def test_workflow_package_exports_multi_study_comparison_surface() -> None:
     )
 
     assert hasattr(workflow, "compare_studies")
-    assert hasattr(workflow, "render_multi_study_comparison_summary_tsv")
+    assert hasattr(workflow.pipelines, "render_multi_study_comparison_summary_tsv")
     assert report.summary.harmonized_protein_group_count >= 1
     assert report.summary.shared_effect_count >= 1
     assert (
         "harmonized_protein_group_count"
-        in workflow.render_multi_study_comparison_summary_tsv(report)
+        in workflow.pipelines.render_multi_study_comparison_summary_tsv(report)
     )
-    assert "harmonized_id" in workflow.render_multi_study_harmonized_proteins_tsv(
-        report
+    assert (
+        "harmonized_id"
+        in workflow.pipelines.render_multi_study_harmonized_proteins_tsv(report)
     )
 
 
@@ -1543,11 +1551,11 @@ def test_workflow_package_exports_integrated_scientific_report_surface(
         workflow.IntegratedScientificResultExampleKind
     )
     assert "linked_scientific_claim_count" in (
-        workflow.render_integrated_scientific_report_summary_tsv(report)
+        workflow.pipelines.render_integrated_scientific_report_summary_tsv(report)
     )
     assert (
         "validation_needed"
-        in workflow.render_integrated_scientific_report_examples_tsv(report)
+        in workflow.pipelines.render_integrated_scientific_report_examples_tsv(report)
     )
 
 
