@@ -241,6 +241,14 @@ ENGINE_PIPELINE_FACADE_OWNERS = (
         ),
         rationale="MaxQuant biological workflow ownership",
     ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.engines.ptm_site_workflow",
+        rationale="PTM site workflow ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.pipelines.engines.tmt_experiment_workflow",
+        rationale="TMT experiment workflow ownership",
+    ),
 )
 
 PIPELINE_SUBMODULES = {
@@ -285,10 +293,6 @@ PIPELINE_FACADE_OWNERS = (
         excluded_exports=("WorkflowResult",),
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.ptm_site_workflow",
-        rationale="PTM site workflow ownership",
-    ),
-    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.public_benchmark_runner",
         rationale="public benchmark runner ownership",
         excluded_exports=("load_public_benchmark_descriptor",),
@@ -304,10 +308,6 @@ PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.demo.surprising_demo_interrogation",
         rationale="surprising demo interrogation ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.tmt_experiment_workflow",
-        rationale="TMT experiment workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.trust_bundle",
@@ -447,10 +447,6 @@ WORKFLOW_ROOT_OWNERS = (
         excluded_exports=("WorkflowResult",),
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.ptm_site_workflow",
-        rationale="PTM site workflow ownership",
-    ),
-    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cards.protein_evidence_cards",
         rationale="protein evidence card ownership",
     ),
@@ -498,10 +494,6 @@ WORKFLOW_ROOT_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.exports.targeted_review_workflow",
         rationale="targeted review workflow ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.tmt_experiment_workflow",
-        rationale="TMT experiment workflow ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.pipelines.trust_bundle",

@@ -39,7 +39,7 @@ from bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family impor
     AdvancedWorkflowFamilyContract,
     build_advanced_workflow_family_contract,
 )
-from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
     build_tmt_experiment_workflow_bundle,

@@ -94,13 +94,13 @@ from bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow im
     build_maxquant_biological_workflow_bundle,
     write_maxquant_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
     build_ptm_site_workflow_bundle,
     write_ptm_site_workflow_bundle,
 )
-from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.tmt_experiment_workflow import (
     TmtExperimentWorkflowBundle,
     TmtExperimentWorkflowExportManifest,
     build_tmt_experiment_workflow_bundle,

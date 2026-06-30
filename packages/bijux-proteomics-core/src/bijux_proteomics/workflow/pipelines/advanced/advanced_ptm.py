@@ -46,7 +46,7 @@ from bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family impor
     AdvancedWorkflowFamilyContract,
     build_advanced_workflow_family_contract,
 )
-from bijux_proteomics.workflow.pipelines.ptm_site_workflow import (
+from bijux_proteomics.workflow.pipelines.engines.ptm_site_workflow import (
     PtmSiteWorkflowBundle,
     PtmSiteWorkflowExportManifest,
     build_ptm_site_workflow_bundle,

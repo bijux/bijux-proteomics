@@ -242,6 +242,12 @@ def test_engine_pipeline_wrappers_delegate_to_engine_owners() -> None:
         "maxquant_biological_workflow.py": (
             "bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow"
         ),
+        "ptm_site_workflow.py": (
+            "bijux_proteomics.workflow.pipelines.engines.ptm_site_workflow"
+        ),
+        "tmt_experiment_workflow.py": (
+            "bijux_proteomics.workflow.pipelines.engines.tmt_experiment_workflow"
+        ),
     }
 
     for filename, expected_target in expected_targets.items():
