@@ -218,16 +218,9 @@ WORKFLOW_ROOT_EXPORT_OPERATIONS = (
     "render_result_search_summary_tsv",
 )
 
-WORKFLOW_ROOT_EXPORT_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
-        ),
-    )
-    for owner in EXPORT_FACADE_OWNERS
+WORKFLOW_ROOT_EXPORT_OWNERS = copy_facade_owners(
+    EXPORT_FACADE_OWNERS,
+    excluded_exports=WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
 )
 
 BENCHMARK_SUBMODULES = {
@@ -372,16 +365,9 @@ WORKFLOW_ROOT_REPORT_HELPER_EXPORTS = (
 
 WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS = ("export_biological_result_report_bundle",)
 
-WORKFLOW_ROOT_REPORT_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
-        ),
-    )
-    for owner in REPORT_FACADE_OWNERS
+WORKFLOW_ROOT_REPORT_OWNERS = copy_facade_owners(
+    REPORT_FACADE_OWNERS,
+    excluded_exports=WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
 )
 
 ADVANCED_PIPELINE_FACADE_OWNERS = (
@@ -439,16 +425,9 @@ WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS = (
     "validate_advanced_workflow_family_contract",
 )
 
-WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS,
-        ),
-    )
-    for owner in ADVANCED_PIPELINE_FACADE_OWNERS
+WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS = copy_facade_owners(
+    ADVANCED_PIPELINE_FACADE_OWNERS,
+    excluded_exports=WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS,
 )
 
 ENGINE_PIPELINE_FACADE_OWNERS = (
@@ -520,16 +499,9 @@ WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS = (
     "export_tmt_experiment_workflow_bundle",
 )
 
-WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS = tuple(
-    WorkflowFacadeOwner(
-        owner_module=owner.owner_module,
-        rationale=owner.rationale,
-        excluded_exports=(
-            *owner.excluded_exports,
-            *WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
-        ),
-    )
-    for owner in ENGINE_PIPELINE_FACADE_OWNERS
+WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS = copy_facade_owners(
+    ENGINE_PIPELINE_FACADE_OWNERS,
+    excluded_exports=WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
 )
 
 PIPELINE_SUBMODULES = {
