@@ -24,10 +24,10 @@ from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
     build_evidence_graph_final_result_table,
 )
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
-from bijux_proteomics.workflow.reports.biological_result_graph_protein_claims import (
+from bijux_proteomics.workflow.reports.graph.protein_claims import (
     _add_biological_result_graph_protein_claims,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_run_context import (
+from bijux_proteomics.workflow.reports.graph.run_context import (
     _add_biological_result_graph_run_context,
 )
 from bijux_proteomics_foundation import JsonModel

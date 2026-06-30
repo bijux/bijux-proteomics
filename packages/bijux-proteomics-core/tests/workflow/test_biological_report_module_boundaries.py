@@ -142,29 +142,29 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_select_heatmap_entity_ids",
         "_select_significant_entity_ids",
     ),
-    "biological_report_graph_qc.py": (
+    "graph/lab_run_qc.py": (
         "_attach_lab_run_qc_feedback",
         "_qc_claim_state",
         "_qc_trust_class",
     ),
-    "biological_result_graph_run_context.py": (
+    "graph/run_context.py": (
         "BiologicalResultGraphRunContext",
         "_add_biological_result_graph_run_context",
     ),
-    "biological_result_graph_protein_claims.py": (
+    "graph/protein_claims.py": (
         "_add_biological_result_graph_protein_claims",
     ),
-    "biological_result_graph_claim_policy.py": (
+    "graph/claim_policy.py": (
         "_claim_confidence",
         "_claim_state",
         "_protein_label",
         "_protein_trust_class",
         "_quant_trust_class",
     ),
-    "biological_result_graph_peptide_support.py": (
+    "graph/peptide_support.py": (
         "_add_biological_result_graph_peptide_support",
     ),
-    "biological_result_graph_quant_support.py": (
+    "graph/quant_support.py": (
         "_add_biological_result_graph_quant_support",
         "_group_quant_values_by_entity",
     ),

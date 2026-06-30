@@ -14,10 +14,10 @@ from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceGraphBuilder,
     ProteomicsEvidenceNodeKind,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_claim_policy import (
+from bijux_proteomics.workflow.reports.graph.claim_policy import (
     _quant_trust_class,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_run_context import (
+from bijux_proteomics.workflow.reports.graph.run_context import (
     BiologicalResultGraphRunContext,
 )
 

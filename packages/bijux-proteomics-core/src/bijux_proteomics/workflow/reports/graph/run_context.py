@@ -14,7 +14,7 @@ from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceNodeKind,
 )
 from bijux_proteomics.study import ExperimentDesign
-from bijux_proteomics.workflow.reports.biological_report_graph_qc import (
+from bijux_proteomics.workflow.reports.graph.lab_run_qc import (
     _attach_lab_run_qc_feedback,
 )
 

@@ -16,20 +16,20 @@ from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceGraphBuilder,
     ProteomicsEvidenceNodeKind,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_claim_policy import (
+from bijux_proteomics.workflow.reports.graph.claim_policy import (
     _claim_confidence,
     _claim_state,
     _protein_label,
     _protein_trust_class,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_peptide_support import (
+from bijux_proteomics.workflow.reports.graph.peptide_support import (
     _add_biological_result_graph_peptide_support,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_quant_support import (
+from bijux_proteomics.workflow.reports.graph.quant_support import (
     _add_biological_result_graph_quant_support,
     _group_quant_values_by_entity,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph_run_context import (
+from bijux_proteomics.workflow.reports.graph.run_context import (
     BiologicalResultGraphRunContext,
 )
 
