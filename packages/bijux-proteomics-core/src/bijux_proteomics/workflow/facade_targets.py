@@ -97,6 +97,7 @@ WORKFLOW_ROOT_WRAPPER_TARGETS = {
     "protein_mechanism_cards.py": (
         "bijux_proteomics.workflow.cards.protein_mechanism_cards"
     ),
+    "ptm_reporting.py": "bijux_proteomics.ptm.reporting",
     "public_benchmark_descriptors.py": (
         "bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors"
     ),
