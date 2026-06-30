@@ -18,16 +18,19 @@ scope drift differently.
 
 ## Repository-Wide Limits
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+Review-grade-bounded workflow families today: `lfq`.
 Internal-support-only workflow families today: `multiplex`.
 
 - several workflow families are now outsider-auditable in a bounded sense, but
   there is still no broad cross-family proteomics proof set that survives the
   same standard with supported comparator posture and decision-grade
   consequence
-- LFQ, PTM, and targeted remain bounded because their shared consequence chain
-  still ends at exploratory-only follow-up, and one doubled assay burden can
-  still collapse the recommendation back toward refusal
+- LFQ remains review-grade bounded because its current external review kit and
+  acceptance surface still narrow the stronger outsider-facing sentence
+- PTM and targeted remain bounded because their shared consequence chain still
+  ends at exploratory-only follow-up, and one doubled assay burden can still
+  collapse the recommendation back toward refusal
 - DDA still stops short of in-repo live-engine rerun parity
 - multiplex still remains internal support only, so no release language should
   let it ride for free on adjacent flagship trust claims

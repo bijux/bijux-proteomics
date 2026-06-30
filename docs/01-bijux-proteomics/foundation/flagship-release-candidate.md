@@ -11,8 +11,8 @@ last_reviewed: 2026-05-07
 
 The current flagship release-candidate surface is not the whole repository.
 
-It is five bounded outsider-auditable families plus one explicitly narrowed
-internal-support family.
+It is four bounded outsider-auditable families, one review-grade-bounded
+family, and one explicitly narrowed internal-support family.
 
 Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
@@ -25,7 +25,8 @@ convenient flagship package.
 
 - bundle id: `flagship-release-candidate-bundle`
 - strongest workflow family: `dda`
-- outsider-auditable workflow families: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- outsider-auditable workflow families: `dda`, `dia`, `ptm`, `targeted`
+- review-grade-bounded workflow families: `lfq`
 - internal-support-only workflow families: `multiplex`
 
 ## What The Bundle Collects
@@ -59,10 +60,10 @@ convenient flagship package.
 - trust pages:
   - [Why Trust DDA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dda/)
   - [Why Trust DIA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dia/)
-  - [Why Trust LFQ](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-lfq/)
   - [Why Trust PTM](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-ptm/)
   - [Why Trust Targeted](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-targeted/)
 - workflow claim-limit pages:
+  - [Why Trust LFQ](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-lfq/)
   - [Why Multiplex Stops At Internal Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support/)
   - [Workflow Claim Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-claim-limits/)
 - public scrutiny pages:
@@ -98,11 +99,14 @@ role overlap.
   pressure, scientific reading, recommendation packet, independent rerun
   dossier, external review kit, planned lab packet, and one
   requested-versus-observed outcome dossier
-- `dia`, `lfq`, `ptm`, and `targeted` now also survive full outsider packets,
-  but each authority stays bounded by advisory comparator posture, the measured
+- `dia`, `ptm`, and `targeted` now also survive full outsider packets, but
+  each authority stays bounded by advisory comparator posture, the measured
   drift recorded in its family-transfer report, the companion rerun dossier,
   external execution limits, or benchmark-simulated requested-versus-observed
   lab consequence
+- `lfq` remains review-grade bounded because its external review kit and
+  acceptance sheet still show missingness and normalization pressure that
+  narrows the stronger outsider-facing sentence
 - `multiplex` has real package and runtime substance, but it is intentionally
   narrowed to internal support only because its companion stress package still
   collapses outsider-facing trust in the published family-transfer report

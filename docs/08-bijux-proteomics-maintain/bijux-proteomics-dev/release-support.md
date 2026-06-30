@@ -67,7 +67,8 @@ workflow families that the suite can defend today:
 - `multiplex`
 - `targeted`
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+Review-grade-bounded workflow families today: `lfq`.
 Internal-support-only workflow families today: `multiplex`.
 
 For the strongest current outsider-readable proof, start with the DDA package

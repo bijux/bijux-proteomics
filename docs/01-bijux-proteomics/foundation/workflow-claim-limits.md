@@ -25,7 +25,7 @@ published cross-package generalization report. The current scorecard lives at
 | --- | :---: | :---: | :---: | :---: | :---: | --- |
 | `dda` | yes | no | yes | yes | yes | bounded outsider-auditable |
 | `dia` | yes | yes | yes | yes | yes | bounded outsider-auditable |
-| `lfq` | yes | yes | yes | yes | yes | bounded outsider-auditable |
+| `lfq` | yes | yes | yes | no | yes | review-grade bounded |
 | `multiplex` | yes | yes | no | no | no | internal support only |
 | `ptm` | yes | yes | yes | yes | yes | bounded outsider-auditable |
 | `targeted` | yes | yes | yes | yes | yes | bounded outsider-auditable |
@@ -42,6 +42,9 @@ published cross-package generalization report. The current scorecard lives at
   reading, recommendation packet, planned lab packet, requested-versus-observed
   outcome dossier, and the family generalization report can be opened together
   by a skeptical reviewer
+- `review-grade bounded` means the benchmark, runtime, and review surfaces stay
+  usable, but the current external review kit or acceptance pressure still
+  narrows the stronger outsider-facing sentence
 - `lab-consequential` means a dedicated flagship lab packet, one shipped
   requested-versus-observed outcome dossier, and one assay-worth-it ledger row
   all exist together

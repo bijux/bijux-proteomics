@@ -45,8 +45,9 @@ The product shape is explicit:
 
 ## Current Credible Workflow Families
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`,
-`targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+
+Review-grade-bounded workflow families today: `lfq`.
 
 Internal-support-only workflow families today: `multiplex`.
 

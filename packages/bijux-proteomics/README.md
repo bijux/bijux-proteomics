@@ -37,7 +37,7 @@
 
 `bijux-proteomics` is the distribution-name alias for the canonical core owner
 `bijux-proteomics-core`.
-It is the install and command alias for `bijux-proteomics-core`, while the
+It is the install and command alias for bijux-proteomics-core, while the
 public Python import surface remains the canonical `bijux_proteomics`
 namespace shipped by core.
 

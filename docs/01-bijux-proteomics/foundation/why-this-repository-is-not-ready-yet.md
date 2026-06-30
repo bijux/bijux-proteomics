@@ -11,7 +11,7 @@ last_reviewed: 2026-05-09
 
 This page is generated from the current release-readiness matrix. It exists so blocked release bars stay visible in plain language and cannot be softened manually.
 
-- blocked release bars: 2
+- blocked release bars: 3
 - source of truth: `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/release_readiness_matrix.py`
 
 ## Black-box rerunability
@@ -38,6 +38,22 @@ Current blockers:
 - `faithful-rerun-refused`: dia still refuses stronger rerun claims: the shipped DIA lane is raw-executable in runtime terms but still depends on library-conditioned exported reports rather than chromatogram-native replay
 - `faithful-rerun-refused`: multiplex still refuses stronger rerun claims: multiplex remains below outsider-auditable trust because runtime rerun strength still outruns family-level consequence and challenge closure
 - `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
+
+## Benchmark asset quality
+
+Release claims must stay behind the benchmark asset coverage, grounding, and scientific release evidence actually checked in.
+
+Evidence paths:
+- `configs/package-governance/scientific-release-workflows.toml`
+- `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`
+- `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`
+- `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`
+
+Current blockers:
+- `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'BeliefAuditEntry' is owned by multiple canonical packages: bijux-proteomics-core:bijux_proteomics/review/belief/belief_audit_models.py, bijux-proteomics-intelligence:bijux_proteomics_intelligence/belief_audit.py
+- `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'BeliefAuditReport' is owned by multiple canonical packages: bijux-proteomics-core:bijux_proteomics/review/belief/belief_audit_models.py, bijux-proteomics-intelligence:bijux_proteomics_intelligence/belief_audit.py
+- `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'BeliefAuditSummary' is owned by multiple canonical packages: bijux-proteomics-core:bijux_proteomics/review/belief/belief_audit_models.py, bijux-proteomics-intelligence:bijux_proteomics_intelligence/belief_audit.py
+- `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: package-substance: bijux-proteomics-core exposes 133 thin modules and needs tighter ownership boundaries
 
 ## Docs clarity
 

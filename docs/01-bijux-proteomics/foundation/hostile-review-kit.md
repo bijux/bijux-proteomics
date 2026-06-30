@@ -9,7 +9,7 @@ last_reviewed: 2026-05-09
 
 # Hostile Review Kit
 
-The repository currently promises one bounded proteomics review system: outsider-auditable workflow families `dda`, `dia`, `lfq`, `ptm`, `targeted` and internal-support-only workflow families `multiplex`. No broader release language is earned.
+The repository currently promises one bounded proteomics review system: outsider-auditable workflow families `dda`, `dia`, `ptm`, `targeted` and internal-support-only workflow families `multiplex`. No broader release language is earned.
 
 This page is the shortest whole-repository challenge route for a skeptical expert. It starts from the root promise, then moves directly into the strongest shipped workflow families, their paired rerun dossiers, and the current release boundary.
 
@@ -33,7 +33,6 @@ This page is the shortest whole-repository challenge route for a skeptical exper
 | --- | --- | --- | --- | --- | --- |
 | `dda` | `outsider_auditable_bounded` | `outsider_review:dda` | `artifacts/intelligence/independent-reruns/dda_independent_rerun_dossier.json` | `artifacts/intelligence/external-review-kits/dda_external_review_kit.json` | `docs/01-bijux-proteomics/foundation/why-trust-dda.md` |
 | `dia` | `outsider_auditable_bounded` | `outsider_review:dia` | `artifacts/intelligence/independent-reruns/dia_independent_rerun_dossier.json` | `artifacts/intelligence/external-review-kits/dia_external_review_kit.json` | `docs/01-bijux-proteomics/foundation/why-trust-dia.md` |
-| `lfq` | `outsider_auditable_bounded` | `outsider_review:lfq` | `artifacts/intelligence/independent-reruns/lfq_independent_rerun_dossier.json` | `artifacts/intelligence/external-review-kits/lfq_external_review_kit.json` | `docs/01-bijux-proteomics/foundation/why-trust-lfq.md` |
 | `ptm` | `outsider_auditable_bounded` | `outsider_review:ptm` | `artifacts/intelligence/independent-reruns/ptm_independent_rerun_dossier.json` | `artifacts/intelligence/external-review-kits/ptm_external_review_kit.json` | `docs/01-bijux-proteomics/foundation/why-trust-ptm.md` |
 | `targeted` | `outsider_auditable_bounded` | `outsider_review:targeted` | `artifacts/intelligence/independent-reruns/targeted_independent_rerun_dossier.json` | `artifacts/intelligence/external-review-kits/targeted_external_review_kit.json` | `docs/01-bijux-proteomics/foundation/why-trust-targeted.md` |
 
@@ -54,14 +53,6 @@ This page is the shortest whole-repository challenge route for a skeptical exper
 - opening order: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/README.md`, `packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py`, `packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py`
 - exact claims: DIA adapter normalization preserves library-conditioned transition semantics across the pinned export corpus, DIA review surfaces keep capability limits explicit instead of implying vendor-pipeline parity
 - current limits: Compare adapter-normalized outputs against the tracked DIA public package because direct DIA-NN or Spectronaut execution is outside repo scope., Keep SWATH-style transition semantics aligned with the published DIA method reference., The dossier still describes repository-owned rerun lanes, not an untracked third-party reproduction outside the repository boundary., The strongest shipped rerun lane is raw-executable inside the repository, but vendor-parity and broader ecosystem replay are still separate questions., comparator drift or missing external execution parity still materially limits this public workflow claim, the current reproduction story still depends on execution steps that remain outside the repository proof boundary
-
-### `lfq`
-
-- challenge question: Do the outsider-facing LFQ claims survive a second cohort-shaped execution lane when the feature density gets sparser?
-- packet id: `outsider_review:lfq`
-- opening order: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/README.md`, `packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py`, `packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py`
-- exact claims: LFQ review preserves study-design semantics, missingness visibility, and repeatable rollup behavior across the bundled fixture, LFQ benchmark outputs can support review-grade abundance interpretation when QC and replicate caveats remain explicit
-- current limits: Compare rollups against the tracked LFQ public package instead of claiming parity with unexecuted external quantification pipelines., Keep support claims scoped to repeatable abundance aggregation and design preservation., The dossier still describes repository-owned rerun lanes, not an untracked third-party reproduction outside the repository boundary., The strongest shipped rerun lane is raw-executable inside the repository, but vendor-parity and broader ecosystem replay are still separate questions., comparator drift or missing external execution parity still materially limits this public workflow claim
 
 ### `ptm`
 
