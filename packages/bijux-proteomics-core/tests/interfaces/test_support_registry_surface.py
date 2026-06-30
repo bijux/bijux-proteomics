@@ -48,7 +48,6 @@ def test_support_registry_exports_modules_not_symbol_soup() -> None:
         "contrast_resolution",
         "foundation",
         "identification",
-        "imports",
         "interpretation",
         "io_and_dia",
         "multiplex_targeted",

@@ -18,7 +18,6 @@ _SUPPORT_SUBMODULES: Final = (
     "contrast_resolution",
     "foundation",
     "identification",
-    "imports",
     "interpretation",
     "io_and_dia",
     "multiplex_targeted",
