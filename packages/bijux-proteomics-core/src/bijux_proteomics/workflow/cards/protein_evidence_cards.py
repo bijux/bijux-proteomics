@@ -27,27 +27,12 @@ from bijux_proteomics.review import (
     query_protein_evidence_summary,
 )
 from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
-from bijux_proteomics.sequences.protein_identity_resolution import (
-    ProteinIdentityLevel,
-    ProteinIdentityReference,
-    ProteinIdentityResolutionEntry,
-    build_protein_identity_resolution_report,
-)
+from bijux_proteomics.sequences.protein_identity_resolution import ProteinIdentityLevel
 from bijux_proteomics.sequences.protein_region_context_models import (
-    ProteinFunctionalRegionEvidence,
-    ProteinFunctionalRegionKind,
-    ProteinPeptideRegionReference,
-    ProteinPeptideRegionContextReport,
     ProteinRegionContextRecord,
 )
-from bijux_proteomics.sequences.protein_region_context_workflows import (
-    build_protein_peptide_region_context_report,
-)
 from bijux_proteomics.sequences.proteogenomic_peptide_support import (
-    ProteogenomicPeptideReference,
-    ProteogenomicPeptideSupportEntry,
     ProteogenomicVariantPeptideRecord,
-    build_proteogenomic_peptide_support_report,
 )
 from bijux_proteomics.workflow.reports.biological_result_graph import (
     BiologicalResultGraphReport,
@@ -93,6 +78,15 @@ from bijux_proteomics.workflow.cards.protein_evidence.annotation_context import 
     select_pathway_entries,
     select_representative_protein_ref,
 )
+from bijux_proteomics.workflow.cards.protein_evidence.sequence_support import (
+    build_identity_entries_by_entity,
+    build_peptide_region_context_report,
+    build_proteogenomic_support_by_entity,
+    group_functional_regions_by_protein,
+    group_ptm_sites_by_protein,
+    select_functional_regions,
+    select_ptm_sites,
+)
 
 
 def build_protein_evidence_card_report(
@@ -137,14 +131,14 @@ def build_protein_evidence_card_report(
         pathway_enrichment_report,
         complex_enrichment_report,
     )
-    functional_regions_by_protein = _group_functional_regions_by_protein(
-        _build_peptide_region_context_report(
+    functional_regions_by_protein = group_functional_regions_by_protein(
+        build_peptide_region_context_report(
             quant_table,
             protein_sequences=protein_sequences,
             protein_region_context_records=protein_region_context_records,
         )
     )
-    ptm_sites_by_protein = _group_ptm_sites_by_protein(ptm_evidence_card_report)
+    ptm_sites_by_protein = group_ptm_sites_by_protein(ptm_evidence_card_report)
     differential_by_entity = {
         entry.entity_id: entry for entry in differential_report.entries
     }
@@ -206,7 +200,7 @@ def build_protein_evidence_card_report(
             annotation_entries=annotation_entries,
             by_member=pathway_by_member,
         )
-        functional_regions = _select_functional_regions(
+        functional_regions = select_functional_regions(
             protein_refs,
             by_protein=functional_regions_by_protein,
         )
@@ -243,12 +237,12 @@ def build_protein_evidence_card_report(
             }
         )
 
-    identity_by_entity = _build_identity_entries_by_entity(
+    identity_by_entity = build_identity_entries_by_entity(
         prepared_cards,
         protein_records=protein_records,
         protein_sequences=protein_sequences,
     )
-    proteogenomic_support_by_entity = _build_proteogenomic_support_by_entity(
+    proteogenomic_support_by_entity = build_proteogenomic_support_by_entity(
         prepared_cards,
         protein_records=protein_records,
         protein_sequences=protein_sequences,
@@ -297,7 +291,7 @@ def build_protein_evidence_card_report(
                 proteogenomic_support=proteogenomic_support_by_entity.get(
                     differential_entry.entity_id
                 ),
-                ptm_sites=_select_ptm_sites(
+                ptm_sites=select_ptm_sites(
                     prepared_card["protein_refs"],
                     by_protein=ptm_sites_by_protein,
                 ),
@@ -333,223 +327,6 @@ def build_protein_evidence_card_report(
             "biological reporting one stable graph-backed table source instead of ad hoc "
             "final-protein summaries"
         ),
-    )
-
-def _build_peptide_region_context_report(
-    quant_table: LabelFreeQuantTable,
-    *,
-    protein_sequences: dict[str, str],
-    protein_region_context_records: tuple[ProteinRegionContextRecord, ...] | None,
-) -> ProteinPeptideRegionContextReport | None:
-    if not protein_region_context_records:
-        return None
-    references = tuple(
-        ProteinPeptideRegionReference(
-            peptide_key=f"{protein_ref}:{peptide}",
-            protein_ref=protein_ref,
-            peptide_sequence=peptide,
-        )
-        for entity_id, peptides in quant_table.entity_member_peptides.items()
-        for protein_ref in (
-            quant_table.entity_protein_refs.get(entity_id, ()) or (entity_id,)
-        )
-        for peptide in sorted(set(peptides))
-    )
-    return build_protein_peptide_region_context_report(
-        references,
-        protein_sequences=protein_sequences,
-        context_records=protein_region_context_records,
-    )
-
-
-def _build_identity_entries_by_entity(
-    prepared_cards: list[_PreparedProteinCard],
-    *,
-    protein_records: tuple[NormalizedProteinRecord, ...] | None,
-    protein_sequences: dict[str, str],
-) -> dict[str, ProteinIdentityResolutionEntry]:
-    if not prepared_cards:
-        return {}
-    report = build_protein_identity_resolution_report(
-        tuple(
-            ProteinIdentityReference(
-                evidence_key=prepared_card["differential_entry"].entity_id,
-                target_protein_ref=prepared_card["representative_protein_ref"],
-                candidate_protein_refs=prepared_card["protein_refs"],
-                peptide_sequences=prepared_card["peptides"],
-            )
-            for prepared_card in prepared_cards
-        ),
-        protein_records=() if protein_records is None else protein_records,
-        protein_sequences=protein_sequences,
-    )
-    return {entry.evidence_key: entry for entry in report.entries}
-
-
-def _build_proteogenomic_support_by_entity(
-    prepared_cards: list[_PreparedProteinCard],
-    *,
-    protein_records: tuple[NormalizedProteinRecord, ...] | None,
-    protein_sequences: dict[str, str],
-    variant_protein_records: tuple[NormalizedProteinRecord, ...] | None,
-    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] | None,
-) -> dict[str, ProteogenomicPeptideSupportEntry]:
-    if not prepared_cards or (
-        not variant_protein_records and not variant_peptide_records
-    ):
-        return {}
-    report = build_proteogenomic_peptide_support_report(
-        tuple(
-            ProteogenomicPeptideReference(
-                evidence_key=prepared_card["differential_entry"].entity_id,
-                peptide_sequences=prepared_card["peptides"],
-                target_protein_refs=prepared_card["protein_refs"],
-            )
-            for prepared_card in prepared_cards
-        ),
-        reference_protein_records=() if protein_records is None else protein_records,
-        reference_protein_sequences=protein_sequences,
-        variant_protein_records=()
-        if variant_protein_records is None
-        else variant_protein_records,
-        variant_peptide_records=()
-        if variant_peptide_records is None
-        else variant_peptide_records,
-    )
-    return {entry.evidence_key: entry for entry in report.entries}
-
-
-def _group_functional_regions_by_protein(
-    report: ProteinPeptideRegionContextReport | None,
-) -> dict[str, tuple[ProteinFunctionalRegionEvidence, ...]]:
-    if report is None:
-        return {}
-    grouped: dict[
-        str,
-        dict[tuple[str, str, int, int, str | None, str | None], set[str]],
-    ] = defaultdict(dict)
-    for entry in report.entries:
-        for region in entry.functional_regions:
-            key = (
-                region.region_kind.value,
-                region.label,
-                region.start,
-                region.end,
-                region.source_name,
-                region.source_accession,
-            )
-            grouped[entry.protein_ref].setdefault(key, set()).update(
-                region.supporting_evidence_refs
-            )
-    return {
-        protein_ref: tuple(
-            ProteinFunctionalRegionEvidence(
-                region_kind=ProteinFunctionalRegionKind(region_kind_value),
-                label=label,
-                start=start,
-                end=end,
-                source_name=source_name,
-                source_accession=source_accession,
-                supporting_evidence_refs=tuple(sorted(refs)),
-            )
-            for (
-                region_kind_value,
-                label,
-                start,
-                end,
-                source_name,
-                source_accession,
-            ), refs in sorted(
-                region_entries.items(),
-                key=lambda item: (
-                    item[0][0],
-                    item[0][2],
-                    item[0][3],
-                    item[0][1],
-                    item[0][4] or "",
-                    item[0][5] or "",
-                ),
-            )
-        )
-        for protein_ref, region_entries in grouped.items()
-    }
-
-
-def _group_ptm_sites_by_protein(
-    report: PtmEvidenceCardReport | None,
-) -> dict[str, tuple[str, ...]]:
-    if report is None:
-        return {}
-    grouped: dict[str, set[str]] = defaultdict(set)
-    for card in report.cards:
-        grouped[card.protein_ref].add(card.site_key)
-    return {
-        protein_ref: tuple(sorted(site_keys))
-        for protein_ref, site_keys in grouped.items()
-    }
-
-
-def _select_ptm_sites(
-    protein_refs: tuple[str, ...],
-    *,
-    by_protein: dict[str, tuple[str, ...]],
-) -> tuple[str, ...]:
-    return tuple(
-        sorted(
-            {
-                site_key
-                for protein_ref in protein_refs
-                for site_key in by_protein.get(protein_ref, ())
-            }
-        )
-    )
-
-
-def _select_functional_regions(
-    protein_refs: tuple[str, ...],
-    *,
-    by_protein: dict[str, tuple[ProteinFunctionalRegionEvidence, ...]],
-) -> tuple[ProteinFunctionalRegionEvidence, ...]:
-    merged: dict[tuple[str, str, int, int, str | None, str | None], set[str]] = {}
-    for protein_ref in protein_refs:
-        for region in by_protein.get(protein_ref, ()):
-            key = (
-                region.region_kind.value,
-                region.label,
-                region.start,
-                region.end,
-                region.source_name,
-                region.source_accession,
-            )
-            merged.setdefault(key, set()).update(region.supporting_evidence_refs)
-    return tuple(
-        ProteinFunctionalRegionEvidence(
-            region_kind=ProteinFunctionalRegionKind(region_kind_value),
-            label=label,
-            start=start,
-            end=end,
-            source_name=source_name,
-            source_accession=source_accession,
-            supporting_evidence_refs=tuple(sorted(refs)),
-        )
-        for (
-            region_kind_value,
-            label,
-            start,
-            end,
-            source_name,
-            source_accession,
-        ), refs in sorted(
-            merged.items(),
-            key=lambda item: (
-                item[0][0],
-                item[0][2],
-                item[0][3],
-                item[0][1],
-                item[0][4] or "",
-                item[0][5] or "",
-            ),
-        )
     )
 
 def _graph_evidence_tier(
