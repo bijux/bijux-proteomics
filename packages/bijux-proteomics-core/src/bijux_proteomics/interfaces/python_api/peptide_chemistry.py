@@ -37,7 +37,7 @@ from bijux_proteomics.interfaces.support.sequence_support.digestion_parameters i
 from bijux_proteomics.interfaces.support.sequence_support.fasta_inputs import (
     _load_fasta_report,
 )
-from bijux_proteomics.interfaces.support.targeted_selection_io.protein_support import (
+from bijux_proteomics.interfaces.support.targeted_selection_io.protein_support.protein_groups import (
     _load_protein_group_map,
 )
 
