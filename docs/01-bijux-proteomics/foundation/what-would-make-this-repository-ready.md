@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # What Would Make This Repository Ready
@@ -42,6 +42,14 @@ These blockers keep the repository from claiming cleaner release posture because
   still narrows released language
 - package-quality gaps mean the public surface or owner boundaries still lag
   behind the underlying scientific ambition
+
+## What A Closure Condition Should Look Like
+
+- it should name one evidence change that would narrow a current blocker
+- it should make the stronger sentence more defensible without asking the docs
+  to soften the boundary
+- it should remove ambiguity from one live blocker rather than introduce a new
+  summary surface around the same gap
 
 ## Workflow-family gaps
 
@@ -85,6 +93,15 @@ These blockers show where package maturity or cross-package release coverage sti
 These blockers show where public wording, routing, or scrutiny surfaces drift away from the evidence they are supposed to defend.
 
 - `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
+
+## Reader Use
+
+- use this page when the question is not only what is blocked, but what exact
+  evidence would have to change next
+- use it beside the blocker ledger so release closure stays concrete instead of
+  aspirational
+- use it to distinguish real scientific or runtime closure from cleaner docs
+  wording
 
 ## Why This Page Is Better Than A Generic Roadmap
 

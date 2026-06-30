@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Workflow Claim Limits
@@ -49,6 +49,15 @@ The distinction that matters most now is this:
 - `full outsider-readable family packets` is the wider proof-packet set
 - LFQ currently belongs to the second set but not the first
 
+## Why This Distinction Matters
+
+- it keeps the repository from flattening all strong-looking family packets
+  into one trust label
+- it explains why a public packet can be openable and still remain narrowed at
+  release time
+- it makes clear that consequence and burden surfaces can still veto broader
+  family language
+
 ## Current Limits
 
 | Workflow | Internal benchmark-backed | Raw-executable | Externally cross-checked | Outsider-auditable | Lab-consequential | Public language |
@@ -87,6 +96,15 @@ The distinction that matters most now is this:
 - it does not mean the strongest analytical sentence automatically becomes a
   stronger lab consequence sentence
 
+## What Review-Grade Bounded Still Means
+
+- the family is real enough to inspect through benchmark, runtime, grounding,
+  and recommendation surfaces
+- the family is not weak or fake; it is explicitly narrowed by visible
+  pressure that still survives challenge
+- the narrower released sentence is part of the product honesty, not a
+  contradiction in the docs
+
 The current lab-consequence evidence is still benchmark-simulated rather than
 live wet-lab release proof. It earns bounded consequence language because the
 requested-versus-observed loop is now explicit, not because the repository has
@@ -112,6 +130,14 @@ already closed real laboratory deployment risk.
   one page still names the narrower sentence exactly
 - consequence pressure now matters enough that a family can look analytically
   strong and still need a weaker released sentence
+
+## Reader Use
+
+- use this page when one trust page sounds strong and you need the release
+  boundary in one place
+- use it to distinguish family-packet breadth from released family language
+- use it before widening workflow language in changelogs, READMEs, or release
+  summaries
 
 ## Family Transfer Evidence
 

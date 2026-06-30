@@ -11,11 +11,19 @@ last_reviewed: 2026-05-09
 
 These maps are the shared consequence narrative across knowledge, intelligence, and lab. Each family starts from contradiction pressure, passes through current recommendation posture, and ends at assay burden and the cost of being wrong.
 
+The value of this page is that it keeps the repository from pretending those three layers are interchangeable. A workflow family can have a strong benchmark packet, a convincing rerun lane, and still stop at a weaker public sentence because the downstream cost of being wrong remains too high.
+
 ## How To Read These Maps
 
 - These are not vote tallies. The weakest downstream boundary controls the strongest honest public sentence.
 - A family can look benchmark-strong and still remain recommendation-bounded once comparator pressure, assay burden, or follow-up failure stays unresolved.
 - Read the table first for posture shape, then read the family map to see which contradiction, control demand, or consequence cost actually enforces the downgrade.
+
+## What This Page Protects
+
+- it protects trust pages from sounding stronger than the combined consequence chain
+- it protects recommendation posture from sounding cleaner than the lab burden it still triggers
+- it protects release language from drifting upward because one upstream packet improved while the downstream boundary stayed weak
 
 | workflow family | knowledge posture | recommendation posture | lab posture | weakest allowed posture |
 | --- | --- | --- | --- | --- |
@@ -141,3 +149,8 @@ These maps are the shared consequence narrative across knowledge, intelligence, 
 - Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/) when the question is which evidence axis or observed outcome actually moved the call.
 - Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/) when the question is how requested-versus-observed follow-up should tighten the next recommendation.
 - Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/) when the question is whether the honest next action is to stop, rerun, narrow, or refuse.
+
+## Honest Reader Outcome
+
+- the reader should leave knowing which family still survives a bounded recommendation
+- the reader should also know which exact downstream burden keeps that family away from decision-grade language

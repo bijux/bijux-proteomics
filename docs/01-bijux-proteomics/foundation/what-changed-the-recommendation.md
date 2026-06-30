@@ -11,11 +11,20 @@ last_reviewed: 2026-05-09
 
 This page answers the blunt question a hostile reviewer will ask next: what actually changes the recommendation once comparator pressure, literature pressure, lab burden, or observed outcome enters the picture?
 
+It exists because the repository now has enough depth that recommendation language can move for real reasons rather than just cleaner prose. If the docs do not name those reasons clearly, the product sounds more arbitrary than it is and more certain than it deserves.
+
 ## How To Read These Counterfactuals
 
 - Treat each family row as a stress test on the released sentence rather than a marketing recap of the current result.
 - If removing one evidence axis or increasing downstream burden collapses the call, the weaker posture is part of the truthful product surface today.
 - Observed outcome revisions matter only when they change the next honest sentence, not when they merely add more activity around the same uncertainty.
+
+## What Counts As A Real Change Driver
+
+- a comparator path that keeps the public sentence from outrunning transfer pressure
+- a literature or grounding surface that keeps the scientific story from sounding cleaner than its evidence state
+- a lab-burden shift that makes the same analytical story no longer worth the spend
+- an observed outcome that materially changes the next sentence instead of just adding more work around the same uncertainty
 
 ### `dda`
 
@@ -86,3 +95,9 @@ This page answers the blunt question a hostile reviewer will ask next: what actu
 ## Reading Rule
 
 If comparator removal, literature removal, doubled assay burden, or one observed outcome can collapse the recommendation, the public wording should stay at the weaker posture immediately.
+
+## Why This Page Matters More Now
+
+- several families now have real benchmark, runtime, and recommendation packets, so the next honest question is what actually moves the call
+- a stronger repository needs clearer counterfactuals, not just stronger summaries
+- this page keeps the recommendation story tied to evidence, burden, and observed outcomes instead of letting it drift into style

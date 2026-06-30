@@ -51,6 +51,15 @@ Why this still blocks release language:
   runtime docs become stronger
 - if the runtime lane still narrows, the root sentence must narrow with it
 
+What a clean close would look like:
+
+- DDA no longer asks readers to accept a stronger sentence than the dashboard
+  can defend
+- rerun lanes stop depending on weaker imported or library-conditioned stories
+  where the public sentence still implies broader realism
+- hostile readers can reopen the family packets without finding a stronger
+  trust page than rerun page
+
 ## Benchmark asset quality
 
 Release claims must stay behind the benchmark asset coverage, grounding, and scientific release evidence actually checked in.
@@ -74,6 +83,15 @@ Why this still blocks release language:
 - root release language cannot outrun the evidence dossier that is supposed to
   defend it
 
+What a clean close would look like:
+
+- the scientific release dossier no longer exposes duplicate ownership in
+  canonical structured models
+- the core package no longer looks broad in public while still fragmenting into
+  thin module surfaces underneath
+- benchmark quality and owner-shape evidence agree instead of pulling in
+  opposite directions
+
 ## Docs clarity
 
 Root and handbook wording must route readers to the right evidence without stronger trust language than the current docs surfaces can honestly defend.
@@ -93,6 +111,15 @@ Why this still blocks release language:
 - docs are now good enough to sound convincing, so they must also be precise
   enough to stop one stronger page from overruling a narrower evidence surface
 - root wording is part of release evidence now, not a neutral wrapper around it
+
+What a clean close would look like:
+
+- no root-facing docs page sounds stronger than the narrowest live evidence
+  surface
+- release wording, hostile-review wording, and runtime wording all stop at the
+  same bounded sentence
+- the strongest public page no longer needs a neighboring blocker page to undo
+  its tone
 
 ## Strongest Companion Routes
 
