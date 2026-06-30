@@ -436,9 +436,12 @@ def test_workflow_pipeline_root_prefers_operations_subfacade() -> None:
     expected_pipeline_operations, _ = build_lazy_export_index(
         ordered_facade_owners(OPERATIONS_PIPELINE_FACADE_OWNERS)
     )
+    approved_root_exports = {"write_proteomics_run_bundle"}
 
     assert tuple(
-        name for name in expected_pipeline_operations if hasattr(pipelines, name)
+        name
+        for name in expected_pipeline_operations
+        if hasattr(pipelines, name) and name not in approved_root_exports
     ) == ()
     assert all(
         hasattr(pipelines.operations, name) for name in expected_pipeline_operations

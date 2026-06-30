@@ -19,6 +19,12 @@ from bijux_proteomics.workflow.facade_runtime import (
 __all__, _PIPELINE_EXPORT_INDEX = build_lazy_export_index(
     ordered_facade_owners(PIPELINE_ROOT_OWNERS)
 )
+_PIPELINE_COMPATIBILITY_EXPORT_INDEX = {
+    "write_proteomics_run_bundle": (
+        "bijux_proteomics.workflow.pipelines.operations.flagship_run",
+        "write_proteomics_run_bundle",
+    ),
+}
 
 
 def __getattr__(name: str) -> Any:
@@ -29,12 +35,24 @@ def __getattr__(name: str) -> Any:
             PIPELINE_SUBMODULES,
             name,
         )
+    if name in _PIPELINE_COMPATIBILITY_EXPORT_INDEX:
+        return load_public_export(
+            __name__,
+            globals(),
+            _PIPELINE_COMPATIBILITY_EXPORT_INDEX,
+            name,
+        )
     return load_public_export(__name__, globals(), _PIPELINE_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:
-    return module_directory(
-        globals(),
-        __all__,
-        submodule_names=tuple(PIPELINE_SUBMODULES),
+    return sorted(
+        set(
+            module_directory(
+                globals(),
+                __all__,
+                submodule_names=tuple(PIPELINE_SUBMODULES),
+            )
+        )
+        | set(_PIPELINE_COMPATIBILITY_EXPORT_INDEX)
     )

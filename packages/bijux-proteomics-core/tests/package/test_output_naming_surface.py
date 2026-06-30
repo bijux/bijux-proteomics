@@ -44,7 +44,7 @@ LEGACY_BUNDLE_WRAPPERS = {
     "workflow/reports/biological_report_rendering.py": {
         "export_biological_result_report_bundle": "write_biological_result_report_bundle",
     },
-    "workflow/pipelines/flagship_run.py": {
+    "workflow/pipelines/operations/flagship_run.py": {
         "export_proteomics_run_bundle": "write_proteomics_run_bundle",
     },
     "ptm/cards/reporting.py": {"export_ptm_report_bundle": "write_ptm_report_bundle"},

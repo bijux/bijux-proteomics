@@ -172,7 +172,7 @@ PIPELINE_FACADE_OWNERS = (
         rationale="discovery-to-assay workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.flagship_run",
+        owner_module="bijux_proteomics.workflow.pipelines.operations.flagship_run",
         rationale="flagship workflow ownership",
     ),
     WorkflowFacadeOwner(
@@ -188,7 +188,7 @@ PIPELINE_FACADE_OWNERS = (
         rationale="multi-study workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.orchestrator",
+        owner_module="bijux_proteomics.workflow.pipelines.operations.orchestrator",
         rationale="workflow orchestrator ownership",
         excluded_exports=("WorkflowResult",),
     ),
@@ -253,8 +253,8 @@ SYNTHESIS_PIPELINE_FACADE_OWNERS = select_facade_owners(
 )
 
 OPERATIONS_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.flagship_run",
-    "bijux_proteomics.workflow.pipelines.orchestrator",
+    "bijux_proteomics.workflow.pipelines.operations.flagship_run",
+    "bijux_proteomics.workflow.pipelines.operations.orchestrator",
 }
 
 OPERATIONS_PIPELINE_FACADE_OWNERS = select_facade_owners(
@@ -396,7 +396,7 @@ WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS = (
 
 WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS = select_facade_owners(
     PIPELINE_FACADE_OWNERS,
-    {"bijux_proteomics.workflow.pipelines.flagship_run"},
+    {"bijux_proteomics.workflow.pipelines.operations.flagship_run"},
     excluded_exports=WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS,
 )
 
@@ -411,7 +411,8 @@ WORKFLOW_ROOT_PIPELINE_OWNERS = (
         and owner.owner_module not in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
         and owner.owner_module not in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
         and owner.owner_module not in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
-        and owner.owner_module != "bijux_proteomics.workflow.pipelines.flagship_run"
+        and owner.owner_module
+        != "bijux_proteomics.workflow.pipelines.operations.flagship_run"
         and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
     ),
     *WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS,

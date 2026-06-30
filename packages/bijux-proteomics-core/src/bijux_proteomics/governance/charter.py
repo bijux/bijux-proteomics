@@ -596,7 +596,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "workflow/cards/mechanisms.py",
             "workflow/pipelines/maxquant_biological_workflow.py",
             "workflow/pipelines/multi_study.py",
-            "workflow/pipelines/orchestrator.py",
+            "workflow/pipelines/operations/orchestrator.py",
             "workflow/pipelines/ptm_site_workflow.py",
             "workflow/benchmarks/__init__.py",
             "workflow/benchmarks/public_benchmark_descriptors.py",
