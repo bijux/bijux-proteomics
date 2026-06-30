@@ -21,6 +21,15 @@ assay consequence decisions, more explicit control demands, and more queue or
 material burden that has to be named before the repository can claim the next
 step is practical.
 
+## Why This Section Is More Important Now
+
+- it is where stronger upstream science gets translated into actual assay
+  burden rather than optimistic follow-up prose
+- it names the practical limits that keep recommendation surfaces honest when
+  controls, staffing, material, or instrument time become the real bottleneck
+- it makes observed outcomes part of the scientific story instead of letting
+  them disappear after execution
+
 ```mermaid
 flowchart LR
     recommendation["recommendations"]
@@ -88,6 +97,15 @@ flowchart LR
 - which control demands, material limits, and burden signals must remain visible
 - how observed outcomes should feed back into later evidence and recommendation
   review
+
+## Reader Questions This Section Can Answer Well
+
+- why a downstream step is still exploratory even when the recommendation page
+  sounds strong
+- which control demands or queue limits keep a family below operational
+  confidence
+- how a requested follow-up should be re-read once the observed assay outcome
+  arrives
 
 ## Strongest Lab Proof
 

@@ -19,6 +19,15 @@ assay design pressure, control requirements, readiness gates, handoff honesty,
 and requested-versus-observed outcome loops. That is why lab consequence is a
 real product surface here, not a decorative final paragraph.
 
+## How To Read This Route
+
+- start from one workflow family and ask what actual spend, controls, or queue
+  pressure the current sentence would force
+- treat exploratory-only language as a real downstream boundary, not as a
+  stylistic hedge
+- read refusal and outcome-learning surfaces as part of the scientific story,
+  not as separate operations paperwork
+
 ## What Real Consequence Means Here
 
 - assay planning must name what is executable, what is only advisory, and what
@@ -70,6 +79,13 @@ real product surface here, not a decorative final paragraph.
 - which control demand or failure mode makes decision-grade language unsafe
 - which observed outcome should now narrow or strengthen the next public
   recommendation
+
+## What This Route Should Prevent
+
+- treating a strong benchmark packet as if downstream validation were cheap
+- treating assay feasibility as if it were the same thing as assay worth
+- treating failed, blocked, or narrowed follow-up as if it had no effect on the
+  next public sentence
 
 ## Adjacent Routes
 

@@ -45,6 +45,16 @@ layer is where the repository proves it can turn recommendation into practical
 follow-up honestly instead of pretending every strong analytical sentence is
 cheap or easy to validate.
 
+## Why Readers Should Not Skip This Package
+
+- this is where the repository proves that downstream science still costs real
+  assays, controls, queue time, and material discipline
+- stronger upstream biology and recommendation depth only become honest product
+  surfaces if the lab layer can name what should be spent, delayed, narrowed,
+  or refused
+- this package is one of the clearest places where `bijux-proteomics` stops
+  sounding like governance and starts sounding like practical scientific work
+
 ## What It Owns
 
 - assay planning and experiment-facing workflows
@@ -101,6 +111,15 @@ cheap or easy to validate.
   this package truly owns
 - open outcome-learning and refusal routes when the real question is whether
   the next honest action is to spend, narrow, rerun, or stop
+
+## Reader Questions This Package Can Answer Well
+
+- which workflow family still looks attractive analytically but becomes costly
+  or fragile once assay controls are named
+- where observed outcomes should narrow later trust language instead of getting
+  filed away as operational detail
+- why a refusal can be the strongest scientific answer even when a benchmark or
+  recommendation route looks promising
 
 ## First Proof Check
 
