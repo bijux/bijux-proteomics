@@ -4,6 +4,8 @@
 """Spectrum, MGF, and fragment-annotation contracts."""
 
 from __future__ import annotations
+
+from pathlib import Path
 from bijux_proteomics.io.spectra.spectrum_contracts.collection import (
     build_spectrum_collection_summary,
     build_spectrum_lookup_index,
@@ -79,7 +81,16 @@ from bijux_proteomics.io.spectra.spectrum_contracts.annotation import (
     annotate_spectrum_fragments,
     build_annotated_spectrum_bundle,
     build_spectrum_plot_payload,
-    export_annotated_spectrum_bundle,
     export_spectrum_annotation_tsv,
-    write_annotated_spectrum_bundle,
+    write_annotated_spectrum_bundle as _write_annotated_spectrum_bundle,
 )
+
+write_annotated_spectrum_bundle = _write_annotated_spectrum_bundle
+
+
+def export_annotated_spectrum_bundle(
+    bundle: AnnotatedSpectrumBundle,
+    path: Path,
+) -> None:
+    """Compatibility wrapper for the legacy annotated spectrum bundle export name."""
+    write_annotated_spectrum_bundle(bundle, path)
