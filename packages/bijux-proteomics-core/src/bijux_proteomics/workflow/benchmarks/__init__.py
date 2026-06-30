@@ -5,10 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from bijux_proteomics.workflow.public_api import (
+    BENCHMARK_SUBMODULES,
     BENCHMARK_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
     load_public_export,
+    load_public_submodule,
     module_directory,
 )
 
@@ -18,8 +20,19 @@ __all__, _BENCHMARK_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> Any:
+    if name in BENCHMARK_SUBMODULES:
+        return load_public_submodule(
+            __name__,
+            globals(),
+            BENCHMARK_SUBMODULES,
+            name,
+        )
     return load_public_export(__name__, globals(), _BENCHMARK_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:
-    return module_directory(globals(), __all__)
+    return module_directory(
+        globals(),
+        __all__,
+        submodule_names=tuple(BENCHMARK_SUBMODULES),
+    )

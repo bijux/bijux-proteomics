@@ -49,6 +49,17 @@ CARD_FACADE_OWNERS = (
     ),
 )
 
+BENCHMARK_DATASET_FACADE_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors",
+        rationale="public benchmark descriptor ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset",
+        rationale="public benchmark subset ownership",
+    ),
+)
+
 BENCHMARK_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.diann_benchmarks",
@@ -59,11 +70,11 @@ BENCHMARK_FACADE_OWNERS = (
         rationale="MaxQuant benchmark ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors",
+        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors",
         rationale="public benchmark descriptor ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_subset",
+        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset",
         rationale="public benchmark subset ownership",
     ),
     WorkflowFacadeOwner(
@@ -106,6 +117,10 @@ EXPORT_FACADE_OWNERS = (
         rationale="targeted review export ownership",
     ),
 )
+
+BENCHMARK_SUBMODULES = {
+    "datasets": "bijux_proteomics.workflow.benchmarks.datasets",
+}
 
 DEMO_FACADE_OWNERS = (
     WorkflowFacadeOwner(
@@ -460,11 +475,11 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="protein mechanism card ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors",
+        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors",
         rationale="public benchmark descriptor ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_subset",
+        owner_module="bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset",
         rationale="public benchmark subset ownership",
     ),
     WorkflowFacadeOwner(
@@ -669,7 +684,9 @@ def _public_assigned_names(target: ast.expr) -> list[str]:
 
 
 __all__ = [
+    "BENCHMARK_DATASET_FACADE_OWNERS",
     "BENCHMARK_FACADE_OWNERS",
+    "BENCHMARK_SUBMODULES",
     "CARD_FACADE_OWNERS",
     "DEMO_FACADE_OWNERS",
     "EXPORT_FACADE_OWNERS",

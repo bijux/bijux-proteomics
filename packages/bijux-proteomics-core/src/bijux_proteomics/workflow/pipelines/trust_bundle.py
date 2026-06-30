@@ -31,7 +31,7 @@ from bijux_proteomics.workflow.pipelines.weak_evidence import (
     render_weak_evidence_benchmark_summary_tsv,
     run_weak_evidence_benchmark,
 )
-from bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors import (
+from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
     list_public_benchmark_descriptor_paths,
     load_public_benchmark_descriptor,
     public_benchmark_root,

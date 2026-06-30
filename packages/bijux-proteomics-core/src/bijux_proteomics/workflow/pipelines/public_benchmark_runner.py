@@ -40,7 +40,7 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
     WorkflowResult,
     run_proteomics_workflow,
 )
-from bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors import (
+from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
     PublicBenchmarkDescriptor,
     PublicBenchmarkExpectedBiologicalSignal,
     PublicBenchmarkExpectedSignalDirection,
