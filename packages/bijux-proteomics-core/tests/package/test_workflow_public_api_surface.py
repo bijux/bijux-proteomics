@@ -27,10 +27,14 @@ from bijux_proteomics.workflow.public_api import (
     PIPELINE_FACADE_OWNERS,
     REPORT_FACADE_OWNERS,
     STUDY_FACADE_OWNERS,
+    WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
+    WORKFLOW_ROOT_CARD_OWNERS,
     WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
     WORKFLOW_ROOT_EXPORT_OWNERS,
     WORKFLOW_ROOT_OWNERS,
     WORKFLOW_ROOT_PIPELINE_OWNERS,
+    WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
+    WORKFLOW_ROOT_REPORT_OWNERS,
     WORKFLOW_ROOT_SHARED_OWNERS,
     WORKFLOW_ROOT_STUDY_OWNERS,
     WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS,
@@ -54,11 +58,11 @@ def test_workflow_root_owner_ledger_is_composed_from_shared_and_subpackage_ledge
 ):
     assert WORKFLOW_ROOT_OWNERS == (
         *WORKFLOW_ROOT_SHARED_OWNERS,
-        *REPORT_FACADE_OWNERS,
+        *WORKFLOW_ROOT_REPORT_OWNERS,
         *WORKFLOW_ROOT_EXPORT_OWNERS,
         *WORKFLOW_ROOT_PIPELINE_OWNERS,
         *WORKFLOW_ROOT_STUDY_OWNERS,
-        *CARD_FACADE_OWNERS,
+        *WORKFLOW_ROOT_CARD_OWNERS,
         *BENCHMARK_FACADE_OWNERS,
         *DEMO_FACADE_OWNERS,
     )
@@ -85,6 +89,20 @@ def test_workflow_root_export_owners_exclude_export_helpers() -> None:
         name for name in WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS if hasattr(workflow, name)
     ) == ()
     assert all(hasattr(exports, name) for name in WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS)
+
+
+def test_workflow_root_card_owners_exclude_card_serialization_helpers() -> None:
+    assert tuple(
+        name for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS if hasattr(workflow, name)
+    ) == ()
+    assert all(hasattr(cards, name) for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS)
+
+
+def test_workflow_root_report_owners_exclude_report_serialization_helpers() -> None:
+    assert tuple(
+        name for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS if hasattr(workflow, name)
+    ) == ()
+    assert all(hasattr(reports, name) for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS)
 
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:

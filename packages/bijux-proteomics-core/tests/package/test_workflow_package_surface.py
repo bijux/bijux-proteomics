@@ -89,12 +89,14 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
 
     assert hasattr(workflow, "build_protein_evidence_card_report")
     assert hasattr(workflow, "build_biological_result_graph_report")
-    assert "card_id" in workflow.render_protein_evidence_card_tsv(report.protein_cards)
-    assert "graph_claim_node_id" in workflow.render_protein_evidence_card_tsv(
+    assert "card_id" in workflow.cards.render_protein_evidence_card_tsv(
         report.protein_cards
     )
-    assert "proteogenomic_support_class" in workflow.render_protein_evidence_card_tsv(
+    assert "graph_claim_node_id" in workflow.cards.render_protein_evidence_card_tsv(
         report.protein_cards
+    )
+    assert "proteogenomic_support_class" in (
+        workflow.cards.render_protein_evidence_card_tsv(report.protein_cards)
     )
     assert (
         report.protein_cards.summary.protein_result_count
@@ -142,11 +144,11 @@ def test_workflow_package_exports_protein_mechanism_card_surface(
     )
 
     assert hasattr(workflow, "build_protein_mechanism_card_report")
-    assert "evidence_tier" in workflow.render_protein_mechanism_card_tsv(
+    assert "evidence_tier" in workflow.cards.render_protein_mechanism_card_tsv(
         report.protein_mechanism_cards
     )
     assert report.evidence_aware_ranking_report is not None
-    assert "graph_claim_node_id" in workflow.render_protein_mechanism_card_tsv(
+    assert "graph_claim_node_id" in workflow.cards.render_protein_mechanism_card_tsv(
         report.protein_mechanism_cards
     )
     assert (
@@ -1083,11 +1085,11 @@ def test_workflow_package_exports_mechanism_card_workflow_surface() -> None:
     report = workflow.build_mechanism_cards(biological_report)
 
     assert hasattr(workflow, "build_mechanism_cards")
-    assert hasattr(workflow, "render_mechanism_cards_tsv")
+    assert hasattr(workflow.cards, "render_mechanism_cards_tsv")
     assert report.summary.card_count >= 5
     assert report.summary.kinase_candidate_count >= 1
-    assert "evidence_for" in workflow.render_mechanism_cards_tsv(report)
-    assert "missing_evidence" in workflow.render_mechanism_cards_tsv(report)
+    assert "evidence_for" in workflow.cards.render_mechanism_cards_tsv(report)
+    assert "missing_evidence" in workflow.cards.render_mechanism_cards_tsv(report)
 
 
 def test_workflow_package_exports_cross_species_effect_comparison_surface() -> None:
@@ -1560,8 +1562,12 @@ def test_workflow_package_exports_cross_study_evidence_card_surface(
         == "consistent_replication"
     )
     assert report.summary.card_count > 0
-    assert "final_status" in workflow.render_cross_study_evidence_card_tsv(report)
-    assert "dataset_state" in workflow.render_cross_study_evidence_dataset_tsv(report)
+    assert "final_status" in workflow.cards.render_cross_study_evidence_card_tsv(
+        report
+    )
+    assert "dataset_state" in workflow.cards.render_cross_study_evidence_dataset_tsv(
+        report
+    )
 
 
 def test_workflow_package_exports_interactive_result_bundle_surface() -> None:

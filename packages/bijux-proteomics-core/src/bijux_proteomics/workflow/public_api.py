@@ -49,6 +49,38 @@ CARD_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_CARD_HELPER_EXPORTS = (
+    "render_cross_study_evidence_card_summary_tsv",
+    "render_cross_study_evidence_card_tsv",
+    "render_cross_study_evidence_dataset_tsv",
+    "render_mechanism_card_summary_tsv",
+    "render_mechanism_cards_tsv",
+    "export_pathway_evidence_card_tsv",
+    "render_pathway_evidence_card_tsv",
+    "export_protein_evidence_card_summary_tsv",
+    "export_protein_evidence_card_tsv",
+    "render_protein_evidence_card_summary_tsv",
+    "render_protein_evidence_card_tsv",
+    "export_protein_mechanism_card_summary_tsv",
+    "export_protein_mechanism_card_tsv",
+    "render_protein_mechanism_card_summary_tsv",
+    "render_protein_mechanism_card_tsv",
+    "export_sample_evidence_card_tsv",
+    "render_sample_evidence_card_tsv",
+)
+
+WORKFLOW_ROOT_CARD_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
+        ),
+    )
+    for owner in CARD_FACADE_OWNERS
+)
+
 BENCHMARK_SYNTHETIC_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth",
@@ -292,6 +324,25 @@ REPORT_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_REPORT_HELPER_EXPORTS = (
+    "export_biological_result_report_bundle",
+    "write_biological_result_report_bundle",
+    "render_biological_report_section_confidence_tsv",
+    "render_biological_result_report_summary_tsv",
+)
+
+WORKFLOW_ROOT_REPORT_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
+        ),
+    )
+    for owner in REPORT_FACADE_OWNERS
+)
+
 ADVANCED_PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module=(
@@ -453,11 +504,11 @@ WORKFLOW_ROOT_SHARED_OWNERS = (
 
 WORKFLOW_ROOT_OWNERS = (
     *WORKFLOW_ROOT_SHARED_OWNERS,
-    *REPORT_FACADE_OWNERS,
+    *WORKFLOW_ROOT_REPORT_OWNERS,
     *WORKFLOW_ROOT_EXPORT_OWNERS,
     *WORKFLOW_ROOT_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_STUDY_OWNERS,
-    *CARD_FACADE_OWNERS,
+    *WORKFLOW_ROOT_CARD_OWNERS,
     *BENCHMARK_FACADE_OWNERS,
     *DEMO_FACADE_OWNERS,
 )
@@ -609,8 +660,12 @@ __all__ = [
     "CARD_FACADE_OWNERS",
     "DEMO_FACADE_OWNERS",
     "EXPORT_FACADE_OWNERS",
+    "WORKFLOW_ROOT_CARD_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_CARD_OWNERS",
     "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_EXPORT_OWNERS",
+    "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_REPORT_OWNERS",
     "WORKFLOW_ROOT_SHARED_OWNERS",
     "PIPELINE_FACADE_OWNERS",
     "REPORT_FACADE_OWNERS",
