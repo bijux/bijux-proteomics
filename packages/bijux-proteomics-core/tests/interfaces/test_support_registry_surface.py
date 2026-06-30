@@ -32,6 +32,14 @@ SEQUENCE_SUPPORT_ROOT = (
     / "support"
     / "sequence_support"
 )
+BIOMARKER_SUPPORT_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "bijux_proteomics"
+    / "interfaces"
+    / "support"
+    / "biomarker_candidate_support"
+)
 
 
 def test_support_registry_exports_modules_not_symbol_soup() -> None:
@@ -143,5 +151,25 @@ def test_sequence_support_owner_modules_do_not_import_symbol_barrel() -> None:
             ):
                 violations.append(
                     f"{path.relative_to(SEQUENCE_SUPPORT_ROOT)} imports the support symbol barrel instead of owned support modules"
+                )
+    assert not violations, "\n".join(violations)
+
+
+def test_biomarker_candidate_owner_modules_do_not_import_symbol_barrel() -> None:
+    violations: list[str] = []
+    for path in sorted(BIOMARKER_SUPPORT_ROOT.glob("*.py")):
+        if path.name in {"__init__.py", "candidate_scoring.py", "lookup_joins.py"}:
+            continue
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in module.body:
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if (
+                node.level == 2
+                and node.module == "imports"
+                or node.module == "bijux_proteomics.interfaces.support.imports"
+            ):
+                violations.append(
+                    f"{path.relative_to(BIOMARKER_SUPPORT_ROOT)} imports the support symbol barrel instead of owned support modules"
                 )
     assert not violations, "\n".join(violations)
