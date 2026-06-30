@@ -11,7 +11,6 @@ from pathlib import Path
 
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
-    PsmRecord,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     parse_target_decoy_label,
@@ -22,7 +21,6 @@ from bijux_proteomics.identification.rejected_evidence_table import (
 )
 from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterKind,
-    SearchAdapterNormalizationReport,
 )
 from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,
@@ -37,6 +35,10 @@ from bijux_proteomics.identification.adapters.fragpipe_import.models import (
     FragpipeProteinQuantityEntry,
     FragpipeProteinReviewEntry,
     FragpipePsmReviewEntry,
+)
+from bijux_proteomics.identification.adapters.fragpipe_import.psm_rows import (
+    build_fragpipe_canonical_psm_rows,
+    build_fragpipe_psm_rows,
 )
 from bijux_proteomics.identification.adapters.fragpipe_import.rendering import (
     render_fragpipe_canonical_psm_tsv,
@@ -79,11 +81,11 @@ def build_fragpipe_import_report(
         adapter_kind=SearchAdapterKind.MSFRAGGER,
         dialect_id="fragpipe-psm",
     )
-    canonical_psms = _build_fragpipe_canonical_psm_rows(
+    canonical_psms = build_fragpipe_canonical_psm_rows(
         normalization_report=psm_normalization,
         open_search_mass_tolerance=open_search_mass_tolerance,
     )
-    psm_rows = _build_fragpipe_psm_rows(
+    psm_rows = build_fragpipe_psm_rows(
         normalization_report=psm_normalization,
         open_search_mass_tolerance=open_search_mass_tolerance,
     )
@@ -159,114 +161,6 @@ def build_fragpipe_import_report(
         ),
         summary=summary,
     )
-
-def _build_fragpipe_canonical_psm_rows(
-    *,
-    normalization_report: SearchAdapterNormalizationReport,
-    open_search_mass_tolerance: float,
-) -> tuple[FragpipeCanonicalPsmEntry, ...]:
-    accepted_rows = tuple(
-        row
-        for row in normalization_report.evidence_rows
-        if row.accepted and row.normalized_record
-    )
-    rows: list[FragpipeCanonicalPsmEntry] = []
-    for row in accepted_rows:
-        record = row.normalized_record
-        if record is None:
-            continue
-        raw = row.raw_fields
-        mass_difference = optional_float(raw.get("Mass Difference"))
-        rows.append(
-            FragpipeCanonicalPsmEntry(
-                record=record,
-                assigned_modifications=split_multi_value(
-                    raw.get("Assigned Modifications")
-                ),
-                observed_modifications=split_multi_value(
-                    raw.get("Observed Modifications")
-                ),
-                mass_difference=mass_difference,
-                open_search_candidate=is_open_search_candidate(
-                    mass_difference,
-                    tolerance=open_search_mass_tolerance,
-                ),
-            )
-        )
-    return tuple(
-        sorted(
-            rows,
-            key=lambda row: (
-                row.record.spectrum_id,
-                row.record.q_value if row.record.q_value is not None else float("inf"),
-                -row.record.score,
-            ),
-        )
-    )
-
-
-def _build_fragpipe_psm_rows(
-    *,
-    normalization_report: SearchAdapterNormalizationReport,
-    open_search_mass_tolerance: float,
-) -> tuple[FragpipePsmReviewEntry, ...]:
-    accepted_rows = tuple(
-        row
-        for row in normalization_report.evidence_rows
-        if row.accepted and row.normalized_record
-    )
-    rows: list[FragpipePsmReviewEntry] = []
-    for row in accepted_rows:
-        record = row.normalized_record
-        if record is None:
-            continue
-        provenance = record.provenance
-        if provenance is None:
-            raise ValueError(
-                "normalized FragPipe PSM rows must preserve row provenance"
-            )
-        raw = row.raw_fields
-        modified_peptide = raw.get("Modified Peptide", "").strip() or None
-        canonical_modified = canonical_modified_peptide(modified_peptide)
-        mass_difference = optional_float(raw.get("Mass Difference"))
-        rows.append(
-            FragpipePsmReviewEntry(
-                spectrum_id=record.spectrum_id,
-                peptide=record.peptide,
-                canonical_peptide=record.canonical_peptide,
-                modified_peptide=modified_peptide,
-                canonical_modified_peptide=canonical_modified,
-                charge=record.charge,
-                hyperscore=record.score,
-                q_value=record.q_value,
-                protein_refs=record.protein_refs,
-                target_decoy_label=record.target_decoy_label,
-                assigned_modifications=split_multi_value(
-                    raw.get("Assigned Modifications")
-                ),
-                observed_modifications=split_multi_value(
-                    raw.get("Observed Modifications")
-                ),
-                mass_difference=mass_difference,
-                open_search_candidate=is_open_search_candidate(
-                    mass_difference,
-                    tolerance=open_search_mass_tolerance,
-                ),
-                provenance=provenance,
-            )
-        )
-    return tuple(
-        sorted(
-            rows,
-            key=lambda row: (
-                row.spectrum_id,
-                row.q_value if row.q_value is not None else float("inf"),
-                -row.hyperscore,
-            ),
-        )
-    )
-
-
 def _parse_fragpipe_peptide_table(
     path: Path,
     *,
