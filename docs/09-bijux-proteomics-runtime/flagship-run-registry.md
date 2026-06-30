@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-07
+last_reviewed: 2026-07-01
 ---
 
 # Flagship Run Registry
@@ -14,6 +14,15 @@ in today. It is the runtime answer to a simple question:
 
 Which public benchmark runs can I open right now, and what do they really
 authorize?
+
+## Reading Rule
+
+- treat the registry as the shortest answer to what the runtime package is
+  actually willing to stand behind today
+- read run bundles, stage lineage, and failure replay together instead of
+  trusting one successful lane snapshot by itself
+- treat the lane description as bounded authorization, not as a shortcut to
+  stronger knowledge, recommendation, or lab claims
 
 ## Open The Checked Artifacts
 
@@ -65,6 +74,15 @@ Per-family artifacts:
   burden downstream
 - they keep the runtime stage lineage and failure replay story public instead of
   forcing readers to trust runtime prose
+
+## What Is Stronger Than Before
+
+- the runtime package now names one checked public bundle per workflow family
+  instead of asking readers to reconstruct the live surface from fixtures alone
+- lane descriptions now make raw-executable and import-backed differences part
+  of the public record
+- the registry is now one of the clearest places where operational depth in
+  `bijux-proteomics` is visible without overselling what execution alone proves
 
 ## Boundary
 

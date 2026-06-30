@@ -4,12 +4,20 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Runtime Execution Boundary
 
 Start here when the question is: how would an independent reviewer reopen a shipped workflow family without asking maintainers what to trust next?
+
+## How An Independent Reviewer Should Use This Route
+
+- start from the public benchmark manifest, not from runtime prose
+- reopen the checked bundle before deciding whether the lane still deserves a
+  stronger sentence
+- use stage lineage and failure replay to test whether the execution story is
+  robust enough to survive scrutiny without maintainer narration
 
 ## Shortest Rerun Route
 
@@ -77,3 +85,12 @@ Start here when the question is: how would an independent reviewer reopen a ship
 - challenge stage-to-stage continuity with: `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/stage_lineage.json`
 - challenge replay and invalidation with: `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/failure_replay.json`
 - rerun refusal summary: none
+
+## What This Route Proves And What It Does Not
+
+- it proves that a reviewer can reopen the shipped runtime lane from named
+  public roots
+- it does not prove that execution alone upgrades benchmark, grounding,
+  recommendation, or lab authority
+- it should hand off once the question becomes whether the reopened lane still
+  deserves stronger language beyond runtime traceability

@@ -11,6 +11,15 @@ last_reviewed: 2026-05-09
 
 This matrix states how each workflow family behaves when the public sentence has to survive both the primary flagship package and the companion generalization package.
 
+## How To Read This Matrix
+
+- read the stability score as a family-transfer stress result, not as a generic
+  quality badge
+- compare run modes and weakened claims together because one family can rerun
+  cleanly and still lose language under companion pressure
+- treat collapsed claims as the clearest signal that the public sentence must
+  stay narrow
+
 | workflow family | public language | primary run mode | companion run mode | stability score | surviving claims | weakened claims | collapsed claims |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `dda` | `outsider_auditable_bounded` | `import_only` | `import_only` | `0.83` | `1` | `1` | `0` |
@@ -87,3 +96,12 @@ This matrix states how each workflow family behaves when the public sentence has
 - Compare targeted QC handling against the tracked targeted public package and published protein-inference caution rather than claiming direct vendor chromatogram parity.
 - Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.
 - This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.
+
+## What This Matrix Makes Easier To See
+
+- why `multiplex` can be operationally real and still remain below outsider
+  trust
+- why stronger runtime lanes do not automatically erase weakened or collapsed
+  claims
+- which flagship families still owe their public caution to family-transfer
+  pressure rather than to missing execution alone

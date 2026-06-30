@@ -11,6 +11,15 @@ last_reviewed: 2026-05-09
 
 This page makes the execution-mode boundary explicit for each flagship workflow family. It exists to stop import-backed or library-conditioned lanes from quietly inheriting stronger raw-rerun language.
 
+## Why This Distinction Matters
+
+- execution mode is one of the easiest places for docs to overstate what the
+  repository really proves
+- a lane can be useful, reviewable, and still not deserve raw-native or
+  vendor-parity language
+- this page keeps runtime honesty separate from benchmark strength and downstream
+  recommendation strength
+
 | workflow family | current run mode | raw rerun supported | imported dependency count |
 | --- | --- | --- | --- |
 | `dda` | `import_only` | no | `3` |
@@ -63,3 +72,9 @@ This page makes the execution-mode boundary explicit for each flagship workflow 
 - imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json`
 - blocked claims: none
 - claim guard: targeted should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
+
+## What `raw_executable` Still Does Not Mean
+
+- it does not mean vendor-parity authority by itself
+- it does not mean companion-package transfer pressure disappeared
+- it does not mean downstream lab consequence is already justified

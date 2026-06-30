@@ -43,6 +43,16 @@ flowchart LR
 - it holds the operational seam between the product family and the outside
   world
 
+## Why This Package Matters More Now
+
+- runtime is now a public proof surface for flagship families, not only an
+  internal operator utility
+- the repository can now show checked run bundles, replay pressure,
+  comparability limits, and raw-versus-import honesty in public docs instead of
+  maintainer explanation
+- stronger benchmark and trust routes only become operationally meaningful when
+  runtime keeps their execution limits explicit
+
 ## Shared Reader Routes
 
 - Use [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
@@ -96,6 +106,15 @@ flowchart LR
 - evidence, confidence, contradiction, and review semantics
 - recommendation policy, scoring, and design-loop meaning
 - planning and outcome-promotion meaning from the lab layer
+
+## Reader Questions Runtime Can Answer Well
+
+- which workflow families are truly raw-executable today and which still stop
+  at import-backed review lanes
+- which checked run bundles an outsider can inspect right now without asking
+  maintainers what counts
+- where rerun strength still fails to authorize stronger scientific or release
+  language
 
 ## First Proof Check
 

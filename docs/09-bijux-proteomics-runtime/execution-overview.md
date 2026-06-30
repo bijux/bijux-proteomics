@@ -20,6 +20,16 @@ owns raw versus import honesty, replay and resume pressure, checked run
 registries, preflight and refusal routes, artifact integrity, and runtime
 bundle comparability.
 
+## How To Read Runtime Proof
+
+- start by separating run mode honesty from scientific meaning:
+  `raw_executable` and `import_only` are runtime statements, not universal
+  trust statements
+- read checked bundles and comparability surfaces before assuming that one
+  rerun lane authorizes broader language
+- treat replay, refusal, and artifact-stability routes as part of the runtime
+  claim, not as maintenance detail
+
 ## What Runtime Evidence Means Here
 
 - a workflow family earns stronger runtime language only when its benchmark
@@ -75,6 +85,12 @@ bundle comparability.
 - Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the question becomes which release gates and validation commands must
   pass before stronger runtime language is published.
+
+## What This Route Still Does Not Prove
+
+- scientific truth independent of benchmark, knowledge, or lab owners
+- vendor-parity claims just because one runtime lane is reproducible
+- downstream assay worth just because execution can be reopened and inspected
 
 ## Boundary
 
