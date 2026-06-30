@@ -509,6 +509,7 @@ def test_workflow_pipeline_package_import_contract() -> None:
         "bijux_proteomics.workflow.pipelines.comparative"
     )
     engines = importlib.import_module("bijux_proteomics.workflow.pipelines.engines")
+    synthesis = importlib.import_module("bijux_proteomics.workflow.pipelines.synthesis")
     advanced_tmt = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.advanced_tmt"
     )
@@ -527,12 +528,16 @@ def test_workflow_pipeline_package_import_contract() -> None:
     assert benchmarking.__name__ == "bijux_proteomics.workflow.pipelines.benchmarking"
     assert comparative.__name__ == "bijux_proteomics.workflow.pipelines.comparative"
     assert engines.__name__ == "bijux_proteomics.workflow.pipelines.engines"
+    assert synthesis.__name__ == "bijux_proteomics.workflow.pipelines.synthesis"
     assert hasattr(benchmarking, "run_public_benchmark_descriptor_suite")
     assert hasattr(benchmarking, "build_trust_bundle")
     assert hasattr(benchmarking, "run_weak_evidence_benchmark")
     assert hasattr(comparative, "build_diann_vs_dda_psm_comparison_report")
     assert hasattr(comparative, "build_dia_differential_analysis_report")
     assert hasattr(comparative, "build_label_based_differential_analysis_report")
+    assert hasattr(synthesis, "design_assay_from_discovery")
+    assert hasattr(synthesis, "build_integrated_scientific_report")
+    assert hasattr(synthesis, "compare_studies")
     assert hasattr(engines, "build_dda_biological_workflow_bundle")
     assert hasattr(engines, "build_diann_biological_workflow_bundle")
     assert hasattr(engines, "build_ptm_site_workflow_bundle")
