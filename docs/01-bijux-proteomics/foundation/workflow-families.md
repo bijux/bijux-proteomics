@@ -4,83 +4,84 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Workflow Families
 
-This page compares the six workflow families as product families, not as a
-diffuse set of package artifacts. It is the fastest route from a family name to
-its current trust status, run mode, benchmark coverage, and remaining blocker
-story.
+This page is the fastest route from a workflow-family label to the sentence the
+repository can honestly publish today.
 
-The important shift since `v0.3.7` is that these family labels now sit on top
-of deeper scientific and operational substance. They are no longer just
-workflow names plus governance prose. Each family now routes through broader
-core contracts, a clearer runtime lane, explicit knowledge grounding,
-recommendation posture, and lab consequence pressure.
+The family table is not a marketing summary. It is the place where scientific
+breadth, runtime realism, grounding pressure, and downstream consequence are
+collapsed into one bounded family call.
 
-## What The Family Table Is Comparing
+## How To Read The Table
 
-- `trust status` answers how strong the current public sentence may be, not
-  whether code exists at all.
-- `primary run mode` answers whether the strongest present route is
-  raw-executable or still import-backed.
-- `benchmark coverage` answers whether the family has a public flagship
-  package plus a companion generalization package instead of one convenient
-  showcase.
-- `current blockers` answer what still narrows the biological, operational, or
-  consequence claim even when benchmark and runtime evidence look strong.
+- `public posture` tells you the strongest sentence the repository can publish
+  today for that family
+- `runtime lane` tells you whether the strongest current route is
+  `raw_executable` or still `import_only`
+- `evidence root` tells you where a serious reviewer should start
+- `main limiter` tells you why stronger language is still blocked
 
 ## Family Comparison
 
-| workflow family | trust status | primary run mode | benchmark coverage | current blockers | start here |
-| --- | --- | --- | --- | --- | --- |
-| `dda` | outsider-auditable, bounded | `import_only` | flagship package plus companion generalization package | still not raw-executable and still lacks in-repo live-engine parity | [Why Trust DDA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dda/) |
-| `dia` | outsider-auditable, bounded | `raw_executable` | flagship package plus companion generalization package | broader biological confidence still stops at library incompleteness and absent-peptide consequences | [Why Trust DIA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dia/) |
-| `lfq` | review-grade, bounded | `raw_executable` | flagship package plus companion generalization package | external review kit readiness and acceptance pressure still block the stronger outsider-facing sentence | [Why Trust LFQ](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-lfq/) |
-| `multiplex` | internal-support-only | `raw_executable` | flagship package plus companion generalization package | companion rerun path still collapses outsider-facing trust | [Why Multiplex Stops At Internal Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support/) |
-| `ptm` | outsider-auditable, bounded | `raw_executable` | flagship package plus companion generalization package | downstream consequence confidence remains narrower than localization evidence | [Why Trust PTM](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-ptm/) |
-| `targeted` | outsider-auditable, bounded | `raw_executable` | flagship package plus companion generalization package | vendor-parity and calibration-clean certainty are still outside the supported lane | [Why Trust Targeted](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-targeted/) |
+| family | public posture | runtime lane | evidence root | main limiter |
+| --- | --- | --- | --- | --- |
+| `dda` | outsider-auditable, bounded | `import_only` | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) | in-repo live-engine parity still remains weaker than the reviewed downstream path |
+| `dia` | outsider-auditable, bounded | `raw_executable` | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) | library incompleteness and downstream absent-peptide consequence still narrow the broader sentence |
+| `lfq` | review-grade, bounded | `raw_executable` | [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/) | missingness, normalization pressure, and external-review-kit limits still block outsider-auditable release language |
+| `multiplex` | internal support only | `raw_executable` | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) | the current stress package still collapses outsider-facing trust |
+| `ptm` | outsider-auditable, bounded | `raw_executable` | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) | localization evidence is stronger than downstream consequence confidence |
+| `targeted` | outsider-auditable, bounded | `raw_executable` | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) | calibration, interference, and assay-burden pressure still block broader certainty |
 
-## What Makes The Families Substantive
+## Why The Families Are Substantively Stronger Now
 
-- `dda` now benefits from stronger import-backed identification, review, and
-  cross-engine comparison surfaces rather than a thin export-normalization
-  story.
-- `dia` now sits on clearer DIA-specific execution, interpretation, and
-  recommendation routes rather than only on raw extraction language.
-- `lfq` now inherits a more sophisticated quantification stack, but its public
-  sentence still narrows when missingness, normalization, and cohort transfer
-  pressure stay visible.
-- `ptm` now rests on broader localization, site, regulation, and PTM review
-  surfaces, while consequence language remains tighter than the localization
-  evidence itself.
-- `targeted` now connects assay-validation planning, transition review, and
-  downstream lab consequence more clearly than in earlier releases.
-- `multiplex` now has materially more substance, but the public sentence stays
-  narrow because outsider-facing trust still collapses under its current
-  stress package.
+The family labels now sit on top of deeper package substance than they did at
+`v0.3.7`:
 
-## Best Next Routes
+- `core` carries broader sequence, chemistry, spectra, mzML, DIA, PTM, and
+  quantification surfaces
+- `runtime` carries replay, rerun, refusal, and artifact-integrity routes
+- `knowledge` carries workflow-level claim grounding and contradiction review
+- `intelligence` carries recommendation challenge, downgrade, and regret
+  surfaces
+- `lab` carries control demand, refusal, and requested-versus-observed outcome
+  loops
 
-- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/)
-  when the question is how one real flagship family crosses foundation, core,
-  runtime, knowledge, intelligence, and lab without package-handbook hopping.
-- Open [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
-  when the question is how one family connects benchmark assets, runtime
-  evidence, curated knowledge, recommendation posture, and lab consequence.
+That deeper product is exactly why the family calls have to stay explicit.
+More real substance makes overclaiming easier if the limiter is not named.
+
+## What The Family Calls Refuse To Hide
+
+- a strong benchmark package does not erase runtime weakness
+- a reproducible rerun lane does not erase grounding or consequence weakness
+- a strong recommendation packet does not erase assay-burden pressure
+- one strong family packet does not authorize broader repository-wide language
+
+## Best Next Questions
+
+- Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  when the question is how the current family calls combine into one release
+  bundle.
 - Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-  when the question is whether the public package roots are complete and
-  current enough.
+  when the question is whether the public evidence root is broad enough and
+  honest enough.
 - Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-  when the question is whether the current run mode and rerun lane deserve the
-  published language.
+  when the question is whether the runtime lane still deserves the published
+  sentence.
 - Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the question is whether grounding, contradiction, recommendation, or
-  public artifact roles change the family call.
+  when the question is whether grounding, recommendation posture, or lab burden
+  is the real limiter.
+
+## Reader Rule
+
+If the family table sounds stronger than the family-specific trust page, rerun
+surface, or consequence route, the table is wrong and must narrow.
 
 ## Boundary
 
-This page compares families. It should not be the only explanation for any one
-family once the reader knows which route they need next.
+This page compares family-level public posture. It should hand the reader to
+the evidence, runtime, grounding, recommendation, or lab owner once the real
+question is known.

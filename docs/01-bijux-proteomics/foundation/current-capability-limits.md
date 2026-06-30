@@ -9,145 +9,97 @@ last_reviewed: 2026-07-01
 
 # Current Capability Limits
 
-This page names what `bijux-proteomics` still cannot do, only does partially,
-or can describe more easily than it can prove.
+This page is the repository honesty boundary. It names where the current
+scientific, runtime, grounding, recommendation, and lab-consequence chain
+still stops stronger public language.
 
-It exists so repository releases, handbook pages, and package-level claims can
-point to one exact limits surface instead of letting each package describe
-scope drift differently.
+The point is not to deny progress. The repository is materially deeper than it
+was at `v0.3.7`. The point is to keep the wording tied to the weakest live
+owner surface instead of letting stronger neighboring surfaces inflate the
+claim.
 
-The repository is materially stronger now than older docs suggested. The
-current limit surface does not exist because the product is thin. It exists
-because the product now has enough scientific, runtime, grounding,
-recommendation, and lab depth that overclaiming would be easier if the
-honesty boundary were not explicit.
+## Current Family-Level Ceiling
 
-This page therefore should be read as a release-language brake, not as a
-dismissal of the current code and evidence. The stronger the repository gets,
-the more important it becomes to show exactly where benchmark, runtime,
-grounding, recommendation, and assay consequence still stop short of broader
-proteomics claims.
+| family | strongest current honest sentence | main limiting layer |
+| --- | --- | --- |
+| `dda` | outsider-auditable, bounded | runtime realism remains weaker than in-repo live-engine parity |
+| `dia` | outsider-auditable, bounded | benchmark and runtime strength still narrow under library incompleteness and consequence pressure |
+| `lfq` | review-grade, bounded | external review, normalization, and transfer pressure still block wider language |
+| `multiplex` | internal support only | outsider trust still collapses under the current stress packet |
+| `ptm` | outsider-auditable, bounded | localization evidence remains stronger than consequence confidence |
+| `targeted` | outsider-auditable, bounded | calibration, interference, and downstream burden still narrow the sentence |
 
 ## Repository-Wide Limits
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
-Review-grade-bounded workflow families today: `lfq`.
-Internal-support-only workflow families today: `multiplex`.
+- several families are now publicly challengeable, but there is still no
+  repository-wide proof set that supports broad proteomics authority under the
+  same standard
+- stronger core biology and chemistry coverage does not by itself erase
+  transfer, runtime, or consequence limits
+- one strong family packet does not widen the sentence for weaker families
+- recommendation posture still narrows when grounded contradiction or
+  downstream assay burden becomes explicit
 
-- several workflow families are now outsider-auditable in a bounded sense, but
-  there is still no broad cross-family proteomics proof set that survives the
-  same standard with supported comparator posture and decision-grade
-  consequence
-- LFQ remains review-grade bounded because its current external review kit and
-  acceptance surface still narrow the stronger outsider-facing sentence
-- LFQ, PTM, and targeted remain bounded because their strongest current public consequence route still ends at exploratory-only follow-up, and one doubled assay burden can still collapse the recommendation back toward refusal
-- DDA still stops short of in-repo live-engine rerun parity
-- multiplex still remains internal support only, so no release language should
-  let it ride for free on adjacent flagship trust claims
+## Why The Limits Sit In Different Layers
 
-## Why The Limits Concentrate In Different Layers
+The current ceiling is not caused by one kind of weakness only:
 
-- some limits are benchmark-transfer limits, where the shipped package is real
-  but still too narrow to authorize broader study language
-- some limits are runtime limits, where the checked rerun lane is honest but
-  still weaker than raw acquisition or vendor-parity replay
-- some limits are decision and lab limits, where grounded recommendation
-  posture still narrows once consequence burden becomes explicit
-- some limits are repository-shape limits, where public breadth still exceeds
-  the most coherent owner boundaries
+- some limits are benchmark-transfer limits
+- some are runtime-lane and execution-realism limits
+- some are grounded-claim and contradiction limits
+- some are recommendation-pressure and regret limits
+- some are lab-readiness and consequence-burden limits
 
-## Where The Product Is Stronger Than The Limits Surface Might Sound
+That is why no single package can honestly declare the whole repository ready
+on its own.
 
-- core scientific breadth is now materially deeper across sequence, chemistry,
-  spectra, mzML, quantification, DIA, and PTM review than the earlier docs
-  admitted
-- runtime proof is now strong enough that several families have real operator
-  rerun and replay routes rather than purely maintainer-described execution
-- knowledge, intelligence, and lab now make grounding, downgrade, refusal, and
-  requested-versus-observed consequence visible enough to narrow public
-  language honestly instead of hiding the weak hop
+## Where The Repository Is Clearly Stronger Now
 
-## Why Stronger Code Still Does Not Mean Wider Language
+- `core` is materially deeper across sequence, chemistry, spectra, mzML, DIA,
+  PTM review, and quantification
+- `runtime` now has real replay, rerun, refusal, and artifact-stability routes
+- `knowledge` and `intelligence` now expose grounded contradiction, downgrade,
+  and recommendation-pressure surfaces directly
+- `lab` now makes control demand, refusal, and requested-versus-observed
+  follow-up visible enough to limit public language honestly
 
-- more chemistry, sequence, quantification, PTM, DIA, knowledge, and
-  recommendation depth does not erase transfer limits
-- one strong benchmark family does not authorize broader repository language
-- one visible runtime lane does not close the lab-consequence boundary
-- one promising follow-up packet does not convert exploratory-only follow-up
-  into decision-grade biological proof
+These improvements matter. They also make the honesty boundary more important,
+not less.
 
-## What Improved Since `v0.3.7` Without Erasing These Limits
+## What Stronger Code Still Does Not Automatically Earn
 
-- several flagship families now have materially stronger benchmark and runtime
-  routes than the earlier repository state
-- knowledge and intelligence now expose grounding, contradiction, and
-  recommendation pressure clearly enough that the weaker sentence can be chosen
-  honestly
-- lab consequence is now explicit enough that exploratory-only follow-up is no
-  longer mistaken for decision-grade readiness
-
-## Scientific Limits
-
-- reviewed benchmark packages still do not mean universal transfer across
-  instrument classes, sample complexity, or study design
-- some PTM, glycopeptide, and advanced protein-inference surfaces still stop at
-  explicit refusal or bounded partial support rather than full scientific
-  coverage
-- batch-effect, interpretation, and downstream recommendation surfaces remain
-  more trustworthy when treated as review aids than as autonomous scientific
-  conclusions
-
-## Execution Limits
-
-- runtime end-to-end proof is now real across DIA, LFQ, multiplex, PTM, and
-  targeted review lanes, but DDA still stops at import-backed runtime proof and
-  every family remains bounded by narrower claim scope than a broad production
-  workflow promise
-- compatibility remains intentionally visible through `agentic-proteins`; the
-  migration is controlled, but the compatibility bridge still exists
-- provider and execution realism still depend on a narrower set of validated
-  pathways than the package map alone might suggest
+- broad cross-family release language
+- decision-grade recommendation authority
+- vendor-parity execution claims
+- universal transfer across study design, instrument class, or sample
+  complexity
+- stronger lab-confidence language than the current follow-up burden supports
 
 ## Documentation Rule
 
-- if a repository, package, or release note sounds more capable than this page,
-  the wording is wrong until the code, tests, artifacts, and scientific proof
-  move first
-- if a real capability lands and this page is stale, update this page in the
-  same change set as the new proof
-- open `docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md` and
-  `docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md`
-  before widening
-  LFQ, PTM, or targeted language from bounded recommendation toward
-  decision-grade claims
+If any README, changelog, trust page, or package handbook sounds stronger than
+this page, the wording is wrong until the proof moves first.
 
-## How To Use This Page Correctly
+Update this page in the same change set when:
 
-- use it when a release note, README sentence, or trust page sounds cleaner
-  than the underlying proof chain
-- use it alongside the workflow-family and consequence pages, not instead of
-  them
-- update it in the same change set as any new proof that materially narrows one
-  of these limits
+- a family meaningfully widens its public sentence
+- a benchmark, runtime, grounding, or consequence blocker materially narrows
+- a release note would otherwise outrun the checked owner surfaces
 
-## Honest Reading
+## Best Next Question
 
-- DDA is limited by execution realism
-- LFQ is limited by cohort transfer and review pressure
-- PTM is limited by ambiguity and assay burden
-- targeted is limited by calibration, interference, and downstream burden
-- multiplex is limited by collapsed outsider trust under stress
+Use this page to identify which layer is actually blocking wider language:
 
-## Reader Use
-
-- use this page when a release note, README sentence, or trust page sounds
-  stronger than the underlying proof chain
-- use it to decide whether the real blocker is benchmark transfer, runtime
-  realism, grounded contradiction, or downstream burden
-- use it as a repository honesty boundary, not as a dismissal of the current
-  scientific depth
+- [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  for the public family call
+- [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  for evidence-root limits
+- [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+  for runtime-lane limits
+- [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  for grounding, recommendation, and consequence limits
 
 ## Boundary
 
-This page is not a product roadmap. It is the current honesty boundary for the
+This page is not a roadmap. It is the current release-language brake for the
 repository.
