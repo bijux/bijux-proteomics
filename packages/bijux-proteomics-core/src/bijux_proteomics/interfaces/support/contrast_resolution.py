@@ -5,7 +5,8 @@
 
 from __future__ import annotations
 
-from .imports import ExperimentalDesignEntry, click
+from .foundation import click
+from .io_and_dia import ExperimentalDesignEntry
 
 __all__ = ["_resolve_cli_contrast"]
 
