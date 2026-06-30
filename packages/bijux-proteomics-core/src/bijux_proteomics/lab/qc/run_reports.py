@@ -29,7 +29,10 @@ from bijux_proteomics.lab.qc.models import (
     QcQuantSummary,
     QcRetentionTimeSummary,
 )
-from bijux_proteomics.quantification import LabelFreeQuantTable, MissingValueKind
+from bijux_proteomics.quantification.contracts import (
+    LabelFreeQuantTable,
+    MissingValueKind,
+)
 from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     ProteaseRule,

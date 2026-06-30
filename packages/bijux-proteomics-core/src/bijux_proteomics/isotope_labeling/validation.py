@@ -20,7 +20,7 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     TmtReporterFeatureBundle,
     build_tmt_reporter_matrix_report,
 )
-from bijux_proteomics.quantification import LabelBasedChannelRole
+from bijux_proteomics.quantification.contracts import LabelBasedChannelRole
 from bijux_proteomics_foundation import JsonModel
 
 

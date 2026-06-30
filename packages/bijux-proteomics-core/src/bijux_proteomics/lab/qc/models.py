@@ -20,7 +20,7 @@ from bijux_proteomics.lab.protocol_context import (
     FractionationMode,
     LabelingMethod,
 )
-from bijux_proteomics.quantification import QuantEntityLevel
+from bijux_proteomics.quantification.contracts import QuantEntityLevel
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 

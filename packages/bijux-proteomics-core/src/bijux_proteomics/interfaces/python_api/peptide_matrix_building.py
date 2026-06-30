@@ -33,7 +33,7 @@ from bijux_proteomics.interfaces.support.output_protocol.artifact_output import 
 from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
     _build_psm_mapping,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     parse_ms1_feature_table_chunked,
     parse_precursor_intensity_table_chunked,
 )

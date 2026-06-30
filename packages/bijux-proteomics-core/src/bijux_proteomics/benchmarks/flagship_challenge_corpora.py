@@ -31,7 +31,7 @@ from bijux_proteomics.ptm.benchmarks import (
     build_ptm_lab_targeting_rubric_report,
     build_ptm_localization_confidence_benchmark_report,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     build_label_free_intensity_table,
     parse_ms1_feature_table,
 )
