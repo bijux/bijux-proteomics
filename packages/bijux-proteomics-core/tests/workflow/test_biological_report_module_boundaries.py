@@ -79,6 +79,10 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_context_confidence.py": (
         "_build_context_section_confidence_entries",
     ),
+    "biological_report_molecular_context_confidence.py": (
+        "_build_disease_phenotype_entry",
+        "_build_drug_target_entry",
+    ),
     "biological_report_activity_confidence.py": (
         "_build_activity_section_confidence_entries",
     ),
