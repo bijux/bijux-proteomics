@@ -99,6 +99,9 @@ from bijux_proteomics.workflow.reports.biological_report_selection import (
     _select_heatmap_entity_ids,
     _select_significant_entity_ids,
 )
+from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (
+    _build_biological_regulator_analysis_reports,
+)
 from bijux_proteomics.workflow.reports.biological_report_source_data import (
     _build_biological_report_source_data,
 )
@@ -199,13 +202,6 @@ def build_biological_result_report_bundle_from_quant_table(
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle from one governed protein quant table."""
 
-    from bijux_proteomics.interpretation import (
-        build_regulator_inference_report,
-        build_regulator_site_signal_entries_from_ptm_evidence_cards,
-        parse_regulator_evidence_table,
-        parse_regulator_site_signal_table,
-    )
-
     experiment_design = coerce_experiment_design(design_entries)
     design_entries = experiment_design.entries
     active_selection_policy = _resolve_biological_result_selection_policy(
@@ -285,33 +281,19 @@ def build_biological_result_report_bundle_from_quant_table(
     pathway_enrichment_report = enrichment_reports.pathway_enrichment_report
     complex_activity_report = enrichment_reports.complex_activity_report
     complex_enrichment_report = enrichment_reports.complex_enrichment_report
-    regulator_evidence_import_report = (
-        None
-        if regulator_evidence_tsv_path is None
-        else parse_regulator_evidence_table(regulator_evidence_tsv_path)
+    regulator_reports = _build_biological_regulator_analysis_reports(
+        regulator_evidence_tsv_path=regulator_evidence_tsv_path,
+        regulator_site_signal_tsv_path=regulator_site_signal_tsv_path,
+        ptm_evidence_card_report=ptm_evidence_card_report,
+        differential_report=differential_report,
+        protein_refs_by_entity=normalized_table.entity_protein_refs,
+        annotation_report=annotation_report,
+        pathway_activity_report=pathway_activity_report,
     )
-    regulator_inference_report = None
-    if regulator_evidence_import_report is not None:
-        if regulator_site_signal_tsv_path is not None:
-            site_signal_entries = parse_regulator_site_signal_table(
-                regulator_site_signal_tsv_path
-            ).accepted_entries
-        elif ptm_evidence_card_report is not None:
-            site_signal_entries = (
-                build_regulator_site_signal_entries_from_ptm_evidence_cards(
-                    ptm_evidence_card_report
-                )
-            )
-        else:
-            site_signal_entries = ()
-        regulator_inference_report = build_regulator_inference_report(
-            regulator_evidence_import_report.accepted_records,
-            differential_report,
-            protein_refs_by_entity=normalized_table.entity_protein_refs,
-            annotation_report=annotation_report,
-            pathway_activity_report=pathway_activity_report,
-            site_signal_entries=site_signal_entries,
-        )
+    regulator_evidence_import_report = (
+        regulator_reports.regulator_evidence_import_report
+    )
+    regulator_inference_report = regulator_reports.regulator_inference_report
     protein_cards = build_protein_evidence_card_report(
         graph_report := build_biological_result_graph_report(
             normalized_table,
