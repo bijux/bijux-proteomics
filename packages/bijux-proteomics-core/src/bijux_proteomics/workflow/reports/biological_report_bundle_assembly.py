@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from bijux_proteomics.workflow.reports.biological_report_bundle_assembly_inputs import (
+    BiologicalReportBundleAssemblyInputs,
+)
 from bijux_proteomics.workflow.reports.biological_report_bundle_confidence_state import (
     _build_biological_report_bundle_confidence_state,
 )
@@ -20,153 +21,77 @@ from bijux_proteomics.workflow.reports.biological_report_bundle_summary import (
     _build_biological_result_report_summary,
 )
 
-if TYPE_CHECKING:
-    from bijux_proteomics.interpretation import (
-        BiologicalContextImportReport,
-        BiologicalContextMappingReport,
-        BiologicalForegroundBackgroundModel,
-        ComplexActivityReport,
-        ComplexEnrichmentReport,
-        CompartmentBiologyReport,
-        DiseasePhenotypeInterpretationReport,
-        DrugTargetInterpretationReport,
-        GoEnrichmentReport,
-        PathwayActivityReport,
-        PathwayEnrichmentReport,
-        ProteinAnnotationMappingReport,
-        RegulatorEvidenceImportReport,
-        RegulatorInferenceReport,
-        TissueCellTypeContextReport,
-    )
-    from bijux_proteomics.quantification.contracts import (
-        DifferentialAbundanceReport,
-        LabelFreeQuantTable,
-    )
-    from bijux_proteomics.quantification.provenance import (
-        HeatmapPreparationReport,
-        SampleExplorationReport,
-    )
-    from bijux_proteomics.review.belief.evidence_aware_ranking import (
-        EvidenceAwareRankingReport,
-    )
-    from bijux_proteomics.review.claims.biological_claim_validation import (
-        BiologicalClaimValidationReport,
-    )
-    from bijux_proteomics.review.claims.biological_hypotheses import (
-        BiologicalHypothesisReport,
-    )
-    from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewReport
-    from bijux_proteomics.study import ExperimentConfidenceReport
-    from bijux_proteomics.workflow.cards.protein_evidence_cards import (
-        ProteinEvidenceCardReport,
-    )
-    from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
-        ProteinMechanismCardReport,
-    )
-    from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
-        BiologicalResultSelectionPolicy,
-    )
-    from bijux_proteomics.workflow.reports.biological_result_graph import (
-        BiologicalResultGraphReport,
-    )
-    from bijux_proteomics.workflow.studies.cohort_stratification import (
-        CohortStratificationReport,
-    )
-
 
 def _assemble_biological_result_report_bundle(
-    *,
-    normalized_table: LabelFreeQuantTable,
-    differential_report: DifferentialAbundanceReport,
-    graph_report: BiologicalResultGraphReport,
-    annotation_report: ProteinAnnotationMappingReport,
-    protein_cards: ProteinEvidenceCardReport,
-    protein_mechanism_cards: ProteinMechanismCardReport,
-    experiment_confidence_report: ExperimentConfidenceReport,
-    evidence_aware_ranking_report: EvidenceAwareRankingReport | None,
-    claim_validation_report: BiologicalClaimValidationReport | None,
-    biological_hypothesis_report: BiologicalHypothesisReport | None,
-    foreground_background_model: BiologicalForegroundBackgroundModel,
-    regulator_evidence_import_report: RegulatorEvidenceImportReport | None,
-    regulator_inference_report: RegulatorInferenceReport | None,
-    context_import_report: BiologicalContextImportReport | None,
-    context_mapping_report: BiologicalContextMappingReport | None,
-    cohort_stratification_report: CohortStratificationReport | None,
-    tissue_cell_type_context_report: TissueCellTypeContextReport | None,
-    drug_target_report: DrugTargetInterpretationReport | None,
-    disease_phenotype_report: DiseasePhenotypeInterpretationReport | None,
-    compartment_biology_report: CompartmentBiologyReport | None,
-    pathway_activity_report: PathwayActivityReport | None,
-    complex_activity_report: ComplexActivityReport | None,
-    go_enrichment_report: GoEnrichmentReport | None,
-    pathway_enrichment_report: PathwayEnrichmentReport | None,
-    complex_enrichment_report: ComplexEnrichmentReport | None,
-    volcano_review: VolcanoReviewReport,
-    heatmap_report: HeatmapPreparationReport,
-    sample_exploration_report: SampleExplorationReport,
-    selection_policy: BiologicalResultSelectionPolicy,
+    assembly_inputs: BiologicalReportBundleAssemblyInputs,
 ) -> BiologicalResultReportBundle:
     confidence_state = _build_biological_report_bundle_confidence_state(
-        experiment_confidence_report=experiment_confidence_report,
-        evidence_aware_ranking_report=evidence_aware_ranking_report,
-        claim_validation_report=claim_validation_report,
-        biological_hypothesis_report=biological_hypothesis_report,
-        foreground_background_model=foreground_background_model,
-        regulator_inference_report=regulator_inference_report,
-        drug_target_report=drug_target_report,
-        disease_phenotype_report=disease_phenotype_report,
-        cohort_stratification_report=cohort_stratification_report,
-        tissue_cell_type_context_report=tissue_cell_type_context_report,
-        compartment_biology_report=compartment_biology_report,
-        pathway_activity_report=pathway_activity_report,
-        complex_activity_report=complex_activity_report,
-        protein_mechanism_cards=protein_mechanism_cards,
+        experiment_confidence_report=assembly_inputs.experiment_confidence_report,
+        evidence_aware_ranking_report=assembly_inputs.evidence_aware_ranking_report,
+        claim_validation_report=assembly_inputs.claim_validation_report,
+        biological_hypothesis_report=assembly_inputs.biological_hypothesis_report,
+        foreground_background_model=assembly_inputs.foreground_background_model,
+        regulator_inference_report=assembly_inputs.regulator_inference_report,
+        drug_target_report=assembly_inputs.drug_target_report,
+        disease_phenotype_report=assembly_inputs.disease_phenotype_report,
+        cohort_stratification_report=assembly_inputs.cohort_stratification_report,
+        tissue_cell_type_context_report=(
+            assembly_inputs.tissue_cell_type_context_report
+        ),
+        compartment_biology_report=assembly_inputs.compartment_biology_report,
+        pathway_activity_report=assembly_inputs.pathway_activity_report,
+        complex_activity_report=assembly_inputs.complex_activity_report,
+        protein_mechanism_cards=assembly_inputs.protein_mechanism_cards,
     )
     return _materialize_biological_result_report_bundle(
-        differential_report=differential_report,
-        graph_report=graph_report,
-        annotation_report=annotation_report,
-        protein_cards=protein_cards,
-        protein_mechanism_cards=protein_mechanism_cards,
-        experiment_confidence_report=experiment_confidence_report,
-        evidence_aware_ranking_report=evidence_aware_ranking_report,
-        claim_validation_report=claim_validation_report,
-        biological_hypothesis_report=biological_hypothesis_report,
-        foreground_background_model=foreground_background_model,
-        regulator_evidence_import_report=regulator_evidence_import_report,
-        regulator_inference_report=regulator_inference_report,
-        context_import_report=context_import_report,
-        context_mapping_report=context_mapping_report,
-        cohort_stratification_report=cohort_stratification_report,
-        tissue_cell_type_context_report=tissue_cell_type_context_report,
-        drug_target_report=drug_target_report,
-        disease_phenotype_report=disease_phenotype_report,
-        compartment_biology_report=compartment_biology_report,
-        pathway_activity_report=pathway_activity_report,
-        complex_activity_report=complex_activity_report,
-        go_enrichment_report=go_enrichment_report,
-        pathway_enrichment_report=pathway_enrichment_report,
-        complex_enrichment_report=complex_enrichment_report,
-        volcano_review=volcano_review,
-        heatmap_report=heatmap_report,
-        sample_exploration_report=sample_exploration_report,
-        selection_policy=selection_policy,
+        differential_report=assembly_inputs.differential_report,
+        graph_report=assembly_inputs.graph_report,
+        annotation_report=assembly_inputs.annotation_report,
+        protein_cards=assembly_inputs.protein_cards,
+        protein_mechanism_cards=assembly_inputs.protein_mechanism_cards,
+        experiment_confidence_report=assembly_inputs.experiment_confidence_report,
+        evidence_aware_ranking_report=assembly_inputs.evidence_aware_ranking_report,
+        claim_validation_report=assembly_inputs.claim_validation_report,
+        biological_hypothesis_report=assembly_inputs.biological_hypothesis_report,
+        foreground_background_model=assembly_inputs.foreground_background_model,
+        regulator_evidence_import_report=(
+            assembly_inputs.regulator_evidence_import_report
+        ),
+        regulator_inference_report=assembly_inputs.regulator_inference_report,
+        context_import_report=assembly_inputs.context_import_report,
+        context_mapping_report=assembly_inputs.context_mapping_report,
+        cohort_stratification_report=assembly_inputs.cohort_stratification_report,
+        tissue_cell_type_context_report=assembly_inputs.tissue_cell_type_context_report,
+        drug_target_report=assembly_inputs.drug_target_report,
+        disease_phenotype_report=assembly_inputs.disease_phenotype_report,
+        compartment_biology_report=assembly_inputs.compartment_biology_report,
+        pathway_activity_report=assembly_inputs.pathway_activity_report,
+        complex_activity_report=assembly_inputs.complex_activity_report,
+        go_enrichment_report=assembly_inputs.go_enrichment_report,
+        pathway_enrichment_report=assembly_inputs.pathway_enrichment_report,
+        complex_enrichment_report=assembly_inputs.complex_enrichment_report,
+        volcano_review=assembly_inputs.volcano_review,
+        heatmap_report=assembly_inputs.heatmap_report,
+        sample_exploration_report=assembly_inputs.sample_exploration_report,
+        selection_policy=assembly_inputs.selection_policy,
         section_confidence_entries=confidence_state.entries,
         summary=_build_biological_result_report_summary(
-            normalized_table=normalized_table,
-            differential_report=differential_report,
-            selection_policy=selection_policy,
-            annotation_report=annotation_report,
-            protein_cards=protein_cards,
-            tissue_cell_type_context_report=tissue_cell_type_context_report,
-            cohort_stratification_report=cohort_stratification_report,
-            experiment_confidence_report=experiment_confidence_report,
+            normalized_table=assembly_inputs.normalized_table,
+            differential_report=assembly_inputs.differential_report,
+            selection_policy=assembly_inputs.selection_policy,
+            annotation_report=assembly_inputs.annotation_report,
+            protein_cards=assembly_inputs.protein_cards,
+            tissue_cell_type_context_report=(
+                assembly_inputs.tissue_cell_type_context_report
+            ),
+            cohort_stratification_report=assembly_inputs.cohort_stratification_report,
+            experiment_confidence_report=assembly_inputs.experiment_confidence_report,
             section_confidence_counts=confidence_state.counts,
-            context_mapping_report=context_mapping_report,
-            go_enrichment_report=go_enrichment_report,
-            pathway_enrichment_report=pathway_enrichment_report,
-            complex_enrichment_report=complex_enrichment_report,
-            heatmap_report=heatmap_report,
-            sample_exploration_report=sample_exploration_report,
+            context_mapping_report=assembly_inputs.context_mapping_report,
+            go_enrichment_report=assembly_inputs.go_enrichment_report,
+            pathway_enrichment_report=assembly_inputs.pathway_enrichment_report,
+            complex_enrichment_report=assembly_inputs.complex_enrichment_report,
+            heatmap_report=assembly_inputs.heatmap_report,
+            sample_exploration_report=assembly_inputs.sample_exploration_report,
         ),
     )
