@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.isotope_labeling import (
+from .isotope_labeling import (
     SilacColumnMapping,
     SilacLabel,
     SilacQuantificationPolicy,
