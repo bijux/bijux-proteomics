@@ -69,6 +69,12 @@ from bijux_proteomics.workflow.facade_runtime import (
     module_directory,
     ordered_facade_owners,
 )
+from bijux_proteomics.workflow.facade_report_catalog import (
+    REPORT_FACADE_OWNERS,
+    WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS,
+    WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
+    WORKFLOW_ROOT_REPORT_OWNERS,
+)
 from bijux_proteomics.workflow.facade_study_catalog import (
     STUDY_FACADE_OWNERS,
     WORKFLOW_ROOT_STUDY_OWNERS,
@@ -134,30 +140,6 @@ WORKFLOW_ROOT_CARD_HELPER_EXPORTS = (
 )
 
 WORKFLOW_ROOT_CARD_OWNERS = copy_facade_owners(CARD_FACADE_OWNERS)
-
-REPORT_FACADE_OWNERS = (
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.reports.biological_reporting",
-        rationale="biological result report ownership",
-    ),
-    WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.reports.biological_result_graph",
-        rationale="biological result graph ownership",
-    ),
-)
-
-WORKFLOW_ROOT_REPORT_HELPER_EXPORTS = (
-    "write_biological_result_report_bundle",
-    "render_biological_report_section_confidence_tsv",
-    "render_biological_result_report_summary_tsv",
-)
-
-WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS = ("export_biological_result_report_bundle",)
-
-WORKFLOW_ROOT_REPORT_OWNERS = copy_facade_owners(
-    REPORT_FACADE_OWNERS,
-    excluded_exports=WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
-)
 
 WORKFLOW_ROOT_SUBMODULES = {
     "benchmarks": "bijux_proteomics.workflow.benchmarks",
