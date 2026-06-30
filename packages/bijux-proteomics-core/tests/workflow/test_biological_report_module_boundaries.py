@@ -63,6 +63,10 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_pathway_ranking_candidates",
         "_build_biological_protein_ranking_candidates",
     ),
+    "biological_report_activity_exports.py": (
+        "BiologicalActivityExportNames",
+        "write_biological_activity_exports",
+    ),
     "biological_report_assembly.py": (
         "build_biological_result_report_bundle",
         "build_biological_result_report_bundle_from_quant_table",
