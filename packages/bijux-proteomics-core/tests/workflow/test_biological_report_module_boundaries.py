@@ -227,6 +227,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_tissue_cell_type_context_table_html",
         "_render_cohort_stratification_table_html",
     ),
+    "biological_report_html_activity_tables.py": (
+        "_render_compartment_biology_table_html",
+        "_render_pathway_activity_table_html",
+        "_render_complex_activity_table_html",
+    ),
     "biological_report_html.py": ("_render_biological_result_report_html",),
     "biological_report_rendering.py": (
         "export_biological_result_report_bundle",
