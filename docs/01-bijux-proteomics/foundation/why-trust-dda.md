@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Why Trust DDA
@@ -15,6 +15,11 @@ It does not say DDA is solved in general. It says the repository now ships two
 public DDA packages and one published cross-package report, so a skeptical
 reviewer can inspect whether the main DDA claims survive beyond one unusually
 convenient package.
+
+What is stronger than before is the surrounding chain: broader core review
+surfaces, explicit runtime packaging, knowledge grounding, downgrade-aware
+recommendation, and visible consequence posture. What stays weaker is the live
+execution boundary.
 
 ## Open First
 
@@ -39,6 +44,14 @@ convenient package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
+## What The Reader Is Really Auditing
+
+- whether adapter-normalized DDA evidence remains interpretable after engine
+  translation
+- whether cross-engine drift is shown instead of hidden
+- whether the package, runtime lane, and recommendation posture all admit the
+  same downgrade pressure
+
 ## Exact Claims
 
 - adapter-normalized DDA evidence preserves target-decoy semantics across the
@@ -57,6 +70,13 @@ convenient package.
   `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json`
 - numeric invariants and one concrete protein-rollup warning are published
 - runtime, knowledge, intelligence, and lab all point at the same family
+
+## Why The Public Sentence Still Narrows
+
+- DDA still lacks in-repo live-engine rerun parity
+- the strongest current route remains import-backed rather than raw-executable
+- the companion package proves the repository is willing to surface rollup
+  drift instead of flattening it into a success story
 
 ## Limits That Stay In Force
 

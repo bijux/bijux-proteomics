@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Why Multiplex Stops At Internal Support
@@ -19,6 +19,12 @@ chemistry pressure, plus one companion stress package and one published
 cross-package report, but it still lacks a dedicated outsider decision brief, a
 requested-versus-observed outcome dossier, and an assay-worth-it ledger row.
 
+This page exists because the current repository is deeper than older docs made
+it sound. Multiplex is not thin or imaginary. It is a real scientific and
+runtime surface that still stops at internal support because the outsider trust
+chain collapses under stress and because the downstream consequence packet is
+not yet complete.
+
 ## What This Family Has Earned
 
 - tracked benchmark package under
@@ -30,6 +36,15 @@ requested-versus-observed outcome dossier, and an assay-worth-it ledger row.
   and missing-channel behavior
 - published family-transfer report at
   `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/cross_package_generalization.json`
+
+## What Still Breaks The Outsider Packet
+
+- the companion stress package still labels transfer `fragile_transfer`
+- no dedicated outsider decision brief family exists yet
+- no requested-versus-observed outcome dossier exists yet
+- no assay-worth-it ledger row exists yet
+- one raw-executable runtime lane is not enough to replace those missing
+  review and consequence surfaces
 
 ## What This Family Has Not Earned
 

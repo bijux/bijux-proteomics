@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Why Trust Targeted
@@ -16,6 +16,11 @@ limit surface across two public targeted packages plus one published
 cross-package report. The repository earns a bounded outsider-auditable
 targeted workflow claim, not a vendor-parity or calibration-clean targeted
 authority.
+
+What is stronger than before is the coherence of the packet: QC review,
+runtime evidence, follow-up packets, and consequence posture now line up more
+cleanly. What still blocks wider language is calibration realism, interference
+pressure, and downstream burden.
 
 ## Open First
 
@@ -44,6 +49,15 @@ authority.
   still ends at exploratory-only follow-up and can collapse when calibration or
   interference burden gets heavier.
 
+## What The Reader Is Really Auditing
+
+- whether transition-level QC survives alongside explicit failed and refused
+  follow-up packets
+- whether carryover pressure weakens the same conclusion the primary package
+  appears to support
+- whether the recommendation and lab surfaces keep calibration and interference
+  burden visible
+
 ## Exact Claims
 
 - targeted benchmark outputs preserve transition-level QC evidence and explicit
@@ -62,6 +76,12 @@ authority.
   pressure, and observed follow-up consequence outputs in one checked lane
 - the companion carryover package publishes a second family-transfer check at
   `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/cross_package_generalization.json`
+
+## Why The Public Sentence Still Narrows
+
+- calibration-clean and vendor-parity targeted authority are not earned
+- carryover-stress weakens promotion confidence under the companion package
+- exploratory-only follow-up still bounds downstream consequence
 
 ## What You Should Not Trust Yet
 

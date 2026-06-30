@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Why Trust DIA
@@ -16,6 +16,11 @@ packages plus one published cross-package report, so a reviewer can inspect
 whether DIA trust survives beyond one library-conditioned package. The
 authority still stops at library-conditioned review rather than
 vendor-execution parity.
+
+The meaningful change since `v0.3.7` is that DIA now sits on a clearer chain of
+runtime, grounding, recommendation, and consequence surfaces. The boundary is
+still real: stronger public packets do not yet become chromatogram-level or
+vendor-parity authority.
 
 ## Open First
 
@@ -42,6 +47,15 @@ vendor-execution parity.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
+## What The Reader Is Really Auditing
+
+- whether library-conditioned DIA evidence stays inspectable across the primary
+  and companion packages
+- whether the raw-executable runtime lane preserves rerun trust instead of
+  outsourcing it to maintainer narration
+- whether absent-peptide and matrix-shift pressure remain visible in the final
+  sentence
+
 ## Exact Claims
 
 - DIA adapter normalization preserves library-conditioned transition semantics
@@ -59,6 +73,13 @@ vendor-execution parity.
   lifecycle boundaries inspectable without reading internal code
 - the companion matrix-shift package publishes a second family-transfer check at
   `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json`
+
+## Why The Public Sentence Still Narrows
+
+- library incompleteness still limits broader biological confidence
+- absent-peptide reasoning weakens under the companion matrix-shift package
+- chromatogram-level and vendor-execution parity remain outside the current
+  proof boundary
 
 ## What You Should Not Trust Yet
 

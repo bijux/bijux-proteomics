@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Why Trust LFQ
@@ -15,6 +15,11 @@ What you can trust here is the repo's honesty around missingness, QC, and
 bounded cohort interpretation across two public LFQ packages plus one published
 cross-package report. The repository earns a bounded outsider-auditable LFQ
 claim, not broad cohort-transfer or decision-grade quant authority.
+
+This page is one of the clearest examples of the repository being stronger and
+more honest at the same time. LFQ now has a fuller outsider-readable packet
+than earlier docs admitted, but the release sentence still narrows because the
+package surfaces show the narrowing pressure directly.
 
 ## Open First
 
@@ -41,6 +46,15 @@ claim, not broad cohort-transfer or decision-grade quant authority.
   still ends at exploratory-only follow-up and can collapse under higher assay
   burden.
 
+## What The Reader Is Really Auditing
+
+- whether missingness, normalization, and replicate pressure are explicit
+  enough to survive skeptical review
+- whether the runtime lane preserves reviewability across cohort-scale
+  normalization and differential outputs
+- whether the sparse companion package weakens the same conclusions the primary
+  package seems to support
+
 ## Exact Claims
 
 - LFQ review preserves study-design semantics, missingness visibility, and
@@ -61,6 +75,14 @@ claim, not broad cohort-transfer or decision-grade quant authority.
 - the companion sparse-contrast package publishes a second family-transfer check
   at
   `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json`
+
+## Why The Released Sentence Still Narrows
+
+- LFQ is outsider-auditable in the packet sense, but its released sentence
+  remains review-grade bounded
+- missingness and normalization pressure stay visible in the public acceptance
+  surfaces
+- sparse-cohort transfer still weakens effect-direction confidence
 
 ## What You Should Not Trust Yet
 

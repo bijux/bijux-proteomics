@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Why Trust PTM
@@ -15,6 +15,11 @@ The trustworthy part today is the repository's ambiguity discipline around
 localization, targetability, and follow-up burden across two public PTM
 packages plus one published cross-package report. PTM is outsider-auditable in
 a bounded sense, not a decision-grade promotion story.
+
+PTM is also one of the clearest examples of deeper real science in the current
+repository. The public packet now rests on broader localization, occupancy,
+motif, and follow-up surfaces, while still refusing to blur localization
+evidence into stronger regulatory language than the current proof supports.
 
 ## Open First
 
@@ -42,6 +47,15 @@ a bounded sense, not a decision-grade promotion story.
   still ends at exploratory-only follow-up and can collapse once PTM burden or
   ambiguity widens again.
 
+## What The Reader Is Really Auditing
+
+- whether localization evidence stays separated from broader occupancy or
+  regulatory meaning
+- whether ambiguity remains a first-class public surface instead of a quiet
+  footnote
+- whether targetability and follow-up pressure narrow the same sentence that
+  the benchmark package seems to strengthen
+
 ## Exact Claims
 
 - PTM review preserves localization confidence, ambiguity, and PSI-MOD
@@ -61,6 +75,13 @@ a bounded sense, not a decision-grade promotion story.
 - the companion ambiguity-stress package publishes a second family-transfer
   check at
   `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/cross_package_generalization.json`
+
+## Why The Public Sentence Still Narrows
+
+- occupancy and regulatory interpretation remain narrower than localization
+  evidence
+- ambiguity still weakens targetability under the companion package
+- exploratory-only follow-up keeps the consequence chain bounded
 
 ## What You Should Not Trust Yet
 
