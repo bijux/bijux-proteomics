@@ -8,14 +8,14 @@ from bijux_proteomics.workflow.public_api import (
     BENCHMARK_SUBMODULES,
     BENCHMARK_FACADE_OWNERS,
     build_lazy_export_index,
-    facade_owner_modules,
     load_public_export,
     load_public_submodule,
     module_directory,
+    ordered_facade_owners,
 )
 
 __all__, _BENCHMARK_EXPORT_INDEX = build_lazy_export_index(
-    facade_owner_modules(BENCHMARK_FACADE_OWNERS)
+    ordered_facade_owners(BENCHMARK_FACADE_OWNERS)
 )
 
 

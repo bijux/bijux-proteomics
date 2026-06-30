@@ -7,13 +7,13 @@ from typing import Any
 from bijux_proteomics.workflow.public_api import (
     ENGINE_PIPELINE_FACADE_OWNERS,
     build_lazy_export_index,
-    facade_owner_modules,
     load_public_export,
     module_directory,
+    ordered_facade_owners,
 )
 
 __all__, _ENGINE_PIPELINE_EXPORT_INDEX = build_lazy_export_index(
-    facade_owner_modules(ENGINE_PIPELINE_FACADE_OWNERS)
+    ordered_facade_owners(ENGINE_PIPELINE_FACADE_OWNERS)
 )
 
 

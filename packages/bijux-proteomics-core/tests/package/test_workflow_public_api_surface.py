@@ -32,13 +32,13 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_SHARED_OWNERS,
     WORKFLOW_ROOT_SUBMODULES,
     build_lazy_export_index,
-    facade_owner_modules,
+    ordered_facade_owners,
 )
 from bijux_proteomics.workflow.result_types import WorkflowResult
 
 
 def test_workflow_root_public_api_matches_governed_owner_ledger() -> None:
-    expected_names, _ = build_lazy_export_index(facade_owner_modules(WORKFLOW_ROOT_OWNERS))
+    expected_names, _ = build_lazy_export_index(ordered_facade_owners(WORKFLOW_ROOT_OWNERS))
 
     assert tuple(workflow.__all__) == expected_names
     assert set(WORKFLOW_ROOT_SUBMODULES).isdisjoint(workflow.__all__)
@@ -69,30 +69,30 @@ def test_workflow_root_pipeline_owners_exclude_demo_surfaces() -> None:
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     expected_benchmark_synthetic, _ = build_lazy_export_index(
-        facade_owner_modules(BENCHMARK_SYNTHETIC_FACADE_OWNERS)
+        ordered_facade_owners(BENCHMARK_SYNTHETIC_FACADE_OWNERS)
     )
     expected_benchmark_fidelity, _ = build_lazy_export_index(
-        facade_owner_modules(BENCHMARK_FIDELITY_FACADE_OWNERS)
+        ordered_facade_owners(BENCHMARK_FIDELITY_FACADE_OWNERS)
     )
     expected_benchmark_datasets, _ = build_lazy_export_index(
-        facade_owner_modules(BENCHMARK_DATASET_FACADE_OWNERS)
+        ordered_facade_owners(BENCHMARK_DATASET_FACADE_OWNERS)
     )
     expected_benchmarks, _ = build_lazy_export_index(
-        facade_owner_modules(BENCHMARK_FACADE_OWNERS)
+        ordered_facade_owners(BENCHMARK_FACADE_OWNERS)
     )
-    expected_cards, _ = build_lazy_export_index(facade_owner_modules(CARD_FACADE_OWNERS))
-    expected_demo, _ = build_lazy_export_index(facade_owner_modules(DEMO_FACADE_OWNERS))
+    expected_cards, _ = build_lazy_export_index(ordered_facade_owners(CARD_FACADE_OWNERS))
+    expected_demo, _ = build_lazy_export_index(ordered_facade_owners(DEMO_FACADE_OWNERS))
     expected_exports, _ = build_lazy_export_index(
-        facade_owner_modules(EXPORT_FACADE_OWNERS)
+        ordered_facade_owners(EXPORT_FACADE_OWNERS)
     )
     expected_pipelines, _ = build_lazy_export_index(
-        facade_owner_modules(PIPELINE_FACADE_OWNERS)
+        ordered_facade_owners(PIPELINE_FACADE_OWNERS)
     )
     expected_reports, _ = build_lazy_export_index(
-        facade_owner_modules(REPORT_FACADE_OWNERS)
+        ordered_facade_owners(REPORT_FACADE_OWNERS)
     )
     expected_studies, _ = build_lazy_export_index(
-        facade_owner_modules(STUDY_FACADE_OWNERS)
+        ordered_facade_owners(STUDY_FACADE_OWNERS)
     )
 
     assert tuple(benchmarks.__all__) == expected_benchmarks

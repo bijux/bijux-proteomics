@@ -358,10 +358,10 @@ WORKFLOW_ROOT_OWNERS = (
 )
 
 
-def facade_owner_modules(
+def ordered_facade_owners(
     owners: tuple[WorkflowFacadeOwner, ...],
 ) -> tuple[WorkflowFacadeOwner, ...]:
-    """Return owner module names in their governed facade order."""
+    """Return facade owners in their governed export order."""
 
     return owners
 
@@ -513,9 +513,9 @@ __all__ = [
     "WORKFLOW_ROOT_SUBMODULES",
     "WorkflowFacadeOwner",
     "build_lazy_export_index",
-    "facade_owner_modules",
     "list_owned_public_names",
     "load_public_export",
     "load_public_submodule",
     "module_directory",
+    "ordered_facade_owners",
 ]
