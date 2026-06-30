@@ -34,8 +34,8 @@ from bijux_proteomics.workflow.reports.biological_report_claims import (
     _build_biological_evidence_aware_ranking_report,
     _build_biological_hypothesis_report,
 )
-from bijux_proteomics.workflow.reports.biological_report_bundle_summary import (
-    _build_biological_result_report_summary,
+from bijux_proteomics.workflow.reports.biological_report_bundle_assembly import (
+    _assemble_biological_result_report_bundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_context_assembly import (
     _build_biological_context_reports,
@@ -46,10 +46,6 @@ from bijux_proteomics.workflow.reports.biological_report_enrichment_assembly imp
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultSelectionPolicy,
-)
-from bijux_proteomics.workflow.reports.biological_report_section_confidence import (
-    _build_biological_report_section_confidence_entries,
-    _count_section_confidence_labels,
 )
 from bijux_proteomics.workflow.reports.biological_report_experiment_review import (
     _build_biological_experiment_review_reports,
@@ -302,26 +298,8 @@ def build_biological_result_report_bundle_from_quant_table(
         pathway_activity_report=pathway_activity_report,
         regulator_inference_report=regulator_inference_report,
     )
-    section_confidence_entries = _build_biological_report_section_confidence_entries(
-        experiment_confidence_report=experiment_confidence_report,
-        evidence_aware_ranking_report=evidence_aware_ranking_report,
-        claim_validation_report=claim_validation_report,
-        biological_hypothesis_report=biological_hypothesis_report,
-        foreground_background_model=foreground_background_model,
-        regulator_inference_report=regulator_inference_report,
-        drug_target_report=drug_target_report,
-        disease_phenotype_report=disease_phenotype_report,
-        cohort_stratification_report=cohort_stratification_report,
-        tissue_cell_type_context_report=tissue_cell_type_context_report,
-        compartment_biology_report=compartment_biology_report,
-        pathway_activity_report=pathway_activity_report,
-        complex_activity_report=complex_activity_report,
-        protein_mechanism_cards=protein_mechanism_cards,
-    )
-    section_confidence_counts = _count_section_confidence_labels(
-        section_confidence_entries
-    )
-    return BiologicalResultReportBundle(
+    return _assemble_biological_result_report_bundle(
+        normalized_table=normalized_table,
         differential_report=differential_report,
         graph_report=graph_report,
         annotation_report=annotation_report,
@@ -350,26 +328,4 @@ def build_biological_result_report_bundle_from_quant_table(
         heatmap_report=heatmap_report,
         sample_exploration_report=sample_exploration_report,
         selection_policy=active_selection_policy,
-        section_confidence_entries=section_confidence_entries,
-        summary=_build_biological_result_report_summary(
-            normalized_table=normalized_table,
-            differential_report=differential_report,
-            selection_policy=active_selection_policy,
-            annotation_report=annotation_report,
-            protein_cards=protein_cards,
-            tissue_cell_type_context_report=tissue_cell_type_context_report,
-            cohort_stratification_report=cohort_stratification_report,
-            experiment_confidence_report=experiment_confidence_report,
-            section_confidence_counts=section_confidence_counts,
-            context_mapping_report=context_mapping_report,
-            go_enrichment_report=go_enrichment_report,
-            pathway_enrichment_report=pathway_enrichment_report,
-            complex_enrichment_report=complex_enrichment_report,
-            heatmap_report=heatmap_report,
-            sample_exploration_report=sample_exploration_report,
-        ),
-        note=(
-            "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
-            " with experiment-level confidence scoring, tissue and cell-type context review, claim validation, biological hypotheses, and explicit component reasons"
-        ),
     )
