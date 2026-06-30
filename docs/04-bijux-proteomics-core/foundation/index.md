@@ -15,6 +15,12 @@ runtime-agnostic request shapes, and benchmark acceptance logic. If a page here
 needs recommendation posture or operator transport to justify itself, the
 boundary is already drifting.
 
+This section now carries far more real scientific weight than an abstract
+workflow charter. Public benchmark evidence, workflow-family trust, and release
+scrutiny all depend on core continuing to state runtime-agnostic workflow
+contracts, benchmark-acceptance bars, and lifecycle transitions in terms that
+remain inspectable outside execution code.
+
 ```mermaid
 flowchart LR
     lifecycle["lifecycle states"]
@@ -39,6 +45,14 @@ flowchart LR
   transport
 - review-gate and lifecycle truth that stays inspectable outside runtime code
 - scientific contracts that remain distinct from evidence memory and lab burden
+
+## What Makes This Section Scientifically Heavy
+
+- it names the repository's scientific law before downstream judgment begins
+- benchmark-backed workflow families must clear benchmark-acceptance scrutiny
+  here before they earn broader trust language
+- runtime, knowledge, intelligence, and lab all inherit these lifecycle
+  transitions and workflow contracts before they add local owner logic
 
 ## Start With
 
@@ -104,6 +118,19 @@ flowchart LR
 - which benchmark-acceptance and lifecycle surfaces are still owned here
 - when a proposed change is really evidence policy, runtime delivery, or lab
   consequence and should leave this package
+
+## Strongest Core Proof
+
+- start with
+  [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  when the question is whether the repository has real public scientific roots
+- continue to
+  [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
+  when the dispute is whether a family still earns benchmark-backed trust
+- open
+  [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
+  when a proposal is trying to turn scientific law into evidence policy,
+  recommendation posture, or operator transport
 
 ## First Proof Check
 
