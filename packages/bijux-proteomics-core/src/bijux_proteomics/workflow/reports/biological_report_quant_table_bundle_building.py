@@ -19,7 +19,6 @@ from bijux_proteomics.study import (
     ExperimentDesign,
     LcmsRunQcReport,
     QcRunAssessmentReport,
-    coerce_experiment_design,
 )
 from bijux_proteomics.workflow.reports.biological_report_bundle_assembly import (
     _assemble_biological_result_report_bundle,
@@ -28,14 +27,8 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultSelectionPolicy,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_review_reports import (
-    _build_biological_quant_table_review_reports,
-)
-from bijux_proteomics.workflow.reports.biological_report_quant_table_supporting_reports import (
-    _build_biological_quant_table_supporting_reports,
-)
-from bijux_proteomics.workflow.reports.biological_report_quantification_analysis import (
-    _build_biological_quantification_analysis,
+from bijux_proteomics.workflow.reports.biological_report_quant_table_bundle_stages import (
+    _build_biological_quant_table_bundle_stages,
 )
 
 
@@ -72,69 +65,22 @@ def _build_biological_result_report_bundle_from_quant_table_owned(
     *,
     build_options: BiologicalReportQuantTableBuildOptions,
 ) -> BiologicalResultReportBundle:
-    experiment_design = coerce_experiment_design(design_entries)
-    quantification_analysis = _build_biological_quantification_analysis(
+    bundle_stages = _build_biological_quant_table_bundle_stages(
         quant_table,
-        experiment_design,
-        normalization_method=build_options.normalization_method,
-        condition_a=build_options.condition_a,
-        condition_b=build_options.condition_b,
-        selection_policy=build_options.selection_policy,
-        protocol_context_tsv_path=build_options.protocol_context_tsv_path,
+        design_entries,
+        build_options=build_options,
     )
-    design_entries = quantification_analysis.design_entries
-    active_selection_policy = quantification_analysis.selection_policy
-    normalized_table = quantification_analysis.normalized_table
-    resolved_condition_a = quantification_analysis.resolved_condition_a
-    resolved_condition_b = quantification_analysis.resolved_condition_b
-    differential_report = quantification_analysis.differential_report
-    supporting_reports = _build_biological_quant_table_supporting_reports(
-        normalized_table=normalized_table,
-        differential_report=differential_report,
-        experiment_design=experiment_design,
-        design_entries=design_entries,
-        active_selection_policy=active_selection_policy,
-        proteins_fasta_path=build_options.proteins_fasta_path,
-        variant_proteins_fasta_path=build_options.variant_proteins_fasta_path,
-        variant_peptide_tsv_path=build_options.variant_peptide_tsv_path,
-        protocol_context_tsv_path=build_options.protocol_context_tsv_path,
-        annotation_tsv_path=build_options.annotation_tsv_path,
-        context_annotation_tsv_path=build_options.context_annotation_tsv_path,
-        protein_region_context_tsv_path=build_options.protein_region_context_tsv_path,
-        go_annotation_tsv_path=build_options.go_annotation_tsv_path,
-        pathway_membership_tsv_path=build_options.pathway_membership_tsv_path,
-        complex_membership_tsv_path=build_options.complex_membership_tsv_path,
-        regulator_evidence_tsv_path=build_options.regulator_evidence_tsv_path,
-        regulator_site_signal_tsv_path=build_options.regulator_site_signal_tsv_path,
-        ptm_evidence_card_report=build_options.ptm_evidence_card_report,
-        lab_run_qc_feedback_report=build_options.lab_run_qc_feedback_report,
-    )
+    quantification_analysis = bundle_stages.quantification_analysis
+    supporting_reports = bundle_stages.supporting_reports
+    review_reports = bundle_stages.review_reports
     source_data = supporting_reports.source_data
     context_reports = supporting_reports.context_reports
     enrichment_reports = supporting_reports.enrichment_reports
     regulator_reports = supporting_reports.regulator_reports
     protein_evidence_reports = supporting_reports.protein_evidence_reports
-    review_reports = _build_biological_quant_table_review_reports(
-        normalized_table=normalized_table,
-        differential_report=differential_report,
-        experiment_design=experiment_design,
-        design_entries=design_entries,
-        active_selection_policy=active_selection_policy,
-        protein_cards=protein_evidence_reports.protein_cards,
-        protein_mechanism_cards=protein_evidence_reports.protein_mechanism_cards,
-        pathway_activity_report=enrichment_reports.pathway_activity_report,
-        pathway_enrichment_report=enrichment_reports.pathway_enrichment_report,
-        regulator_inference_report=regulator_reports.regulator_inference_report,
-        resolved_condition_a=resolved_condition_a,
-        resolved_condition_b=resolved_condition_b,
-        protocol_context_tsv_path=build_options.protocol_context_tsv_path,
-        run_qc_reports=build_options.run_qc_reports,
-        run_qc_assessments=build_options.run_qc_assessments,
-        volcano_policy=build_options.volcano_policy,
-    )
     return _assemble_biological_result_report_bundle(
-        normalized_table=normalized_table,
-        differential_report=differential_report,
+        normalized_table=quantification_analysis.normalized_table,
+        differential_report=quantification_analysis.differential_report,
         graph_report=protein_evidence_reports.graph_report,
         annotation_report=source_data.annotation_report,
         protein_cards=protein_evidence_reports.protein_cards,
@@ -163,5 +109,5 @@ def _build_biological_result_report_bundle_from_quant_table_owned(
         volcano_review=review_reports.volcano_review,
         heatmap_report=review_reports.heatmap_report,
         sample_exploration_report=review_reports.sample_exploration_report,
-        selection_policy=active_selection_policy,
+        selection_policy=bundle_stages.active_selection_policy,
     )
