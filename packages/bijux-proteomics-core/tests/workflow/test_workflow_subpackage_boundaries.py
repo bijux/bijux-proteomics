@@ -111,3 +111,18 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(studies, "build_public_dataset_comparison_report")
     assert hasattr(studies, "build_proteomics_study_result")
     assert hasattr(studies, "ProteomicsStudyKind")
+
+
+def test_workflow_facades_import_owned_catalogs_instead_of_public_api() -> None:
+    for path in _WORKFLOW_ROOT.rglob("__init__.py"):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module is not None:
+                assert node.module != "bijux_proteomics.workflow.public_api", (
+                    f"{path} should import runtime helpers and owned catalogs directly"
+                )
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    assert alias.name != "bijux_proteomics.workflow.public_api", (
+                        f"{path} should import runtime helpers and owned catalogs directly"
+                    )
