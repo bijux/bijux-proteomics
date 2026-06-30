@@ -251,7 +251,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "identification/adapters/comet_import.py",
             "identification/adapters/diann_import.py",
             "identification/adapters/fragpipe_benchmarks.py",
-            "identification/adapters/fragpipe_import.py",
+            "identification/adapters/fragpipe_import/__init__.py",
             "identification/adapters/maxquant_import.py",
             "identification/adapters/openms_import.py",
             "identification/adapters/sage_import.py",
