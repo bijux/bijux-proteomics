@@ -17,9 +17,13 @@ from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.dia.run_qc import render_dia_run_qc_summary_tsv
 from bijux_proteomics.identification import SearchAdapterKind
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     NormalizationMethod,
+)
+from bijux_proteomics.quantification.normalization import (
     normalize_label_free_table,
+)
+from bijux_proteomics.quantification.statistics import (
     render_differential_abundance_tsv,
 )
 from bijux_proteomics.review import VolcanoReviewPolicy

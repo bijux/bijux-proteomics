@@ -42,14 +42,16 @@ from bijux_proteomics.io.tables import (
     iter_delimited_row_chunks,
     read_delimited_table_header,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     NormalizationMethod,
-    ProteinLfqReport,
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
     QuantValue,
+)
+from bijux_proteomics.quantification.rollup import (
+    ProteinLfqReport,
     build_protein_lfq_report_from_psms,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_mask_tsv,

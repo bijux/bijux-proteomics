@@ -23,7 +23,7 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     TmtReporterMatrixReport,
     build_tmt_reporter_matrix_report,
 )
-from bijux_proteomics.quantification import LabelBasedChannelRole
+from bijux_proteomics.quantification.contracts import LabelBasedChannelRole
 from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinMatrixTargetKind,
 )

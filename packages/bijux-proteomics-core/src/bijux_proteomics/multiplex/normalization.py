@@ -22,7 +22,7 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     render_tmt_peptide_matrix_tsv,
     render_tmt_protein_matrix_tsv,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     LabelBasedChannelRole,
     MissingValueKind,
     Ms1FeatureRecord,

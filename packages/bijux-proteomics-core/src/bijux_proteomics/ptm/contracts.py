@@ -43,7 +43,7 @@ from bijux_proteomics.identification import (
 )
 from bijux_proteomics.ptm.parsing.peptide_parser import PtmPeptideSiteEntry
 from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
-from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 

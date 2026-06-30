@@ -31,7 +31,7 @@ from bijux_proteomics.ptm.regulation.motif_analysis import (
     build_ptm_motif_enrichment_background_provenance_report,  # noqa: F401
     build_ptm_motif_windows,
 )
-from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:

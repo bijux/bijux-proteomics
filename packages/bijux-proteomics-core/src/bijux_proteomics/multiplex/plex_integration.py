@@ -19,7 +19,10 @@ from bijux_proteomics.multiplex.normalization import (
     build_tmt_normalization_report,
 )
 from bijux_proteomics.multiplex.reporter_matrix import TmtReporterFeatureBundle
-from bijux_proteomics.quantification import LabelBasedChannelRole, QuantEntityLevel
+from bijux_proteomics.quantification.contracts import (
+    LabelBasedChannelRole,
+    QuantEntityLevel,
+)
 from bijux_proteomics.quantification.contracts.missingness import (
     MissingValueSummaryEntry,
     MissingValueSummaryReport,

@@ -31,7 +31,7 @@ from bijux_proteomics.ptm import (
     write_ptm_report_bundle,
 )
 from bijux_proteomics.ptm.reporting import build_ptm_report_bundle
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     NormalizationMethod,
     parse_ms1_feature_table,
 )

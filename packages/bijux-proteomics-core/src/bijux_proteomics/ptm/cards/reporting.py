@@ -90,7 +90,10 @@ from bijux_proteomics.ptm.site_quantification import (
     render_ptm_site_quant_matrix_tsv,
     render_ptm_site_quant_missingness_tsv,
 )
-from bijux_proteomics.quantification import Ms1FeatureRecord, NormalizationMethod
+from bijux_proteomics.quantification.contracts import (
+    Ms1FeatureRecord,
+    NormalizationMethod,
+)
 from bijux_proteomics.review import (
     EvidenceAwareRankingCandidate,
     EvidenceAwareRankingEntityKind,

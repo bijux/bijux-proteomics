@@ -43,7 +43,7 @@ from bijux_proteomics.ptm import (
     PtmRegulatorEnrichmentPolicy,
     PtmSiteQuantAmbiguityPolicy,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantRollupMethod,

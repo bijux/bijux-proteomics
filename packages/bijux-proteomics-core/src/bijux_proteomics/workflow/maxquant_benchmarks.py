@@ -20,7 +20,7 @@ from bijux_proteomics.identification.maxquant_import import (
     build_maxquant_import_report,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
     MissingValueKind,
@@ -29,11 +29,13 @@ from bijux_proteomics.quantification import (
     QuantMeasureKind,
     QuantRollupMethod,
     QuantValue,
-    build_differential_abundance_report,
+)
+from bijux_proteomics.quantification.normalization import (
     normalize_label_free_table,
 )
-from bijux_proteomics.quantification.differential_abundance import (
+from bijux_proteomics.quantification.statistics import (
     apply_benjamini_hochberg,
+    build_differential_abundance_report,
 )
 from bijux_proteomics.study import (
     ExperimentDesign,

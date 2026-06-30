@@ -16,7 +16,10 @@ from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.identification import PsmRecord, SearchAdapterKind
 from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.quantification import NormalizationMethod, QuantRollupMethod
+from bijux_proteomics.quantification.contracts import (
+    NormalizationMethod,
+    QuantRollupMethod,
+)
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,
 )

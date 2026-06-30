@@ -30,7 +30,7 @@ from bijux_proteomics.io import (
     render_dia_fragment_coelution_runs_tsv,
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.quantification.contracts import NormalizationMethod
 from bijux_proteomics.review import (
     BeliefAuditReport,
     EvidenceGraphFinalResultEntry,

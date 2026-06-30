@@ -27,7 +27,10 @@ from bijux_proteomics.multiplex import (
     TmtSearchResultSourceKind,
     render_tmt_peptide_ratio_tsv,
 )
-from bijux_proteomics.quantification import LabelBasedChannelRole, NormalizationMethod
+from bijux_proteomics.quantification.contracts import (
+    LabelBasedChannelRole,
+    NormalizationMethod,
+)
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,
 )

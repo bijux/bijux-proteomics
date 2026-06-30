@@ -525,7 +525,7 @@ def _parse_openms_idxml(
 
 
 def _parse_openms_feature_table(feature_table_path: Path) -> Ms1FeatureParseReport:
-    from bijux_proteomics.quantification import (
+    from bijux_proteomics.quantification.contracts import (
         Ms1FeatureColumnMapping,
         parse_ms1_feature_table,
     )

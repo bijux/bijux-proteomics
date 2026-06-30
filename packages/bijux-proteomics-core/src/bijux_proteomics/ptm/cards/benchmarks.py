@@ -39,7 +39,7 @@ from bijux_proteomics.ptm.cards.review import (
     build_ubiquitin_remnant_workflow_report,
     evaluate_glycopeptide_support_boundary,
 )
-from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 

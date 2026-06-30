@@ -27,15 +27,19 @@ from bijux_proteomics.io import (
     TargetPanelParseReport,
     parse_target_panel_table,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
+    parse_ms1_feature_table,
+)
+from bijux_proteomics.quantification.matrix import (
     PeptideIntensityMatrixReport,
     ProteinIntensityMatrixReport,
-    ProteinLfqReport,
     ProteinMatrixTargetKind,
     build_peptide_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_features,
+)
+from bijux_proteomics.quantification.rollup import (
+    ProteinLfqReport,
     build_protein_lfq_report_from_features,
-    parse_ms1_feature_table,
 )
 from bijux_proteomics_foundation import JsonModel
 

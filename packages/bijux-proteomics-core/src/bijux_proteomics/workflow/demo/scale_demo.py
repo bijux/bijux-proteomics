@@ -22,7 +22,7 @@ from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     QuantEntityLevel,
     QuantRollupMethod,
     parse_ms1_feature_table,

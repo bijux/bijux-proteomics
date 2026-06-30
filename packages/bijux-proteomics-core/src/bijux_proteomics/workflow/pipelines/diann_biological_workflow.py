@@ -54,7 +54,7 @@ from bijux_proteomics.identification.rejected_evidence_table import (
     render_rejected_evidence_tsv,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.quantification.contracts import NormalizationMethod
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,

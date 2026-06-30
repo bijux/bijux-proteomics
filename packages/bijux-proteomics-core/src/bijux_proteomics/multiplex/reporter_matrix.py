@@ -17,11 +17,13 @@ from bijux_proteomics.io.formats import (
     ExperimentalDesignSampleRole,
 )
 from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     LabelBasedChannelRole,
     MissingValueKind,
     Ms1FeatureRecord,
     QuantRollupMethod,
+)
+from bijux_proteomics.quantification.matrix import (
     build_peptide_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_features,
 )

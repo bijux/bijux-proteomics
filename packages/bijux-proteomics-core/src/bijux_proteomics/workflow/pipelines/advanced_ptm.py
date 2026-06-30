@@ -34,7 +34,10 @@ from bijux_proteomics.ptm import (
 from bijux_proteomics.ptm.quant.site_quantification import (
     render_ptm_site_quant_excluded_tsv,
 )
-from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.quantification.contracts import (
+    NormalizationMethod,
+    parse_ms1_feature_table,
+)
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,
 )

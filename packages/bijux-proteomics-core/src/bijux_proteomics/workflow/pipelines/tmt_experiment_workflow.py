@@ -36,7 +36,7 @@ from bijux_proteomics.multiplex import (
     export_tmt_interference_summary_tsv,
 )
 from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
-from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.quantification.contracts import NormalizationMethod
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,

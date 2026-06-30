@@ -27,7 +27,7 @@ from bijux_proteomics.identification import (
 )
 from bijux_proteomics.identification.maxquant_import import build_maxquant_import_report
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
     NormalizationMethod,
