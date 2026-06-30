@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO_ROOT / "src" / "bijux_proteomics"
 MANAGED_SEMANTIC_ID_OWNERS = (
     (
-        "ptm/cards/evidence_cards.py",
+        "ptm/cards/evidence_cards/__init__.py",
         ("build_ptm_card_id", "build_ptm_claim_id", "build_site_id"),
         ("ptm-card:", "ptm-claim:"),
     ),
