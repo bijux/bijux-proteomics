@@ -102,13 +102,16 @@ def purge_forbidden_package_root_spillover(root: Path) -> tuple[Path, ...]:
     removed: list[Path] = []
     for relative_path in FORBIDDEN_PACKAGE_ROOT_SPILLOVER:
         candidate = root / relative_path
-        if candidate.is_symlink() or candidate.is_file():
-            candidate.unlink()
-            removed.append(candidate)
+        try:
+            if candidate.is_symlink() or candidate.is_file():
+                candidate.unlink()
+                removed.append(candidate)
+                continue
+            if candidate.is_dir():
+                shutil.rmtree(candidate, ignore_errors=True)
+                removed.append(candidate)
+        except FileNotFoundError:
             continue
-        if candidate.is_dir():
-            shutil.rmtree(candidate)
-            removed.append(candidate)
     return tuple(removed)
 
 

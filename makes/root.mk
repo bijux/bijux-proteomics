@@ -72,9 +72,9 @@ quality-docs-consistency: root-check-env ## Refresh docs consistency evidence
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.consistency
 
 quality-artifact-governance: root-check-env ## Enforce artifact roots and repository file ownership
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit --check
-	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
 
 quality-public-api-types: root-check-env ## Type-check curated public API modules with governed mypy and pyright configs
 	@$(DEV_RUN) -m bijux_proteomics_dev.governance.contracts.public_api_typecheck_targets --check

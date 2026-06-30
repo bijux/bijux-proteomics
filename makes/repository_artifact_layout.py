@@ -30,11 +30,14 @@ def _prepare_directory(path: Path) -> None:
 
 
 def _remove_spillover_path(path: Path) -> None:
-    if path.is_symlink() or path.is_file():
-        path.unlink()
+    try:
+        if path.is_symlink() or path.is_file():
+            path.unlink()
+            return
+        if path.is_dir():
+            shutil.rmtree(path, ignore_errors=True)
+    except FileNotFoundError:
         return
-    if path.is_dir():
-        shutil.rmtree(path)
 
 
 def _prepare_root_artifacts(*, repo_root: Path) -> None:
