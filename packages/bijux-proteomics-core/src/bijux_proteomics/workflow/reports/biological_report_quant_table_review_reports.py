@@ -12,13 +12,11 @@ from bijux_proteomics.study import (
     LcmsRunQcReport,
     QcRunAssessmentReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_claims import (
-    _build_biological_claim_validation_report,
-    _build_biological_evidence_aware_ranking_report,
-    _build_biological_hypothesis_report,
-)
 from bijux_proteomics.workflow.reports.biological_report_experiment_review import (
     _build_biological_experiment_review_reports,
+)
+from bijux_proteomics.workflow.reports.biological_report_quant_table_interpretation_reports import (
+    _build_biological_quant_table_interpretation_reports,
 )
 
 
@@ -68,28 +66,15 @@ def _build_biological_quant_table_review_reports(
         run_qc_assessments=run_qc_assessments,
         volcano_policy=volcano_policy,
     )
-    experiment_confidence_report = (
-        experiment_review_reports.experiment_confidence_report
-    )
-    evidence_aware_ranking_report = _build_biological_evidence_aware_ranking_report(
-        differential_report,
+    interpretation_reports = _build_biological_quant_table_interpretation_reports(
+        differential_report=differential_report,
+        active_selection_policy=active_selection_policy,
         protein_cards=protein_cards,
         protein_mechanism_cards=protein_mechanism_cards,
-        experiment_confidence_report=experiment_confidence_report,
+        pathway_activity_report=pathway_activity_report,
         pathway_enrichment_report=pathway_enrichment_report,
-    )
-    claim_validation_report = _build_biological_claim_validation_report(
-        differential_report,
-        protein_mechanism_cards=protein_mechanism_cards,
-        pathway_activity_report=pathway_activity_report,
         regulator_inference_report=regulator_inference_report,
-        selection_policy=active_selection_policy,
-    )
-    biological_hypothesis_report = _build_biological_hypothesis_report(
-        claim_validation_report,
-        protein_mechanism_cards=protein_mechanism_cards,
-        pathway_activity_report=pathway_activity_report,
-        regulator_inference_report=regulator_inference_report,
+        experiment_review_reports=experiment_review_reports,
     )
     return BiologicalQuantTableReviewReports(
         volcano_review=experiment_review_reports.volcano_review,
@@ -98,10 +83,16 @@ def _build_biological_quant_table_review_reports(
         cohort_stratification_report=(
             experiment_review_reports.cohort_stratification_report
         ),
-        experiment_confidence_report=experiment_confidence_report,
-        evidence_aware_ranking_report=evidence_aware_ranking_report,
-        claim_validation_report=claim_validation_report,
-        biological_hypothesis_report=biological_hypothesis_report,
+        experiment_confidence_report=(
+            experiment_review_reports.experiment_confidence_report
+        ),
+        evidence_aware_ranking_report=(
+            interpretation_reports.evidence_aware_ranking_report
+        ),
+        claim_validation_report=interpretation_reports.claim_validation_report,
+        biological_hypothesis_report=(
+            interpretation_reports.biological_hypothesis_report
+        ),
     )
 
 
