@@ -93,6 +93,22 @@ def test_flagship_benchmark_package_import_contract() -> None:
     assert not hasattr(module, "build_flagship_acceptance_dashboard")
 
 
+def test_flagship_benchmark_support_module_import_contract() -> None:
+    acceptance_assets = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.acceptance_assets"
+    )
+    challenge_assets = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.challenge_assets"
+    )
+    maintenance = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.maintenance"
+    )
+
+    assert acceptance_assets.main is not None
+    assert challenge_assets.main is not None
+    assert maintenance.main is not None
+
+
 def test_core_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interfaces.cli")
 

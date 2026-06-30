@@ -25,7 +25,7 @@ _FRESHNESS_REPORT_PATH = f"{_FLAGSHIP_ROOT}/freshness_report.json"
 _OBSOLESCENCE_AUDIT_PATH = f"{_FLAGSHIP_ROOT}/obsolescence_audit.json"
 _REFRESH_COMMAND = (
     "uv run --group dev python -m "
-    "bijux_proteomics.benchmarks.flagship_asset_maintenance refresh"
+    "bijux_proteomics.benchmarks.flagship.maintenance refresh"
 )
 
 
