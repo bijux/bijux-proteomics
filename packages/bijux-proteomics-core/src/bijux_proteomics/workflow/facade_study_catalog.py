@@ -42,7 +42,7 @@ STUDY_FACADE_OWNERS = (
         rationale="public dataset comparison ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.studies.study_result",
+        owner_module="bijux_proteomics.workflow.studies.study_results",
         rationale="study result ownership",
     ),
 )

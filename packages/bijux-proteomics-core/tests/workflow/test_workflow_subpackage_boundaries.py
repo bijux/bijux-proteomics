@@ -63,6 +63,7 @@ def test_workflow_study_wrappers_stay_thin_compatibility_facades() -> None:
         "cross_study_protein_harmonization.py": (
             "bijux_proteomics.workflow.studies.cross_study.protein_harmonization"
         ),
+        "study_result.py": "bijux_proteomics.workflow.studies.study_results",
     }
 
     for filename, expected_target in expected_targets.items():

@@ -110,7 +110,7 @@ WORKFLOW_ROOT_WRAPPER_TARGETS = {
     "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
     "result_search_index.py": "bijux_proteomics.workflow.exports.result_search_index",
     "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
-    "study_result.py": "bijux_proteomics.workflow.studies.study_result",
+    "study_result.py": "bijux_proteomics.workflow.studies.study_results",
     "synthetic_quant_truth.py": (
         "bijux_proteomics.workflow.benchmarks.synthetic_quant_truth"
     ),

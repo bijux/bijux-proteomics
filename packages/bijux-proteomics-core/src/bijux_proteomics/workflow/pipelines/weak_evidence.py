@@ -33,7 +33,7 @@ from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors 
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.studies.study_result import (
+from bijux_proteomics.workflow.studies.study_results import (
     ProteomicsStudyConclusionEntry,
     ProteomicsStudyConclusionKind,
     ProteomicsStudyResult,

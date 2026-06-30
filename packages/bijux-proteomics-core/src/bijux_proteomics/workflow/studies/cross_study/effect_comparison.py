@@ -27,7 +27,7 @@ from bijux_proteomics.workflow.studies.cross_study.protein_harmonization import 
     UnsupportedCrossStudyProteinStudy,
     build_cross_study_protein_harmonization_report_from_observations,
 )
-from bijux_proteomics.workflow.studies.study_result import ProteomicsStudyKind
+from bijux_proteomics.workflow.studies.study_results import ProteomicsStudyKind
 from bijux_proteomics_foundation import JsonModel
 
 

@@ -67,7 +67,7 @@ from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.studies.study_result import (
+from bijux_proteomics.workflow.studies.study_results import (
     ProteomicsStudyCardKind,
     ProteomicsStudyKind,
     ProteomicsStudyResult,
