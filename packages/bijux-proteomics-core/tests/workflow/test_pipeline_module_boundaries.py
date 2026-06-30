@@ -261,3 +261,37 @@ def test_engine_pipeline_wrappers_delegate_to_engine_owners() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its engine owner surface"
+
+
+def test_workflow_pipeline_root_stays_namespace_only() -> None:
+    pipelines = importlib.import_module("bijux_proteomics.workflow.pipelines")
+
+    assert tuple(pipelines.__all__) == ()
+    assert hasattr(pipelines, "advanced")
+    assert hasattr(pipelines, "benchmarking")
+    assert hasattr(pipelines, "comparative")
+    assert hasattr(pipelines, "engines")
+    assert hasattr(pipelines, "operations")
+    assert hasattr(pipelines, "synthesis")
+
+
+def test_workflow_pipeline_subfacades_keep_canonical_owner_exports() -> None:
+    pipelines = importlib.import_module("bijux_proteomics.workflow.pipelines")
+
+    assert not hasattr(pipelines, "run_advanced_tmt_workflow")
+    assert hasattr(pipelines.advanced, "run_advanced_tmt_workflow")
+
+    assert not hasattr(pipelines, "run_weak_evidence_benchmark")
+    assert hasattr(pipelines.benchmarking, "run_weak_evidence_benchmark")
+
+    assert not hasattr(pipelines, "build_dia_differential_analysis_report")
+    assert hasattr(pipelines.comparative, "build_dia_differential_analysis_report")
+
+    assert not hasattr(pipelines, "build_tmt_experiment_workflow_bundle")
+    assert hasattr(pipelines.engines, "build_tmt_experiment_workflow_bundle")
+
+    assert not hasattr(pipelines, "run_proteomics_workflow")
+    assert hasattr(pipelines.operations, "run_proteomics_workflow")
+
+    assert not hasattr(pipelines, "design_assay_from_discovery")
+    assert hasattr(pipelines.synthesis, "design_assay_from_discovery")
