@@ -386,6 +386,9 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "build_biological_result_report_bundle",
         "build_biological_result_report_bundle_from_quant_table",
     ),
+    "biological_report_quant_table_input.py": (
+        "build_biological_result_report_bundle_from_quant_table",
+    ),
     "biological_report_quant_table_bundle_building.py": (
         "_build_biological_result_report_bundle_from_quant_table_owned",
     ),
@@ -599,4 +602,38 @@ def test_biological_report_assembly_forwards_ms1_input_ownership() -> None:
         "top_n",
         "normalization_method",
         "chunk_size_rows",
+    }
+
+
+def test_biological_report_assembly_forwards_quant_table_input_ownership() -> None:
+    module = ast.parse(
+        (REPORTS_ROOT / "biological_report_assembly.py").read_text(encoding="utf-8")
+    )
+    wrapper = next(
+        node
+        for node in module.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "build_biological_result_report_bundle_from_quant_table"
+    )
+    delegated_call = next(
+        node.value
+        for node in ast.walk(wrapper)
+        if isinstance(node, ast.Return)
+        and isinstance(node.value, ast.Call)
+        and isinstance(node.value.func, ast.Name)
+        and node.value.func.id == "build_from_quant_table_owned"
+    )
+    forwarded_keywords = {
+        keyword.arg
+        for keyword in delegated_call.keywords
+        if keyword.arg is not None
+    }
+
+    assert forwarded_keywords >= {
+        "proteins_fasta_path",
+        "normalization_method",
+        "selection_policy",
+        "volcano_policy",
+        "run_qc_reports",
+        "run_qc_assessments",
     }

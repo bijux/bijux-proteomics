@@ -25,12 +25,6 @@ from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultSelectionPolicy,
 )
-from bijux_proteomics.workflow.reports.biological_report_quant_table_build_options import (
-    _build_biological_report_quant_table_build_options,
-)
-from bijux_proteomics.workflow.reports.biological_report_quant_table_bundle_building import (
-    _build_biological_result_report_bundle_from_quant_table_owned,
-)
 
 if TYPE_CHECKING:
     from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
@@ -131,7 +125,13 @@ def build_biological_result_report_bundle_from_quant_table(
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle from one governed protein quant table."""
 
-    build_options = _build_biological_report_quant_table_build_options(
+    from bijux_proteomics.workflow.reports.biological_report_quant_table_input import (
+        build_biological_result_report_bundle_from_quant_table as build_from_quant_table_owned,
+    )
+
+    return build_from_quant_table_owned(
+        quant_table,
+        design_entries,
         proteins_fasta_path=proteins_fasta_path,
         variant_proteins_fasta_path=variant_proteins_fasta_path,
         variant_peptide_tsv_path=variant_peptide_tsv_path,
@@ -153,9 +153,4 @@ def build_biological_result_report_bundle_from_quant_table(
         lab_run_qc_feedback_report=lab_run_qc_feedback_report,
         run_qc_reports=run_qc_reports,
         run_qc_assessments=run_qc_assessments,
-    )
-    return _build_biological_result_report_bundle_from_quant_table_owned(
-        quant_table,
-        design_entries,
-        build_options=build_options,
     )
