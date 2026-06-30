@@ -9,92 +9,62 @@ last_reviewed: 2026-07-01
 
 # Scientist Journey
 
-Start here when the question is: pick one flagship workflow family and show me
-the shortest route from public benchmark package to scientific meaning,
-runtime evidence, recommendation posture, and lab consequence.
+Use this route when the question is:
+pick one workflow family and show me the shortest honest path from public
+benchmark evidence to scientific meaning, runtime proof, grounded language,
+recommendation pressure, and downstream lab consequence.
 
-This route matters more now because the repository has more real scientific
-substance than its older docs admitted. A scientist no longer needs to guess
-whether chemistry, sequence, quantification, PTM, grounding, or consequence
-are real product surfaces. The point of this page is to move through those
-surfaces in an honest order.
+The discipline is to keep one family in view until the question collapses to
+one owner.
 
-## Reading Discipline
+## Reading Order
 
-- keep one workflow family in view until the question becomes package-specific
-- read evidence roots before recommendation prose
-- read recommendation posture before downstream consequence claims
-- stop at the first owner surface that still explains the scientific boundary
-  without inventing stronger biology than the package can defend
+| step | question | owner | strongest first page |
+| --- | --- | --- | --- |
+| 1 | what sentence is the repository defending for this family today | repository docs | [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) |
+| 2 | what public benchmark packages and lineage artifacts anchor that sentence | `bijux-proteomics-core` | [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/) |
+| 3 | what runtime lane and rerun boundary actually apply | `bijux-proteomics-runtime` | [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/) |
+| 4 | which claim-bearing sentences are grounded and which are still contradicted or thin | `bijux-proteomics-knowledge` | [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/) |
+| 5 | how strong may the recommendation sound after pressure and challenge | `bijux-proteomics-intelligence` | [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/) |
+| 6 | does downstream burden still narrow the sentence | `bijux-proteomics-lab` | [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/) |
 
 ## What A Good Scientist Read Should Learn
 
-- whether the current family sentence is benchmark-backed, rerun-backed, and
-  still grounded once contradiction pressure arrives
-- whether recommendation confidence is still weaker than the benchmark packet
-  might suggest at first glance
-- whether downstream assay burden narrows an otherwise promising analytical
-  story
-- whether the repository is honestly separating scientific meaning from runtime
-  or policy convenience
+- whether the current family sentence is actually benchmark-backed and rerun-backed
+- whether scientific grounding narrows a superficially strong runtime story
+- whether recommendation posture is still weaker than the benchmark packet
+  first suggests
+- whether downstream assay burden still blocks a stronger biological sentence
 
-## One-Family Route
+## Worked Starting Point
 
-If the reader wants one worked family instead of the general route, start with
-the [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/).
+If you want one concrete first family, start with
+[DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/).
 
-| step | question answered | owner | best page |
-| --- | --- | --- | --- |
-| 1 | Which family sentence is the repository defending today? | repository docs | [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) |
-| 2 | Which public package roots and lineage artifacts anchor that sentence? | `bijux-proteomics-core` | [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/) |
-| 3 | Which runtime lane, run mode, and rerun blockers apply right now? | `bijux-proteomics-runtime` | [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/) |
-| 4 | Which comparator and companion-family pressure stops the family from sounding broader than it is? | repository docs and `bijux-proteomics-core` | [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/) and [Benchmark Comparability Matrix](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-comparability-matrix/) |
-| 5 | Which curated grounding and literature pressure still shape the call? | `bijux-proteomics-knowledge` | [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/) and [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/) |
-| 6 | Which recommendation confidence and challenge surfaces keep policy honest? | `bijux-proteomics-intelligence` | [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/) and [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/) |
-| 7 | Which lab consequence or refusal boundary stops the story from outrunning downstream reality? | `bijux-proteomics-lab` and repository docs | [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/) and [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) |
+It remains the cleanest bounded example of how one family crosses benchmark,
+runtime, grounding, recommendation, and consequence without forcing the reader
+to infer the chain from separate package pages.
 
-## What A Strong Scientist Read Looks Like
+## Exit Rules
 
-- start with one family instead of trying to trust the whole repository at once
-- treat benchmark assets as evidence roots, not as decoration
-- treat runtime evidence as reproducibility proof, not as a substitute for
-  scientific meaning
-- treat recommendation posture as a bounded analytical layer, not as truth by
-  itself
-- stop at lab consequence and current capability limits before widening the
-  sentence in your own head
+- if the benchmark root already looks too narrow, stop at core and do not
+  widen the sentence downstream
+- if runtime proof is the weakest hop, move into runtime challenge pages
+  immediately
+- if grounding, downgrade, or burden becomes the real dispute, stop the broad
+  journey and move into the decision route
+- if one owner artifact now carries the whole disagreement, leave the
+  repository route and inspect that owner surface directly
 
-## What This Route Avoids
+## What This Route Prevents
 
-- it avoids package-handbook hopping before the family question is clear
-- it avoids treating runtime rerun evidence as a substitute for scientific
-  grounding
-- it avoids treating recommendation confidence as if lab consequence were
-  already settled
-
-## Fast Exit Routes
-
-- if benchmark assets already look too narrow, stop at core and do not widen
-  the family sentence downstream
-- if runtime proof is the weakest hop, move directly into execution and replay
-  pages instead of reading more trust prose
-- if contradiction, downgrade, or assay burden now dominate, move directly
-  into decision support and consequence pages
-- if one owner artifact now carries the whole dispute, leave the repository
-  route and inspect that owner surface directly
-
-## Honest Exit Conditions
-
-- if the family sentence already collapses under comparator, grounding, or
-  consequence pressure, move to the decision route rather than reading more
-  package prose
-- if the disagreement is now about one owner artifact, stop the journey and
-  inspect that owner surface directly
-- if the question turns into whether the lab spend is still justified, hand
-  off to consequence and refusal pages immediately
+- reading recommendation prose before reading evidence roots
+- treating runtime reproducibility as if it were scientific truth
+- treating grounded support as if assay burden were already settled
+- treating one strong owner page as if it settled the whole family chain
 
 ## Boundary
 
-This route should help a scientist inspect one family calmly. Once the dispute
-collapses to one owner surface, hand off there instead of adding another
-repository summary.
+This route should help a scientist inspect one family calmly. Once the real
+dispute belongs to one owner, hand off there instead of adding more repository
+summary prose.

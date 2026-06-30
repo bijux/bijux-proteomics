@@ -4,126 +4,88 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Product Architecture
 
-`bijux-proteomics` should read like one bounded product with several owners,
-not like seven adjacent handbooks that only coincide in one repository. The
-product promise is simple: start from benchmark-backed proteomics inputs, run a
-bounded execution path, review the result scientifically, decide what posture
-is justified, and only then decide whether lab follow-up is warranted.
+`bijux-proteomics` is one bounded product with several owners, not several
+packages that only happen to sit in one repository.
 
-The package split exists because those steps do not own the same truth. Shared
-contracts, scientific meaning, runtime execution, evidence review,
-recommendation posture, and lab consequence must stay explicit enough that a
-skeptical reviewer can point to one owner for each move.
+The end-to-end promise is simple:
 
-What is stronger now is the substance inside that chain. The repository has
-deeper core scientific surfaces, stronger public benchmark packaging, more
-concrete runtime rerun proof, clearer grounding and recommendation routes, and
-more visible lab consequence than the earlier docs suggested. The architecture
-page should make that product depth legible instead of sounding like a neutral
-package inventory.
+1. accept benchmark-backed proteomics evidence
+2. preserve shared meaning and compatibility
+3. execute a reviewable runtime lane
+4. ground the resulting sentence scientifically
+5. narrow or refuse the recommendation when pressure appears
+6. make downstream lab burden explicit before follow-up is treated as justified
 
-The architecture is therefore not only a dependency map. It is the shortest
-end-to-end explanation of how this repository turns proteomics material into a
-bounded scientific sentence. If any hop in that chain weakens, the public
-language must narrow even when the upstream code still looks sophisticated.
+The package split exists because those six moves do not own the same truth.
 
-## Lifecycle
+## End-To-End Chain
 
-| Stage | Owner | What the owner contributes | Primary surface |
+| stage | owner | what that owner contributes | what it must not quietly take over |
 | --- | --- | --- | --- |
-| Shared contracts and identifiers | `bijux-proteomics-foundation` | schema compatibility, identifiers, deterministic serialization | `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation` |
-| Benchmark asset intake and domain contracts | `bijux-proteomics-core` | benchmark asset packages, scientific contracts, runtime-agnostic workflow requests | `packages/bijux-proteomics-core/benchmark-assets` |
-| Runtime execution and replay | `bijux-proteomics-runtime` | provider binding, reproducible runs, replay bundles, operator entrypoints | `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime` |
-| Scientific review and evidence memory | `bijux-proteomics-knowledge` | grounded evidence memory, contradiction handling, review state | `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` |
-| Recommendation posture and refusal logic | `bijux-proteomics-intelligence` | ranking, recommendation stance, refusal explanations | `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence` |
-| Lab consequence and observed outcomes | `bijux-proteomics-lab` | assay planning, readiness, handoff honesty, observed-outcome loop | `packages/bijux-proteomics-lab/src/bijux_proteomics_lab` |
+| shared meaning | `bijux-proteomics-foundation` | identifiers, compatibility, deterministic serialization, stable cross-package contracts | scientific workflow claims, runtime control, recommendation posture |
+| scientific evidence root | `bijux-proteomics-core` | benchmark assets, sequence and chemistry surfaces, spectra and mzML handling, identification, quantification, PTM and workflow contracts | runtime orchestration, final recommendation strength, assay-worth judgment |
+| runtime proof | `bijux-proteomics-runtime` | rerun lanes, replay, artifact stability, refusal surfaces, operator entrypoints | benchmark ownership, scientific truth, recommendation authority |
+| grounded review | `bijux-proteomics-knowledge` | claim grounding, contradiction review, literature pressure, evidence memory | runtime proof, ranking, assay planning |
+| recommendation posture | `bijux-proteomics-intelligence` | downgrade logic, challenge surfaces, confidence pressure, regret review | evidence storage, benchmark ownership, lab execution |
+| downstream consequence | `bijux-proteomics-lab` | planning, readiness, refusal, requested-versus-observed outcome loops, follow-up burden | scientific meaning, runtime control, evidence grounding |
 
-Two repository surfaces sit beside that chain rather than inside it:
+Two repository-adjacent surfaces sit beside that chain:
 
-- `agentic-proteins` preserves legacy runtime imports and entrypoints while
-  callers migrate to canonical runtime ownership.
-- `bijux-proteomics-dev` owns repository-health automation, docs integrity, and
-  release governance.
+- `agentic-proteins` preserves historical runtime compatibility
+- `bijux-proteomics-dev` owns repository health, docs integrity, release
+  checks, and maintainer tooling
 
-## What Became Deeper Since The Earlier Handbooks
+## What Is Deeper Since v0.3.7
 
-- core now carries visibly broader biological and chemical work instead of
-  stopping at generic workflow contracts
-- runtime now exposes stronger replay, rerun, import, and operator-facing proof
-  surfaces instead of leaving reproducibility implicit
-- knowledge and intelligence now carry more exact grounding, contradiction,
-  challenge, confidence, and downgrade routes
-- lab now contributes a clearer requested-versus-observed outcome loop instead
-  of ending at soft next-step language
+The product is materially stronger than the older docs implied:
+
+- `core` now owns visibly broader biology and chemistry surfaces instead of
+  thin workflow wrappers
+- `runtime` now owns replay, rerun kits, artifact verification, and refusal
+  routes rather than one convenient command path
+- `knowledge` and `intelligence` now expose grounded contradiction, challenge,
+  downgrade, and recommendation pressure explicitly
+- `lab` now owns real consequence, readiness, and outcome-learning loops
+  instead of generic “next step” prose
+
+That deeper substance is exactly why the architecture page matters. More real
+product depth means the boundary between owners has to become clearer, not
+blurrier.
 
 ## What The Architecture Protects
 
-- core can grow broader scientific logic without silently taking over runtime,
-  recommendation, or lab ownership
-- runtime can become more reproducible without rewriting scientific truth
-- knowledge and intelligence can challenge workflow claims without hiding the
-  underlying benchmark and execution surfaces
-- lab can narrow public language when downstream burden remains weaker than
-  upstream signal
+- stronger scientific breadth in core does not silently turn into runtime or
+  recommendation ownership
+- stronger runtime proof does not silently widen scientific truth
+- grounded claim support does not silently widen recommendation posture
+- promising analytical posture does not silently widen downstream lab value
 
-## Cross-Package Rules
+The architecture exists to keep those owner changes legible.
 
-- `bijux-proteomics-foundation` supplies shared contracts and does not grow
-  product behavior.
-- `bijux-proteomics-core` owns benchmark-backed domain meaning and workflow
-  request shapes, not runtime orchestration.
-- `bijux-proteomics-runtime` owns execution control and replay, not scientific
-  truth or recommendation posture.
-- `bijux-proteomics-knowledge` owns evidence memory and review state, not
-  ranking or assay planning.
-- `bijux-proteomics-intelligence` owns recommendation strength and refusal
-  logic, not evidence storage or lab execution.
-- `bijux-proteomics-lab` owns assay consequence, readiness, and observed
-  outcomes, not runtime control.
-- `agentic-proteins` stays a compatibility bridge and must not regain new
-  scientific or runtime source-of-truth logic.
+## Strongest Reader Route
 
-## Reader Routes
+Read the chain in this order when you want the shortest serious explanation:
 
-- Start with [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-  when the question is which package should own a change or handoff.
-- Start with [Current capability limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
-  when the question is what the repository still refuses to claim.
-- Start with [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
-  when the question is whether public wording currently outruns the evidence.
+1. [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+2. [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+3. [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+4. [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+5. [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
 
-## Strongest Product Proof Route
+If one hop weakens, the public sentence narrows there.
 
-- benchmark-backed scientific claim from core
-- runtime lane and rerun boundary from runtime
-- grounding and contradiction pressure from knowledge
-- recommendation posture from intelligence
-- downstream consequence from lab
+## First Boundary Checks
 
-If one of those hops is weak, the public sentence must narrow even when the
-other hops look strong.
+- [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+- [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
 
-## What This Page Prevents
+## Boundary
 
-- benchmark-backed scientific depth being mistaken for blanket release
-  readiness
-- runtime rerun realism being mistaken for scientific transfer proof
-- strong analytical judgment being mistaken for free downstream lab consequence
-- package-local excellence being mistaken for a coherent end-to-end product
-
-## First Proof Check
-
-- `configs/package-governance/repository-product-shape.toml`
-- `configs/package-governance/package-dependency-policy.toml`
-- package README ownership sections and the handbooks they point to
-
-## Design Pressure
-
-The common failure is to describe all packages accurately in isolation while
-still making the user reconstruct the end-to-end product for themselves. This
-page exists to remove that reconstruction tax.
+This page owns the product chain and the owner split. It should not dissolve
+into a package inventory once the end-to-end logic is already clear.
