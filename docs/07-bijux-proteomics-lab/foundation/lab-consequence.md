@@ -4,103 +4,82 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Lab Consequence
 
 This route answers the downstream question: if the repository recommends a
-follow-up, what operator burden, control demand, refusal case, or outcome
-boundary still keeps that recommendation honest.
+follow-up, what real burden, control demand, refusal case, or observed-outcome
+feedback still keeps that recommendation honest.
 
-This route matters more now because the repository has deeper scientific and
-analytical substance upstream. More signal also creates more downstream burden:
-assay design pressure, control requirements, readiness gates, handoff honesty,
-and requested-versus-observed outcome loops. That is why lab consequence is a
-real product surface here, not a decorative final paragraph.
+`bijux-proteomics-lab` matters more now because the upstream product is
+stronger. More scientific and analytical depth creates more downstream
+pressure, not less. A stronger benchmark packet is only useful if the follow-up
+story remains executable, reviewable, and honest about cost.
 
-## How To Read This Route
+## What Consequence Means Here
 
-- start from one workflow family and ask what actual spend, controls, or queue
-  pressure the current sentence would force
-- treat exploratory-only language as a real downstream boundary, not as a
-  stylistic hedge
-- read refusal and outcome-learning surfaces as part of the scientific story,
-  not as separate operations paperwork
+The lab route is where the repository makes explicit:
 
-## What Real Consequence Means Here
+- what is executable versus only advisory
+- what control burden and readiness gates still apply
+- what should be refused rather than optimistically handed off
+- what was requested versus what was actually run
+- how observed outcome should narrow or strengthen the next recommendation
 
-- assay planning must name what is executable, what is only advisory, and what
-  should be refused
-- readiness must keep material limits, controls, staffing, and instrument
-  constraints visible before follow-up is handed off
-- handoff honesty must preserve protocol assumptions, missing fields, and
-  downgrade reasons instead of flattening them into summary prose
-- outcome reconciliation must record what was requested, what was actually run,
-  and how that changes later recommendation posture
-- the lab route is one of the reasons strong benchmark or runtime evidence can
-  still lead to a narrower public sentence
+This is why strong benchmark or runtime evidence can still end in a narrower
+public sentence.
+
+## What Is Stronger Than Before
+
+- the lab package now owns real planning, readiness, handoff, refusal, and
+  outcome-reconciliation surfaces across the flagship families
+- downstream burden is visible enough now that recommendation language cannot
+  quietly imply cheap or obvious follow-up
+- requested-versus-observed outcome learning is part of the public chain
+  instead of a hidden maintainer interpretation step
+
+## What This Route Should Settle
+
+- whether a family still stops at exploratory-only follow-up
+- whether the recommendation survives control demand and operator burden
+- whether refusal is the most honest downstream action
+- whether observed outcome should tighten or weaken the next public sentence
+
+## Family-Level Consequence Reading
+
+| family | consequence posture today | main downstream limiter |
+| --- | --- | --- |
+| `dda` | bounded follow-up value | stronger execution review still does not erase follow-up cost and control demand |
+| `dia` | bounded follow-up value | absent-peptide and downstream interpretation burden still narrow the call |
+| `lfq` | exploratory follow-up only | cohort and normalization uncertainty still make stronger consequence language unsafe |
+| `ptm` | exploratory follow-up only | localization confidence still outruns follow-up certainty |
+| `targeted` | exploratory follow-up only | calibration, interference, and burden can still flip the recommendation |
+| `multiplex` | internal support only | downstream trust still collapses under the current stress packet |
 
 ## Start Here
 
 - Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
-  when the question is how requested-versus-observed follow-up should tighten
-  or weaken the next recommendation.
+  when the question is how observed follow-up should tighten the next release
+  sentence.
 - Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
-  when the question is whether the honest next action is to stop, rerun,
-  narrow, or refuse.
-- Open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
-  when the question is planning, readiness, handoff honesty, or observed
-  outcome reconciliation.
+  when the honest next action may be to stop, narrow, or refuse.
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the disagreement still spans evidence, recommendation, and burden.
 - Open [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
-  when the question is which downstream consequence claims are still forbidden.
-- Open [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
-  when the question is whether a weak consequence chain is still blocking wider
-  release language.
+  when the question is whether current follow-up limits still block stronger
+  repository wording.
 
-## What Is Stronger Than Before
-
-- the lab package now owns typed planning, readiness, handoff, outcome, and
-  benchmark rehearsal surfaces across `dda`, `dia`, `lfq`, `ptm`, and
-  `targeted` follow-up routes
-- refusal and outcome-learning pages now sit beside planning and handoff docs,
-  so downstream consequence is not reduced to one generic "next step" story
-- the current consequence route is explicit about assay burden and operator
-  cost rather than letting recommendation language imply free downstream
-  confidence
-
-## What This Route Should Settle
-
-- whether a workflow family still stops at exploratory consequence rather than
-  stronger operational confidence
-- whether a recommendation survives the cost of controls, queue pressure, and
-  outcome traceability
-- whether a refusal is the most scientifically honest downstream action
-- which control demand or failure mode makes decision-grade language unsafe
-- which observed outcome should now narrow or strengthen the next public
-  recommendation
-
-## What This Route Should Prevent
+## What This Route Prevents
 
 - treating a strong benchmark packet as if downstream validation were cheap
 - treating assay feasibility as if it were the same thing as assay worth
-- treating failed, blocked, or narrowed follow-up as if it had no effect on the
-  next public sentence
-
-## Adjacent Routes
-
-- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the argument is still about evidence or recommendation rather than assay
-  burden.
-- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
-  when the disagreement still needs the full contradiction-to-recommendation-to-lab
-  chain on one page.
-- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-  when the disagreement is about runtime rerunability instead of downstream lab
-  consequence.
+- treating blocked or narrowed follow-up as if it had no effect on the next
+  public sentence
 
 ## Boundary
 
-This route should explain downstream consequence pressure. It should not start
-teaching package architecture before the reader knows whether the lab question
-even matters for the current family.
+This route owns downstream consequence pressure. It should not start teaching
+package architecture before the reader knows whether the lab question is the
+real limiting factor.

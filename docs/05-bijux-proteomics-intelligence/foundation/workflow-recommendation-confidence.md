@@ -9,89 +9,87 @@ last_reviewed: 2026-07-01
 
 # Workflow Recommendation Confidence
 
-`bijux-proteomics-intelligence` now ships one confidence bundle that keeps the
-recommendation layer honest under withheld evidence.
+This route answers the question after grounding: how strong may the current
+recommendation sound once withheld evidence, comparator loss, and regret review
+are taken seriously.
 
-## Why This Surface Matters
-
-- confidence here is not a vibe score; it is a public record of where the
-  recommendation layer would break if easy evidence disappeared
-- this is one of the clearest places where the repository now shows real
-  analytical seriousness instead of just cautious wording
-- the bundle makes stronger recommendation language expensive because it must
-  survive counterfactual loss, overconfidence review, and regret review
+`bijux-proteomics-intelligence` owns this because recommendation confidence is
+not a summary score. It is the pressure surface that stops attractive workflow
+stories from sounding more certain than the shipped challenge artifacts earn.
 
 ## What Ships
 
-- one counterfactual recommendation report at
-  `artifacts/intelligence/benchmark-decisions/counterfactual_recommendations.json`
-- one overconfidence audit at
-  `artifacts/intelligence/benchmark-decisions/workflow_overconfidence_audit.json`
-- one underconfidence audit at
-  `artifacts/intelligence/benchmark-decisions/workflow_underconfidence_audit.json`
-- one regret ledger at
-  `artifacts/intelligence/benchmark-decisions/recommendation_regret_ledger.json`
+The current confidence bundle is built around four public artifact families:
 
-## What The Current Surfaces Say
+- counterfactual recommendation reports
+- overconfidence audits
+- underconfidence audits
+- recommendation regret ledgers
 
-- all five flagship families currently collapse to `do_not_recommend` if
-  comparator evidence is removed
-- all five flagship families currently collapse to `do_not_recommend` if
-  literature evidence is removed
-- all five flagship families currently collapse to `do_not_recommend` if lab
-  burden doubles from the current shipped posture
-- targeted currently carries the strongest overconfidence score at `0.67`
-- the other four current flagship families each carry an overconfidence score
-  of `0.5`
-- no workflow family currently shows a hindsight-backed underconfidence event
+Together they show how fragile the current public recommendation sentence still
+is under evidence loss and hindsight review.
 
-## How To Read The Current Bundle
+## What The Current Bundle Says
 
-- read the counterfactual report as the fastest test of whether the current
-  sentence still depends on one missing evidence axis
-- read the overconfidence audit as the place where public language is most at
-  risk of sounding broader than the artifacts earn
-- read the regret ledger as the maintainers' own admission of which workflow
-  temptations still look too easy before hidden evidence lands
+- all five flagship public families currently collapse toward
+  `do_not_recommend` when comparator evidence is removed
+- all five flagship public families currently collapse toward
+  `do_not_recommend` when literature support is removed
+- all five flagship public families currently collapse toward
+  `do_not_recommend` when lab burden is doubled from the current shipped
+  posture
+- targeted currently carries the sharpest overconfidence pressure in the
+  shipped bundle
+- none of the current flagship families yet shows a hindsight-backed
+  underconfidence event strong enough to justify broader public wording
 
-## What The Regret Ledger Captures
+## How To Read Recommendation Confidence
 
-The regret ledger is not prose perfume.
+- read the counterfactual report first when the question is whether the current
+  call survives one missing evidence axis
+- read the overconfidence audit when the sentence sounds cleaner than the
+  challenge surfaces justify
+- read the regret ledger when the question is which kind of mistake maintainers
+  are still most likely to make if hidden evidence is revealed later
 
-It records the patterns maintainers would most want to undo after the hidden
-evidence is revealed:
+## What This Means For Public Language
 
-- targeted: letting a follow-up stay alive until hidden interference and
-  carryover evidence force a miss
-- dda, dia, lfq, ptm: letting one attractive family claim sound stronger than
-  the paired-package reveal earns
+The current recommendation layer is materially more serious than it was at
+`v0.3.7`, but it still does not earn decision-grade authority.
 
-## Why This Matters
+Why:
 
-These surfaces make stronger intelligence authority expensive.
+- the public sentence still breaks too easily under evidence removal
+- some families still carry visible overconfidence pressure
+- downstream assay burden still narrows otherwise attractive recommendation
+  stories
 
-If the package wants to sound more certain in public, it now has to survive the
-blinded challenge results, the counterfactual collapses, and the regret ledger
-without hiding where the current recommendation posture still breaks.
+That is why the stronger current product still needs bounded recommendation
+language.
 
-## What This Still Does Not Earn
+## Family-Level Reading
 
-- decision-grade authority for any current flagship family
-- scientific truth independent of core and knowledge
-- freedom from downstream lab burden once the consequence chain is read in full
+| family | confidence reading today | why the sentence still stays narrow |
+| --- | --- | --- |
+| `dda` | stronger than before, but still fragile under evidence removal | comparator and lab-burden loss still collapse the recommendation |
+| `dia` | bounded outsider-facing recommendation support | evidence and consequence loss still narrow the call |
+| `lfq` | real review-grade posture | missingness and transfer pressure still make the stronger sentence too expensive |
+| `ptm` | stronger analytical posture than before | consequence confidence still lags localization strength |
+| `targeted` | strongest current overconfidence pressure | calibration and interference risk still make broader certainty unsafe |
 
-## Combined Consequence Route
+## Best Next Routes
 
-This page is not the full consequence chain by itself.
+- Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+  when the question is whether the sentence is supported at all.
+- Open [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+  when the question is whether downstream burden still narrows the apparently
+  reasonable recommendation.
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the full combined route matters more than the recommendation layer by
+  itself.
 
-Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
-when the recommendation needs to be read beside contradiction pressure and lab
-burden on one shared route.
+## Boundary
 
-Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
-when the real question is which evidence loss or observed outcome moved the
-call.
-
-LFQ, PTM, and targeted still stop at bounded recommendation posture once the
-full downstream consequence chain is included. None of them earns a
-decision-grade recommendation sentence today.
+This page owns recommendation-pressure and confidence limits. It should not
+pretend to replace evidence grounding or lab consequence just because those
+later surfaces consume the recommendation output.
