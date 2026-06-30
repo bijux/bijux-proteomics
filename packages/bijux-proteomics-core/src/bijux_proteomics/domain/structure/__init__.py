@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from bijux_proteomics.domain.structure.structure import (
-    _res3_to1,
     best_ca,
     gdt_ha,
     gdt_ts,
@@ -23,7 +22,6 @@ from bijux_proteomics.domain.structure.structure import (
 )
 
 __all__ = [
-    "_res3_to1",
     "best_ca",
     "gdt_ha",
     "gdt_ts",
