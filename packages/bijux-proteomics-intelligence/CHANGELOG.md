@@ -12,6 +12,9 @@ All notable changes for `bijux-proteomics-intelligence` are recorded here.
   differential-abundance interpretation, PTM interpretation, contaminant and
   artifact intelligence, contrast recommendation, missingness analysis, outlier
   explanation, overrepresentation enrichment, and ranked enrichment.
+- Added typed review and report contracts that keep benchmark workflow packets,
+  contradiction-ready audits, and external review preparation explicit instead
+  of spreading them across ad hoc helpers.
 
 ### Changed
 
@@ -22,6 +25,12 @@ All notable changes for `bijux-proteomics-intelligence` are recorded here.
   interpretation workflow guide.
 - Aligned dependency floors and fallback version with the `0.3.8` release
   line.
+
+### Fixed
+
+- Normalized audit, contradiction, benchmark-review, and strict question
+  contracts so flagship and PTM review evidence remains consistent under
+  package typing and review checks.
 
 ## 0.3.7 - 2026-04-21
 

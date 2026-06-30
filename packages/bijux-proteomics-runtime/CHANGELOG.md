@@ -18,6 +18,9 @@ All notable changes for `bijux-proteomics-runtime` are recorded here.
 - Added advanced DIA-NN public workflows for dry-run planning, deterministic
   run identity, resumable stage reuse, archived result bundles, runtime smoke
   bundles, and architecture-demo routes.
+- Added benchmark rerun kits, comparability ledgers, black-box benchmark
+  dashboards, runtime replay challenges, and migration-ledger routes so an
+  outsider can follow runtime proof from benchmark root to rerun artifact.
 
 ### Changed
 
@@ -35,3 +38,6 @@ All notable changes for `bijux-proteomics-runtime` are recorded here.
 - Hardened guarded route methods, multiplex import handling, bytecode hygiene,
   security-sensitive asserts, and the governed local-folding dependency
   policy.
+- Tightened type coverage across archive, rehydrate, run-operation, advanced
+  DIA-NN resume, and workflow-plan boundaries so the canonical runtime surface
+  stays strict under review.

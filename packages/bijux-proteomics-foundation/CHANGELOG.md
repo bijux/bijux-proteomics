@@ -26,6 +26,12 @@ All notable changes for `bijux-proteomics-foundation` are recorded here.
   hashing, compatibility checks, and stable testing helpers.
 - Aligned the fallback version with the `0.3.8` release line.
 
+### Fixed
+
+- Restored strict lint and typing coverage for optional dependency helpers,
+  hypothesis-aware testing helpers, and other shared support surfaces that
+  downstream packages rely on during verification.
+
 ## 0.3.7 - 2026-04-21
 
 ### Changed

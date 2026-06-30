@@ -14,6 +14,9 @@ All notable changes for `bijux-proteomics-lab` are recorded here.
 - Added targeted benchmark rehearsal, refusal, outcome dossier, and learning
   surfaces so assay burden, handoff quality, and observed follow-up stay
   reviewable.
+- Added canonical artifact envelope records and QC-feedback handoff routes so
+  assay planning and observed outcomes can travel with explicit packet
+  structure.
 
 ### Changed
 
@@ -29,6 +32,8 @@ All notable changes for `bijux-proteomics-lab` are recorded here.
 
 - Decoupled feedback forecasting from queue ownership and normalized handoff
   and package contracts.
+- Restored canonical PTM occupancy evidence imports so lab follow-up packets
+  consume the same owner surfaces the rest of the product chain does.
 
 ## 0.3.7 - 2026-04-21
 

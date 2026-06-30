@@ -14,48 +14,52 @@ change contributor and maintainer workflows across the repository.
 
 ### Added
 
-- Added the canonical `bijux-proteomics-runtime` publication line, the
-  `agentic-proteins` compatibility bridge, and the short alias distributions
-  `bijux-proteomics`, `proteomics`, `proteomics-core`,
-  `proteomics-foundation`, `proteomics-runtime`,
+- Added the canonical `bijux-proteomics-runtime` publication line, kept
+  `agentic-proteins` as the explicit compatibility bridge, and introduced the
+  short alias distributions `bijux-proteomics`, `proteomics`,
+  `proteomics-core`, `proteomics-foundation`, `proteomics-runtime`,
   `proteomics-intelligence`, `proteomics-knowledge`, and `proteomics-lab`.
 - Added the shared foundation kernel for canonical serialization,
-  compatibility checks, identifiers, stable outcomes, and repository-wide
-  support helpers consumed by downstream packages and release gates.
-- Added the first full public core workflow surface for FASTA intake,
-  digestion, chemistry, identification, spectra, mzML, search adapters,
-  protein inference, label-free quantification, PTM analysis, QC, and workflow
-  planning, including benchmark-backed CLI routes and walkthrough assets.
-- Added the canonical runtime execution package with deterministic replay,
-  archived rerun bundles, benchmark rerun kits, and public runtime proof
-  routes for outsider rerun review.
+  compatibility checks, identifiers, stable outcomes, optional dependency
+  guards, shared testing helpers, and maintainer-support utilities consumed by
+  downstream packages and release gates.
+- Added the first broad public core workflow surface across FASTA intake,
+  digestion, chemistry, identification, spectra, mzML ingestion, search
+  adapters, protein inference, label-free quantification, PTM analysis, QC,
+  and workflow planning, plus benchmark-backed CLI routes and walkthrough
+  assets.
+- Added the canonical runtime execution package with typed CLI and API
+  entrypoints, deterministic replay, archived rerun bundles, benchmark rerun
+  kits, comparability matrices, and outsider-readable runtime proof routes.
 - Added grounded scientific-memory, analytical-judgment, and lab-consequence
-  owner surfaces so recommendation posture, contradiction handling, assay
-  burden, and observed follow-up now stay explicit instead of implied.
+  owner surfaces so contradiction handling, recommendation posture, assay
+  burden, handoff quality, and observed follow-up now stay explicit instead of
+  implied.
 
 ### Changed
 
 - Reworked repository and package docs around canonical owner packages,
-  workflow trust limits, reader-first navigation, and executable README API
-  examples.
+  workflow trust limits, executable README API examples, and reader-first
+  navigation that starts from product questions instead of package trivia.
 - Folded reader-first docs routes into the numbered handbook owners so public
-  product overview, workflow, execution, benchmark, decision, lab, and
+  product overview, workflow, benchmark, execution, decision, lab, and
   maintenance pages no longer depend on extra top-level journey directories.
 - Rebuilt the public documentation system around hostile-review questions:
-  workflow trust limits, benchmark freshness, flagship release evidence,
+  flagship release candidates, benchmark freshness, workflow-family authority,
   runtime comparability, recommendation drift, and lab follow-up boundaries.
 - Expanded repository-owned quality and release gates with architecture
-  regression, public-API typecheck, circular-import scope, package-tree
-  layout, orphan-module, generated-file, scientific-concept-ownership, and
-  cross-package smoke checkpoints.
-- Aligned root and package build metadata, fallback versions, and dependency
-  floors with the `0.3.8` release line.
+  regression, runtime-boundary validation, public-API typing and docstring
+  checks, package-tree and orphan-module audits, generated-file markers,
+  scientific-concept ownership, artifact-root hygiene, and cross-package smoke
+  checkpoints.
+- Aligned root and package build metadata, optional extras, fallback versions,
+  dependency floors, and release automation with the `0.3.8` publication line.
 
 ### Fixed
 
 - Hardened security and release gating around optional provider dependencies,
-  dependency vulnerability floors, safe-msgpack handling, and alias-package
-  publication surfaces.
+  dependency vulnerability floors, safe-msgpack handling, alias-package
+  publication surfaces, and package-root artifact expectations.
 
 ## 0.3.7 - 2026-04-21
 

@@ -15,6 +15,8 @@ All notable changes for `bijux-proteomics-knowledge` are recorded here.
 - Added query and resolution surfaces for protein identity, feature overlap,
   pathway membership, complex membership, kinase substrates, drug targets,
   disease terms, knowledge coverage, and cross-species orthologs.
+- Added structured public grounding documentation and compatibility coverage
+  for the public data-pack routes that now back workflow claim grounding.
 
 ### Changed
 
