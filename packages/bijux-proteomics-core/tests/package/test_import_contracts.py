@@ -559,6 +559,7 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(studies, "build_cross_study_pathway_comparison_report")
     assert hasattr(studies, "build_cross_study_protein_harmonization_report")
     assert hasattr(studies, "build_cross_species_effect_comparison_report")
+    assert hasattr(studies, "build_public_dataset_comparison_report")
     assert hasattr(studies, "build_proteomics_study_result")
     assert hasattr(studies, "ProteomicsStudyKind")
     assert hasattr(weak_evidence, "build_flagship_weak_evidence_benchmark_descriptor")

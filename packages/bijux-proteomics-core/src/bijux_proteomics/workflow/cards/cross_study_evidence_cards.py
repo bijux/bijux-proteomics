@@ -28,7 +28,7 @@ from bijux_proteomics.workflow.studies.cross_study_pathway_comparison import (
     CrossStudyPathwayComparisonStatus,
     CrossStudyPathwayStudyEntry,
 )
-from bijux_proteomics.workflow.public_dataset_comparison import (
+from bijux_proteomics.workflow.studies.public_dataset_comparison import (
     PublicDatasetComparisonDatasetStatus,
     PublicDatasetComparisonDatasetSummary,
     PublicDatasetComparisonReport,
@@ -313,7 +313,7 @@ def build_public_dataset_evidence_card_report(
 ) -> CrossStudyEvidenceCardReport:
     """Run public dataset comparison first, then build cross-study evidence cards."""
 
-    from bijux_proteomics.workflow.public_dataset_comparison import (
+    from bijux_proteomics.workflow.studies.public_dataset_comparison import (
         build_public_dataset_comparison_report,
     )
 

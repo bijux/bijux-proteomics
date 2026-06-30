@@ -118,6 +118,10 @@ STUDY_FACADE_OWNERS = (
         rationale="cross-species effect comparison ownership",
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.studies.public_dataset_comparison",
+        rationale="public dataset comparison ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.studies.study_result",
         rationale="study result ownership",
     ),
@@ -437,7 +441,7 @@ WORKFLOW_ROOT_OWNERS = (
         excluded_exports=("load_public_benchmark_descriptor",),
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.public_dataset_comparison",
+        owner_module="bijux_proteomics.workflow.studies.public_dataset_comparison",
         rationale="public dataset comparison ownership",
     ),
     WorkflowFacadeOwner(
