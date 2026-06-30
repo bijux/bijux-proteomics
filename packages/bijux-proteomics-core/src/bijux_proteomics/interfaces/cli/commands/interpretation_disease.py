@@ -12,7 +12,7 @@ import click
 from bijux_proteomics.interfaces.python_api.interpretation_disease import (
     run_disease_phenotype_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )

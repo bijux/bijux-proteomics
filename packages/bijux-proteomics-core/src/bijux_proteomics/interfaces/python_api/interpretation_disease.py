@@ -20,7 +20,7 @@ from bijux_proteomics.interfaces.support.interpretation import (
     render_unknown_disease_phenotype_annotation_tsv,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,

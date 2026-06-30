@@ -22,7 +22,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_target_panel_summary_tsv,
     render_target_panel_target_tsv,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
     export_quant_design_matrix_tsv,
     export_quant_design_model_coefficients_tsv,

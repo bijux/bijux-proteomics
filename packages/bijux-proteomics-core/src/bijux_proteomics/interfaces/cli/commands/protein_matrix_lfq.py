@@ -13,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.protein_matrix_lfq import (
     run_protein_lfq_command,
     run_protein_matrix_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     PeptideMatrixGroupingMode,
     ProteinMatrixTargetKind,
     QuantRollupMethod,

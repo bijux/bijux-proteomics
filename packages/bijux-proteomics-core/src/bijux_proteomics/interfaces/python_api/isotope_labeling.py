@@ -35,7 +35,9 @@ from bijux_proteomics.interfaces.support.multiplex_targeted import (
     parse_silac_feature_table,
     parse_tmt_reporter_table,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
 from bijux_proteomics.interfaces.support.review_sequences_study import build_label_based_volcano_review
 from bijux_proteomics.interfaces.support.workflow import (
     SilacWorkflowConfig,

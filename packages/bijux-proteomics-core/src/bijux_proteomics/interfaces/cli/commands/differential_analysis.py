@@ -15,7 +15,9 @@ from bijux_proteomics.interfaces.python_api.differential_analysis import (
     run_target_panel_review_command,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import TargetPanelSourceKind
-from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
 from bijux_proteomics.interfaces.support.workflow import DiaDifferentialSourceKind
 from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _normalization_choice,

@@ -41,7 +41,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantEntityLevel,

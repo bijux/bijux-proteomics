@@ -13,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.interpretation_contexts import (
     run_compartment_biology_command,
     run_drug_target_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )

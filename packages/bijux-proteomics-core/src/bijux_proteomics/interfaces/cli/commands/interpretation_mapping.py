@@ -13,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.interpretation_mapping import (
     run_map_orthologs_command,
     run_protein_set_score_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )

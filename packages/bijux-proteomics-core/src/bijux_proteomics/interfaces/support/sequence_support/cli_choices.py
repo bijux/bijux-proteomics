@@ -14,7 +14,7 @@ from ..multiplex_targeted import (
     TmtNormalizationMethod,
     TmtSearchResultSourceKind,
 )
-from ..ptm_quantification import (
+from ..ptm_quantification.quantification import (
     HeatmapMissingValuePolicy,
     ImputationMethod,
     NormalizationMethod,

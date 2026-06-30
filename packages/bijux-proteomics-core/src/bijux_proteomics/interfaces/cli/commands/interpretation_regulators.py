@@ -13,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.interpretation_regulators import (
     run_ppi_modules_command,
     run_regulator_inference_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )

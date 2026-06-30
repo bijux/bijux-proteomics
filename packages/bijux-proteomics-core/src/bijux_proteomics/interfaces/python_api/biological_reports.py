@@ -12,7 +12,7 @@ from bijux_proteomics.interfaces.support.identification import (
     ParsimonyVariant,
     SearchAdapterKind,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     QuantRollupMethod,

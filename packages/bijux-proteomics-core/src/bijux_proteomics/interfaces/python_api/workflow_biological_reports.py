@@ -14,7 +14,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     DiaProteinRollupMethod,
     DiaSharedPeptidePolicy,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
 from bijux_proteomics.interfaces.support.workflow import (
     BiologicalResultSelectionPolicy,
     DiannWorkflowConfig,

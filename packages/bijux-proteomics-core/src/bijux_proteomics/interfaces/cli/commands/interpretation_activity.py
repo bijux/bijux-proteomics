@@ -13,7 +13,7 @@ from bijux_proteomics.interfaces.python_api.interpretation_activity import (
     run_complex_activity_command,
     run_pathway_activity_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )

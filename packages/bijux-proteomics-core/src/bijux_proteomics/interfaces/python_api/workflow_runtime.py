@@ -16,7 +16,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     build_workflow_runtime_validation_report,
     parse_experimental_design_table,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import NormalizationMethod
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
 from bijux_proteomics.interfaces.support.workflow import (
     BiologicalResultSelectionPolicy,
     ProteomicsRunEngine,

@@ -12,7 +12,7 @@ import click
 from bijux_proteomics.interfaces.python_api.quantification_primary import (
     run_quantify_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     ImputationMethod,
     NormalizationMethod,
     QuantEntityLevel,

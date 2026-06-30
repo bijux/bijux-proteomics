@@ -9,7 +9,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
 )
 from bijux_proteomics.interfaces.support.identification import parse_psm_tsv
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     PeptideMatrixGroupingMode,
     ProteinMatrixTargetKind,

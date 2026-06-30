@@ -14,7 +14,7 @@ from bijux_proteomics.interfaces.python_api.quantification_reports import (
     run_power_estimate_command,
     run_sample_exploration_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     HeatmapMissingValuePolicy,
     NormalizationMethod,
     QuantEntityLevel,

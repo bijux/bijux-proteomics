@@ -12,7 +12,7 @@ import click
 from bijux_proteomics.interfaces.python_api.peptide_matrix_building import (
     run_peptide_matrix_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     PeptideMatrixGroupingMode,
     QuantRollupMethod,
 )
