@@ -21,10 +21,10 @@ stories from sounding more certain than the shipped challenge artifacts earn.
 
 The current confidence bundle is built around four public artifact families:
 
-- counterfactual recommendation reports
-- overconfidence audits
-- underconfidence audits
-- recommendation regret ledgers
+- `artifacts/intelligence/benchmark-decisions/counterfactual_recommendations.json`
+- `artifacts/intelligence/benchmark-decisions/workflow_overconfidence_audit.json`
+- `artifacts/intelligence/benchmark-decisions/workflow_underconfidence_audit.json`
+- `artifacts/intelligence/benchmark-decisions/recommendation_regret_ledger.json`
 
 Together they show how fragile the current public recommendation sentence still
 is under evidence loss and hindsight review.
@@ -38,8 +38,7 @@ is under evidence loss and hindsight review.
 - all five flagship public families currently collapse toward
   `do_not_recommend` when lab burden is doubled from the current shipped
   posture
-- targeted currently carries the sharpest overconfidence pressure in the
-  shipped bundle
+- targeted currently carries the strongest overconfidence score at `0.67`
 - none of the current flagship families yet shows a hindsight-backed
   underconfidence event strong enough to justify broader public wording
 
@@ -63,6 +62,7 @@ Why:
 - some families still carry visible overconfidence pressure
 - downstream assay burden still narrows otherwise attractive recommendation
   stories
+- LFQ, PTM, and targeted still stop at bounded recommendation posture
 
 That is why the stronger current product still needs bounded recommendation
 language.
@@ -84,6 +84,11 @@ language.
 - Open [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
   when the question is whether downstream burden still narrows the apparently
   reasonable recommendation.
+- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  when the question is which downstream boundary currently caps the strongest
+  honest public sentence.
+- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
+  when you need the exact evidence-removal, burden, or observed-outcome driver.
 - Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the full combined route matters more than the recommendation layer by
   itself.

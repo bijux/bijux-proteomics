@@ -234,7 +234,35 @@ def _render_outcome_learning_loops() -> str:
         [
             "# Outcome Learning Loops",
             "",
-            "These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation. They keep assay burden, blocked assays, weakened evidence, and changed posture visible together instead of treating the next recommendation as memoryless.",
+            "These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation.",
+            "",
+            "They exist because downstream consequence should not be memoryless. Once the repository has asked for assays, observed only part of them, or learned that the information gain was weaker than expected, the next recommendation should change in public.",
+            "",
+            "## What One Loop Tells You",
+            "",
+            "Each workflow-family loop keeps the same questions visible:",
+            "",
+            "- what the recommendation posture was before follow-up",
+            "- what assays were requested",
+            "- what assays actually happened",
+            "- whether the loop was worth the assay spend",
+            "- how the observed result should narrow or strengthen the next recommendation",
+            "",
+            "## Cross-Family Snapshot",
+            "",
+            "| workflow family | initial posture | revised posture | worth the assay spend | current lesson |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for entry in loops:
+        lesson = entry.learning_points[0] if entry.learning_points else "no shipped learning point yet"
+        lines.append(
+            f"| `{entry.workflow_family.value}` | `{entry.initial_strength.value}` | "
+            f"`{entry.revised_strength.value}` | "
+            f"{'yes' if entry.worth_it else 'no'} | {lesson} |"
+        )
+    lines.extend(
+        [
             "",
         ]
     )

@@ -9,7 +9,30 @@ last_reviewed: 2026-05-09
 
 # Outcome Learning Loops
 
-These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation. They keep assay burden, blocked assays, weakened evidence, and changed posture visible together instead of treating the next recommendation as memoryless.
+These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation.
+
+They exist because downstream consequence should not be memoryless. Once the repository has asked for assays, observed only part of them, or learned that the information gain was weaker than expected, the next recommendation should change in public.
+
+## What One Loop Tells You
+
+Each workflow-family loop keeps the same questions visible:
+
+- what the recommendation posture was before follow-up
+- what assays were requested
+- what assays actually happened
+- whether the loop was worth the assay spend
+- how the observed result should narrow or strengthen the next recommendation
+
+## Cross-Family Snapshot
+
+| workflow family | initial posture | revised posture | worth the assay spend | current lesson |
+| --- | --- | --- | --- | --- |
+| `dda` | `recommend_with_downgrade` | `recommend_with_downgrade` | yes | matched assays preserved the intended closure loop without widening public language |
+| `dia` | `recommend_with_downgrade` | `do_not_recommend` | no | requested assay loss should block any attempt to treat DIA follow-up as laboratory closure |
+| `lfq` | `do_not_recommend` | `do_not_recommend` | no | low-information repeats should stay refused when the biological conclusion is still design-limited |
+| `multiplex` | `do_not_recommend` | `do_not_recommend` | no | no shipped requested-versus-observed outcome loop exists for this family yet |
+| `ptm` | `do_not_recommend` | `recommend_with_downgrade` | yes | site-level ambiguity can still repay follow-up when the closure question is narrow and explicitly targetable |
+| `targeted` | `do_not_recommend` | `recommend_with_downgrade` | yes | fast calibration-facing loops can be worth it even when broader targeted authority remains bounded |
 
 ### `dda`
 
