@@ -9,38 +9,40 @@ from pathlib import Path
 
 from bijux_proteomics.interpretation.complex_enrichment import (
     ComplexMembershipRecord,
-    parse_complex_membership_table,
 )
 from bijux_proteomics.interpretation.pathway_enrichment import (
     PathwayMembershipRecord,
-    parse_pathway_membership_table,
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
-    ProteinAnnotationColumnMapping,
     ProteinAnnotationMappingReport,
     ProteinAnnotationRecord,
     ProteinReferenceEntry,
-    build_protein_annotation_mapping_report,
-    parse_protein_annotation_table,
 )
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
 )
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
-from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.protein_region_context_models import (
     ProteinRegionContextRecord,
 )
-from bijux_proteomics.sequences.protein_region_context_workflows import (
-    parse_protein_region_context_tsv,
-)
 from bijux_proteomics.sequences.proteogenomic_peptide_support import (
     ProteogenomicVariantPeptideRecord,
-    parse_proteogenomic_variant_peptide_table,
+)
+from bijux_proteomics.workflow.reports.biological_report_annotation_source_data import (
+    _build_biological_annotation_mapping_report,
+    _load_biological_complex_membership_records,
+    _load_biological_custom_annotation_records,
+    _load_biological_pathway_membership_records,
 )
 from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_differential_reference_entries,
+)
+from bijux_proteomics.workflow.reports.biological_report_sequence_source_data import (
+    _load_biological_fasta_records,
+    _load_biological_protein_region_context_records,
+    _load_biological_variant_fasta_records,
+    _load_biological_variant_peptide_records,
 )
 
 
@@ -71,69 +73,33 @@ def _build_biological_report_source_data(
     complex_membership_tsv_path: Path | None,
     protein_region_context_tsv_path: Path | None,
 ) -> BiologicalReportSourceData:
-    fasta_records = _parse_strict_fasta_records(
-        proteins_fasta_path,
-        rejected_message_prefix="FASTA input contains rejected records under strict mode",
+    fasta_records = _load_biological_fasta_records(proteins_fasta_path)
+    variant_fasta_records = _load_biological_variant_fasta_records(
+        variant_proteins_fasta_path
     )
-    variant_fasta_records: tuple[NormalizedProteinRecord, ...] = ()
-    if variant_proteins_fasta_path is not None:
-        variant_fasta_records = _parse_strict_fasta_records(
-            variant_proteins_fasta_path,
-            rejected_message_prefix=(
-                "variant FASTA input contains rejected records under strict mode"
-            ),
-        )
-
-    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] = ()
-    if variant_peptide_tsv_path is not None:
-        variant_peptide_report = parse_proteogenomic_variant_peptide_table(
-            variant_peptide_tsv_path
-        )
-        if variant_peptide_report.rejected_rows:
-            rejected = "; ".join(
-                row.reason for row in variant_peptide_report.rejected_rows[:3]
-            )
-            raise ValueError(
-                "variant peptide table contains rejected rows: " + rejected
-            )
-        variant_peptide_records = variant_peptide_report.accepted_records
-
-    custom_annotation_records: tuple[ProteinAnnotationRecord, ...] = ()
-    if annotation_tsv_path is not None:
-        custom_annotation_records = parse_protein_annotation_table(
-            annotation_tsv_path,
-            mapping=ProteinAnnotationColumnMapping(
-                protein_ref="protein_ref",
-                gene_symbol="gene_symbol",
-                description="description",
-                organism="organism",
-                annotation_identifier="annotation_identifier",
-            ),
-        ).accepted_records
-
-    pathway_records = (
-        ()
-        if pathway_membership_tsv_path is None
-        else parse_pathway_membership_table(pathway_membership_tsv_path).accepted_records
+    variant_peptide_records = _load_biological_variant_peptide_records(
+        variant_peptide_tsv_path
     )
-    complex_records = (
-        ()
-        if complex_membership_tsv_path is None
-        else parse_complex_membership_table(complex_membership_tsv_path).accepted_records
+    custom_annotation_records = _load_biological_custom_annotation_records(
+        annotation_tsv_path
+    )
+    pathway_records = _load_biological_pathway_membership_records(
+        pathway_membership_tsv_path
+    )
+    complex_records = _load_biological_complex_membership_records(
+        complex_membership_tsv_path
     )
     differential_reference_entries = _build_differential_reference_entries(
         differential_report,
         protein_refs_by_entity=normalized_table.entity_protein_refs,
     )
-    annotation_report = build_protein_annotation_mapping_report(
+    annotation_report = _build_biological_annotation_mapping_report(
         differential_reference_entries,
         fasta_records,
-        custom_annotations=custom_annotation_records,
+        custom_annotation_records,
     )
-    protein_region_context_records = (
-        None
-        if protein_region_context_tsv_path is None
-        else parse_protein_region_context_tsv(protein_region_context_tsv_path).accepted_records
+    protein_region_context_records = _load_biological_protein_region_context_records(
+        protein_region_context_tsv_path
     )
 
     return BiologicalReportSourceData(
@@ -147,18 +113,3 @@ def _build_biological_report_source_data(
         annotation_report=annotation_report,
         protein_region_context_records=protein_region_context_records,
     )
-
-
-def _parse_strict_fasta_records(
-    fasta_path: Path, *, rejected_message_prefix: str
-) -> tuple[NormalizedProteinRecord, ...]:
-    fasta_report = parse_fasta_document(
-        fasta_path.read_text(encoding="utf-8"),
-        mode=FastaParseMode.STRICT,
-    )
-    if fasta_report.rejected_records:
-        rejected = ", ".join(
-            record.source_identifier for record in fasta_report.rejected_records
-        )
-        raise ValueError(f"{rejected_message_prefix}: {rejected}")
-    return fasta_report.accepted_records

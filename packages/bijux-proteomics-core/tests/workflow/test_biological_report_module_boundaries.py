@@ -184,6 +184,18 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalReportSourceData",
         "_build_biological_report_source_data",
     ),
+    "biological_report_sequence_source_data.py": (
+        "_load_biological_fasta_records",
+        "_load_biological_protein_region_context_records",
+        "_load_biological_variant_fasta_records",
+        "_load_biological_variant_peptide_records",
+    ),
+    "biological_report_annotation_source_data.py": (
+        "_build_biological_annotation_mapping_report",
+        "_load_biological_complex_membership_records",
+        "_load_biological_custom_annotation_records",
+        "_load_biological_pathway_membership_records",
+    ),
     "biological_report_quantification_analysis.py": (
         "BiologicalQuantificationAnalysis",
         "_build_biological_quantification_analysis",
