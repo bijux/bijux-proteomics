@@ -9,6 +9,7 @@ from __future__ import annotations
 WORKFLOW_ROOT_OWNER_FILES = frozenset(
     {
         "__init__.py",
+        "facade_card_catalog.py",
         "facade_benchmark_catalog.py",
         "blueprint.py",
         "facade_catalog.py",
