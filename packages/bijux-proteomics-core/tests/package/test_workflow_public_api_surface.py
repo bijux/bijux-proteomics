@@ -36,6 +36,8 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS,
     WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
     WORKFLOW_ROOT_CARD_OWNERS,
+    WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS,
+    WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
     WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
     WORKFLOW_ROOT_DEMO_OWNERS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
@@ -161,6 +163,25 @@ def test_workflow_root_pipeline_owners_exclude_benchmark_pipeline_reports() -> N
     assert all(
         owner in WORKFLOW_ROOT_PIPELINE_OWNERS
         for owner in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS
+    )
+
+
+def test_workflow_root_pipeline_owners_exclude_comparative_pipeline_reports() -> None:
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
+    assert all(
+        hasattr(pipelines, name)
+        for name in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS
+    )
+    assert all(
+        owner in WORKFLOW_ROOT_PIPELINE_OWNERS
+        for owner in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS
     )
 
 

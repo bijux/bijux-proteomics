@@ -647,6 +647,57 @@ WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS = tuple(
     if owner.owner_module in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
 )
 
+WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS = (
+    "render_dia_dda_comparison_summary_tsv",
+    "render_dia_dda_protein_overlap_tsv",
+    "render_dia_dda_peptide_overlap_tsv",
+    "render_dia_dda_shared_intensity_correlation_tsv",
+    "render_dia_dda_exclusive_evidence_tsv",
+    "render_dia_dda_conflicting_evidence_tsv",
+    "render_dia_dda_differential_comparison_tsv",
+    "render_dia_differential_matrix_tsv",
+    "render_dia_differential_missingness_tsv",
+    "render_dia_differential_results_tsv",
+    "render_dia_differential_qc_summary_tsv",
+    "render_dia_normalization_balance_plot_tsv",
+    "render_dia_differential_volcano_plot_tsv",
+    "export_dia_differential_matrix_tsv",
+    "export_dia_differential_missingness_tsv",
+    "export_dia_differential_results_tsv",
+    "export_dia_differential_qc_summary_tsv",
+    "export_dia_normalization_balance_plot_tsv",
+    "export_dia_differential_volcano_plot_tsv",
+    "export_label_based_differential_matrix_tsv",
+    "export_label_based_differential_missingness_tsv",
+    "export_label_based_differential_results_tsv",
+    "export_label_based_differential_volcano_plot_tsv",
+    "export_label_based_normalization_balance_plot_tsv",
+    "render_label_based_differential_matrix_tsv",
+    "render_label_based_differential_missingness_tsv",
+    "render_label_based_differential_results_tsv",
+    "render_label_based_differential_volcano_plot_tsv",
+    "render_label_based_normalization_balance_plot_tsv",
+)
+
+WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES = {
+    "bijux_proteomics.workflow.pipelines.dia_dda_comparison",
+    "bijux_proteomics.workflow.pipelines.dia_differential_analysis",
+    "bijux_proteomics.workflow.pipelines.label_based_differential",
+}
+
+WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
+        ),
+    )
+    for owner in PIPELINE_FACADE_OWNERS
+    if owner.owner_module in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
+)
+
 WORKFLOW_ROOT_PIPELINE_OWNERS = (
     *WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
@@ -657,8 +708,10 @@ WORKFLOW_ROOT_PIPELINE_OWNERS = (
         and owner not in ENGINE_PIPELINE_FACADE_OWNERS
         and owner.owner_module not in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
         and owner.owner_module not in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
+        and owner.owner_module not in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
         and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
     ),
+    *WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
 )
@@ -854,6 +907,9 @@ __all__ = [
     "WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS",
     "WORKFLOW_ROOT_CARD_HELPER_EXPORTS",
     "WORKFLOW_ROOT_CARD_OWNERS",
+    "WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES",
+    "WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS",
     "WORKFLOW_ROOT_DEMO_HELPER_EXPORTS",
     "WORKFLOW_ROOT_DEMO_OWNERS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS",
