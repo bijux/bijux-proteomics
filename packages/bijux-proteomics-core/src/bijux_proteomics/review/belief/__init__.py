@@ -5,16 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review.belief.belief_audit import (
-    BeliefAuditEntry,
-    BeliefAuditReport,
-    BeliefAuditSubjectKind,
-    BeliefAuditSummary,
-    build_belief_audit_report_from_artifacts,
-    render_belief_audit_html,
-    render_belief_audit_summary_tsv,
-    render_belief_audit_tsv,
-)
 from bijux_proteomics.review.belief.biomarker_candidate_ranking import (
     BiomarkerCandidateKind,
     BiomarkerCandidateRankReasonCode,
@@ -88,6 +78,16 @@ from bijux_proteomics.review.belief.flagship_kernel import (
     ScientificCoverageBoundaryEntry,
     ScientificCoverageBoundaryState,
     build_flagship_scientific_kernel_report,
+)
+from bijux_proteomics.review.belief.belief_audit import (
+    BeliefAuditEntry,
+    BeliefAuditReport,
+    BeliefAuditSubjectKind,
+    BeliefAuditSummary,
+    build_belief_audit_report_from_artifacts,
+    render_belief_audit_html,
+    render_belief_audit_summary_tsv,
+    render_belief_audit_tsv,
 )
 
 __all__ = [

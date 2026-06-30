@@ -18,15 +18,17 @@ from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     QuantValue,
 )
-from bijux_proteomics.review import (
-    EvidenceGraphFinalResultReport,
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceContextRef,
     ProteomicsEvidenceGraph,
     ProteomicsEvidenceGraphBuilder,
+    ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
+    EvidenceGraphFinalResultReport,
     build_evidence_graph_final_result_table,
 )
-from bijux_proteomics.review.evidence_graph.evidence_graph import ProteomicsEvidenceNode
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
