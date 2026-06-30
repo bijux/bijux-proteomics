@@ -1,12 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
+# ruff: noqa: F401
 
 """Digestion and modification parameter resolution for sequence workflows."""
 
 from __future__ import annotations
 
-from ..imports import *  # noqa: F401,F403
+from ..foundation import (
+    IsotopicLabelingPolicy,
+    ModificationRegistryDocument,
+    Path,
+    StaticModification,
+    VariableModification,
+    get_modification,
+    load_modification_registry,
+)
+from ..review_sequences_study import ProteaseRule, resolve_protease_rule
 
 
 def _resolve_cli_protease_rule(

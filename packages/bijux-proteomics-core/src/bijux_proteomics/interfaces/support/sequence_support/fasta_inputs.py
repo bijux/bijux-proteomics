@@ -1,13 +1,24 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
+# ruff: noqa: F401
 
 """FASTA loading and profile emission helpers for sequence workflows."""
 
 from __future__ import annotations
 
-from ..imports import *  # noqa: F401,F403
-from ..output_protocol import _emit_json, _write_text_output
+from ..foundation import Path, click
+from ..output_protocol.artifact_output import _emit_json, _write_text_output
+from ..review_sequences_study import (
+    DuplicateAccessionPolicy,
+    FastaDatabaseProfile,
+    FastaParseMode,
+    FastaParseReport,
+    parse_fasta_document,
+    render_fasta_profile_invalid_sequence_tsv,
+    render_fasta_profile_length_distribution_tsv,
+    render_fasta_profile_organism_distribution_tsv,
+    render_fasta_profile_summary_tsv,
+)
 
 
 def _emit_fasta_profile(
