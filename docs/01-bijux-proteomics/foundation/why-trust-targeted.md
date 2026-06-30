@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Why Trust Targeted
@@ -49,6 +49,22 @@ pressure, and downstream burden.
   still ends at exploratory-only follow-up and can collapse when calibration or
   interference burden gets heavier.
 
+## Best Cross-Surface Audit
+
+- open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  first to compare targeted against the other flagship families before trusting
+  its operator-facing language in isolation
+- open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  and the targeted package files above when the question is whether QC,
+  follow-up packets, and carryover evidence are all really visible
+- open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
+  when the question becomes whether the raw-executable runtime lane preserves
+  targeted trust beyond good prose
+- open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+  and [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  when the dispute shifts from transition QC to whether the public sentence is
+  still too generous
+
 ## What The Reader Is Really Auditing
 
 - whether transition-level QC survives alongside explicit failed and refused
@@ -64,6 +80,16 @@ pressure, and downstream burden.
   protein-inference caution across the bundled chromatogram package
 - targeted review can support operator-facing QC interpretation without
   pretending to prove vendor-parity targeted biology
+
+## Why This Surface Is Stronger Now
+
+- targeted now exposes approved, failed, and refused follow-up packets as part
+  of the same public trust surface instead of leaving consequence pressure
+  implicit
+- the carryover-stress companion package makes promotion weakness visible even
+  when the primary transition packet looks clean
+- runtime, recommendation, and consequence pages now make it easier to inspect
+  why operator-facing trust does not become calibration-clean biology
 
 ## What You Can Trust Right Now
 

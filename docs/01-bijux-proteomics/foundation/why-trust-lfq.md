@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Why Trust LFQ
@@ -46,6 +46,22 @@ package surfaces show the narrowing pressure directly.
   still ends at exploratory-only follow-up and can collapse under higher assay
   burden.
 
+## Best Cross-Surface Audit
+
+- open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  first to compare LFQ against the other flagship families before trusting its
+  cohort language in isolation
+- open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  and the LFQ package files above when the question is whether the cohort proof
+  remains inspectable beyond a summary chart
+- open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
+  when the question becomes whether normalization and differential outputs stay
+  reviewable through the runtime lane
+- open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+  and [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  when the dispute shifts from QC honesty to whether the released sentence is
+  still too strong
+
 ## What The Reader Is Really Auditing
 
 - whether missingness, normalization, and replicate pressure are explicit
@@ -61,6 +77,16 @@ package surfaces show the narrowing pressure directly.
   repeatable rollup behavior across the bundled cohort package
 - LFQ benchmark outputs can support review-grade abundance interpretation when
   QC and replicate caveats remain explicit
+
+## Why This Surface Is Stronger Now
+
+- LFQ now publishes a fuller outsider-readable packet than the older docs made
+  visible
+- the sparse-contrast companion package forces effect-direction weakness into
+  the public story instead of letting the primary cohort package dominate the
+  wording alone
+- runtime, recommendation, and consequence pages now make the bounded
+  review-grade sentence easier to inspect as one chain
 
 ## What You Can Trust Right Now
 

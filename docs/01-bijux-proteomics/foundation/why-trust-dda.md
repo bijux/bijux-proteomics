@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Why Trust DDA
@@ -44,6 +44,20 @@ execution boundary.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
+## Best Cross-Surface Audit
+
+- open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  first to see the released DDA sentence beside the other families
+- open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  and the DDA package files above when the question is whether the packet is
+  materially inspectable or only well narrated
+- open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
+  when the question becomes how much runtime proof exists beyond the import
+  bridge
+- open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+  and [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  when the dispute shifts from benchmark truth to release-worthy trust
+
 ## What The Reader Is Really Auditing
 
 - whether adapter-normalized DDA evidence remains interpretable after engine
@@ -58,6 +72,15 @@ execution boundary.
   pinned fixture corpus
 - review-ready DDA evidence retains reviewed-proteome grounding and explicit
   field-loss accounting
+
+## Why This Surface Is Stronger Now
+
+- the trust story no longer depends on one convenient public package
+- one companion engine pairing now exposes cross-package transfer pressure
+  openly instead of leaving protein-rollup weakness implicit
+- runtime, grounding, recommendation, and consequence pages now point at the
+  same bounded DDA sentence instead of forcing the reader to guess where the
+  downgrade really lives
 
 ## Why This Is Trustworthy Now
 
@@ -86,6 +109,17 @@ execution boundary.
   under the companion engine pairing
 - protein-facing claims stay downgrade-heavy because the comparator package
   demonstrates cross-engine rollup drift directly
+
+## Consequence Boundary
+
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  before widening DDA language from reviewable evidence to broader biological
+  confidence
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
+  before claiming that one new comparator, rerun, or transfer report changed
+  the public call
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
+  when the honest next move may still be stop, rerun, narrow, or refuse
 
 ## Evidence Grounding
 

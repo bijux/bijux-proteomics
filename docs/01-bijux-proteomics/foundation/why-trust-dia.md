@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Why Trust DIA
@@ -47,6 +47,21 @@ vendor-parity authority.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
+## Best Cross-Surface Audit
+
+- open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  first to see how DIA is released beside DDA, LFQ, PTM, and targeted
+- open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  and the DIA package files above when the question is whether library-shaped
+  proof is truly inspectable
+- open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
+  when the question becomes how much rerun trust the raw-executable lane
+  actually earns
+- open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/),
+  [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/),
+  and [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  when the dispute shifts from extraction success to release-grade language
+
 ## What The Reader Is Really Auditing
 
 - whether library-conditioned DIA evidence stays inspectable across the primary
@@ -62,6 +77,15 @@ vendor-parity authority.
   across the pinned export corpus
 - DIA review surfaces keep capability limits explicit instead of implying
   vendor-pipeline parity
+
+## Why This Surface Is Stronger Now
+
+- DIA now has a companion matrix-shift packet instead of one primary package
+  being asked to carry the full trust story alone
+- the runtime lane is raw-executable enough to make rerun trust part of the
+  public story rather than a maintainer-only claim
+- the surrounding grounding, recommendation, and consequence pages now make the
+  library-conditioned downgrade easier to defend and harder to overstate
 
 ## What You Can Trust Right Now
 
@@ -89,6 +113,17 @@ vendor-parity authority.
   repository proof boundary
 - protein-level absence claims stay downgrade-heavy because the second package
   weakens them materially
+
+## Consequence Boundary
+
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  before widening DIA language from library-conditioned support to broader
+  biological confidence
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
+  before claiming that one repeat or one matrix-shift outcome changed the full
+  public call
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
+  when the honest next move may still be stop, rerun, narrow, or refuse
 
 ## Evidence Grounding
 

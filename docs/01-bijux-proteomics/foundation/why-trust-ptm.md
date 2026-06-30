@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Why Trust PTM
@@ -47,6 +47,22 @@ evidence into stronger regulatory language than the current proof supports.
   still ends at exploratory-only follow-up and can collapse once PTM burden or
   ambiguity widens again.
 
+## Best Cross-Surface Audit
+
+- open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  first to compare PTM against the other flagship families before reading its
+  localization support as a universal promotion story
+- open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  and the PTM package files above when the question is whether localization and
+  ambiguity remain inspectable together
+- open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
+  when the question becomes whether motif, occupancy, and follow-up outputs are
+  publicly traceable through the runtime lane
+- open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+  and [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+  when the dispute shifts from localized evidence to whether the broader PTM
+  sentence should still stay narrow
+
 ## What The Reader Is Really Auditing
 
 - whether localization evidence stays separated from broader occupancy or
@@ -62,6 +78,15 @@ evidence into stronger regulatory language than the current proof supports.
   grounding across the pinned phospho-oriented package
 - PTM benchmark outputs separate localized evidence from broader occupancy or
   regulatory claims
+
+## Why This Surface Is Stronger Now
+
+- PTM now exposes localization, ambiguity, occupancy, motif, and follow-up
+  surfaces as one connected public story instead of a thin benchmark-only page
+- the ambiguity-stress companion package keeps targetability weakness visible
+  instead of letting one stronger localization packet overdefine trust
+- the surrounding recommendation and consequence pages now make it easier to
+  see why localization support does not automatically become regulatory support
 
 ## What You Can Trust Right Now
 
