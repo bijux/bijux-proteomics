@@ -36,7 +36,9 @@ from bijux_proteomics.quantification.contracts.matrix_building import (
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.review.evidence_graph import load_lazy_proteomics_evidence_graph
-from bijux_proteomics.workflow.exports import validate_workflow_artifact_manifest
+from bijux_proteomics.workflow.exports.artifact_layout import (
+    validate_workflow_artifact_manifest,
+)
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
