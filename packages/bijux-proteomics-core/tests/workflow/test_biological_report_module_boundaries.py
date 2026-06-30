@@ -47,6 +47,19 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_result_report_artifact_paths",
         "_build_biological_result_report_export_manifest",
     ),
+    "biological_report_scientific_artifact_paths.py": (
+        "_build_biological_scientific_artifact_path_fields",
+    ),
+    "biological_report_contextual_artifact_paths.py": (
+        "_build_biological_contextual_artifact_path_fields",
+    ),
+    "biological_report_activity_artifact_paths.py": (
+        "_build_biological_activity_artifact_path_fields",
+    ),
+    "biological_report_visual_enrichment_artifact_paths.py": (
+        "_build_biological_visual_artifact_path_fields",
+        "_build_biological_enrichment_artifact_path_fields",
+    ),
     "biological_report_section_confidence.py": (
         "_build_biological_report_section_confidence_entries",
         "_count_section_confidence_labels",
