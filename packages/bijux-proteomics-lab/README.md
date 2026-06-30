@@ -74,6 +74,18 @@ or handoff safety guarantees.
 - reconcile observed outcomes back into supported, weakened, or blocked
   feedback for downstream review
 
+## 0.3.8 Release Highlights
+
+- Lab now publishes typed design, planning, readiness, handoff,
+  reconciliation, and follow-up packet surfaces across DDA, DIA, LFQ, PTM, and
+  targeted workflows.
+- Targeted benchmark rehearsal, refusal, outcome dossier, and learning
+  surfaces now make assay burden and observed follow-up visible before stronger
+  downstream claims are made.
+- The package root is deliberately narrowed to planning entrypoints while the
+  durable owner bands keep readiness, handoff, outcome, and benchmark behavior
+  auditable.
+
 ## Installation
 
 ```bash

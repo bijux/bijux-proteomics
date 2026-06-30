@@ -49,6 +49,15 @@ behavior stays in canonical packages.
   inspectable
 - exists to preserve migration safety for existing integrations
 
+## 0.3.8 Release Highlights
+
+- The package now states its forwarding-only contract directly instead of
+  sounding like a second runtime owner.
+- Direct dependencies and optional extras are narrowed to the canonical
+  `bijux-proteomics-core` and `bijux-proteomics-runtime` packages.
+- Legacy CLI and import continuity remain documented, but new integrations are
+  pointed at the canonical runtime package first.
+
 ## Installation
 
 ```bash

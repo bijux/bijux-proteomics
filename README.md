@@ -25,9 +25,28 @@ The product shape is explicit:
 - repository-level release pressure in
   [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
 
+## 0.3.8 Release Snapshot
+
+- `foundation` now carries the durable shared kernel for canonical
+  serialization, identifiers, compatibility checks, and package-wide helper
+  primitives used by release gates.
+- `core` now publishes reader-facing scientific surfaces for FASTA intake,
+  digestion, chemistry, identification, spectra, mzML, search adapters,
+  protein inference, label-free quantification, PTM analysis, QC, and workflow
+  planning.
+- `runtime` is now the canonical execution package for reviewable sequence and
+  import paths, deterministic replay, advanced DIA-NN workflow planning,
+  archive bundles, and machine-readable rerun contracts.
+- `knowledge`, `intelligence`, and `lab` now expose the cited-memory,
+  analytical-judgment, and assay-follow-up surfaces needed to keep downstream
+  consequence claims explicit instead of implied.
+- package README examples and package changelogs now track the shipped public
+  surfaces instead of lagging behind the code line.
+
 ## Current Credible Workflow Families
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`,
+`targeted`.
 
 Internal-support-only workflow families today: `multiplex`.
 
@@ -152,6 +171,8 @@ package owners rather than duplicating the same runtime under multiple names.
 - `make quality-architecture-regression` to re-check import collection, public
   API snapshots, package tree, architecture map, workflow output snapshots, and
   the shipped demo CLI path after architecture-facing changes
+- `make quality-runtime-boundaries` to re-check runtime ownership boundaries,
+  the `agentic-proteins` forwarding contract, and runtime type-collision rules
 - `make release-preflight` to run the exact-order hostile-review release gate
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates

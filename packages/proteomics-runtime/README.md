@@ -54,11 +54,14 @@ The alias forwards the canonical runtime execution surface through
 `proteomics_runtime`:
 
 ```python
+from pathlib import Path
+
 from proteomics_runtime import AppConfig, create_app
 
-app = create_app(AppConfig(base_dir=TMP_PATH, docs_enabled=False))
+base_dir = Path("artifacts/readme-runtime-alias-app")
+app = create_app(AppConfig(base_dir=base_dir, docs_enabled=False))
 
-assert app.state.base_dir == TMP_PATH
+assert app.state.base_dir == base_dir
 assert app.docs_url is None
 ```
 

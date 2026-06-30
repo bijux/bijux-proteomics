@@ -81,6 +81,17 @@ instead of presentation-only summaries.
 - summarize proteomics interpretation posture without re-owning raw analysis
 - carry benchmark-backed review claims into release conversations
 
+## 0.3.8 Release Highlights
+
+- Intelligence now ships typed interpretation surfaces for run summaries,
+  differential abundance, PTM review, missingness, outliers, contaminants, and
+  enrichment-driven recommendation posture.
+- The package is now organized around durable owner families for candidates,
+  judgment, posture, interpretation, reviews, and learning, so recommendation
+  boundaries are easier to audit.
+- README and handbook examples now route readers through the currently shipped
+  analytical entrypoints instead of older decision-brief naming.
+
 ## Installation
 
 ```bash

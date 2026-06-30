@@ -57,6 +57,17 @@ serialization, and cross-package consistency for reproducible proteomics data.
 - validate migration paths before accepting persisted record upgrades
 - centralize shared contract behavior so other packages stay focused on domain logic
 
+## 0.3.8 Release Highlights
+
+- The shared kernel now covers canonical document metadata, JSON rendering,
+  stable hashing, identifier kinds, refusal and result envelopes, and schema
+  compatibility checks in one bounded package.
+- Foundation also ships the shared optional-dependency guards, alias helpers,
+  generated-file markers, and reusable test-policy primitives that the release
+  gates now depend on.
+- The public root stays intentionally small while durable owner families make
+  long-term boundaries explicit for contributors and downstream packages.
+
 ## Installation
 
 ```bash
@@ -149,7 +160,7 @@ schema = DocumentSchema(
     created_by="bijux-proteomics-foundation",
     document_kind="contract_bundle",
     package_name="bijux-proteomics-foundation",
-    package_version="0.1.0",
+    package_version="0.3.8",
 )
 ```
 

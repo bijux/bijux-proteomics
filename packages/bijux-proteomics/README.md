@@ -44,6 +44,14 @@ namespace shipped by core.
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.
 
+## 0.3.8 Release Highlights
+
+- The flagship distribution name now routes readers directly to the current
+  core scientific surface instead of implying a second owner package.
+- The alias follows the `0.3.8` release line while the canonical
+  `bijux-proteomics-core` package continues to own FASTA, digestion, search,
+  quantification, PTM, QC, and workflow-planning behavior.
+
 ## Installation
 
 ```bash

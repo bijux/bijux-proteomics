@@ -62,6 +62,17 @@ run orchestration, ranking policy, reference curation, or lab readiness.
 - inspect unsupported or lossy scientific inputs without hiding uncertainty
 - build reviewable scientific artifacts that runtime, knowledge, intelligence, and lab can consume
 
+## 0.3.8 Release Highlights
+
+- The public scientific surface now covers FASTA intake, digestion, peptide
+  chemistry, search-result normalization, spectra, mzML ingestion, search
+  adapters, protein inference, label-free quantification, PTM analysis, run
+  QC, and workflow planning.
+- Identification and quantification now publish governed public facades backed
+  by machine-readable owner ledgers instead of one broad mixed export bucket.
+- The shipped demo CLI path and the README examples now point at the current
+  reader-facing workflows instead of older placeholder routes.
+
 ## Installation
 
 ```bash

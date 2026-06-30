@@ -25,6 +25,18 @@ standards; it is intentionally separate from product runtime behavior.
 - detect OpenAPI and schema drift before publication
 - automate maintainership checks for docs and repository health
 
+## 0.3.8 Release Highlights
+
+- The maintainer package now owns architecture regression, runtime-boundary,
+  package-tree, orphan-module, circular-import, public-API typecheck,
+  generated-file, scientific-concept, and cross-package smoke gates.
+- README API examples are now executed against the shipped package surfaces,
+  and the repository test lanes are documented as explicit fast and slow
+  contracts.
+- Release validation now treats bridge migration, package ownership, and
+  runtime handoff checks as first-class repository policy instead of scattered
+  workflow glue.
+
 ## Installation
 
 ```bash

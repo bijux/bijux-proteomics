@@ -58,6 +58,17 @@ briefings that downstream packages can consume without re-curating locally.
 - explain why a scientific conclusion changed over time without losing provenance
 - surface unresolved knowledge gaps before downstream packages rank, schedule, or execute work
 
+## 0.3.8 Release Highlights
+
+- Knowledge now exposes cited references, benchmark manifests, curated corpora,
+  scientific rules, workflow briefing packets, comparator dossiers, and
+  machine-readable release-gate registries as first-class public surfaces.
+- Public resolution and lookup APIs now cover protein identity, feature
+  overlap, pathway membership, complex membership, kinase substrates, drug
+  targets, disease terms, knowledge coverage, and cross-species orthologs.
+- The package is now grouped by durable `memory`, `references`, `reviews`, and
+  `contracts` owners so provenance and trust semantics are easier to defend.
+
 ## Installation
 
 ```bash

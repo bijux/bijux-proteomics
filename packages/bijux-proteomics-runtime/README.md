@@ -70,6 +70,16 @@ wider proteomics engine still needs.
 - publish one useful import-only path from third-party result to reviewable output
 - integrate canonical runtime surfaces while legacy imports remain compat-only
 
+## 0.3.8 Release Highlights
+
+- Runtime now publishes advanced DIA-NN dry-run, resume, comparison, archive,
+  and architecture-demo workflows as public owner surfaces.
+- Workflow DAG typing, semantic cache fingerprints, partial rerun plans,
+  workflow failure artifacts, and reviewable handoff archives now stay
+  machine-readable instead of living in ad hoc runtime glue.
+- Black-box rerun and reviewable sequence/import paths are now explicit parts
+  of the runtime trust story rather than maintainer-only knowledge.
+
 ## Installation
 
 ```bash
@@ -112,11 +122,14 @@ The stable root API stays intentionally small:
 Minimal executable example:
 
 ```python
+from pathlib import Path
+
 from bijux_proteomics_runtime import AppConfig, create_app
 
-app = create_app(AppConfig(base_dir=TMP_PATH, docs_enabled=False))
+base_dir = Path("artifacts/readme-runtime-app")
+app = create_app(AppConfig(base_dir=base_dir, docs_enabled=False))
 
-assert app.state.base_dir == TMP_PATH
+assert app.state.base_dir == base_dir
 assert app.docs_url is None
 assert any(route.path == "/health" for route in app.routes)
 ```
@@ -213,7 +226,7 @@ schema = DocumentSchema(
     created_by="bijux-proteomics-runtime",
     document_kind="artifact_bundle",
     package_name="bijux-proteomics-runtime",
-    package_version="0.1.0",
+    package_version="0.3.8",
 )
 ```
 
