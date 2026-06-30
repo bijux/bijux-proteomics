@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from html import escape
 
-from bijux_proteomics.workflow.reports.biological_report_html_support import (
+from .support import (
     _format_optional_float,
 )
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

@@ -5,16 +5,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.biological_report_html_disease_phenotype_tables import (
+from .disease_phenotype_tables import (
     _render_disease_phenotype_table_html as _render_html_disease_phenotype_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_drug_target_tables import (
+from .drug_target_tables import (
     _render_drug_target_table_html as _render_html_drug_target_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_regulator_tables import (
+from .regulator_tables import (
     _render_regulator_inference_table_html as _render_html_regulator_inference_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

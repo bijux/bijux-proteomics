@@ -5,16 +5,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.biological_report_html_compartment_tables import (
+from .compartment_tables import (
     _render_compartment_biology_table_html as _render_html_compartment_biology_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_complex_activity_tables import (
+from .complex_activity_tables import (
     _render_complex_activity_table_html as _render_html_complex_activity_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_pathway_activity_tables import (
+from .pathway_activity_tables import (
     _render_pathway_activity_table_html as _render_html_pathway_activity_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

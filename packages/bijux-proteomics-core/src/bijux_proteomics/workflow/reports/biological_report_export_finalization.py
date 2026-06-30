@@ -23,7 +23,7 @@ from bijux_proteomics.workflow.reports.biological_report_export_contracts import
 from bijux_proteomics.workflow.reports.biological_report_export_writing import (
     BiologicalResultReportExportNames,
 )
-from bijux_proteomics.workflow.reports.biological_report_html import (
+from bijux_proteomics.workflow.reports.html import (
     _render_biological_result_report_html,
 )
 

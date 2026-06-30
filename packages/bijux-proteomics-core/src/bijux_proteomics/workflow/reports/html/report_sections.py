@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.biological_report_html_contextual_tables import (
+from .contextual_tables import (
     _render_cohort_stratification_table_html,
     _render_compartment_biology_table_html,
     _render_complex_activity_table_html,
@@ -14,7 +14,7 @@ from bijux_proteomics.workflow.reports.biological_report_html_contextual_tables 
     _render_regulator_inference_table_html,
     _render_tissue_cell_type_context_table_html,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_scientific_tables import (
+from .scientific_tables import (
     _render_biological_claim_validation_table_html,
     _render_biological_hypothesis_table_html,
     _render_evidence_aware_ranking_table_html,
@@ -22,14 +22,14 @@ from bijux_proteomics.workflow.reports.biological_report_html_scientific_tables 
     _render_foreground_background_model_table_html,
     _render_protein_mechanism_card_table_html,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_support import (
+from .support import (
     _render_biological_report_section_confidence_table_html,
     _render_section_heading_html,
 )
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
+from ..biological_report_section_metadata import (
     BiologicalReportSectionKey,
 )
 

@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from html import escape
 
-from bijux_proteomics.workflow.reports.biological_report_artifact_path_contracts import (
+from ..biological_report_artifact_path_contracts import (
     BiologicalResultReportArtifactPaths,
 )
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.reports.biological_report_html_artifact_inventory import (
+from .artifact_inventory import (
     _render_biological_report_artifact_inventory_html,
 )
 

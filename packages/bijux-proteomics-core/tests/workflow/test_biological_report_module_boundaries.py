@@ -10,7 +10,13 @@ WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
 REPORTS_ROOT = WORKFLOW_ROOT / "reports"
-BIOLOGICAL_REPORT_MODULES = tuple(sorted(REPORTS_ROOT.glob("biological_report*.py")))
+BIOLOGICAL_REPORT_MODULES = tuple(
+    sorted(
+        path
+        for path in REPORTS_ROOT.rglob("*.py")
+        if path.name != "__init__.py"
+    )
+)
 BIOLOGICAL_REPORT_LINE_LIMIT = 1000
 MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_models.py": (
@@ -444,16 +450,16 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_write_biological_drug_target_exports",
         "_write_biological_disease_phenotype_exports",
     ),
-    "biological_report_html_scientific_artifact_inventory.py": (
+    "html/scientific_artifact_inventory.py": (
         "_build_biological_scientific_artifact_sections",
     ),
-    "biological_report_html_contextual_artifact_inventory.py": (
+    "html/contextual_artifact_inventory.py": (
         "_build_biological_contextual_artifact_sections",
     ),
-    "biological_report_html_activity_artifact_inventory.py": (
+    "html/activity_artifact_inventory.py": (
         "_build_biological_activity_artifact_sections",
     ),
-    "biological_report_html_visual_artifact_inventory.py": (
+    "html/visual_artifact_inventory.py": (
         "_build_biological_visual_artifact_sections",
     ),
     "biological_report_assembly.py": (
@@ -478,24 +484,32 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_quant_table_from_ms1_feature_input",
         "_resolve_biological_ms1_feature_mapping",
     ),
-    "biological_report_html_support.py": (
+    "html/support.py": (
         "_format_optional_float",
         "_render_biological_report_section_confidence_table_html",
         "_render_section_heading_html",
     ),
-    "biological_report_html_scientific_confidence_tables.py": (
+    "html/scientific_confidence_tables.py": (
         "_render_experiment_confidence_table_html",
         "_render_foreground_background_model_table_html",
     ),
-    "biological_report_html_scientific_claim_tables.py": (
+    "html/scientific_claim_tables.py": (
         "_render_biological_claim_validation_table_html",
         "_render_biological_hypothesis_table_html",
     ),
-    "biological_report_html_scientific_ranking_tables.py": (
+    "html/scientific_ranking_tables.py": (
         "_render_protein_mechanism_card_table_html",
         "_render_evidence_aware_ranking_table_html",
     ),
-    "biological_report_html_contextual_tables.py": (
+    "html/scientific_tables.py": (
+        "_render_biological_claim_validation_table_html",
+        "_render_biological_hypothesis_table_html",
+        "_render_evidence_aware_ranking_table_html",
+        "_render_experiment_confidence_table_html",
+        "_render_foreground_background_model_table_html",
+        "_render_protein_mechanism_card_table_html",
+    ),
+    "html/contextual_tables.py": (
         "_render_regulator_inference_table_html",
         "_render_drug_target_table_html",
         "_render_disease_phenotype_table_html",
@@ -505,48 +519,55 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_pathway_activity_table_html",
         "_render_complex_activity_table_html",
     ),
-    "biological_report_html_molecular_interpretation_tables.py": (
+    "html/interpretation_tables.py": (
+        "_render_cohort_stratification_table_html",
+        "_render_disease_phenotype_table_html",
+        "_render_drug_target_table_html",
+        "_render_regulator_inference_table_html",
+        "_render_tissue_cell_type_context_table_html",
+    ),
+    "html/molecular_interpretation_tables.py": (
         "_render_regulator_inference_table_html",
         "_render_drug_target_table_html",
         "_render_disease_phenotype_table_html",
     ),
-    "biological_report_html_regulator_tables.py": (
+    "html/regulator_tables.py": (
         "_render_regulator_inference_table_html",
     ),
-    "biological_report_html_drug_target_tables.py": (
+    "html/drug_target_tables.py": (
         "_render_drug_target_table_html",
     ),
-    "biological_report_html_disease_phenotype_tables.py": (
+    "html/disease_phenotype_tables.py": (
         "_render_disease_phenotype_table_html",
     ),
-    "biological_report_html_sample_context_tables.py": (
+    "html/sample_context_tables.py": (
         "_render_tissue_cell_type_context_table_html",
         "_render_cohort_stratification_table_html",
     ),
-    "biological_report_html_activity_tables.py": (
+    "html/activity_tables.py": (
         "_render_compartment_biology_table_html",
         "_render_pathway_activity_table_html",
         "_render_complex_activity_table_html",
     ),
-    "biological_report_html_compartment_tables.py": (
+    "html/compartment_tables.py": (
         "_render_compartment_biology_table_html",
     ),
-    "biological_report_html_pathway_activity_tables.py": (
+    "html/pathway_activity_tables.py": (
         "_render_pathway_activity_table_html",
     ),
-    "biological_report_html_complex_activity_tables.py": (
+    "html/complex_activity_tables.py": (
         "_render_complex_activity_table_html",
     ),
-    "biological_report_html_artifact_inventory.py": (
+    "html/artifact_inventory.py": (
         "_render_biological_report_artifact_inventory_html",
     ),
-    "biological_report_html_report_summary.py": (
+    "html/report_summary.py": (
         "_render_biological_report_summary_html",
     ),
-    "biological_report_html_report_sections.py": (
+    "html/report_sections.py": (
         "_render_biological_report_section_blocks_html",
     ),
-    "biological_report_html.py": ("_render_biological_result_report_html",),
+    "html/page.py": ("_render_biological_result_report_html",),
     "biological_report_export_writing.py": (
         "BiologicalResultReportExportNames",
         "_write_biological_result_report_export_names",

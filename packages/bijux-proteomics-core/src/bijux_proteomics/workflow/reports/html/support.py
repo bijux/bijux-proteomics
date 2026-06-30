@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from html import escape
 
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
-from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
+from ..biological_report_section_metadata import (
     BiologicalReportSectionKey,
 )
 
