@@ -4,6 +4,8 @@ All notable changes for `agentic-proteins` are recorded here.
 
 ## Unreleased
 
+## 0.3.8 - 2026-06-30
+
 ### Changed
 
 - Reframed package metadata around the real compatibility-bridge contract
@@ -11,8 +13,10 @@ All notable changes for `agentic-proteins` are recorded here.
 - Shrunk direct workspace dependencies to the canonical owners the bridge
   actually forwards to: `bijux-proteomics-runtime` and
   `bijux-proteomics-core`.
-- Aligned fallback version and optional dependency floors with the current
-  `0.3.7` release line.
+- Kept legacy CLI and import continuity explicit in the docs while preserving
+  forwarding-only package ownership.
+- Aligned fallback version and optional dependency floors with the `0.3.8`
+  release line.
 
 ## 0.3.7 - 2026-04-21
 

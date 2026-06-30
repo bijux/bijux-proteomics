@@ -4,6 +4,8 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 
 ## Unreleased
 
+## 0.3.8 - 2026-06-30
+
 ### Added
 
 - Added strict and permissive FASTA parsing, protein normalization, sequence validation, normalized sequence checksums, FASTA deduplication, filtering, stats, provenance manifests, decoy generation, and target-decoy validation in `bijux_proteomics.sequences`.
@@ -28,21 +30,15 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 
 ### Changed
 
-- Exported the new FASTA and sequence-operation contracts through the package public API and README examples.
-- Exported the new peptide chemistry and modification contracts through the package public API and README examples.
-- Exported the new search-result identification contracts through the package public API and README examples.
-- Expanded the README identification examples to cover thresholded FDR filtering, provenance manifests, and CLI inspection/export workflows.
-- Expanded the README package examples to cover spectrum parsing, annotation, and plot payload generation.
-- Expanded package docs with spectrum CLI examples and a copy-paste first useful proteomics run guide.
-- Expanded package docs with mzML ingestion, design-table validation, format conversion, and normalized run-bundle examples.
-- Expanded package docs with search-adapter inspection, normalization, and provenance workflows.
-- Expanded package docs with search-parameter parsing, config validation, adapter comparison, conformance, and FDR-audit workflows.
-- Expanded package docs with protein inference workflows covering multi-level FDR, grouping, parsimony, picked protein FDR, and coverage interpretation.
-- [interpretability] Expanded package docs with a dedicated quantification workflow note covering input tables, design metadata, output semantics, and operator CLI usage.
-- Expanded package docs with a dedicated PTM workflow note covering localized evidence parsing, site aggregation, motif extraction, occupancy, and CLI usage.
-- Expanded the README package examples to cover run-level LC-MS QC and batch outlier diagnostics.
-- Expanded package docs with a QC operator guide covering threshold interpretation, advisory versus enforced labels, evidence manifests, and failed-run diagnosis.
-- Expanded package docs with a workflow runtime planning guide covering manifest semantics, DAG projection, cache and artifact lineage, scheduler export, and checkpoint behavior.
+- Split the identification and quantification public facades into governed
+  owner families with machine-readable export ledgers and narrower internal
+  import contracts.
+- Expanded executable README examples, the shipped demo CLI tutorial, and
+  package docs across FASTA, digestion, chemistry, identification, spectra,
+  mzML, search adapters, protein inference, quantification, PTM, QC, and
+  workflow planning.
+- Aligned the foundation dependency floor and fallback version with the
+  `0.3.8` release line.
 
 ## 0.3.7 - 2026-04-21
 

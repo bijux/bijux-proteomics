@@ -4,9 +4,27 @@ All notable changes for `bijux-proteomics-foundation` are recorded here.
 
 ## Unreleased
 
+## 0.3.8 - 2026-06-30
+
+### Added
+
+- Added versioned document, identifier, serialization, hashing, refusal,
+  result, and compatibility primitives as the shared kernel for persisted
+  proteomics records.
+- Added shared package-alias helpers, explicit root public-API contracts,
+  optional dependency guards, shared test marker and skip-policy helpers,
+  governed generated-file markers, and public type, docstring, line-count, and
+  complexity support utilities used by downstream packages and maintainer
+  gates.
+
 ### Changed
 
-- No unreleased changes yet.
+- Reorganized the package around durable `compatibility`, `identity`,
+  `outcomes`, `serialization`, and `support` owner families and narrowed the
+  root exports to curated shared primitives plus explicit migration helpers.
+- Expanded executable README examples and package docs for canonical JSON,
+  hashing, compatibility checks, and stable testing helpers.
+- Aligned the fallback version with the `0.3.8` release line.
 
 ## 0.3.7 - 2026-04-21
 
