@@ -40,6 +40,23 @@ BIOMARKER_SUPPORT_ROOT = (
     / "support"
     / "biomarker_candidate_support"
 )
+TARGETED_SELECTION_TABLE_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "bijux_proteomics"
+    / "interfaces"
+    / "support"
+    / "targeted_selection_io"
+    / "selection_tables"
+)
+
+
+def _imports_deleted_support_barrel(node: ast.ImportFrom) -> bool:
+    return (
+        node.module == "bijux_proteomics.interfaces.support.imports"
+        or node.level == 2
+        and node.module == "imports"
+    )
 
 
 def test_support_registry_exports_modules_not_symbol_soup() -> None:
@@ -201,11 +218,7 @@ def test_sequence_support_owner_modules_do_not_import_symbol_barrel() -> None:
         for node in module.body:
             if not isinstance(node, ast.ImportFrom):
                 continue
-            if (
-                node.level == 2
-                and node.module == "imports"
-                or node.module == "bijux_proteomics.interfaces.support.imports"
-            ):
+            if _imports_deleted_support_barrel(node):
                 violations.append(
                     f"{path.relative_to(SEQUENCE_SUPPORT_ROOT)} imports the support symbol barrel instead of owned support modules"
                 )
@@ -221,12 +234,24 @@ def test_biomarker_candidate_owner_modules_do_not_import_symbol_barrel() -> None
         for node in module.body:
             if not isinstance(node, ast.ImportFrom):
                 continue
-            if (
-                node.level == 2
-                and node.module == "imports"
-                or node.module == "bijux_proteomics.interfaces.support.imports"
-            ):
+            if _imports_deleted_support_barrel(node):
                 violations.append(
                     f"{path.relative_to(BIOMARKER_SUPPORT_ROOT)} imports the support symbol barrel instead of owned support modules"
+                )
+    assert not violations, "\n".join(violations)
+
+
+def test_targeted_selection_table_owner_modules_do_not_import_symbol_barrel() -> None:
+    violations: list[str] = []
+    for path in sorted(TARGETED_SELECTION_TABLE_ROOT.glob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in module.body:
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if _imports_deleted_support_barrel(node):
+                violations.append(
+                    f"{path.relative_to(TARGETED_SELECTION_TABLE_ROOT)} imports the support symbol barrel instead of owned support modules"
                 )
     assert not violations, "\n".join(violations)
