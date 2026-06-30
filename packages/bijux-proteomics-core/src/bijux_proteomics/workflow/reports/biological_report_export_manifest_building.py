@@ -4,85 +4,43 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.biological_report_activity_artifact_paths import (
-    _build_biological_activity_artifact_path_fields,
+from bijux_proteomics.workflow.reports.biological_report_artifact_path_building import (
+    _build_biological_result_report_artifact_paths,
 )
-from bijux_proteomics.workflow.reports.biological_report_activity_exports import (
-    BiologicalActivityExportNames,
-)
-from bijux_proteomics.workflow.reports.biological_report_contextual_artifact_paths import (
-    _build_biological_contextual_artifact_path_fields,
-)
-from bijux_proteomics.workflow.reports.biological_report_contextual_exports import (
-    BiologicalContextualExportNames,
-)
-from bijux_proteomics.workflow.reports.biological_report_enrichment_exports import (
-    BiologicalEnrichmentExportNames,
+from bijux_proteomics.workflow.reports.biological_report_export_manifest_metadata import (
+    _build_biological_result_report_export_metadata,
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportArtifactPaths,
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
 )
-from bijux_proteomics.workflow.reports.biological_report_scientific_artifact_paths import (
-    _build_biological_scientific_artifact_path_fields,
-)
-from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
-    BiologicalScientificExportNames,
-)
-from bijux_proteomics.workflow.reports.biological_report_visual_enrichment_artifact_paths import (
-    _build_biological_enrichment_artifact_path_fields,
-    _build_biological_visual_artifact_path_fields,
-)
-from bijux_proteomics.workflow.reports.biological_report_visual_exports import (
-    BiologicalVisualExportNames,
-)
-
-
-def _build_biological_result_report_artifact_paths(
-    scientific_export_names: BiologicalScientificExportNames,
-    contextual_export_names: BiologicalContextualExportNames,
-    activity_export_names: BiologicalActivityExportNames,
-    enrichment_export_names: BiologicalEnrichmentExportNames,
-    visual_export_names: BiologicalVisualExportNames,
-) -> BiologicalResultReportArtifactPaths:
-    return BiologicalResultReportArtifactPaths(
-        **_build_biological_scientific_artifact_path_fields(scientific_export_names),
-        **_build_biological_contextual_artifact_path_fields(contextual_export_names),
-        **_build_biological_activity_artifact_path_fields(activity_export_names),
-        **_build_biological_visual_artifact_path_fields(visual_export_names),
-        **_build_biological_enrichment_artifact_path_fields(enrichment_export_names),
-    )
-
 
 def _build_biological_result_report_export_manifest(
     report: BiologicalResultReportBundle,
     artifacts: BiologicalResultReportArtifactPaths,
 ) -> BiologicalResultReportExportManifest:
+    export_metadata = _build_biological_result_report_export_metadata(report)
     return BiologicalResultReportExportManifest(
         summary=report.summary,
         artifacts=artifacts,
-        claim_validation_included=report.claim_validation_report is not None,
-        hypothesis_summary_included=report.biological_hypothesis_report is not None,
-        context_summary_included=report.context_mapping_report is not None,
+        claim_validation_included=export_metadata.claim_validation_included,
+        hypothesis_summary_included=export_metadata.hypothesis_summary_included,
+        context_summary_included=export_metadata.context_summary_included,
         cohort_stratification_summary_included=(
-            report.cohort_stratification_report is not None
+            export_metadata.cohort_stratification_summary_included
         ),
-        tissue_context_summary_included=report.tissue_cell_type_context_report
-        is not None,
-        drug_target_summary_included=report.drug_target_report is not None,
-        disease_phenotype_summary_included=report.disease_phenotype_report is not None,
-        go_summary_included=report.go_enrichment_report is not None,
-        pathway_summary_included=report.pathway_enrichment_report is not None,
-        complex_summary_included=report.complex_enrichment_report is not None,
-        note=(
-            "biological report export writes stable differential, explicit "
-            "foreground/background enrichment inputs, protein-card, "
-            "protein-mechanism-card, annotation, optional biological hypotheses, "
-            "optional biological context, optional cohort stratification, "
-            "optional tissue and cell-type context, enrichment, volcano, heatmap, "
-            "and sample exploration artifacts into one durable output directory"
+        tissue_context_summary_included=(
+            export_metadata.tissue_context_summary_included
         ),
+        drug_target_summary_included=export_metadata.drug_target_summary_included,
+        disease_phenotype_summary_included=(
+            export_metadata.disease_phenotype_summary_included
+        ),
+        go_summary_included=export_metadata.go_summary_included,
+        pathway_summary_included=export_metadata.pathway_summary_included,
+        complex_summary_included=export_metadata.complex_summary_included,
+        note=export_metadata.note,
     )
 
 

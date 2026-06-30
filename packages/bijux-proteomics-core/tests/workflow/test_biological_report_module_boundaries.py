@@ -44,8 +44,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalResultReportExportManifest",
     ),
     "biological_report_export_manifest_building.py": (
-        "_build_biological_result_report_artifact_paths",
         "_build_biological_result_report_export_manifest",
+    ),
+    "biological_report_artifact_path_building.py": (
+        "_build_biological_result_report_artifact_paths",
+    ),
+    "biological_report_export_manifest_metadata.py": (
+        "BiologicalResultReportExportMetadata",
+        "_build_biological_result_report_export_metadata",
     ),
     "biological_report_scientific_artifact_paths.py": (
         "_build_biological_scientific_artifact_path_fields",
