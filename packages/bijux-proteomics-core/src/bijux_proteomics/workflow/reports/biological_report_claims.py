@@ -14,7 +14,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import coerce_confidence_tier
+from bijux_proteomics.domain.confidence import coerce_confidence_tier
 from bijux_proteomics.domain.semantic_ids import (
     build_pathway_claim_id,
     build_protein_claim_id,

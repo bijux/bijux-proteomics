@@ -28,7 +28,7 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
-from bijux_proteomics.domain import ConfidenceTier
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.domain.reason_codes import (
     ReasonCodeCategory,
     require_registered_reason_codes,

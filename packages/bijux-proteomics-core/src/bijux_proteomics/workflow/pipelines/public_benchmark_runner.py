@@ -14,7 +14,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import ConfidenceTier, coerce_confidence_tier
+from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.multiplex import (
     TmtSearchResultSourceKind,
