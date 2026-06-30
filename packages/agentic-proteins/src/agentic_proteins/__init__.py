@@ -16,7 +16,7 @@ __all__ = ["AppConfig", "RunManager", "cli", "create_app"]
 try:
     __version__ = metadata.version("agentic-proteins")
 except metadata.PackageNotFoundError:
-    __version__ = "0.3.6"
+    __version__ = "0.3.8"
 
 
 def __getattr__(name: str) -> Any:

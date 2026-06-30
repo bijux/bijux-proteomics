@@ -16,7 +16,7 @@ from bijux_proteomics_foundation._package_aliases import (
 
 
 def test_package_alias_helpers_forward_canonical_root_attributes() -> None:
-    assert alias_package_version("definitely-missing-package") == "0.3.6"
+    assert alias_package_version("definitely-missing-package") == "0.3.8"
     assert (
         canonical_module_getattr("bijux_proteomics_foundation", "DocumentSchema")
         is DocumentSchema
