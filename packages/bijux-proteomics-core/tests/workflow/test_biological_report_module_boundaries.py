@@ -129,6 +129,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_claim_validation_entry",
         "_build_hypothesis_entry",
     ),
+    "biological_report_mechanistic_confidence.py": (
+        "_build_foreground_background_entry",
+        "_build_regulator_inference_entry",
+        "_build_protein_mechanism_entry",
+    ),
     "biological_report_context_assembly.py": (
         "BiologicalContextAssemblyReports",
         "_build_biological_context_reports",
