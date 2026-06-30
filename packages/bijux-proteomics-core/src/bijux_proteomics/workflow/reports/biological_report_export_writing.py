@@ -28,8 +28,10 @@ from bijux_proteomics.workflow.reports.biological_report_scientific_export_contr
 from bijux_proteomics.workflow.reports.biological_report_scientific_exports import (
     write_biological_scientific_exports,
 )
-from bijux_proteomics.workflow.reports.biological_report_visual_exports import (
+from bijux_proteomics.workflow.reports.biological_report_visual_export_contracts import (
     BiologicalVisualExportNames,
+)
+from bijux_proteomics.workflow.reports.biological_report_visual_exports import (
     write_biological_visual_exports,
 )
 

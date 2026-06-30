@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -32,27 +31,9 @@ from bijux_proteomics.workflow.cards.sample_evidence_cards import (
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
-
-
-@dataclass(frozen=True)
-class BiologicalVisualExportNames:
-    """Artifact names emitted for report visuals and exploratory outputs."""
-
-    volcano_tsv_name: str
-    volcano_json_name: str
-    volcano_svg_name: str
-    volcano_html_name: str
-    heatmap_summary_name: str
-    heatmap_matrix_name: str
-    heatmap_row_name: str
-    heatmap_column_name: str
-    sample_summary_name: str
-    sample_scores_name: str
-    sample_variance_name: str
-    sample_distance_name: str
-    sample_cluster_name: str
-    sample_card_name: str
-    report_html_name: str
+from bijux_proteomics.workflow.reports.biological_report_visual_export_contracts import (
+    BiologicalVisualExportNames,
+)
 
 
 def write_biological_visual_exports(

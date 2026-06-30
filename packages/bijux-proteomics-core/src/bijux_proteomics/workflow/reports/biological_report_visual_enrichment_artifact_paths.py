@@ -8,7 +8,7 @@ from __future__ import annotations
 from bijux_proteomics.workflow.reports.biological_report_enrichment_exports import (
     BiologicalEnrichmentExportNames,
 )
-from bijux_proteomics.workflow.reports.biological_report_visual_exports import (
+from bijux_proteomics.workflow.reports.biological_report_visual_export_contracts import (
     BiologicalVisualExportNames,
 )
 

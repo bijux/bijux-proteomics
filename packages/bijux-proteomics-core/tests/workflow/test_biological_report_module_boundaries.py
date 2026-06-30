@@ -406,8 +406,10 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "render_biological_report_section_confidence_tsv",
         "render_biological_result_report_summary_tsv",
     ),
-    "biological_report_visual_exports.py": (
+    "biological_report_visual_export_contracts.py": (
         "BiologicalVisualExportNames",
+    ),
+    "biological_report_visual_exports.py": (
         "write_biological_visual_exports",
     ),
     "biological_report_contextual_exports.py": (
