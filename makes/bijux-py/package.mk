@@ -150,10 +150,9 @@ include $(ROOT_MAKE_DIR)/bijux-py/ci/sbom.mk
 include $(ROOT_MAKE_DIR)/bijux-py/api.mk
 include $(ROOT_MAKE_DIR)/publish.mk
 
-PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(ROOT_MAKE_DIR)/bijux-py/repository/artifact_aliases.py
-PACKAGE_ARTIFACT_SETUP_COMMAND ?= "$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)"
+PACKAGE_ARTIFACT_SETUP_COMMAND ?= PYTHONPATH="$(MONOREPO_ROOT)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(PYTHON)" -m bijux_proteomics_dev.workspace.artifact_layout
 
-setup: ## Materialize package artifact alias links
+setup: ## Prepare package artifact layout and remove spillover paths
 	@$(PACKAGE_ARTIFACT_SETUP_COMMAND) package --repo-root "$(MONOREPO_ROOT)" --package-dir "$(PROJECT_DIR)"
 .PHONY: setup
 

@@ -15,8 +15,6 @@ SECURITY_AUDIT_PREPARE_MODE := environment
 PIP_AUDIT_INPUTS =
 SECURITY_BANDIT_SKIP_IDS := B311
 PACKAGE_ALL_TARGETS := clean install test lint quality security build sbom
-PACKAGE_ARTIFACT_SETUP_COMMAND = PYTHONPATH="$(MONOREPO_ROOT)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(PYTHON)" -m bijux_proteomics_dev.workspace.artifact_layout
-
 test-all: TEST_MAIN_ARGS =
 test-all: TEST_PATHS = tests
 test-all: PYTEST_ADDOPTS_EXTRA = -o timeout=0
