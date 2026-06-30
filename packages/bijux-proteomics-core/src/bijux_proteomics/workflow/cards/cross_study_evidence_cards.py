@@ -19,11 +19,11 @@ from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyProteinEffectComparisonEntry,
     CrossStudyProteinEffectStudyEntry,
 )
-from bijux_proteomics.workflow.cross_study_meta_analysis import (
+from bijux_proteomics.workflow.studies.cross_study_meta_analysis import (
     CrossStudyMetaAnalysisEntry,
     CrossStudyMetaAnalysisRejectedEntry,
 )
-from bijux_proteomics.workflow.cross_study_pathway_comparison import (
+from bijux_proteomics.workflow.studies.cross_study_pathway_comparison import (
     CrossStudyPathwayComparisonEntry,
     CrossStudyPathwayComparisonStatus,
     CrossStudyPathwayStudyEntry,

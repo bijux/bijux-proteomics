@@ -45,8 +45,17 @@ _ROOT_WRAPPER_TARGETS = {
     "cross_study_effect_comparison.py": (
         "bijux_proteomics.workflow.studies.cross_study_effect_comparison"
     ),
+    "cross_study_meta_analysis.py": (
+        "bijux_proteomics.workflow.studies.cross_study_meta_analysis"
+    ),
+    "cross_study_pathway_comparison.py": (
+        "bijux_proteomics.workflow.studies.cross_study_pathway_comparison"
+    ),
     "cross_study_protein_harmonization.py": (
         "bijux_proteomics.workflow.studies.cross_study_protein_harmonization"
+    ),
+    "cross_species_effect_comparison.py": (
+        "bijux_proteomics.workflow.studies.cross_species_effect_comparison"
     ),
     "cross_study_evidence_cards.py": (
         "bijux_proteomics.workflow.cards.cross_study_evidence_cards"
@@ -141,6 +150,9 @@ def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
 
     assert hasattr(studies, "build_cohort_stratification_report")
     assert hasattr(studies, "build_cross_study_effect_comparison_report")
+    assert hasattr(studies, "build_cross_study_meta_analysis_report")
+    assert hasattr(studies, "build_cross_study_pathway_comparison_report")
     assert hasattr(studies, "build_cross_study_protein_harmonization_report")
+    assert hasattr(studies, "build_cross_species_effect_comparison_report")
     assert hasattr(studies, "build_proteomics_study_result")
     assert hasattr(studies, "ProteomicsStudyKind")

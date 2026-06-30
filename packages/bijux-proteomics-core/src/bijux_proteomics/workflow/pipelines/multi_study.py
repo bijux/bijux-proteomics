@@ -23,7 +23,7 @@ from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     render_cross_study_conflicting_hit_tsv,
     render_cross_study_replicated_hit_tsv,
 )
-from bijux_proteomics.workflow.cross_study_pathway_comparison import (
+from bijux_proteomics.workflow.studies.cross_study_pathway_comparison import (
     CrossStudyPathwayComparisonEntry,
     CrossStudyPathwayComparisonReport,
     CrossStudyPathwayComparisonStatus,

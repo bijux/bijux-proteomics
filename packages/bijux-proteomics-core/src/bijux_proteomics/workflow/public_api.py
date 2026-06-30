@@ -102,8 +102,20 @@ STUDY_FACADE_OWNERS = (
         excluded_exports=("CrossStudyProteinStudyInput",),
     ),
     WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.studies.cross_study_meta_analysis",
+        rationale="cross-study meta-analysis ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.studies.cross_study_pathway_comparison",
+        rationale="cross-study pathway comparison ownership",
+    ),
+    WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.studies.cross_study_protein_harmonization",
         rationale="cross-study protein harmonization ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.studies.cross_species_effect_comparison",
+        rationale="cross-species effect comparison ownership",
     ),
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.studies.study_result",
@@ -323,11 +335,11 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="cross-study evidence card ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.cross_study_meta_analysis",
+        owner_module="bijux_proteomics.workflow.studies.cross_study_meta_analysis",
         rationale="cross-study meta-analysis ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.cross_study_pathway_comparison",
+        owner_module="bijux_proteomics.workflow.studies.cross_study_pathway_comparison",
         rationale="cross-study pathway comparison ownership",
     ),
     WorkflowFacadeOwner(
@@ -335,7 +347,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="cross-study protein harmonization ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.cross_species_effect_comparison",
+        owner_module="bijux_proteomics.workflow.studies.cross_species_effect_comparison",
         rationale="cross-species effect comparison ownership",
     ),
     WorkflowFacadeOwner(
