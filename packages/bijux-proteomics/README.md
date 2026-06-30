@@ -155,7 +155,10 @@ assert report.accepted_records[0].canonical_accession == "P11111"
 
 ## Documentation
 
+- [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
 - [Canonical core package docs](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [Changelog](CHANGELOG.md)

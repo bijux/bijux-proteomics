@@ -40,6 +40,10 @@ The product shape is explicit:
 - `knowledge`, `intelligence`, and `lab` now expose the cited-memory,
   analytical-judgment, and assay-follow-up surfaces needed to keep downstream
   consequence claims explicit instead of implied.
+- reader-first docs now live inside the numbered package handbooks, so product
+  overview, workflow families, benchmark assets, execution, decision support,
+  lab consequence, and maintenance all resolve from durable owner surfaces
+  instead of extra top-level journey directories.
 - package README examples and package changelogs now track the shipped public
   surfaces instead of lagging behind the code line.
 
@@ -109,7 +113,24 @@ and the current hostile-review blockers are tracked in
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-## Reader Paths
+## Reader-First Docs
+
+- [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+  explains the bounded product promise, evidence posture, and package chain.
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  states which workflow families are publishable, bounded, or internal only.
+- [Benchmark assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  shows how benchmark evidence is shaped before interpretation starts.
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+  describes the canonical runtime, replay contract, and operator route.
+- [Decision support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  tracks recommendation posture, consequence maps, and recommendation drift.
+- [Lab consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+  explains how assay follow-up stays explicit, reviewable, and bounded.
+- [Maintenance overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
+  collects maintainer routes for release, quality, and safe repository change.
+
+## Role-Based Starts
 
 - Scientist: start with
   [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
@@ -124,7 +145,7 @@ and the current hostile-review blockers are tracked in
   and then the
   [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/).
 
-## Package Map
+## Publishable Package Map
 
 The canonical publishable surface is `6` real product packages:
 

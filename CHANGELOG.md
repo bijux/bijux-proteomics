@@ -25,6 +25,9 @@ change contributor and maintainer workflows across the repository.
 - Reworked repository and package docs around canonical owner packages,
   workflow trust limits, reader-first navigation, and executable README API
   examples.
+- Folded reader-first docs routes into the numbered handbook owners so public
+  product overview, workflow, execution, benchmark, decision, lab, and
+  maintenance pages no longer depend on extra top-level journey directories.
 - Expanded repository-owned quality and release gates with architecture
   regression, public-API typecheck, circular-import scope, package-tree
   layout, orphan-module, generated-file, scientific-concept-ownership, and

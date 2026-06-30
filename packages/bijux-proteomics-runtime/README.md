@@ -349,12 +349,15 @@ result = OperationResult.success(
 ## Documentation
 
 - [Advanced DIA-NN Python API tutorial](docs/ADVANCED-DIANN-PYTHON-API.md)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+- [Operator rerun journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Public surfaces dossier](docs/PUBLIC-SURFACES.md)
 - [Route ownership dossier](docs/ROUTE-OWNERSHIP.md)
 - [Provider ownership dossier](docs/PROVIDER-OWNERSHIP.md)
 - [Artifact lineage dossier](docs/ARTIFACT-LINEAGE.md)
+- [Benchmark rerun kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operations/benchmark-rerun-kits/)
 - [Package guide](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/architecture/)

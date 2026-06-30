@@ -758,8 +758,11 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 
 ## Documentation
 
+- [Benchmark assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
 - [Package guide](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
