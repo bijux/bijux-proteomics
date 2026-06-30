@@ -4,24 +4,28 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # What One Workflow Family Supports Today
 
-`bijux-proteomics` now has one checked flagship workflow chain:
-`flagship-workflows`.
+This page exists to explain what one workflow family must contain before the
+repository can give it a serious public sentence. The question is no longer
+whether the repository has one thin canonical demo. The question is whether a
+given family now has enough benchmark, runtime, grounding, recommendation, and
+consequence depth to support bounded outsider-facing language.
 
-That phrase is intentionally narrow. It means one governed workflow proof set
-exists from sequence intake through search/confidence, quantification, PTM
-review, scientific-kernel review, evidence review, decision review, lab
-handoff, and follow-up. It does **not** mean the repository now has broad
-proteomics workflow coverage.
+That phrase remains intentionally narrow. One workflow family support packet
+does **not** mean broad proteomics coverage. It means one family can now be
+challenged end to end from tracked public surfaces without outsourcing the
+explanation to maintainer memory.
 
 ## Open First
 
-The strongest shipped evidence path currently starts with the DDA public
-package, not with a governance report.
+The strongest shipped evidence paths currently start with flagship public
+packages, not with governance reports. DDA remains the clearest reader-first
+example because its public benchmark, rerun, comparator, and consequence
+surfaces still show the whole chain in one bounded route.
 
 Open these files first:
 
@@ -33,7 +37,7 @@ Open these files first:
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/comparator_confrontations.py`
 
-Those files show the actual current DDA support surface:
+Those files show one concrete current DDA support surface:
 
 - one raw-like spectrum
 - one primary MaxQuant import lane
@@ -44,8 +48,9 @@ Those files show the actual current DDA support surface:
 
 ## What Exists Now
 
-The current checked workflow surface supports one narrow workflow story, and
-the DDA public package is the clearest outsider-readable entrypoint into it:
+The current repository supports several family packets at different public
+strengths, and the DDA public package is still the clearest outsider-readable
+entrypoint into the pattern:
 
 - runtime-owned sequence, search/confidence, quantification, PTM, and lab
   handoff artifacts
@@ -74,6 +79,17 @@ Current outsider-facing review pages for that story:
 - `docs/01-bijux-proteomics/foundation/why-trust-dda.md`
 - `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
 - `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
+
+## What A Real Family Packet Now Requires
+
+- one flagship public benchmark package that can be opened without private
+  maintainer context
+- one runtime lane that makes execution realism and refusal visible
+- one grounding and contradiction route that keeps the scientific sentence
+  challengeable
+- one recommendation packet that shows downgrade, confidence, or refusal
+- one consequence packet that keeps requested-versus-observed follow-up and
+  assay burden visible
 
 ## Claim Taxonomy
 
@@ -106,7 +122,7 @@ One undeniable workflow is necessary, but it is not enough by itself to make
 the whole repository `reference-grade` or `elite`.
 
 The next honest rise in posture will not come from more repository self-audit.
-It will come from stronger flagship evidence:
+It will come from stronger family packets:
 
 - more than one public benchmark package that outsiders can inspect from files
   alone
@@ -117,9 +133,20 @@ It will come from stronger flagship evidence:
 - decision and follow-up surfaces that continue to survive those harder public
   packages
 
+## Strongest Companion Routes
+
+- open
+  [Workflow Claim Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-claim-limits/)
+  for the released sentence ceiling across families
+- open
+  [External Review Kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
+  for the shortest outsider challenge route
+- open
+  [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+  when a family packet looks stronger than the current release language
+
 ## Boundary
 
-Only `flagship-workflows` may be described with this one-workflow-family
-sentence.
-Every other workflow family remains future-only until it has its own
-artifact-backed proof surface.
+Only families with their own artifact-backed proof surfaces may be described
+with this one-workflow-family sentence. Every stronger release claim still has
+to pass through the family claim-limit and readiness surfaces.

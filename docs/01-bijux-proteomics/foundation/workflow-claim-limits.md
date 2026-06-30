@@ -27,6 +27,11 @@ lab consequence pressure. That means the repository can now distinguish between
 families that have a full outsider-readable packet and families whose released
 sentence must still stay narrower.
 
+The point of this matrix is to keep that stronger depth from being flattened
+into one generic trust label. A family can now have meaningful benchmark,
+runtime, grounding, recommendation, and consequence surfaces while still
+stopping short of the broadest released sentence.
+
 ## What This Matrix Governs
 
 - what the repository can publicly say today for each workflow family
@@ -67,6 +72,14 @@ sentence must still stay narrower.
   requested-versus-observed outcome dossier, and one assay-worth-it ledger row
   all exist together
 
+## What Outsider-Auditable Still Refuses
+
+- it does not mean universal transfer across cohorts, instruments, study
+  designs, or vendor-conditioned execution paths
+- it does not mean the runtime lane is equally strong for every family
+- it does not mean the strongest analytical sentence automatically becomes a
+  stronger lab consequence sentence
+
 The current lab-consequence evidence is still benchmark-simulated rather than
 live wet-lab release proof. It earns bounded consequence language because the
 requested-versus-observed loop is now explicit, not because the repository has
@@ -82,6 +95,16 @@ already closed real laboratory deployment risk.
   its own external review and acceptance surfaces
 - this is intentional honesty rather than inconsistency: the packet is public,
   and the narrowing pressure is public too
+
+## Why This Matrix Matters More Now
+
+- the repository can now show several family packets with real outsider-facing
+  review substance, so the release boundary has to be explicit instead of
+  implied
+- stronger public benchmark and rerun surfaces make overclaiming easier unless
+  one page still names the narrower sentence exactly
+- consequence pressure now matters enough that a family can look analytically
+  strong and still need a weaker released sentence
 
 ## Family Transfer Evidence
 

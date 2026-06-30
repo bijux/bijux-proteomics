@@ -4,12 +4,20 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # What Would Make This Repository Ready
 
-This page is generated from the current release matrix, acceptance dashboard, and package quality reports. It names the exact remaining blockers instead of broad roadmap language.
+This page is generated from the current release matrix, acceptance dashboard,
+and package quality reports. It names the exact remaining blockers instead of
+broad roadmap language.
+
+The important shift is that these blockers now sit on top of a materially
+stronger repository. The product already has real benchmark, runtime,
+grounding, recommendation, and consequence depth. These blockers exist because
+the release sentence still has to be narrower than the strongest current code
+and artifact surfaces in several places.
 
 - source of truth: `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/hostile_review_pages.py`
 
@@ -25,6 +33,15 @@ These blockers keep the repository from claiming cleaner release posture because
 - `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'BeliefAuditReport' is owned by multiple canonical packages: bijux-proteomics-core:bijux_proteomics/review/belief/belief_audit_models.py, bijux-proteomics-intelligence:bijux_proteomics_intelligence/belief_audit.py
 - `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'BeliefAuditSummary' is owned by multiple canonical packages: bijux-proteomics-core:bijux_proteomics/review/belief/belief_audit_models.py, bijux-proteomics-intelligence:bijux_proteomics_intelligence/belief_audit.py
 - `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: package-substance: bijux-proteomics-core exposes 133 thin modules and needs tighter ownership boundaries
+
+## How To Read These Blockers
+
+- artifact blockers mean the public benchmark, rerun, or challenge packet still
+  fails to defend the stronger sentence
+- workflow-family gaps mean a family packet exists, but one visible weakness
+  still narrows released language
+- package-quality gaps mean the public surface or owner boundaries still lag
+  behind the underlying scientific ambition
 
 ## Workflow-family gaps
 
@@ -68,3 +85,11 @@ These blockers show where package maturity or cross-package release coverage sti
 These blockers show where public wording, routing, or scrutiny surfaces drift away from the evidence they are supposed to defend.
 
 - `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
+
+## Why This Page Is Better Than A Generic Roadmap
+
+- it names exact release blockers instead of aspirational themes
+- it keeps stronger current product depth from being mistaken for broader
+  release readiness
+- it shows where docs, package boundaries, and family packets still need to
+  converge before the public sentence widens

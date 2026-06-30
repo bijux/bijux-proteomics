@@ -22,6 +22,12 @@ because the product now has enough scientific, runtime, grounding,
 recommendation, and lab depth that overclaiming would be easier if the
 honesty boundary were not explicit.
 
+This page therefore should be read as a release-language brake, not as a
+dismissal of the current code and evidence. The stronger the repository gets,
+the more important it becomes to show exactly where benchmark, runtime,
+grounding, recommendation, and assay consequence still stop short of broader
+proteomics claims.
+
 ## Repository-Wide Limits
 
 Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
@@ -38,6 +44,17 @@ Internal-support-only workflow families today: `multiplex`.
 - DDA still stops short of in-repo live-engine rerun parity
 - multiplex still remains internal support only, so no release language should
   let it ride for free on adjacent flagship trust claims
+
+## Where The Product Is Stronger Than The Limits Surface Might Sound
+
+- core scientific breadth is now materially deeper across sequence, chemistry,
+  spectra, mzML, quantification, DIA, and PTM review than the earlier docs
+  admitted
+- runtime proof is now strong enough that several families have real operator
+  rerun and replay routes rather than purely maintainer-described execution
+- knowledge, intelligence, and lab now make grounding, downgrade, refusal, and
+  requested-versus-observed consequence visible enough to narrow public
+  language honestly instead of hiding the weak hop
 
 ## Why Stronger Code Still Does Not Mean Wider Language
 
@@ -82,6 +99,15 @@ Internal-support-only workflow families today: `multiplex`.
   before widening
   LFQ, PTM, or targeted language from bounded recommendation toward
   decision-grade claims
+
+## How To Use This Page Correctly
+
+- use it when a release note, README sentence, or trust page sounds cleaner
+  than the underlying proof chain
+- use it alongside the workflow-family and consequence pages, not instead of
+  them
+- update it in the same change set as any new proof that materially narrows one
+  of these limits
 
 ## Honest Reading
 
