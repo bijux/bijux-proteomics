@@ -7,11 +7,13 @@ from bijux_proteomics.identification.public_api import (
     ADAPTERS_FACADE_BUDGET,
     CONTRACTS_FACADE_BUDGET,
     FDR_FACADE_BUDGET,
+    IDENTIFICATION_ROOT_SEARCH_ADAPTER_EXCLUDED_EXPORTS,
     IDENTIFICATION_ROOT_SUBMODULES,
     PEPTIDE_FACADE_BUDGET,
     PROTEIN_FACADE_BUDGET,
     PSM_FACADE_BUDGET,
     build_identification_root_export_owner_map,
+    build_identification_root_search_adapter_export_owner_map,
     build_facade_export_map,
     flatten_facade_exports,
     list_identification_adapter_api_modules,
@@ -116,3 +118,13 @@ def test_identification_root_public_api_ledger_stays_governed() -> None:
         "psm",
         "search_adapters",
     )
+
+
+def test_identification_root_excludes_search_adapter_corpus_exports() -> None:
+    root_search_adapter_owner_map = build_identification_root_search_adapter_export_owner_map()
+
+    assert tuple(
+        name
+        for name in IDENTIFICATION_ROOT_SEARCH_ADAPTER_EXCLUDED_EXPORTS
+        if name in root_search_adapter_owner_map
+    ) == ()

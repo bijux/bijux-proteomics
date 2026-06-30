@@ -55,13 +55,34 @@ IDENTIFICATION_ROOT_SUBMODULES = {
     "search_adapters": "bijux_proteomics.identification.search_adapters",
 }
 
+IDENTIFICATION_ROOT_SEARCH_ADAPTER_EXCLUDED_EXPORTS = (
+    "SearchAdapterCorpusConformanceEntry",
+    "SearchAdapterCorpusConformanceMatrix",
+    "SearchCorpusInputSpecification",
+    "SearchCorpusNormalizationEntry",
+    "SearchEngineCorpusReport",
+    "build_search_adapter_corpus_conformance_matrix",
+    "build_search_engine_corpus_report",
+)
+
+
+def build_identification_root_search_adapter_export_owner_map() -> dict[str, str]:
+    """Return the root-visible search-adapter exports after root exclusions."""
+
+    export_owner_map = build_search_adapter_export_owner_map()
+    return {
+        export_name: owner_module
+        for export_name, owner_module in export_owner_map.items()
+        if export_name not in IDENTIFICATION_ROOT_SEARCH_ADAPTER_EXCLUDED_EXPORTS
+    }
+
 
 def build_identification_root_export_owner_map() -> dict[str, str]:
     """Return the governed root export-owner map for identification."""
 
     return merge_facade_export_maps(
         build_facade_export_map(list_identification_adapter_api_modules()),
-        build_search_adapter_export_owner_map(),
+        build_identification_root_search_adapter_export_owner_map(),
         build_facade_export_map(list_identification_contract_api_modules()),
         build_facade_export_map(list_identification_fdr_api_modules()),
         build_facade_export_map(list_identification_peptide_api_modules()),
@@ -80,6 +101,7 @@ __all__ = [
     "ADAPTERS_FACADE_BUDGET",
     "IDENTIFICATION_COMPATIBILITY_SUBMODULE_NAMES",
     "IDENTIFICATION_ROOT_FACADE_ORDER",
+    "IDENTIFICATION_ROOT_SEARCH_ADAPTER_EXCLUDED_EXPORTS",
     "IDENTIFICATION_ROOT_SUBMODULES",
     "CONTRACTS_FACADE_BUDGET",
     "FDR_FACADE_BUDGET",
@@ -93,6 +115,7 @@ __all__ = [
     "merge_facade_export_maps",
     "flatten_facade_exports",
     "build_identification_root_export_owner_map",
+    "build_identification_root_search_adapter_export_owner_map",
     "list_identification_adapter_api_modules",
     "list_identification_contract_api_modules",
     "list_identification_fdr_api_modules",

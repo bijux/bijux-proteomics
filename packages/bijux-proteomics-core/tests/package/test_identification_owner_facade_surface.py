@@ -120,3 +120,5 @@ def test_identification_root_facade_keeps_governed_exports_and_submodules() -> N
 def test_search_adapter_subfacade_keeps_canonical_adapter_exports() -> None:
     assert hasattr(search_adapters, "search_adapter_registry")
     assert hasattr(search_adapters, "normalize_search_results_with_adapter")
+    assert hasattr(search_adapters, "build_search_adapter_corpus_conformance_matrix")
+    assert not hasattr(identification, "build_search_adapter_corpus_conformance_matrix")
