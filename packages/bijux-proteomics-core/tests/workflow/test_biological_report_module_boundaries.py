@@ -22,6 +22,12 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalResultReportSummary",
         "BiologicalResultSelectionPolicy",
     ),
+    "biological_report_section_metadata.py": (
+        "BiologicalReportSectionConfidenceEntry",
+        "BiologicalReportSectionConfidenceLabel",
+        "BiologicalReportSectionKey",
+        "_BIOLOGICAL_REPORT_SECTION_TITLES",
+    ),
     "biological_report_section_confidence.py": (
         "_build_biological_report_section_confidence_entries",
         "_count_section_confidence_labels",
