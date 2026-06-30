@@ -706,6 +706,13 @@ def test_review_package_import_contract() -> None:
     assert hasattr(module, "build_result_query_report_from_artifacts")
 
 
+def test_workflow_root_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.workflow")
+
+    assert hasattr(module, "build_biological_result_report_bundle")
+    assert hasattr(module, "build_ptm_report_bundle")
+
+
 def test_targeted_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.targeted")
 

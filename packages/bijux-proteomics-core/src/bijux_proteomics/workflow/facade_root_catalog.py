@@ -40,8 +40,16 @@ WORKFLOW_ROOT_SHARED_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_COMPATIBILITY_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.ptm_reporting",
+        rationale="root workflow compatibility for archived PTM report rehydration",
+    ),
+)
+
 WORKFLOW_ROOT_OWNERS = (
     *WORKFLOW_ROOT_SHARED_OWNERS,
+    *WORKFLOW_ROOT_COMPATIBILITY_OWNERS,
     *WORKFLOW_ROOT_REPORT_OWNERS,
     *WORKFLOW_ROOT_EXPORT_OWNERS,
     *WORKFLOW_ROOT_PIPELINE_OWNERS,
@@ -53,6 +61,7 @@ WORKFLOW_ROOT_OWNERS = (
 
 
 __all__ = [
+    "WORKFLOW_ROOT_COMPATIBILITY_OWNERS",
     "WORKFLOW_ROOT_OWNERS",
     "WORKFLOW_ROOT_SHARED_OWNERS",
     "WORKFLOW_ROOT_SUBMODULES",
