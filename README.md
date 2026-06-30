@@ -215,8 +215,9 @@ not silent drift from the other `bijux-g3` repos.
   locations before broader verification
 - the shared root environment lives at `artifacts/root/check-venv/`
 - the MkDocs site builds to `artifacts/root/docs/site/`
-- the root convenience paths `.venv`, `.tox`, `.hypothesis`, and `.benchmarks`
-  are repository-owned symlinks into `artifacts/root/`
+- package roots must stay free of local `artifacts/`, `.venv`, `.hypothesis`,
+  and `.benchmarks` spillover; repository automation cleans those paths and
+  rebuilds the canonical artifact tree under `artifacts/`
 - publishable package roots must stay free of `.pytest_cache`, `.ruff_cache`,
   `__pycache__`, and comparable transient spillover
 

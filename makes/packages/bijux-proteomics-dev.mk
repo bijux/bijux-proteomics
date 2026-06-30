@@ -15,6 +15,7 @@ SECURITY_AUDIT_PREPARE_MODE := environment
 PIP_AUDIT_INPUTS =
 SECURITY_BANDIT_SKIP_IDS := B311
 PACKAGE_ALL_TARGETS := clean install test lint quality security build sbom
+PACKAGE_ARTIFACT_ALIAS_SCRIPT := $(MONOREPO_ROOT)/makes/repository_artifact_layout.py
 
 test-all: TEST_MAIN_ARGS =
 test-all: TEST_PATHS = tests

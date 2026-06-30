@@ -18,4 +18,4 @@ def test_root_readme_documents_local_artifact_contract() -> None:
     assert "`make release-preflight`" in readme
     assert "`artifacts/root/check-venv/`" in readme
     assert "`artifacts/root/docs/site/`" in readme
-    assert "`.venv`, `.tox`, `.hypothesis`, and `.benchmarks`" in readme
+    assert "package roots must stay free of local `artifacts/`, `.venv`" in readme

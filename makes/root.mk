@@ -15,6 +15,7 @@ UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --pyt
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
+ROOT_ARTIFACT_ALIAS_SCRIPT := $(ROOT_MAKEFILE_DIR)/repository_artifact_layout.py
 ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types && $(MAKE) quality-circular-imports && $(MAKE) quality-core-dependency-minimization && $(MAKE) quality-optional-dependency-guards && $(MAKE) quality-generated-file-markers && $(MAKE) quality-internal-orphan-modules && $(MAKE) quality-canonical-package-tree && $(MAKE) quality-architecture-regression
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 ROOT_PACKAGE_TARGETS += test-all test-all-plus-run-time
