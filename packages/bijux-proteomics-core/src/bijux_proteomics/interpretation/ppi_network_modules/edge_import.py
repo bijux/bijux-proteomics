@@ -9,7 +9,7 @@ from collections.abc import Iterable
 import csv
 from pathlib import Path
 
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 
 from .models import (
     PpiEdgeColumnMapping,

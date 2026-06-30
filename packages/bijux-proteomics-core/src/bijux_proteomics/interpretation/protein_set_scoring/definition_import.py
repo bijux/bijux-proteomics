@@ -16,7 +16,7 @@ from bijux_proteomics.interpretation.protein_set_scoring.models import (
     ProteinSetRecord,
     RejectedProteinSetRow,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 
 
 def parse_protein_set_table(

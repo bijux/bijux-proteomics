@@ -18,7 +18,7 @@ from bijux_proteomics.interpretation.ortholog_mapping import (
     OrthologMappingCardinality,
     OrthologRecord,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics.workflow.cross_study_effect_comparison import (
     CrossStudyEffectDirection,
     CrossStudyProteinEffectObservation,

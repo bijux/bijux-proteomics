@@ -32,7 +32,7 @@ from bijux_proteomics.interpretation.regulator_inference import (
     RegulatorEvidenceRecord,
     RegulatorEvidenceType,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 RowModel = TypeVar("RowModel", bound=JsonModel)

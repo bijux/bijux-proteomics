@@ -31,7 +31,7 @@ from bijux_proteomics.io.stable_outputs import sort_strings
 from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceReport,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 
 def build_regulator_inference_report(
     evidence_records: tuple[RegulatorEvidenceRecord, ...],
