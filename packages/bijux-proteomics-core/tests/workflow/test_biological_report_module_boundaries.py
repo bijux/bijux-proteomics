@@ -121,6 +121,9 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_biological_evidence_aware_ranking_report",
         "_build_biological_hypothesis_report",
     ),
+    "biological_report_experiment_confidence.py": (
+        "_build_experiment_confidence_entry",
+    ),
     "biological_report_context_assembly.py": (
         "BiologicalContextAssemblyReports",
         "_build_biological_context_reports",
