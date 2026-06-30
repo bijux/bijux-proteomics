@@ -2,4 +2,4 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.studies.cross_study_effect_comparison import *  # noqa: F401,F403
+from bijux_proteomics.workflow.studies.cross_study.effect_comparison import *  # noqa: F401,F403

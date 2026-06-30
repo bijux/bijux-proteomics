@@ -65,19 +65,19 @@ WORKFLOW_ROOT_WRAPPER_TARGETS = {
         "bijux_proteomics.workflow.studies.cross_species_effect_comparison"
     ),
     "cross_study_effect_comparison.py": (
-        "bijux_proteomics.workflow.studies.cross_study_effect_comparison"
+        "bijux_proteomics.workflow.studies.cross_study.effect_comparison"
     ),
     "cross_study_evidence_cards.py": (
         "bijux_proteomics.workflow.cards.cross_study_evidence_cards"
     ),
     "cross_study_meta_analysis.py": (
-        "bijux_proteomics.workflow.studies.cross_study_meta_analysis"
+        "bijux_proteomics.workflow.studies.cross_study.meta_analysis"
     ),
     "cross_study_pathway_comparison.py": (
-        "bijux_proteomics.workflow.studies.cross_study_pathway_comparison"
+        "bijux_proteomics.workflow.studies.cross_study.pathway_comparison"
     ),
     "cross_study_protein_harmonization.py": (
-        "bijux_proteomics.workflow.studies.cross_study_protein_harmonization"
+        "bijux_proteomics.workflow.studies.cross_study.protein_harmonization"
     ),
     "diann_benchmarks.py": "bijux_proteomics.workflow.benchmarks.diann_benchmarks",
     "interactive_result_bundle.py": (
