@@ -9,57 +9,57 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO_ROOT / "src" / "bijux_proteomics"
 
 CANONICAL_REJECTED_EVIDENCE_OWNERS = {
-    "workflow/pipelines/diann_biological_workflow.py": (
+    "workflow/pipelines/engines/diann_biological_workflow.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/dda_biological_workflow.py": (
+    "workflow/pipelines/engines/dda_biological_workflow.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/maxquant_biological_workflow.py": (
+    "workflow/pipelines/engines/maxquant_biological_workflow.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/ptm_site_workflow.py": (
+    "workflow/pipelines/engines/ptm_site_workflow.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/tmt_experiment_workflow.py": (
+    "workflow/pipelines/engines/tmt_experiment_workflow.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/advanced_diann.py": (
+    "workflow/pipelines/advanced/advanced_diann.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         "rejected_evidence_tsv=diann_manifest.artifacts.rejected_evidence_tsv",
         "build_rejected_evidence_entries_from_table_rows(",
     ),
-    "workflow/pipelines/advanced_maxquant.py": (
+    "workflow/pipelines/advanced/advanced_maxquant.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/advanced_fragpipe.py": (
+    "workflow/pipelines/advanced/advanced_fragpipe.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/advanced_ptm.py": (
+    "workflow/pipelines/advanced/advanced_ptm.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         "rejected_evidence_tsv=workflow_manifest.artifacts.rejected_evidence_tsv",
         "manifest.artifacts.rejected_evidence_tsv",
     ),
-    "workflow/pipelines/advanced_tmt.py": (
+    "workflow/pipelines/advanced/advanced_tmt.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",
     ),
-    "workflow/pipelines/advanced_targeted.py": (
+    "workflow/pipelines/advanced/advanced_targeted.py": (
         "rejected_evidence_tsv: str = Field(..., min_length=1)",
         'rejected_evidence_name = "rejected_evidence.tsv"',
         "render_result_rejected_evidence_tsv(",

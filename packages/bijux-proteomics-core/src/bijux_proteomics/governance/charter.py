@@ -126,7 +126,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "sequences/core.py",
             "sequences/protein_identity_resolution.py",
-            "sequences/digestion.py",
+            "sequences/digestion/__init__.py",
             "sequences/protein_region_context.py",
             "sequences/proteogenomic_peptide_support.py",
             "sequences/peptide_chemical_liability.py",

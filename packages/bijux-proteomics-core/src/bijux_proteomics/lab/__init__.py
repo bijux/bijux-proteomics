@@ -11,7 +11,7 @@ from bijux_proteomics.lab.public_api import (
     LAB_ROOT_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
-    load_public_export,
+    resolve_public_export,
     module_directory,
 )
 
@@ -21,7 +21,7 @@ __all__, _LAB_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> Any:
-    return load_public_export(__name__, globals(), _LAB_EXPORT_INDEX, name)
+    return resolve_public_export(__name__, globals(), _LAB_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:

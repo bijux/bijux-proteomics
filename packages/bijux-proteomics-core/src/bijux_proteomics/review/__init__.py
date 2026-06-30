@@ -216,6 +216,8 @@ _REVIEW_EXPORTS_BY_MODULE = {
         "EvidenceGapItem",
         "EvidenceGapPrioritizationReport",
         "EvidenceGapPriorityEntry",
+        "EvidenceGraphEdge",
+        "EvidenceGraphNode",
         "EvidenceGraphQuery",
         "EvidenceGraphQueryResult",
         "FlagshipScientificKernelReport",

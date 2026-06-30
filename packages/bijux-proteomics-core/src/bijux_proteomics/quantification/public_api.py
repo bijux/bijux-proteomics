@@ -498,7 +498,7 @@ def build_lazy_export_index(
     return tuple(public_names), export_index
 
 
-def load_public_export(
+def resolve_public_export(
     package_name: str,
     package_globals: dict[str, Any],
     export_index: dict[str, tuple[str, str]],
@@ -515,7 +515,7 @@ def load_public_export(
     return value
 
 
-def load_public_submodule(
+def resolve_public_submodule(
     package_name: str,
     package_globals: dict[str, Any],
     submodules: dict[str, str],
@@ -615,7 +615,7 @@ __all__ = [
     "build_lazy_export_index",
     "facade_owner_modules",
     "list_owned_public_names",
-    "load_public_export",
-    "load_public_submodule",
+    "resolve_public_export",
+    "resolve_public_submodule",
     "module_directory",
 ]

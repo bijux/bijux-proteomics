@@ -9,7 +9,7 @@ from .public_api import (
     TARGETED_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
-    load_public_export,
+    resolve_public_export,
     module_directory,
 )
 
@@ -19,7 +19,7 @@ __all__, _TARGETED_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> object:
-    return load_public_export(__name__, globals(), _TARGETED_EXPORT_INDEX, name)
+    return resolve_public_export(__name__, globals(), _TARGETED_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:

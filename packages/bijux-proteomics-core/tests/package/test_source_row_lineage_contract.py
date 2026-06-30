@@ -8,7 +8,7 @@ from pathlib import Path
 
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 MANAGED_FINAL_ROW_OWNERS = (
-    ("workflow/cards/protein_evidence_cards.py", ("graph_source_row_refs",)),
+    ("workflow/cards/protein_evidence/models.py", ("graph_source_row_refs",)),
     (
         "workflow/cards/protein_mechanism_cards.py",
         ("source_row_refs", "derived_no_source_reason", "SourceRowLineage"),

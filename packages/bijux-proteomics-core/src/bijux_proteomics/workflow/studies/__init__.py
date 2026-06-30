@@ -6,7 +6,7 @@ from typing import Any
 
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
-    load_public_export,
+    resolve_public_export,
     module_directory,
     ordered_facade_owners,
 )
@@ -20,7 +20,7 @@ __all__, _STUDY_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> Any:
-    return load_public_export(__name__, globals(), _STUDY_EXPORT_INDEX, name)
+    return resolve_public_export(__name__, globals(), _STUDY_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:

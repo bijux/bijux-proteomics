@@ -121,7 +121,7 @@ def build_lazy_export_index(
     return tuple(public_names), export_index
 
 
-def load_public_export(
+def resolve_public_export(
     package_name: str,
     package_globals: dict[str, Any],
     export_index: dict[str, tuple[str, str]],

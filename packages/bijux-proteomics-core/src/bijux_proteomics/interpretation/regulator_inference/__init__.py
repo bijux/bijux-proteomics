@@ -11,7 +11,7 @@ from bijux_proteomics.interpretation.public_api import (
     InterpretationFacadeOwner,
     build_lazy_export_index,
     facade_owner_modules,
-    load_public_export,
+    resolve_public_export,
     module_directory,
 )
 
@@ -49,7 +49,7 @@ __all__, _REGULATOR_INFERENCE_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> Any:
-    return load_public_export(
+    return resolve_public_export(
         __name__,
         globals(),
         _REGULATOR_INFERENCE_EXPORT_INDEX,

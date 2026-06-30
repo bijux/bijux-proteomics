@@ -68,8 +68,8 @@ from bijux_proteomics.workflow.facade_pipeline_catalog import (
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
     list_owned_public_names,
-    load_public_export,
-    load_public_submodule,
+    resolve_public_export,
+    resolve_public_submodule,
     module_directory,
     ordered_facade_owners,
 )
@@ -171,8 +171,8 @@ __all__ = [
     "WorkflowFacadeOwner",
     "build_lazy_export_index",
     "list_owned_public_names",
-    "load_public_export",
-    "load_public_submodule",
+    "resolve_public_export",
+    "resolve_public_submodule",
     "module_directory",
     "ordered_facade_owners",
 ]

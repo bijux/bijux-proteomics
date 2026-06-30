@@ -10,8 +10,8 @@ from bijux_proteomics.workflow.facade_benchmark_catalog import (
 )
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
-    load_public_export,
-    load_public_submodule,
+    resolve_public_export,
+    resolve_public_submodule,
     module_directory,
     ordered_facade_owners,
 )
@@ -23,13 +23,13 @@ __all__, _BENCHMARK_EXPORT_INDEX = build_lazy_export_index(
 
 def __getattr__(name: str) -> Any:
     if name in BENCHMARK_SUBMODULES:
-        return load_public_submodule(
+        return resolve_public_submodule(
             __name__,
             globals(),
             BENCHMARK_SUBMODULES,
             name,
         )
-    return load_public_export(__name__, globals(), _BENCHMARK_EXPORT_INDEX, name)
+    return resolve_public_export(__name__, globals(), _BENCHMARK_EXPORT_INDEX, name)
 
 
 def __dir__() -> list[str]:

@@ -25,13 +25,19 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         ("protein-mechanism-card:",),
     ),
     (
-        "workflow/reports/biological_report_claims.py",
-        (
-            "build_protein_claim_id",
-            "build_pathway_claim_id",
-            "build_regulator_claim_id",
-        ),
-        ("protein-claim:", "pathway-claim:", "regulator-claim:"),
+        "workflow/reports/biological_report_protein_claim_candidates.py",
+        ("build_protein_claim_id",),
+        ("protein-claim:",),
+    ),
+    (
+        "workflow/reports/biological_report_pathway_claim_candidates.py",
+        ("build_pathway_claim_id",),
+        ("pathway-claim:",),
+    ),
+    (
+        "workflow/reports/biological_report_regulator_claim_candidates.py",
+        ("build_regulator_claim_id",),
+        ("regulator-claim:",),
     ),
     (
         "interfaces/support/biomarker_candidate_support/biological_candidates.py",

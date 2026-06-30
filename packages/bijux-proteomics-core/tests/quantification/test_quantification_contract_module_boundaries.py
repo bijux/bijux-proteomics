@@ -109,7 +109,7 @@ _PRIVATE_HELPERS = (
     "_table_matrix",
     "_welch_t_test",
 )
-_FORBIDDEN_FACADE_IMPORT_ROOTS = (
+_FORBIDDEN_QUANTIFICATION_PACKAGE_IMPORT_ROOTS = (
     "benchmarks",
     "dia",
     "interpretation",
@@ -178,17 +178,17 @@ def test_quantification_package_root_rejects_private_helper_lookups() -> None:
         assert not hasattr(quantification, export_name), export_name
 
 
-def test_core_source_avoids_root_quantification_contract_barrel_imports() -> None:
+def test_core_source_avoids_root_quantification_package_barrel_imports() -> None:
     src_root = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
     violations: list[str] = []
 
-    for root_name in _FORBIDDEN_FACADE_IMPORT_ROOTS:
+    for root_name in _FORBIDDEN_QUANTIFICATION_PACKAGE_IMPORT_ROOTS:
         for path in sorted((src_root / root_name).rglob("*.py")):
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
             for node in tree.body:
                 if not isinstance(node, ast.ImportFrom):
                     continue
-                if node.module == "bijux_proteomics.quantification.contracts":
+                if node.module == "bijux_proteomics.quantification":
                     violations.append(str(path.relative_to(src_root)))
                     break
 
