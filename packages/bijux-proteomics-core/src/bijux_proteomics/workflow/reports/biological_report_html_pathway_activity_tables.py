@@ -10,7 +10,7 @@ from html import escape
 from bijux_proteomics.workflow.reports.biological_report_html_support import (
     _format_optional_float,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

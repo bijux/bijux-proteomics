@@ -14,7 +14,7 @@ from bijux_proteomics.workflow.reports.biological_report_html_complex_activity_t
 from bijux_proteomics.workflow.reports.biological_report_html_pathway_activity_tables import (
     _render_pathway_activity_table_html as _render_html_pathway_activity_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

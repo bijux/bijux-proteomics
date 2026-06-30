@@ -14,8 +14,7 @@ from bijux_proteomics.workflow.reports.biological_report_html_drug_target_tables
 from bijux_proteomics.workflow.reports.biological_report_html_regulator_tables import (
     _render_regulator_inference_table_html as _render_html_regulator_inference_table,
 )
-
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 

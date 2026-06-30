@@ -17,7 +17,7 @@ from bijux_proteomics.workflow.reports.biological_report_html_interpretation_tab
     _render_regulator_inference_table_html as _render_html_regulator_inference_table,
     _render_tissue_cell_type_context_table_html as _render_html_tissue_context_table,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
 
