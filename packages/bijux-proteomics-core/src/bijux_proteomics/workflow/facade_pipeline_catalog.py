@@ -160,11 +160,15 @@ PIPELINE_FACADE_OWNERS = (
     *ADVANCED_PIPELINE_FACADE_OWNERS,
     *ENGINE_PIPELINE_FACADE_OWNERS,
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.dia_dda_comparison",
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.comparative.dia_dda_comparison"
+        ),
         rationale="DIA versus DDA comparison ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.dia_differential_analysis",
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis"
+        ),
         rationale="DIA differential analysis ownership",
     ),
     WorkflowFacadeOwner(
@@ -224,8 +228,8 @@ PIPELINE_FACADE_OWNERS = (
 )
 
 COMPARATIVE_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.dia_dda_comparison",
-    "bijux_proteomics.workflow.pipelines.dia_differential_analysis",
+    "bijux_proteomics.workflow.pipelines.comparative.dia_dda_comparison",
+    "bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis",
     "bijux_proteomics.workflow.pipelines.label_based_differential",
 }
 
@@ -377,8 +381,8 @@ WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS = (
 )
 
 WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.dia_dda_comparison",
-    "bijux_proteomics.workflow.pipelines.dia_differential_analysis",
+    "bijux_proteomics.workflow.pipelines.comparative.dia_dda_comparison",
+    "bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis",
     "bijux_proteomics.workflow.pipelines.label_based_differential",
 }
 

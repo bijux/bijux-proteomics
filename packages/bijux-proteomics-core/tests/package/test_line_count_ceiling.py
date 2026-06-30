@@ -86,7 +86,7 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("workflow/exports/interactive_result_comparison.py", 1002),
     _exception("workflow/pipelines/advanced/advanced_tmt.py", 1038),
     _exception("workflow/pipelines/benchmarking/public_benchmark_runner.py", 1151),
-    _exception("workflow/pipelines/dia_dda_comparison.py", 1245),
+    _exception("workflow/pipelines/comparative/dia_dda_comparison.py", 1245),
     _exception("workflow/pipelines/operations/orchestrator.py", 1089),
 )
 

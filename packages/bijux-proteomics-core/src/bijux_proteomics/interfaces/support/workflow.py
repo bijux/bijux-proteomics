@@ -78,7 +78,7 @@ from bijux_proteomics.workflow.exports.result_search_index import (
     render_result_search_summary_tsv,
     search_result_index,
 )
-from bijux_proteomics.workflow.pipelines.dia_dda_comparison import (
+from bijux_proteomics.workflow.pipelines.comparative.dia_dda_comparison import (
     build_diann_vs_dda_psm_comparison_report,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_conflicting_evidence_tsv,
@@ -88,7 +88,7 @@ from bijux_proteomics.workflow.pipelines.dia_dda_comparison import (
     render_dia_dda_protein_overlap_tsv,
     render_dia_dda_shared_intensity_correlation_tsv,
 )
-from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
+from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis import (
     DiaDifferentialSourceKind,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,

@@ -36,7 +36,7 @@ from bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow import 
     build_label_free_quant_table_from_protein_lfq_report,
     write_dda_biological_workflow_bundle,
 )
-from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
+from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis import (
     render_dia_differential_matrix_tsv,
 )
 from bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow import (

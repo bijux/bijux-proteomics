@@ -29,7 +29,7 @@ MISSINGNESS_COMPANION_OWNERS = {
         "render_protein_lfq_matrix_tsv",
         "render_protein_lfq_missingness_mask_tsv",
     ),
-    "workflow/pipelines/dia_differential_analysis.py": (
+    "workflow/pipelines/comparative/dia_differential_analysis.py": (
         "render_dia_differential_matrix_tsv",
         "render_dia_differential_missingness_tsv",
     ),

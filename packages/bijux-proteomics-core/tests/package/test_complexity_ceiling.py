@@ -245,7 +245,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         31,
     ),
     _exception(
-        "workflow/pipelines/dia_dda_comparison.py",
+        "workflow/pipelines/comparative/dia_dda_comparison.py",
         "build_dia_dda_comparison_report",
         31,
     ),
