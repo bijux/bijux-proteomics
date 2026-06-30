@@ -38,6 +38,9 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_summary_contracts.py": (
         "BiologicalResultReportSummary",
     ),
+    "biological_report_artifact_path_contracts.py": (
+        "BiologicalResultReportArtifactPaths",
+    ),
     "biological_report_bundle_assembly.py": (
         "_assemble_biological_result_report_bundle",
     ),
@@ -53,7 +56,6 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_materialize_biological_result_report_bundle",
     ),
     "biological_report_export_contracts.py": (
-        "BiologicalResultReportArtifactPaths",
         "BiologicalResultReportExportManifest",
     ),
     "biological_report_export_manifest_building.py": (

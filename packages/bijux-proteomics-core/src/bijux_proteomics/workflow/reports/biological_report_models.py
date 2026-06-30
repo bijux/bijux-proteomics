@@ -6,11 +6,13 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.workflow.reports.biological_report_artifact_path_contracts import (
+    BiologicalResultReportArtifactPaths as _BiologicalResultReportArtifactPaths,
+)
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle as _BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_export_contracts import (
-    BiologicalResultReportArtifactPaths as _BiologicalResultReportArtifactPaths,
     BiologicalResultReportExportManifest as _BiologicalResultReportExportManifest,
 )
 from bijux_proteomics.workflow.reports.biological_report_section_metadata import (

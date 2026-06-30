@@ -4,6 +4,9 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.workflow.reports.biological_report_artifact_path_contracts import (
+    BiologicalResultReportArtifactPaths,
+)
 from bijux_proteomics.workflow.reports.biological_report_activity_artifact_paths import (
     _build_biological_activity_artifact_path_fields,
 )
@@ -18,9 +21,6 @@ from bijux_proteomics.workflow.reports.biological_report_contextual_exports impo
 )
 from bijux_proteomics.workflow.reports.biological_report_enrichment_exports import (
     BiologicalEnrichmentExportNames,
-)
-from bijux_proteomics.workflow.reports.biological_report_export_contracts import (
-    BiologicalResultReportArtifactPaths,
 )
 from bijux_proteomics.workflow.reports.biological_report_scientific_artifact_paths import (
     _build_biological_scientific_artifact_path_fields,
