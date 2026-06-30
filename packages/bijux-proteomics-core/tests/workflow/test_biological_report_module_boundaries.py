@@ -423,9 +423,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalAnnotationContextExportNames",
         "_write_biological_annotation_context_exports",
     ),
-    "biological_report_sample_context_exports.py": (
+    "biological_report_sample_context_export_contracts.py": (
         "BiologicalCohortContextExportNames",
         "BiologicalTissueContextExportNames",
+    ),
+    "biological_report_sample_context_exports.py": (
         "_write_biological_cohort_context_exports",
         "_write_biological_tissue_context_exports",
     ),

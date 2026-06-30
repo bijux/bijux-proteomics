@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics._output_tables import write_output_table_tsv
@@ -18,32 +17,16 @@ from bijux_proteomics.interpretation import (
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
 )
+from bijux_proteomics.workflow.reports.biological_report_sample_context_export_contracts import (
+    BiologicalCohortContextExportNames,
+    BiologicalTissueContextExportNames,
+)
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     render_cohort_interaction_candidate_tsv,
     render_cohort_stratification_summary_tsv,
     render_cohort_stratum_tsv,
     render_cohort_subgroup_effect_tsv,
 )
-
-
-@dataclass(frozen=True)
-class BiologicalCohortContextExportNames:
-    """Artifact names emitted for cohort-context exports."""
-
-    summary_name: str | None
-    stratum_name: str | None
-    effect_name: str | None
-    interaction_name: str | None
-
-
-@dataclass(frozen=True)
-class BiologicalTissueContextExportNames:
-    """Artifact names emitted for tissue-context exports."""
-
-    summary_name: str | None
-    sample_name: str | None
-    unexpected_name: str | None
-    interpretation_name: str | None
 
 
 def _write_biological_cohort_context_exports(
@@ -135,8 +118,6 @@ def _write_biological_tissue_context_exports(
 
 
 __all__ = [
-    "BiologicalCohortContextExportNames",
-    "BiologicalTissueContextExportNames",
     "_write_biological_cohort_context_exports",
     "_write_biological_tissue_context_exports",
 ]
