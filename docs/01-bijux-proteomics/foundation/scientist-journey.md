@@ -4,7 +4,7 @@ audience: scientist
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Scientist Journey
@@ -26,6 +26,17 @@ surfaces in an honest order.
 - read recommendation posture before downstream consequence claims
 - stop at the first owner surface that still explains the scientific boundary
   without inventing stronger biology than the package can defend
+
+## What A Good Scientist Read Should Learn
+
+- whether the current family sentence is benchmark-backed, rerun-backed, and
+  still grounded once contradiction pressure arrives
+- whether recommendation confidence is still weaker than the benchmark packet
+  might suggest at first glance
+- whether downstream assay burden narrows an otherwise promising analytical
+  story
+- whether the repository is honestly separating scientific meaning from runtime
+  or policy convenience
 
 ## One-Family Route
 
@@ -60,6 +71,17 @@ the [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-prot
   grounding
 - it avoids treating recommendation confidence as if lab consequence were
   already settled
+
+## Fast Exit Routes
+
+- if benchmark assets already look too narrow, stop at core and do not widen
+  the family sentence downstream
+- if runtime proof is the weakest hop, move directly into execution and replay
+  pages instead of reading more trust prose
+- if contradiction, downgrade, or assay burden now dominate, move directly
+  into decision support and consequence pages
+- if one owner artifact now carries the whole dispute, leave the repository
+  route and inspect that owner surface directly
 
 ## Honest Exit Conditions
 

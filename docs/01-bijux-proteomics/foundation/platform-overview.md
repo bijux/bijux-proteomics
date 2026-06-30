@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Platform Overview
@@ -68,6 +68,19 @@ This page should give the shortest honest explanation of the package chain. Read
 
 `bijux-proteomics-runtime` governs execution, replay, and operator-facing runtime behavior while `agentic-proteins` remains the compatibility bridge.
 
+## What Each Hop Must Refuse
+
+- foundation must not improvise workflow truth, recommendation posture, or lab
+  consequence
+- core must not absorb evidence truth or operator-facing execution authority
+- knowledge must not turn grounded hesitation into recommendation policy
+- intelligence must not rewrite contradiction or runtime realism into cleaner
+  prose
+- lab must not promote assay worth without carrying requested-versus-observed
+  burden
+- runtime must not claim scientific meaning just because it can emit a stable
+  run bundle
+
 ## What This Split Lets Reviewers Ask
 
 - did a change alter chemistry, sequence, benchmark, PTM, or quantification
@@ -76,6 +89,16 @@ This page should give the shortest honest explanation of the package chain. Read
   because recommendation posture drifted
 - did assay-worth-it language change because observed outcomes improved, or
   because the repository blurred consequence with analytical confidence
+
+## Why The Platform Now Looks More Real
+
+- the package graph now corresponds to real scientific and operational owner
+  surfaces instead of mostly future-facing structure
+- benchmark-backed biology and chemistry depth now sits in core while grounded
+  contradiction and literature pressure sit in knowledge, so review questions
+  no longer collapse into one vague trust sentence
+- runtime and lab now make rerun burden and downstream burden visible enough
+  that the platform chain can be audited rather than narrated
 
 ## Why The Split Pays Off
 
@@ -93,6 +116,14 @@ without guessing which layer silently owns the decision.
   scientific depth
 - why compatibility surfaces like `agentic-proteins` still exist without
   regaining canonical ownership
+
+## Fast Reader Questions
+
+- where a public sentence becomes workflow law instead of evidence
+- where a reproducible run becomes grounded belief instead of only an artifact
+- where a recommendation stops because contradiction or assay burden still
+  wins
+- where a legacy compatibility surface ends and canonical ownership resumes
 
 ## Strongest Platform Proof Route
 

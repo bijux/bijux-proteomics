@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Decision Support
@@ -38,6 +38,17 @@ language must narrow even when the code or benchmark count looks impressive.
   follow-up from `bijux-proteomics-lab`
 - release wording that must stay weaker whenever those owner surfaces disagree
   or remain advisory
+
+## One Honest Decision Chain
+
+- benchmark and runtime surfaces establish what happened and what can be
+  replayed
+- knowledge establishes what the repository can ground and where contradiction
+  still survives
+- intelligence establishes how strong the recommendation may sound after that
+  pressure
+- lab establishes whether the requested follow-up still deserves real-world
+  burden once the analytical story is known
 
 ## Start Here
 
@@ -82,6 +93,14 @@ language must narrow even when the code or benchmark count looks impressive.
 - Which release phrase is still blocked even if the docs explanation sounds
   persuasive?
 
+## What This Route Refuses
+
+- it refuses to let runtime realism substitute for grounded belief
+- it refuses to let grounded evidence substitute for recommendation posture
+- it refuses to let recommendation posture substitute for downstream assay
+  worth
+- it refuses to let cleaner prose outrun the weakest live owner surface
+
 ## Interpretation Rule
 
 If knowledge, intelligence, and lab do not all support the same stronger
@@ -100,6 +119,14 @@ combined consequence chain.
 - Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   when the question becomes which release gate or docs check should block the
   stronger wording.
+
+## Best Reader Outcome
+
+- a skeptical reviewer should leave knowing which owner currently deserves the
+  final word
+- a maintainer should leave knowing which sentence must narrow before release
+- a scientist should leave knowing whether the real dispute is grounded
+  evidence, analytical posture, or downstream burden
 
 ## Boundary
 

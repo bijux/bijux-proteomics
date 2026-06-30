@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Product Overview
@@ -64,6 +64,17 @@ only then ask whether downstream assay burden is worth accepting.
   refusal legible enough that public language can be challenged instead of
   merely asserted
 
+## What A Serious Reader Can Verify Quickly
+
+- that the current workflow-family language is carried by open benchmark
+  packages and not only by release prose
+- that runtime proof now extends beyond one launch path into rerun kits,
+  replay challenges, and refusal surfaces
+- that knowledge, intelligence, and lab now narrow language explicitly instead
+  of leaving disagreement and downstream burden implied
+- that the product story crosses biology, chemistry, execution, grounding,
+  judgment, and consequence in one visible route
+
 ## Start Here
 
 - Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
@@ -102,6 +113,17 @@ only then ask whether downstream assay burden is worth accepting.
 - if this page ever sounds stronger than the claim-limit, readiness, and
   consequence pages, the repository-level wording is wrong
 
+## Why This Is Not Just Governance
+
+- the repository now exposes concrete sequence, spectra, mzML, DIA, PTM,
+  quantification, grounding, and recommendation surfaces that can be reviewed
+  independently
+- public scrutiny pages now exist because the product is strong enough to be
+  challenged at the benchmark, runtime, and consequence layers, not because
+  documentation needed more ceremony
+- release discipline still matters, but it now sits on top of a materially
+  stronger scientific product instead of standing in for one
+
 ## Current Credible Families
 
 - outsider-auditable today: `dda`, `dia`, `ptm`, `targeted`
@@ -118,6 +140,15 @@ only then ask whether downstream assay burden is worth accepting.
   [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - Maintainer:
   [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
+
+## Public Proof Chain
+
+- benchmark assets prove which public evidence roots are actually shipped
+- execution proves which of those roots can be reopened, replayed, and bounded
+  honestly
+- decision support proves whether grounded evidence, recommendation posture,
+  and lab burden still agree
+- current capability limits prove where stronger language still stops
 
 ## Category Routes
 

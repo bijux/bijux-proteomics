@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Current Capability Limits
@@ -45,6 +45,17 @@ Internal-support-only workflow families today: `multiplex`.
 - multiplex still remains internal support only, so no release language should
   let it ride for free on adjacent flagship trust claims
 
+## Why The Limits Concentrate In Different Layers
+
+- some limits are benchmark-transfer limits, where the shipped package is real
+  but still too narrow to authorize broader study language
+- some limits are runtime limits, where the checked rerun lane is honest but
+  still weaker than raw acquisition or vendor-parity replay
+- some limits are decision and lab limits, where grounded recommendation
+  posture still narrows once consequence burden becomes explicit
+- some limits are repository-shape limits, where public breadth still exceeds
+  the most coherent owner boundaries
+
 ## Where The Product Is Stronger Than The Limits Surface Might Sound
 
 - core scientific breadth is now materially deeper across sequence, chemistry,
@@ -64,6 +75,16 @@ Internal-support-only workflow families today: `multiplex`.
 - one visible runtime lane does not close the lab-consequence boundary
 - one promising follow-up packet does not convert exploratory-only follow-up
   into decision-grade biological proof
+
+## What Improved Since `v0.3.7` Without Erasing These Limits
+
+- several flagship families now have materially stronger benchmark and runtime
+  routes than the earlier repository state
+- knowledge and intelligence now expose grounding, contradiction, and
+  recommendation pressure clearly enough that the weaker sentence can be chosen
+  honestly
+- lab consequence is now explicit enough that exploratory-only follow-up is no
+  longer mistaken for decision-grade readiness
 
 ## Scientific Limits
 
@@ -116,6 +137,15 @@ Internal-support-only workflow families today: `multiplex`.
 - PTM is limited by ambiguity and assay burden
 - targeted is limited by calibration, interference, and downstream burden
 - multiplex is limited by collapsed outsider trust under stress
+
+## Reader Use
+
+- use this page when a release note, README sentence, or trust page sounds
+  stronger than the underlying proof chain
+- use it to decide whether the real blocker is benchmark transfer, runtime
+  realism, grounded contradiction, or downstream burden
+- use it as a repository honesty boundary, not as a dismissal of the current
+  scientific depth
 
 ## Boundary
 
