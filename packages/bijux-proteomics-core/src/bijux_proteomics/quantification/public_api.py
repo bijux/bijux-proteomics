@@ -325,6 +325,10 @@ QUANTIFICATION_ROOT_FACADE_OWNERS = (
         "matrix core compatibility ownership",
     ),
     _owner(
+        "bijux_proteomics.quantification.matrix.dense_views",
+        "dense matrix view compatibility ownership",
+    ),
+    _owner(
         "bijux_proteomics.quantification.matrix.design_matrix",
         "design matrix compatibility ownership",
     ),
