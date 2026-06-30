@@ -16,8 +16,10 @@ from bijux_proteomics.interfaces.python_api.isotope_labeling import (
     run_silac_validate_command,
     run_tmt_validate_command,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.isotope_labeling import (
     SilacLabel,
+)
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
     TmtSearchResultSourceKind,
 )
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (

@@ -18,7 +18,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_transition_qc_transition_tsv,
     render_transition_qc_weak_tsv,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.targeted import (
     TargetedResultSourceKind,
     build_skyline_result_import_report,
     build_targeted_carryover_report,

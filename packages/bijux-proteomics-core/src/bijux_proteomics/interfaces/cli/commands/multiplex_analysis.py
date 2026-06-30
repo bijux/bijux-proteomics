@@ -15,7 +15,7 @@ from bijux_proteomics.interfaces.python_api.multiplex_analysis import (
     run_tmt_ratio_command,
     run_tmt_report_command,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
     TmtNormalizationMethod,
     TmtSearchResultSourceKind,
 )

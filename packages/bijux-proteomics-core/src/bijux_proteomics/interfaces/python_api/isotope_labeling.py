@@ -9,17 +9,14 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.isotope_labeling import (
     SilacColumnMapping,
     SilacLabel,
     SilacQuantificationPolicy,
     SilacValidationPolicy,
-    TmtReporterColumnMapping,
-    TmtSearchResultSourceKind,
     TmtValidationPolicy,
     build_silac_ratio_report,
     build_silac_validation_report,
-    build_tmt_reporter_feature_bundle,
     build_tmt_validation_report,
     export_silac_peptide_ratio_tsv,
     export_silac_protein_ratio_tsv,
@@ -33,6 +30,11 @@ from bijux_proteomics.interfaces.support.multiplex_targeted import (
     export_tmt_validation_summary_tsv,
     export_tmt_validation_weak_tsv,
     parse_silac_feature_table,
+)
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
+    TmtReporterColumnMapping,
+    TmtSearchResultSourceKind,
+    build_tmt_reporter_feature_bundle,
     parse_tmt_reporter_table,
 )
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (

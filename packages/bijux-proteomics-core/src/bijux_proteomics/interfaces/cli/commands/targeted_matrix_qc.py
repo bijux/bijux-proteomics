@@ -15,7 +15,9 @@ from bijux_proteomics.interfaces.python_api.targeted_matrix_qc import (
     run_targeted_target_matrix_command,
     run_transition_qc_command,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import TargetedResultSourceKind
+from bijux_proteomics.interfaces.support.multiplex_targeted.targeted import (
+    TargetedResultSourceKind,
+)
 
 
 @click.command("transition-qc")

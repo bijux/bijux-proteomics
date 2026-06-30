@@ -15,7 +15,7 @@ from bijux_proteomics.interfaces.python_api.multiplex_matrix import (
     run_tmt_normalize_command,
     run_tmt_reporter_matrix_command,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
     TmtNormalizationMethod,
     TmtSearchResultSourceKind,
 )

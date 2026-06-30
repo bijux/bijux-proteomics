@@ -9,7 +9,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
     TmtInterferencePolicy,
     TmtNormalizationMethod,
     TmtNormalizationPolicy,

@@ -15,7 +15,9 @@ from bijux_proteomics.interfaces.python_api.targeted_validation import (
     run_targeted_result_validator_command,
     run_validation_evidence_cards_command,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import TargetedResultSourceKind
+from bijux_proteomics.interfaces.support.multiplex_targeted.targeted import (
+    TargetedResultSourceKind,
+)
 
 
 @click.command("targeted-result-validator")

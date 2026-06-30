@@ -13,7 +13,7 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     build_spectral_library_summary,
     import_spectral_library,
 )
-from bijux_proteomics.interfaces.support.multiplex_targeted import (
+from bijux_proteomics.interfaces.support.multiplex_targeted.targeted import (
     ValidationExperimentPlanningPolicy,
     build_targeted_panel_design_report,
     build_validation_experiment_planning_report,
