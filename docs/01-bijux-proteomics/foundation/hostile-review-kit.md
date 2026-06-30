@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Hostile Review Kit
@@ -12,6 +12,11 @@ last_reviewed: 2026-05-09
 The repository currently promises one bounded proteomics review system: outsider-auditable workflow families `dda`, `dia`, `ptm`, `targeted` and internal-support-only workflow families `multiplex`. No broader release language is earned.
 
 This page is the shortest whole-repository challenge route for a skeptical expert. It starts from the root promise, then moves directly into the strongest shipped workflow families, their paired rerun dossiers, and the current release boundary.
+
+The reason this page exists is that the repository now has enough depth that a
+skeptical reader can challenge real scientific and runtime claims, not only
+docs phrasing. The hostile route is how the repository proves that its
+strongest public sentences can be audited without private commentary.
 
 ## Open In This Order
 
@@ -26,6 +31,15 @@ This page is the shortest whole-repository challenge route for a skeptical exper
 - bundle id: `flagship-release-candidate-bundle`
 - root challenge: ask whether every public sentence stays inside the current outsider-auditable bounded family set and its published limits
 - first refusal: if a claim cannot be traced from the root page into one flagship family packet, its rerun dossier, and its external review kit, reject the sentence
+
+## What This Route Is Testing
+
+- whether repository-wide wording stays behind the strongest current family
+  packets
+- whether each public workflow sentence survives benchmark, rerun, review, and
+  consequence challenge together
+- whether blocker pages stay visible before anyone widens the language by
+  interpretation
 
 ## Family Challenge Lanes
 
@@ -73,3 +87,9 @@ This page is the shortest whole-repository challenge route for a skeptical exper
 ## Non-Negotiable Reading Rule
 
 If the current release-readiness matrix still shows blocked categories, no reviewer should widen the root promise by interpretation alone. The blocker pages below are part of the review kit because they keep the failure modes visible before maintainers start explaining them away.
+
+## Honest Result
+
+If this route still lands on a blocked category, the stronger sentence is not
+earned yet. That is not a documentation failure. It is the intended behavior of
+the hostile review surface.

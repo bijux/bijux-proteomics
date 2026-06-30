@@ -4,15 +4,28 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Public Artifact Index
 
 This page is the reviewer-facing registry of shipped public artifacts. Every entry declares its owner package, intended audience, question answered, and why it still exists next to its neighboring surfaces.
 
+The important point is that these are not decorative links. Each entry exists
+because the repository now has enough public proof surfaces that a hostile
+reader needs a stable opening order. Without that order, the stronger current
+scientific and runtime work would still look like scattered governance prose.
+
 - governed artifact budget: `20`
 - current artifact count: `20`
+
+## How To Use This Registry
+
+- start with repository-wide artifacts when the question is whether any public
+  language is earned at all
+- move to workflow-family artifacts only after the repository boundary is clear
+- treat coexistence rationale as a non-duplication rule: if two artifacts look
+  similar, this page should explain why both still deserve space
 
 | artifact id | owner package | audience | question answered | coexistence rationale |
 | --- | --- | --- | --- | --- |
@@ -42,3 +55,12 @@ This page is the reviewer-facing registry of shipped public artifacts. Every ent
 The index exists so a hostile reader can open the strongest current surfaces in a stable order instead of reverse-engineering the repository by package structure.
 
 The registry is intentionally stricter than a link list. If a new public artifact cannot name a distinct audience, question, and coexistence reason, it should replace an older surface instead of shipping beside it.
+
+## What This Says About The Product
+
+- the repository now has public benchmark, rerun, recommendation, and
+  consequence artifacts strong enough to warrant stable registry management
+- public scrutiny is now a first-class product surface rather than a maintainer
+  side note
+- artifact count alone is not a success signal; distinct review value is
+  required for every entry
