@@ -271,6 +271,26 @@ def test_quantification_subpackage_import_contract() -> None:
     assert hasattr(provenance, "build_quant_review_bundle")
 
 
+def test_chemistry_subpackage_import_contract() -> None:
+    contracts = importlib.import_module("bijux_proteomics.chemistry.contracts")
+    mass = importlib.import_module("bijux_proteomics.chemistry.mass")
+    fragments = importlib.import_module("bijux_proteomics.chemistry.fragments")
+    modifications = importlib.import_module("bijux_proteomics.chemistry.modifications")
+    isotopes = importlib.import_module("bijux_proteomics.chemistry.isotopes")
+
+    assert hasattr(contracts, "parse_modified_peptide")
+    assert hasattr(contracts, "calculate_fragment_ions")
+    assert hasattr(mass, "calculate_monoisotopic_peptide_mass")
+    assert hasattr(mass, "calculate_peptide_mz")
+    assert hasattr(fragments, "FragmentIonSeries")
+    assert hasattr(fragments, "build_fragment_ion_review_report")
+    assert hasattr(modifications, "ModificationRegistryDocument")
+    assert hasattr(modifications, "load_modification_registry")
+    assert hasattr(modifications, "canonicalize_modified_peptide")
+    assert hasattr(isotopes, "predict_peptide_isotope_envelope")
+    assert hasattr(isotopes, "build_stable_isotope_labeling_model")
+
+
 def test_lab_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.lab")
 
