@@ -7,19 +7,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.interpretation.complex_enrichment import (
-    parse_complex_membership_table,
-)
 from bijux_proteomics.interpretation.go_enrichment import (
     parse_go_annotation_table,
-)
-from bijux_proteomics.interpretation.pathway_enrichment import (
-    parse_pathway_membership_table,
-)
-from bijux_proteomics.interpretation.protein_annotation_mapping import (
-    ProteinAnnotationColumnMapping,
-    build_protein_annotation_mapping_report,
-    parse_protein_annotation_table,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.lab.protocol_context import (
@@ -55,15 +44,6 @@ from bijux_proteomics.quantification.statistics import (
 from bijux_proteomics.review.explanations.volcano_plots import (
     VolcanoReviewPolicy,
     build_quantification_volcano_review,
-)
-from bijux_proteomics.sequences.fasta import FastaParseMode, parse_fasta_document
-from bijux_proteomics.sequences.core import NormalizedProteinRecord
-from bijux_proteomics.sequences.protein_region_context_workflows import (
-    parse_protein_region_context_tsv,
-)
-from bijux_proteomics.sequences.proteogenomic_peptide_support import (
-    ProteogenomicVariantPeptideRecord,
-    parse_proteogenomic_variant_peptide_table,
 )
 from bijux_proteomics.study import (
     ExperimentDesign,
@@ -115,10 +95,12 @@ from bijux_proteomics.workflow.reports.biological_report_section_confidence impo
     _count_section_confidence_labels,
 )
 from bijux_proteomics.workflow.reports.biological_report_selection import (
-    _build_differential_reference_entries,
     _resolve_contrast,
     _select_heatmap_entity_ids,
     _select_significant_entity_ids,
+)
+from bijux_proteomics.workflow.reports.biological_report_source_data import (
+    _build_biological_report_source_data,
 )
 
 
@@ -255,91 +237,26 @@ def build_biological_result_report_bundle_from_quant_table(
             condition_b=resolved_condition_b,
         )
     )
-    fasta_report = parse_fasta_document(
-        proteins_fasta_path.read_text(encoding="utf-8"),
-        mode=FastaParseMode.STRICT,
+    source_data = _build_biological_report_source_data(
+        normalized_table=normalized_table,
+        differential_report=differential_report,
+        proteins_fasta_path=proteins_fasta_path,
+        variant_proteins_fasta_path=variant_proteins_fasta_path,
+        variant_peptide_tsv_path=variant_peptide_tsv_path,
+        annotation_tsv_path=annotation_tsv_path,
+        pathway_membership_tsv_path=pathway_membership_tsv_path,
+        complex_membership_tsv_path=complex_membership_tsv_path,
+        protein_region_context_tsv_path=protein_region_context_tsv_path,
     )
-    if fasta_report.rejected_records:
-        rejected = ", ".join(
-            record.source_identifier for record in fasta_report.rejected_records
-        )
-        raise ValueError(
-            "FASTA input contains rejected records under strict mode: " + rejected
-        )
-    variant_fasta_records: tuple[NormalizedProteinRecord, ...] = ()
-    if variant_proteins_fasta_path is not None:
-        variant_fasta_report = parse_fasta_document(
-            variant_proteins_fasta_path.read_text(encoding="utf-8"),
-            mode=FastaParseMode.STRICT,
-        )
-        if variant_fasta_report.rejected_records:
-            rejected = ", ".join(
-                record.source_identifier
-                for record in variant_fasta_report.rejected_records
-            )
-            raise ValueError(
-                "variant FASTA input contains rejected records under strict mode: "
-                + rejected
-            )
-        variant_fasta_records = variant_fasta_report.accepted_records
-    variant_peptide_records: tuple[ProteogenomicVariantPeptideRecord, ...] = ()
-    if variant_peptide_tsv_path is not None:
-        variant_peptide_report = parse_proteogenomic_variant_peptide_table(
-            variant_peptide_tsv_path
-        )
-        if variant_peptide_report.rejected_rows:
-            rejected = "; ".join(
-                row.reason for row in variant_peptide_report.rejected_rows[:3]
-            )
-            raise ValueError(
-                "variant peptide table contains rejected rows: " + rejected
-            )
-        variant_peptide_records = variant_peptide_report.accepted_records
-    custom_annotation_report = (
-        None
-        if annotation_tsv_path is None
-        else parse_protein_annotation_table(
-            annotation_tsv_path,
-            mapping=ProteinAnnotationColumnMapping(
-                protein_ref="protein_ref",
-                gene_symbol="gene_symbol",
-                description="description",
-                organism="organism",
-                annotation_identifier="annotation_identifier",
-            ),
-        )
-    )
-    pathway_membership_report = (
-        None
-        if pathway_membership_tsv_path is None
-        else parse_pathway_membership_table(pathway_membership_tsv_path)
-    )
-    complex_membership_report = (
-        None
-        if complex_membership_tsv_path is None
-        else parse_complex_membership_table(complex_membership_tsv_path)
-    )
-    differential_reference_entries = _build_differential_reference_entries(
-        differential_report,
-        protein_refs_by_entity=normalized_table.entity_protein_refs,
-    )
-    annotation_report = build_protein_annotation_mapping_report(
-        differential_reference_entries,
-        fasta_report.accepted_records,
-        custom_annotations=()
-        if custom_annotation_report is None
-        else custom_annotation_report.accepted_records,
-    )
+    annotation_report = source_data.annotation_report
     context_reports = _build_biological_context_reports(
         normalized_table=normalized_table,
         experiment_design=experiment_design,
         design_entries=design_entries,
         differential_report=differential_report,
-        differential_reference_entries=differential_reference_entries,
+        differential_reference_entries=source_data.differential_reference_entries,
         annotation_report=annotation_report,
-        pathway_records=()
-        if pathway_membership_report is None
-        else pathway_membership_report.accepted_records,
+        pathway_records=source_data.pathway_records,
         active_selection_policy=active_selection_policy,
         context_annotation_tsv_path=context_annotation_tsv_path,
     )
@@ -349,28 +266,17 @@ def build_biological_result_report_bundle_from_quant_table(
     drug_target_report = context_reports.drug_target_report
     disease_phenotype_report = context_reports.disease_phenotype_report
     compartment_biology_report = context_reports.compartment_biology_report
-    protein_region_context_records = None
-    if protein_region_context_tsv_path is not None:
-        protein_region_context_records = parse_protein_region_context_tsv(
-            protein_region_context_tsv_path
-        ).accepted_records
     enrichment_reports = _build_biological_enrichment_reports(
         normalized_table=normalized_table,
         differential_report=differential_report,
         design_entries=design_entries,
-        fasta_records=fasta_report.accepted_records,
-        custom_annotations=()
-        if custom_annotation_report is None
-        else custom_annotation_report.accepted_records,
+        fasta_records=source_data.fasta_records,
+        custom_annotations=source_data.custom_annotation_records,
         go_annotation_records=()
         if go_annotation_tsv_path is None
         else parse_go_annotation_table(go_annotation_tsv_path).accepted_records,
-        pathway_records=()
-        if pathway_membership_report is None
-        else pathway_membership_report.accepted_records,
-        complex_records=()
-        if complex_membership_report is None
-        else complex_membership_report.accepted_records,
+        pathway_records=source_data.pathway_records,
+        complex_records=source_data.complex_records,
         active_selection_policy=active_selection_policy,
     )
     foreground_background_model = enrichment_reports.foreground_background_model
@@ -420,11 +326,11 @@ def build_biological_result_report_bundle_from_quant_table(
         annotation_report,
         protein_sequences={
             record.canonical_accession: record.residues
-            for record in fasta_report.accepted_records
+            for record in source_data.fasta_records
         },
-        protein_records=fasta_report.accepted_records,
-        variant_protein_records=variant_fasta_records,
-        variant_peptide_records=variant_peptide_records,
+        protein_records=source_data.fasta_records,
+        variant_protein_records=source_data.variant_fasta_records,
+        variant_peptide_records=source_data.variant_peptide_records,
         selection_policy=ProteinEvidenceCardSelectionPolicy(
             max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
             min_absolute_log2_fold_change=(
@@ -437,7 +343,7 @@ def build_biological_result_report_bundle_from_quant_table(
         context_mapping_report=context_mapping_report,
         pathway_enrichment_report=pathway_enrichment_report,
         complex_enrichment_report=complex_enrichment_report,
-        protein_region_context_records=protein_region_context_records,
+        protein_region_context_records=source_data.protein_region_context_records,
         ptm_evidence_card_report=ptm_evidence_card_report,
     )
     protein_mechanism_cards = build_protein_mechanism_card_report(
