@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from typing import cast
 
-from .imports import *  # noqa: F401,F403
-from .output_protocol import _emit_json, _write_text_output
+from ..imports import *  # noqa: F401,F403
+from ..output_protocol import _emit_json, _write_text_output
 
 
 def _resolve_cli_protease_rule(
