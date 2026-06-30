@@ -118,6 +118,13 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_protein_trust_class",
         "_quant_trust_class",
     ),
+    "biological_result_graph_peptide_support.py": (
+        "_add_biological_result_graph_peptide_support",
+    ),
+    "biological_result_graph_quant_support.py": (
+        "_add_biological_result_graph_quant_support",
+        "_group_quant_values_by_entity",
+    ),
     "biological_report_claims.py": (
         "_build_biological_claim_validation_report",
         "_build_biological_evidence_aware_ranking_report",
