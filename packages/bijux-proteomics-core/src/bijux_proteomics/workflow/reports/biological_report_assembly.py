@@ -20,15 +20,10 @@ from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
-    QuantEntityLevel,
-    QuantMeasureKind,
     QuantRollupMethod,
 )
 from bijux_proteomics.quantification.missingness import (
     build_missingness_condition_summary_report,
-)
-from bijux_proteomics.quantification.normalization import (
-    normalize_label_free_table,
 )
 from bijux_proteomics.quantification.provenance import (
     HeatmapMissingValuePolicy,
@@ -36,11 +31,7 @@ from bijux_proteomics.quantification.provenance import (
     build_heatmap_preparation_report,
     build_sample_exploration_report,
 )
-from bijux_proteomics.quantification.statistics import (
-    apply_benjamini_hochberg,
-    build_differential_abundance_report,
-    build_power_estimation_report,
-)
+from bijux_proteomics.quantification.statistics import build_power_estimation_report
 from bijux_proteomics.review.explanations.volcano_plots import (
     VolcanoReviewPolicy,
     build_quantification_volcano_review,
@@ -89,15 +80,16 @@ from bijux_proteomics.workflow.reports.biological_report_enrichment_assembly imp
 from bijux_proteomics.workflow.reports.biological_report_models import (
     BiologicalResultReportBundle,
     BiologicalResultSelectionPolicy,
-    _resolve_biological_result_selection_policy,
 )
 from bijux_proteomics.workflow.reports.biological_report_section_confidence import (
     _build_biological_report_section_confidence_entries,
     _count_section_confidence_labels,
 )
 from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
-    _resolve_contrast,
     _select_heatmap_entity_ids,
+)
+from bijux_proteomics.workflow.reports.biological_report_quantification_analysis import (
+    _build_biological_quantification_analysis,
 )
 from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (
     _build_biological_regulator_analysis_reports,
@@ -203,36 +195,21 @@ def build_biological_result_report_bundle_from_quant_table(
     """Build a biological result bundle from one governed protein quant table."""
 
     experiment_design = coerce_experiment_design(design_entries)
-    design_entries = experiment_design.entries
-    active_selection_policy = _resolve_biological_result_selection_policy(
-        selection_policy,
-        protocol_context_tsv_path=protocol_context_tsv_path,
-    )
-    normalized_table = normalize_label_free_table(
+    quantification_analysis = _build_biological_quantification_analysis(
         quant_table,
-        method=normalization_method,
-    )
-    if normalized_table.entity_level != QuantEntityLevel.PROTEIN:
-        raise ValueError(
-            "biological result reporting requires a protein-level quantification table"
-        )
-    if normalized_table.measure_kind != QuantMeasureKind.INTENSITY:
-        raise ValueError(
-            "biological result reporting requires intensity-based protein quantification"
-        )
-    resolved_condition_a, resolved_condition_b = _resolve_contrast(
-        design_entries,
+        experiment_design,
+        normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
+        selection_policy=selection_policy,
+        protocol_context_tsv_path=protocol_context_tsv_path,
     )
-    differential_report = apply_benjamini_hochberg(
-        build_differential_abundance_report(
-            normalized_table,
-            design_entries,
-            condition_a=resolved_condition_a,
-            condition_b=resolved_condition_b,
-        )
-    )
+    design_entries = quantification_analysis.design_entries
+    active_selection_policy = quantification_analysis.selection_policy
+    normalized_table = quantification_analysis.normalized_table
+    resolved_condition_a = quantification_analysis.resolved_condition_a
+    resolved_condition_b = quantification_analysis.resolved_condition_b
+    differential_report = quantification_analysis.differential_report
     source_data = _build_biological_report_source_data(
         normalized_table=normalized_table,
         differential_report=differential_report,

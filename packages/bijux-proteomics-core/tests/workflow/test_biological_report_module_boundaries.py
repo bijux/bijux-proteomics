@@ -93,6 +93,10 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalReportSourceData",
         "_build_biological_report_source_data",
     ),
+    "biological_report_quantification_analysis.py": (
+        "BiologicalQuantificationAnalysis",
+        "_build_biological_quantification_analysis",
+    ),
     "biological_report_regulator_analysis.py": (
         "BiologicalRegulatorAnalysisReports",
         "_build_biological_regulator_analysis_reports",
