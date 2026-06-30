@@ -8,7 +8,7 @@
     ],
     "signature": "(*, biological_report_dir: 'Path | None' = None, ptm_report_dir: 'Path | None' = None, run_qc_assessment_tsv_paths: 'tuple[Path, ...]' = (), lab_action_packet_tsv_paths: 'tuple[Path, ...]' = (), input_paths: 'tuple[Path, ...]' = (), commands: 'tuple[str, ...]') -> 'ResultManifestReport'"
   },
-  "bijux_proteomics.workflow.load_result_archive": {
+  "bijux_proteomics.workflow.exports.load_result_archive": {
     "required_keyword_only_parameters": [],
     "required_parameters": [
       "path"
