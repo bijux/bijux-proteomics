@@ -14,7 +14,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.claims.result_queries import (
+from bijux_proteomics.review.claims.result_query_artifacts import (
     _empty_to_none,
     _node_ids_for_entity,
     _parse_bool,

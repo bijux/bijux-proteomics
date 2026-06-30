@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics.review.claims.result_queries import (
+from bijux_proteomics.review.claims.result_query_artifacts import (
     _empty_to_none,
     _load_result_artifact_context,
     _node_ids_for_entity,

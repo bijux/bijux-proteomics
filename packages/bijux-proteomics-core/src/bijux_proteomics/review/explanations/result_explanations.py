@@ -36,7 +36,7 @@ from bijux_proteomics.review.explanations.result_explanation_rendering import (
     render_result_explanation_summary_tsv,
     render_result_explanation_tsv,
 )
-from bijux_proteomics.review.claims.result_queries import (
+from bijux_proteomics.review.claims.result_query_artifacts import (
     _find_protein_card,
     _find_ptm_card,
     _node_ids_for_entity,
