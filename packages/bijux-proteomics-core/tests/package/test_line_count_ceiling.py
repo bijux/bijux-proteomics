@@ -88,10 +88,6 @@ CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("workflow/pipelines/dia_dda_comparison.py", 1245),
     _exception("workflow/pipelines/orchestrator.py", 1089),
     _exception("workflow/pipelines/public_benchmark_runner.py", 1151),
-    _exception("workflow/studies/cross_study/effect_comparison.py", 1187),
-    _exception("workflow/studies/cross_study/meta_analysis.py", 1013),
-    _exception("workflow/studies/cross_study/pathway_comparison.py", 1173),
-    _exception("workflow/studies/cross_study/protein_harmonization.py", 1145),
 )
 
 

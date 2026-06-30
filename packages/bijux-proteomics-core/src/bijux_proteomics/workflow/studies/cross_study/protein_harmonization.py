@@ -5,12 +5,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
 from bijux_proteomics.workflow.studies.cross_study.protein_harmonization_matching import (
+    _GroupMetadata,
     _build_exact_accession_groups,
     _build_gene_symbol_candidates,
     _build_group_metadata,
@@ -215,6 +217,17 @@ class CrossStudyProteinHarmonizationReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+@dataclass(frozen=True)
+class _ProteinHarmonizationContext:
+    exact_group_members: dict[int, tuple[int, ...]]
+    group_metadata: dict[int, _GroupMetadata]
+    ortholog_resolution: _OrthologResolution
+    component_group_ids: dict[int, set[int]]
+    group_component_ids: dict[int, int]
+    harmonized_component_ids: set[int]
+    group_gene_candidates: dict[int, tuple[int, ...]]
+
+
 def extract_cross_study_protein_observations(
     studies: tuple[CrossStudyProteinStudyInput, ...],
 ) -> CrossStudyProteinExtractionReport:
@@ -298,33 +311,80 @@ def build_cross_study_protein_harmonization_report_from_observations(
     """Harmonize extracted cross-study protein observations."""
 
     if not observations:
-        return CrossStudyProteinHarmonizationReport(
-            extracted_observations=(),
+        return _empty_harmonization_report(
             unsupported_studies=unsupported_studies,
-            harmonized_entries=(),
-            unresolved_entries=(),
-            summary=CrossStudyProteinHarmonizationSummary(
-                input_study_count=0 if input_study_count is None else input_study_count,
-                supported_study_count=0,
-                unsupported_study_count=len(unsupported_studies),
-                observation_count=0,
-                harmonized_group_count=0,
-                harmonized_membership_count=0,
-                unresolved_entry_count=0,
-                exact_accession_group_count=0,
-                ortholog_linked_group_count=0,
-                ambiguous_ortholog_entry_count=0,
-                gene_symbol_only_unresolved_count=0,
-            ),
-            note=(
-                "cross-study protein harmonization did not receive any supported "
-                "protein observations"
-            ),
+            input_study_count=input_study_count,
         )
 
-    exact_group_members, observation_group_ids = _build_exact_accession_groups(
-        observations
+    context = _build_harmonization_context(observations, ortholog_records)
+    (
+        harmonized_entries,
+        exact_accession_group_count,
+        ortholog_linked_group_count,
+    ) = _build_harmonized_entries(observations, context)
+    unresolved_entries = _build_unresolved_entries(
+        observations=observations,
+        context=context,
+        harmonized_entries=harmonized_entries,
     )
+    summary = _build_harmonization_summary(
+        observations=observations,
+        unsupported_studies=unsupported_studies,
+        input_study_count=input_study_count,
+        harmonized_entries=harmonized_entries,
+        unresolved_entries=unresolved_entries,
+        exact_accession_group_count=exact_accession_group_count,
+        ortholog_linked_group_count=ortholog_linked_group_count,
+    )
+    return CrossStudyProteinHarmonizationReport(
+        extracted_observations=observations,
+        unsupported_studies=unsupported_studies,
+        harmonized_entries=tuple(harmonized_entries),
+        unresolved_entries=tuple(unresolved_entries),
+        summary=summary,
+        note=(
+            "cross-study protein harmonization links study observations only through "
+            "exact accession overlap or unique ortholog support, while preserving "
+            "gene-symbol-only and one-to-many mappings as unresolved"
+        ),
+    )
+
+
+def _empty_harmonization_report(
+    *,
+    unsupported_studies: tuple[UnsupportedCrossStudyProteinStudy, ...],
+    input_study_count: int | None,
+) -> CrossStudyProteinHarmonizationReport:
+    return CrossStudyProteinHarmonizationReport(
+        extracted_observations=(),
+        unsupported_studies=unsupported_studies,
+        harmonized_entries=(),
+        unresolved_entries=(),
+        summary=CrossStudyProteinHarmonizationSummary(
+            input_study_count=0 if input_study_count is None else input_study_count,
+            supported_study_count=0,
+            unsupported_study_count=len(unsupported_studies),
+            observation_count=0,
+            harmonized_group_count=0,
+            harmonized_membership_count=0,
+            unresolved_entry_count=0,
+            exact_accession_group_count=0,
+            ortholog_linked_group_count=0,
+            ambiguous_ortholog_entry_count=0,
+            gene_symbol_only_unresolved_count=0,
+        ),
+        note=(
+            "cross-study protein harmonization did not receive any supported "
+            "protein observations"
+        ),
+    )
+
+
+def _build_harmonization_context(
+    observations: tuple[CrossStudyProteinObservation, ...],
+    ortholog_records: tuple[OrthologRecord, ...],
+) -> _ProteinHarmonizationContext:
+    exact_group_members, _ = _build_exact_accession_groups(observations)
     group_metadata = {
         group_id: _build_group_metadata(group_id, member_indices, observations)
         for group_id, member_indices in exact_group_members.items()
@@ -345,170 +405,172 @@ def build_cross_study_protein_harmonization_report_from_observations(
     harmonized_component_ids = {
         component_id
         for component_id, group_ids in component_group_ids.items()
-        if len(
-            {
-                observations[index].study_id
-                for group_id in group_ids
-                for index in exact_group_members[group_id]
-            }
+        if _component_study_count(
+            group_ids=group_ids,
+            exact_group_members=exact_group_members,
+            observations=observations,
         )
         >= 2
     }
-    group_gene_candidates = _build_gene_symbol_candidates(
+    return _ProteinHarmonizationContext(
+        exact_group_members=exact_group_members,
         group_metadata=group_metadata,
-        harmonized_component_ids=harmonized_component_ids,
+        ortholog_resolution=ortholog_resolution,
+        component_group_ids=component_group_ids,
         group_component_ids=group_component_ids,
+        harmonized_component_ids=harmonized_component_ids,
+        group_gene_candidates=_build_gene_symbol_candidates(
+            group_metadata=group_metadata,
+            harmonized_component_ids=harmonized_component_ids,
+            group_component_ids=group_component_ids,
+        ),
     )
 
+
+def _build_harmonized_entries(
+    observations: tuple[CrossStudyProteinObservation, ...],
+    context: _ProteinHarmonizationContext,
+) -> tuple[list[CrossStudyProteinHarmonizedEntry], int, int]:
     harmonized_entries: list[CrossStudyProteinHarmonizedEntry] = []
-    unresolved_entries: list[CrossStudyProteinUnresolvedEntry] = []
     exact_accession_group_count = 0
     ortholog_linked_group_count = 0
-
     for component_index, component_id in enumerate(
         sorted(
-            harmonized_component_ids,
+            context.harmonized_component_ids,
             key=lambda item: _component_sort_key(
-                component_group_ids[item],
-                exact_group_members=exact_group_members,
+                context.component_group_ids[item],
+                exact_group_members=context.exact_group_members,
                 observations=observations,
             ),
         ),
         start=1,
     ):
-        group_ids = component_group_ids[component_id]
-        component_observation_indices = tuple(
-            index
-            for group_id in sorted(group_ids)
-            for index in exact_group_members[group_id]
+        group_ids = context.component_group_ids[component_id]
+        component_entries, exact_only = _component_harmonized_entries(
+            component_index=component_index,
+            group_ids=group_ids,
+            observations=observations,
+            context=context,
         )
-        exact_only = len(group_ids) == 1
-        has_ortholog = any(
-            tuple(sorted((left_group_id, right_group_id)))
-            in ortholog_resolution.unique_links
-            for left_group_id in group_ids
-            for right_group_id in group_ids
-            if left_group_id < right_group_id
-        )
+        harmonized_entries.extend(component_entries)
         if exact_only:
             exact_accession_group_count += 1
-            match_basis = CrossStudyProteinMatchBasis.EXACT_ACCESSION
-            note = (
-                "study observations share exact canonical protein accessions or aliases"
-            )
-        elif has_ortholog and any(
-            len(exact_group_members[group_id]) > 1 for group_id in group_ids
-        ):
-            ortholog_linked_group_count += 1
-            match_basis = (
-                CrossStudyProteinMatchBasis.EXACT_ACCESSION_AND_UNIQUE_ORTHOLOG
-            )
-            note = (
-                "study observations were linked through exact accession overlap within "
-                "species and unique ortholog support across species"
-            )
         else:
             ortholog_linked_group_count += 1
-            match_basis = CrossStudyProteinMatchBasis.UNIQUE_ORTHOLOG
-            note = (
-                "study observations were linked only through unique one-to-one "
-                "ortholog support across species"
-            )
-        harmonized_id = f"harmonized_protein_{component_index:03d}"
-        harmonized_study_count = len(
-            {observations[index].study_id for index in component_observation_indices}
-        )
-        for observation_index in sorted(
-            component_observation_indices,
-            key=lambda item: _observation_sort_key(observations[item]),
-        ):
-            observation = observations[observation_index]
-            harmonized_entries.append(
-                CrossStudyProteinHarmonizedEntry(
-                    harmonized_id=harmonized_id,
-                    observation_id=observation.observation_id,
-                    study_id=observation.study_id,
-                    study_label=observation.study_label,
-                    study_kind=observation.study_kind,
-                    species=observation.species,
-                    source_kind=observation.source_kind,
-                    source_surface=observation.source_surface,
-                    source_entity_id=observation.source_entity_id,
-                    representative_protein_ref=observation.representative_protein_ref,
-                    protein_refs=observation.protein_refs,
-                    accession_aliases=observation.accession_aliases,
-                    gene_symbol=observation.gene_symbol,
-                    match_basis=match_basis,
-                    harmonized_study_count=harmonized_study_count,
-                    note=note,
-                )
-            )
+    return harmonized_entries, exact_accession_group_count, ortholog_linked_group_count
 
+
+def _component_harmonized_entries(
+    *,
+    component_index: int,
+    group_ids: set[int],
+    observations: tuple[CrossStudyProteinObservation, ...],
+    context: _ProteinHarmonizationContext,
+) -> tuple[list[CrossStudyProteinHarmonizedEntry], bool]:
+    component_observation_indices = tuple(
+        index
+        for group_id in sorted(group_ids)
+        for index in context.exact_group_members[group_id]
+    )
+    match_basis, note, exact_only = _component_match_basis_note(
+        group_ids=group_ids,
+        exact_group_members=context.exact_group_members,
+        unique_links=context.ortholog_resolution.unique_links,
+    )
+    harmonized_id = f"harmonized_protein_{component_index:03d}"
+    harmonized_study_count = len(
+        {observations[index].study_id for index in component_observation_indices}
+    )
+    entries = [
+        CrossStudyProteinHarmonizedEntry(
+            harmonized_id=harmonized_id,
+            observation_id=observation.observation_id,
+            study_id=observation.study_id,
+            study_label=observation.study_label,
+            study_kind=observation.study_kind,
+            species=observation.species,
+            source_kind=observation.source_kind,
+            source_surface=observation.source_surface,
+            source_entity_id=observation.source_entity_id,
+            representative_protein_ref=observation.representative_protein_ref,
+            protein_refs=observation.protein_refs,
+            accession_aliases=observation.accession_aliases,
+            gene_symbol=observation.gene_symbol,
+            match_basis=match_basis,
+            harmonized_study_count=harmonized_study_count,
+            note=note,
+        )
+        for observation in (
+            observations[index]
+            for index in sorted(
+                component_observation_indices,
+                key=lambda item: _observation_sort_key(observations[item]),
+            )
+        )
+    ]
+    return entries, exact_only
+
+
+def _component_match_basis_note(
+    *,
+    group_ids: set[int],
+    exact_group_members: dict[int, tuple[int, ...]],
+    unique_links: tuple[tuple[int, int], ...],
+) -> tuple[CrossStudyProteinMatchBasis, str, bool]:
+    exact_only = len(group_ids) == 1
+    if exact_only:
+        return (
+            CrossStudyProteinMatchBasis.EXACT_ACCESSION,
+            "study observations share exact canonical protein accessions or aliases",
+            True,
+        )
+    has_ortholog = any(
+        tuple(sorted((left_group_id, right_group_id))) in unique_links
+        for left_group_id in group_ids
+        for right_group_id in group_ids
+        if left_group_id < right_group_id
+    )
+    if has_ortholog and any(
+        len(exact_group_members[group_id]) > 1 for group_id in group_ids
+    ):
+        return (
+            CrossStudyProteinMatchBasis.EXACT_ACCESSION_AND_UNIQUE_ORTHOLOG,
+            "study observations were linked through exact accession overlap within species and unique ortholog support across species",
+            False,
+        )
+    return (
+        CrossStudyProteinMatchBasis.UNIQUE_ORTHOLOG,
+        "study observations were linked only through unique one-to-one ortholog support across species",
+        False,
+    )
+
+
+def _build_unresolved_entries(
+    *,
+    observations: tuple[CrossStudyProteinObservation, ...],
+    context: _ProteinHarmonizationContext,
+    harmonized_entries: list[CrossStudyProteinHarmonizedEntry],
+) -> list[CrossStudyProteinUnresolvedEntry]:
     harmonized_observation_ids = {entry.observation_id for entry in harmonized_entries}
+    unresolved_entries: list[CrossStudyProteinUnresolvedEntry] = []
     for group_id, member_indices in sorted(
-        exact_group_members.items(),
+        context.exact_group_members.items(),
         key=lambda item: _component_sort_key(
             {item[0]},
-            exact_group_members=exact_group_members,
+            exact_group_members=context.exact_group_members,
             observations=observations,
         ),
     ):
-        if group_component_ids[group_id] in harmonized_component_ids:
+        if context.group_component_ids[group_id] in context.harmonized_component_ids:
             continue
-        ambiguous_ortholog_candidates = ortholog_resolution.ambiguous_candidates.get(
-            group_id, ()
+        reason, candidate_indices, note = _unresolved_group_reason(
+            group_id=group_id,
+            context=context,
         )
-        gene_symbol_candidates = tuple(
-            candidate_group_id
-            for candidate_group_id in group_gene_candidates.get(group_id, ())
-            if candidate_group_id != group_id
-        )
-        if ambiguous_ortholog_candidates:
-            candidate_indices = _group_candidate_indices(
-                ambiguous_ortholog_candidates,
-                exact_group_members=exact_group_members,
-            )
-            reason = CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING
-            note = (
-                "explicit ortholog records linked this protein observation to more than "
-                "one cross-study candidate, so the mapping remains unresolved"
-            )
-        elif gene_symbol_candidates:
-            candidate_indices = _group_candidate_indices(
-                gene_symbol_candidates,
-                exact_group_members=exact_group_members,
-            )
-            reason = CrossStudyProteinUnresolvedReason.GENE_SYMBOL_ONLY_MATCH
-            note = (
-                "cross-study candidates shared a gene symbol but did not share exact "
-                "protein accessions or a unique ortholog relationship"
-            )
-        else:
-            candidate_indices = ()
-            reason = CrossStudyProteinUnresolvedReason.NO_CROSS_STUDY_MATCH
-            note = (
-                "no exact accession overlap or unique ortholog support linked this "
-                "protein observation to another study"
-            )
-        candidate_observation_ids = tuple(
-            sorted(
-                {
-                    observations[index].observation_id
-                    for index in candidate_indices
-                    if observations[index].observation_id
-                    not in harmonized_observation_ids
-                }
-            )
-        )
-        candidate_study_ids = tuple(
-            sorted(
-                {
-                    observations[index].study_id
-                    for index in candidate_indices
-                    if observations[index].observation_id
-                    not in harmonized_observation_ids
-                }
-            )
+        candidate_observation_ids, candidate_study_ids = _candidate_identity_lists(
+            candidate_indices=candidate_indices,
+            observations=observations,
+            harmonized_observation_ids=harmonized_observation_ids,
         )
         for observation_index in sorted(
             member_indices,
@@ -535,19 +597,98 @@ def build_cross_study_protein_harmonization_report_from_observations(
                     note=note,
                 )
             )
+    return unresolved_entries
 
-    summary = CrossStudyProteinHarmonizationSummary(
-        input_study_count=(
-            len({entry.study_id for entry in observations}) + len(unsupported_studies)
-            if input_study_count is None
-            else input_study_count
+
+def _unresolved_group_reason(
+    *,
+    group_id: int,
+    context: _ProteinHarmonizationContext,
+) -> tuple[CrossStudyProteinUnresolvedReason, tuple[int, ...], str]:
+    ambiguous_candidates = context.ortholog_resolution.ambiguous_candidates.get(
+        group_id,
+        (),
+    )
+    gene_symbol_candidates = tuple(
+        candidate_group_id
+        for candidate_group_id in context.group_gene_candidates.get(group_id, ())
+        if candidate_group_id != group_id
+    )
+    if ambiguous_candidates:
+        return (
+            CrossStudyProteinUnresolvedReason.AMBIGUOUS_ORTHOLOG_MAPPING,
+            _group_candidate_indices(
+                ambiguous_candidates,
+                exact_group_members=context.exact_group_members,
+            ),
+            "explicit ortholog records linked this protein observation to more than one cross-study candidate, so the mapping remains unresolved",
+        )
+    if gene_symbol_candidates:
+        return (
+            CrossStudyProteinUnresolvedReason.GENE_SYMBOL_ONLY_MATCH,
+            _group_candidate_indices(
+                gene_symbol_candidates,
+                exact_group_members=context.exact_group_members,
+            ),
+            "cross-study candidates shared a gene symbol but did not share exact protein accessions or a unique ortholog relationship",
+        )
+    return (
+        CrossStudyProteinUnresolvedReason.NO_CROSS_STUDY_MATCH,
+        (),
+        "no exact accession overlap or unique ortholog support linked this protein observation to another study",
+    )
+
+
+def _candidate_identity_lists(
+    *,
+    candidate_indices: tuple[int, ...],
+    observations: tuple[CrossStudyProteinObservation, ...],
+    harmonized_observation_ids: set[str],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    return (
+        tuple(
+            sorted(
+                {
+                    observations[index].observation_id
+                    for index in candidate_indices
+                    if observations[index].observation_id
+                    not in harmonized_observation_ids
+                }
+            )
+        ),
+        tuple(
+            sorted(
+                {
+                    observations[index].study_id
+                    for index in candidate_indices
+                    if observations[index].observation_id
+                    not in harmonized_observation_ids
+                }
+            )
+        ),
+    )
+
+
+def _build_harmonization_summary(
+    *,
+    observations: tuple[CrossStudyProteinObservation, ...],
+    unsupported_studies: tuple[UnsupportedCrossStudyProteinStudy, ...],
+    input_study_count: int | None,
+    harmonized_entries: list[CrossStudyProteinHarmonizedEntry],
+    unresolved_entries: list[CrossStudyProteinUnresolvedEntry],
+    exact_accession_group_count: int,
+    ortholog_linked_group_count: int,
+) -> CrossStudyProteinHarmonizationSummary:
+    return CrossStudyProteinHarmonizationSummary(
+        input_study_count=_harmonization_input_study_count(
+            observations=observations,
+            unsupported_studies=unsupported_studies,
+            input_study_count=input_study_count,
         ),
         supported_study_count=len({entry.study_id for entry in observations}),
         unsupported_study_count=len(unsupported_studies),
         observation_count=len(observations),
-        harmonized_group_count=len(
-            {entry.harmonized_id for entry in harmonized_entries}
-        ),
+        harmonized_group_count=len({entry.harmonized_id for entry in harmonized_entries}),
         harmonized_membership_count=len(harmonized_entries),
         unresolved_entry_count=len(unresolved_entries),
         exact_accession_group_count=exact_accession_group_count,
@@ -561,17 +702,31 @@ def build_cross_study_protein_harmonization_report_from_observations(
             for entry in unresolved_entries
         ),
     )
-    return CrossStudyProteinHarmonizationReport(
-        extracted_observations=observations,
-        unsupported_studies=unsupported_studies,
-        harmonized_entries=tuple(harmonized_entries),
-        unresolved_entries=tuple(unresolved_entries),
-        summary=summary,
-        note=(
-            "cross-study protein harmonization links study observations only through "
-            "exact accession overlap or unique ortholog support, while preserving "
-            "gene-symbol-only and one-to-many mappings as unresolved"
-        ),
+
+
+def _harmonization_input_study_count(
+    *,
+    observations: tuple[CrossStudyProteinObservation, ...],
+    unsupported_studies: tuple[UnsupportedCrossStudyProteinStudy, ...],
+    input_study_count: int | None,
+) -> int:
+    if input_study_count is not None:
+        return input_study_count
+    return len({entry.study_id for entry in observations}) + len(unsupported_studies)
+
+
+def _component_study_count(
+    *,
+    group_ids: set[int],
+    exact_group_members: dict[int, tuple[int, ...]],
+    observations: tuple[CrossStudyProteinObservation, ...],
+) -> int:
+    return len(
+        {
+            observations[index].study_id
+            for group_id in group_ids
+            for index in exact_group_members[group_id]
+        }
     )
 
 

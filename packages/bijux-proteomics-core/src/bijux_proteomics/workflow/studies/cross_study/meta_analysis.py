@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import StrEnum
 import math
 import re
@@ -192,6 +193,38 @@ class CrossStudyMetaAnalysisReport(JsonModel):
     )
     summary: CrossStudyMetaAnalysisSummary
     note: str = Field(..., min_length=1)
+
+
+@dataclass(frozen=True)
+class _MetaAnalysisStatistics:
+    effects: list[float]
+    standard_errors: list[float]
+    variances: list[float]
+    fixed_weights: list[float]
+    fixed_weight_total: float
+    fixed_effect: float
+    fixed_standard_error: float
+    fixed_interval_low: float
+    fixed_interval_high: float
+    fixed_p_value: float
+    random_weights: list[float]
+    random_weight_total: float
+    random_effect: float
+    random_standard_error: float
+    random_interval_low: float
+    random_interval_high: float
+    random_p_value: float
+    q_statistic: float
+    degrees_of_freedom: int
+    tau_squared: float
+    i_squared: float
+    heterogeneity_tier: CrossStudyMetaAnalysisHeterogeneityTier
+    effect_model: CrossStudyMetaAnalysisEffectModel
+    combined_effect: float
+    combined_standard_error: float
+    combined_interval_low: float
+    combined_interval_high: float
+    combined_p_value: float
 
 
 def build_cross_study_meta_analysis_report(
@@ -519,6 +552,66 @@ def _build_meta_analysis_entry(
     study_entries: tuple[CrossStudyProteinEffectStudyEntry, ...],
     policy: CrossStudyMetaAnalysisPolicy,
 ) -> tuple[CrossStudyMetaAnalysisEntry, list[CrossStudyMetaAnalysisStudyWeightEntry]]:
+    statistics = _meta_analysis_statistics(study_entries, policy)
+    weight_entries = _build_meta_analysis_weight_entries(
+        harmonized_id=comparison.harmonized_id,
+        study_entries=study_entries,
+        statistics=statistics,
+    )
+    species = tuple(
+        sorted({entry.species for entry in study_entries if entry.species is not None})
+    )
+    direction_conflict, conflict_study_ids = _meta_analysis_direction_conflict(
+        comparison=comparison,
+        study_entries=study_entries,
+    )
+    entry = CrossStudyMetaAnalysisEntry(
+        meta_analysis_id=_meta_analysis_id(comparison.harmonized_id),
+        harmonized_id=comparison.harmonized_id,
+        representative_protein_refs=comparison.representative_protein_refs,
+        study_ids=comparison.study_ids,
+        study_kinds=comparison.study_kinds,
+        species=species,
+        anchor_condition_a=comparison.anchor_condition_a or "",
+        anchor_condition_b=comparison.anchor_condition_b or "",
+        included_study_count=len(study_entries),
+        effect_model=statistics.effect_model,
+        combined_log2_fold_change=statistics.combined_effect,
+        combined_standard_error=statistics.combined_standard_error,
+        combined_confidence_interval_low=statistics.combined_interval_low,
+        combined_confidence_interval_high=statistics.combined_interval_high,
+        combined_p_value=statistics.combined_p_value,
+        combined_adjusted_p_value=None,
+        fixed_effect_log2_fold_change=statistics.fixed_effect,
+        fixed_effect_standard_error=statistics.fixed_standard_error,
+        fixed_effect_confidence_interval_low=statistics.fixed_interval_low,
+        fixed_effect_confidence_interval_high=statistics.fixed_interval_high,
+        fixed_effect_p_value=statistics.fixed_p_value,
+        random_effect_log2_fold_change=statistics.random_effect,
+        random_effect_standard_error=statistics.random_standard_error,
+        random_effect_confidence_interval_low=statistics.random_interval_low,
+        random_effect_confidence_interval_high=statistics.random_interval_high,
+        random_effect_p_value=statistics.random_p_value,
+        heterogeneity_q=statistics.q_statistic,
+        heterogeneity_degrees_of_freedom=statistics.degrees_of_freedom,
+        heterogeneity_i_squared=statistics.i_squared,
+        between_study_variance_tau_squared=statistics.tau_squared,
+        heterogeneity_tier=statistics.heterogeneity_tier,
+        direction_conflict=direction_conflict,
+        conflicting_study_ids=conflict_study_ids if direction_conflict else (),
+        low_robustness_study_ids=comparison.low_robustness_study_ids,
+        note=(
+            "meta-analysis combined normalized study effects by inverse-variance "
+            "weighting and preserved heterogeneity plus conflict flags explicitly"
+        ),
+    )
+    return entry, weight_entries
+
+
+def _meta_analysis_statistics(
+    study_entries: tuple[CrossStudyProteinEffectStudyEntry, ...],
+    policy: CrossStudyMetaAnalysisPolicy,
+) -> _MetaAnalysisStatistics:
     normalized_effects = [entry.normalized_log2_fold_change for entry in study_entries]
     if any(value is None for value in normalized_effects):
         raise RuntimeError(
@@ -574,12 +667,13 @@ def _build_meta_analysis_entry(
         if i_squared >= policy.prefer_random_effects_i_squared_threshold
         else CrossStudyMetaAnalysisEffectModel.FIXED_INVERSE_VARIANCE
     )
-    if effect_model is CrossStudyMetaAnalysisEffectModel.RANDOM_EFFECTS:
-        combined_effect = random_effect
-        combined_standard_error = random_standard_error
-    else:
-        combined_effect = fixed_effect
-        combined_standard_error = fixed_standard_error
+    combined_effect, combined_standard_error = _combined_effect_and_error(
+        effect_model=effect_model,
+        fixed_effect=fixed_effect,
+        fixed_standard_error=fixed_standard_error,
+        random_effect=random_effect,
+        random_standard_error=random_standard_error,
+    )
     combined_interval_low, combined_interval_high = _confidence_interval(
         combined_effect,
         combined_standard_error,
@@ -592,25 +686,69 @@ def _build_meta_analysis_entry(
         random_effect,
         random_standard_error,
     )
-    combined_p_value = _two_sided_normal_p_value(
-        combined_effect,
-        combined_standard_error,
+    return _MetaAnalysisStatistics(
+        effects=effects,
+        standard_errors=standard_errors,
+        variances=variances,
+        fixed_weights=fixed_weights,
+        fixed_weight_total=fixed_weight_total,
+        fixed_effect=fixed_effect,
+        fixed_standard_error=fixed_standard_error,
+        fixed_interval_low=fixed_interval_low,
+        fixed_interval_high=fixed_interval_high,
+        fixed_p_value=_two_sided_normal_p_value(fixed_effect, fixed_standard_error),
+        random_weights=random_weights,
+        random_weight_total=random_weight_total,
+        random_effect=random_effect,
+        random_standard_error=random_standard_error,
+        random_interval_low=random_interval_low,
+        random_interval_high=random_interval_high,
+        random_p_value=_two_sided_normal_p_value(random_effect, random_standard_error),
+        q_statistic=q_statistic,
+        degrees_of_freedom=degrees_of_freedom,
+        tau_squared=tau_squared,
+        i_squared=i_squared,
+        heterogeneity_tier=heterogeneity_tier,
+        effect_model=effect_model,
+        combined_effect=combined_effect,
+        combined_standard_error=combined_standard_error,
+        combined_interval_low=combined_interval_low,
+        combined_interval_high=combined_interval_high,
+        combined_p_value=_two_sided_normal_p_value(
+            combined_effect,
+            combined_standard_error,
+        ),
     )
-    fixed_p_value = _two_sided_normal_p_value(
-        fixed_effect,
-        fixed_standard_error,
-    )
-    random_p_value = _two_sided_normal_p_value(
-        random_effect,
-        random_standard_error,
-    )
-    fixed_weight_fractions = [weight / fixed_weight_total for weight in fixed_weights]
-    random_weight_fractions = [
-        weight / random_weight_total for weight in random_weights
+
+
+def _combined_effect_and_error(
+    *,
+    effect_model: CrossStudyMetaAnalysisEffectModel,
+    fixed_effect: float,
+    fixed_standard_error: float,
+    random_effect: float,
+    random_standard_error: float,
+) -> tuple[float, float]:
+    if effect_model is CrossStudyMetaAnalysisEffectModel.RANDOM_EFFECTS:
+        return random_effect, random_standard_error
+    return fixed_effect, fixed_standard_error
+
+
+def _build_meta_analysis_weight_entries(
+    *,
+    harmonized_id: str,
+    study_entries: tuple[CrossStudyProteinEffectStudyEntry, ...],
+    statistics: _MetaAnalysisStatistics,
+) -> list[CrossStudyMetaAnalysisStudyWeightEntry]:
+    fixed_weight_fractions = [
+        weight / statistics.fixed_weight_total for weight in statistics.fixed_weights
     ]
-    weight_entries = [
+    random_weight_fractions = [
+        weight / statistics.random_weight_total for weight in statistics.random_weights
+    ]
+    return [
         CrossStudyMetaAnalysisStudyWeightEntry(
-            harmonized_id=comparison.harmonized_id,
+            harmonized_id=harmonized_id,
             study_id=entry.study_id,
             study_label=entry.study_label,
             study_kind=entry.study_kind,
@@ -638,85 +776,39 @@ def _build_meta_analysis_entry(
             random_fraction,
         ) in zip(
             study_entries,
-            standard_errors,
-            variances,
-            fixed_weights,
+            statistics.standard_errors,
+            statistics.variances,
+            statistics.fixed_weights,
             fixed_weight_fractions,
-            random_weights,
+            statistics.random_weights,
             random_weight_fractions,
             strict=True,
         )
     ]
-    species = tuple(
-        sorted({entry.species for entry in study_entries if entry.species is not None})
-    )
-    conflict_study_ids = tuple(
+
+
+def _meta_analysis_direction_conflict(
+    *,
+    comparison: CrossStudyProteinEffectComparisonEntry,
+    study_entries: tuple[CrossStudyProteinEffectStudyEntry, ...],
+) -> tuple[bool, tuple[str, ...]]:
+    conflict_directions = {
+        CrossStudyEffectDirection.UP,
+        CrossStudyEffectDirection.DOWN,
+    }
+    study_ids = tuple(
         sorted(
             entry.study_id
             for entry in study_entries
-            if entry.normalized_direction
-            in {
-                CrossStudyEffectDirection.UP,
-                CrossStudyEffectDirection.DOWN,
-            }
+            if entry.normalized_direction in conflict_directions
         )
     )
-    direction_conflict = (
-        comparison.conflicting_hit
-        or len(
-            {
-                entry.normalized_direction
-                for entry in study_entries
-                if entry.normalized_direction
-                in {
-                    CrossStudyEffectDirection.UP,
-                    CrossStudyEffectDirection.DOWN,
-                }
-            }
-        )
-        > 1
-    )
-    entry = CrossStudyMetaAnalysisEntry(
-        meta_analysis_id=_meta_analysis_id(comparison.harmonized_id),
-        harmonized_id=comparison.harmonized_id,
-        representative_protein_refs=comparison.representative_protein_refs,
-        study_ids=comparison.study_ids,
-        study_kinds=comparison.study_kinds,
-        species=species,
-        anchor_condition_a=comparison.anchor_condition_a or "",
-        anchor_condition_b=comparison.anchor_condition_b or "",
-        included_study_count=len(study_entries),
-        effect_model=effect_model,
-        combined_log2_fold_change=combined_effect,
-        combined_standard_error=combined_standard_error,
-        combined_confidence_interval_low=combined_interval_low,
-        combined_confidence_interval_high=combined_interval_high,
-        combined_p_value=combined_p_value,
-        combined_adjusted_p_value=None,
-        fixed_effect_log2_fold_change=fixed_effect,
-        fixed_effect_standard_error=fixed_standard_error,
-        fixed_effect_confidence_interval_low=fixed_interval_low,
-        fixed_effect_confidence_interval_high=fixed_interval_high,
-        fixed_effect_p_value=fixed_p_value,
-        random_effect_log2_fold_change=random_effect,
-        random_effect_standard_error=random_standard_error,
-        random_effect_confidence_interval_low=random_interval_low,
-        random_effect_confidence_interval_high=random_interval_high,
-        random_effect_p_value=random_p_value,
-        heterogeneity_q=q_statistic,
-        heterogeneity_degrees_of_freedom=degrees_of_freedom,
-        heterogeneity_i_squared=i_squared,
-        between_study_variance_tau_squared=tau_squared,
-        heterogeneity_tier=heterogeneity_tier,
-        direction_conflict=direction_conflict,
-        conflicting_study_ids=conflict_study_ids if direction_conflict else (),
-        low_robustness_study_ids=comparison.low_robustness_study_ids,
-        note=(
-            "meta-analysis combined normalized study effects by inverse-variance "
-            "weighting and preserved heterogeneity plus conflict flags explicitly"
-        ),
-    )
-    return entry, weight_entries
+    distinct_directions = {
+        entry.normalized_direction
+        for entry in study_entries
+        if entry.normalized_direction in conflict_directions
+    }
+    return comparison.conflicting_hit or len(distinct_directions) > 1, study_ids
 
 
 def _rejected_entry(

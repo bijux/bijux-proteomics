@@ -742,58 +742,13 @@ def _build_pathway_comparison_entry(
         for direction in directions
         if direction in {CrossStudyPathwayDirection.UP, CrossStudyPathwayDirection.DOWN}
     }
-    if first.signal_kind is CrossStudyPathwaySignalKind.ACTIVITY:
-        if (
-            alignment_status
-            is CrossStudyPathwayContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS
-        ):
-            status = CrossStudyPathwayComparisonStatus.HETEROGENEOUS_CONTRASTS
-            note = (
-                "studies compared different condition pairs, so pathway activity deltas "
-                "were not merged into shared or opposite signals"
-            )
-        elif len(significant_entries) >= 2 and len(direction_set) > 1:
-            status = CrossStudyPathwayComparisonStatus.OPPOSITE_SIGNAL
-            note = (
-                "high-confidence pathway activity deltas pointed in opposite "
-                "directions across studies after contrast normalization"
-            )
-        elif len(significant_entries) >= 2 and len(direction_set) == 1:
-            status = CrossStudyPathwayComparisonStatus.SHARED_SIGNAL
-            note = (
-                "at least two studies supported the same high-confidence pathway "
-                "activity direction after contrast normalization"
-            )
-        elif len(significant_entries) == 1 and len(entries) >= 2:
-            status = CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL
-            note = (
-                "only one study supported a high-confidence pathway activity signal "
-                "while the other studies did not"
-            )
-        else:
-            status = CrossStudyPathwayComparisonStatus.INSUFFICIENT_SUPPORT
-            note = (
-                "cross-study pathway activity support was not strong enough to call a "
-                "shared, opposite, or study-specific signal"
-            )
-    else:
-        if len(significant_entries) >= 2:
-            status = CrossStudyPathwayComparisonStatus.SHARED_SIGNAL
-            note = (
-                "at least two studies supported pathway enrichment for the same "
-                "pathway and member-kind surface"
-            )
-        elif len(significant_entries) == 1 and len(entries) >= 2:
-            status = CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL
-            note = (
-                "only one study supported pathway enrichment while the others did not"
-            )
-        else:
-            status = CrossStudyPathwayComparisonStatus.INSUFFICIENT_SUPPORT
-            note = (
-                "cross-study pathway enrichment support was not strong enough to call "
-                "a shared or study-specific signal"
-            )
+    status, note = _pathway_comparison_status_note(
+        signal_kind=first.signal_kind,
+        alignment_status=alignment_status,
+        significant_study_count=len(significant_entries),
+        tested_study_count=len(entries),
+        direction_count=len(direction_set),
+    )
     coverage_values = [
         entry.coverage_fraction
         for entry in entries
@@ -856,6 +811,81 @@ def _build_pathway_comparison_entry(
         minimum_adjusted_p_value=min(adjusted_values, default=None),
         maximum_enrichment_ratio=max(enrichment_ratios, default=None),
         note=note,
+    )
+
+
+def _pathway_comparison_status_note(
+    *,
+    signal_kind: CrossStudyPathwaySignalKind,
+    alignment_status: CrossStudyPathwayContrastAlignmentStatus,
+    significant_study_count: int,
+    tested_study_count: int,
+    direction_count: int,
+) -> tuple[CrossStudyPathwayComparisonStatus, str]:
+    if signal_kind is CrossStudyPathwaySignalKind.ENRICHMENT:
+        return _enrichment_status_note(
+            significant_study_count=significant_study_count,
+            tested_study_count=tested_study_count,
+        )
+    return _activity_status_note(
+        alignment_status=alignment_status,
+        significant_study_count=significant_study_count,
+        tested_study_count=tested_study_count,
+        direction_count=direction_count,
+    )
+
+
+def _enrichment_status_note(
+    *,
+    significant_study_count: int,
+    tested_study_count: int,
+) -> tuple[CrossStudyPathwayComparisonStatus, str]:
+    if significant_study_count >= 2:
+        return (
+            CrossStudyPathwayComparisonStatus.SHARED_SIGNAL,
+            "at least two studies supported pathway enrichment for the same pathway and member-kind surface",
+        )
+    if significant_study_count == 1 and tested_study_count >= 2:
+        return (
+            CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL,
+            "only one study supported pathway enrichment while the others did not",
+        )
+    return (
+        CrossStudyPathwayComparisonStatus.INSUFFICIENT_SUPPORT,
+        "cross-study pathway enrichment support was not strong enough to call a shared or study-specific signal",
+    )
+
+
+def _activity_status_note(
+    *,
+    alignment_status: CrossStudyPathwayContrastAlignmentStatus,
+    significant_study_count: int,
+    tested_study_count: int,
+    direction_count: int,
+) -> tuple[CrossStudyPathwayComparisonStatus, str]:
+    if alignment_status is CrossStudyPathwayContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS:
+        return (
+            CrossStudyPathwayComparisonStatus.HETEROGENEOUS_CONTRASTS,
+            "studies compared different condition pairs, so pathway activity deltas were not merged into shared or opposite signals",
+        )
+    if significant_study_count >= 2 and direction_count > 1:
+        return (
+            CrossStudyPathwayComparisonStatus.OPPOSITE_SIGNAL,
+            "high-confidence pathway activity deltas pointed in opposite directions across studies after contrast normalization",
+        )
+    if significant_study_count >= 2 and direction_count == 1:
+        return (
+            CrossStudyPathwayComparisonStatus.SHARED_SIGNAL,
+            "at least two studies supported the same high-confidence pathway activity direction after contrast normalization",
+        )
+    if significant_study_count == 1 and tested_study_count >= 2:
+        return (
+            CrossStudyPathwayComparisonStatus.STUDY_SPECIFIC_SIGNAL,
+            "only one study supported a high-confidence pathway activity signal while the other studies did not",
+        )
+    return (
+        CrossStudyPathwayComparisonStatus.INSUFFICIENT_SUPPORT,
+        "cross-study pathway activity support was not strong enough to call a shared, opposite, or study-specific signal",
     )
 
 

@@ -265,21 +265,6 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         27,
     ),
     _exception(
-        "workflow/studies/cross_study_meta_analysis.py",
-        "_build_meta_analysis_entry",
-        31,
-    ),
-    _exception(
-        "workflow/studies/cross_study_pathway_comparison.py",
-        "_build_pathway_comparison_entry",
-        26,
-    ),
-    _exception(
-        "workflow/studies/cross_study_protein_harmonization.py",
-        "build_cross_study_protein_harmonization_report_from_observations",
-        35,
-    ),
-    _exception(
         "workflow/studies/public_dataset_comparison.py",
         "build_public_dataset_comparison_report_from_suite",
         27,
