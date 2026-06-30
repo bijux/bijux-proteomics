@@ -10,7 +10,9 @@ from pathlib import Path
 
 import click
 
-from ...imports import DiscoveryTargetProteinEntry
+from bijux_proteomics.targeted.discovery_peptide_selection import (
+    DiscoveryTargetProteinEntry,
+)
 
 from ..field_parsing import _split_semicolon_field
 

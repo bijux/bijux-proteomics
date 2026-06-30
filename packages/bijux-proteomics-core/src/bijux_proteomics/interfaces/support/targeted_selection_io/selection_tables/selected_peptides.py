@@ -10,12 +10,18 @@ from pathlib import Path
 
 import click
 
-from ...imports import (
-    DiscoveryTargetedPeptideSelectionEntry,
+from bijux_proteomics.identification.peptide_evidence import PeptideEvidenceClass
+from bijux_proteomics.sequences.peptide_chemical_liability import (
     PeptideChemicalLiabilityTier,
+)
+from bijux_proteomics.sequences.peptide_detectability import (
     PeptideDetectabilityTier,
-    PeptideEvidenceClass,
+)
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
+)
+from bijux_proteomics.targeted.discovery_peptide_selection import (
+    DiscoveryTargetedPeptideSelectionEntry,
     TargetedPeptideCandidateSource,
 )
 
