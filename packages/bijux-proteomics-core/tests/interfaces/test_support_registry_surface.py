@@ -24,6 +24,14 @@ CLI_COMMAND_ROOT = (
     / "cli"
     / "commands"
 )
+SEQUENCE_SUPPORT_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "bijux_proteomics"
+    / "interfaces"
+    / "support"
+    / "sequence_support"
+)
 
 
 def test_support_registry_exports_modules_not_symbol_soup() -> None:
@@ -115,5 +123,25 @@ def test_cli_command_modules_import_owned_sequence_support_submodules_directly()
             if node.module == "bijux_proteomics.interfaces.support.sequence_support":
                 violations.append(
                     f"{path.relative_to(CLI_COMMAND_ROOT)} imports the sequence support facade instead of an owner module"
+                )
+    assert not violations, "\n".join(violations)
+
+
+def test_sequence_support_owner_modules_do_not_import_symbol_barrel() -> None:
+    violations: list[str] = []
+    for path in sorted(SEQUENCE_SUPPORT_ROOT.glob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in module.body:
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if (
+                node.level == 2
+                and node.module == "imports"
+                or node.module == "bijux_proteomics.interfaces.support.imports"
+            ):
+                violations.append(
+                    f"{path.relative_to(SEQUENCE_SUPPORT_ROOT)} imports the support symbol barrel instead of owned support modules"
                 )
     assert not violations, "\n".join(violations)
