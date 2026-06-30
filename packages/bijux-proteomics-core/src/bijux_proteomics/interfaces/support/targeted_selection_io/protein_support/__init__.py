@@ -9,58 +9,7 @@ import click
 
 from ..field_parsing import _parse_cli_bool
 from .protein_groups import _load_protein_group_map
-
-
-def _load_selected_peptide_support_by_protein(
-    path: Path,
-) -> dict[str, dict[str, float]]:
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle, delimiter="\t")
-        if reader.fieldnames is None:
-            raise click.ClickException(
-                "selected-peptide TSV must include a header row for biomarker candidate ranking"
-            )
-        required_columns = {
-            "target_protein_ref",
-            "detectability_score",
-            "uniqueness_score",
-            "suitability_score",
-        }
-        missing_columns = required_columns.difference(reader.fieldnames)
-        if missing_columns:
-            raise click.ClickException(
-                "selected-peptide TSV is missing required columns for biomarker candidate ranking: "
-                + ", ".join(sorted(missing_columns))
-            )
-        support_by_protein: dict[str, dict[str, float]] = {}
-        for row_number, row in enumerate(reader, start=2):
-            try:
-                protein_ref = str(row.get("target_protein_ref", "")).strip()
-                support = support_by_protein.setdefault(
-                    protein_ref,
-                    {
-                        "detectability_score": 0.0,
-                        "uniqueness_score": 0.0,
-                        "suitability_score": 0.0,
-                    },
-                )
-                support["detectability_score"] = max(
-                    support["detectability_score"],
-                    float(str(row.get("detectability_score", "")).strip()),
-                )
-                support["uniqueness_score"] = max(
-                    support["uniqueness_score"],
-                    float(str(row.get("uniqueness_score", "")).strip()),
-                )
-                support["suitability_score"] = max(
-                    support["suitability_score"],
-                    float(str(row.get("suitability_score", "")).strip()),
-                )
-            except Exception as exc:  # noqa: BLE001
-                raise click.ClickException(
-                    f"invalid selected-peptide row {row_number} in {path.name!r}: {exc}"
-                ) from exc
-    return support_by_protein
+from .selected_peptides import _load_selected_peptide_support_by_protein
 
 
 def _load_assay_interference_support_by_protein(
