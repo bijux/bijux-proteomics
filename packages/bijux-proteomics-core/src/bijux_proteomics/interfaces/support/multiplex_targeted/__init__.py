@@ -28,7 +28,7 @@ from .isotope_labeling import (
     export_tmt_validation_weak_tsv,
     parse_silac_feature_table,
 )
-from bijux_proteomics.multiplex import (
+from .multiplex import (
     TmtInterferencePolicy,
     TmtNormalizationMethod,
     TmtNormalizationPolicy,
