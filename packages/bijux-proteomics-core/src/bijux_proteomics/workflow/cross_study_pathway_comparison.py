@@ -21,7 +21,7 @@ from bijux_proteomics.interpretation import (
     PathwayEnrichmentCorrectionPolicy,
     PathwayMemberKind,
 )
-from bijux_proteomics.workflow.cross_study_protein_harmonization import (
+from bijux_proteomics.workflow.studies.cross_study_protein_harmonization import (
     CrossStudyProteinStudyInput,
 )
 from bijux_proteomics.workflow.studies.study_result import ProteomicsStudyKind

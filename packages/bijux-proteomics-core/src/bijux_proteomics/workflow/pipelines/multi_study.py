@@ -14,7 +14,7 @@ from bijux_proteomics.interpretation import (
     OrthologRecord,
     PathwayEnrichmentCorrectionPolicy,
 )
-from bijux_proteomics.workflow.cross_study_effect_comparison import (
+from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
     CrossStudyProteinEffectComparisonEntry,
     CrossStudyProteinEffectComparisonReport,
@@ -31,7 +31,7 @@ from bijux_proteomics.workflow.cross_study_pathway_comparison import (
     render_cross_study_shared_pathway_signal_tsv,
     render_cross_study_study_specific_pathway_tsv,
 )
-from bijux_proteomics.workflow.cross_study_protein_harmonization import (
+from bijux_proteomics.workflow.studies.cross_study_protein_harmonization import (
     CrossStudyProteinHarmonizationReport,
     CrossStudyProteinHarmonizedEntry,
     CrossStudyProteinUnresolvedEntry,

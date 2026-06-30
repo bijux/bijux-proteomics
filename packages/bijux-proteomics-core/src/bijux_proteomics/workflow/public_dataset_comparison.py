@@ -13,7 +13,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.workflow.cross_study_effect_comparison import (
+from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyProteinEffectComparisonReport,
     CrossStudyProteinStudyInput,
     build_cross_study_effect_comparison_report,

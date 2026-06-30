@@ -16,7 +16,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.interpretation import OrthologRecord
-from bijux_proteomics.workflow.cross_study_effect_comparison import (
+from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyEffectContrastAlignmentStatus,
     CrossStudyEffectDirection,
     CrossStudyEffectUnsupportedStudy,
@@ -27,7 +27,7 @@ from bijux_proteomics.workflow.cross_study_effect_comparison import (
     build_cross_study_effect_comparison_report,
     build_cross_study_effect_comparison_report_from_observations,
 )
-from bijux_proteomics.workflow.cross_study_protein_harmonization import (
+from bijux_proteomics.workflow.studies.cross_study_protein_harmonization import (
     CrossStudyProteinStudyInput,
 )
 from bijux_proteomics.workflow.studies.study_result import ProteomicsStudyKind
