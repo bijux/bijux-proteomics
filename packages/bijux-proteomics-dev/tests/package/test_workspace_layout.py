@@ -33,7 +33,7 @@ def _workspace_metadata() -> dict[str, Any]:
 def _artifact_layout_paths() -> list[str]:
     workspace = _workspace_metadata()
     package_names = sorted(cast(list[str], workspace["packages"]))
-    paths = [".venv", ".tox", ".hypothesis", ".benchmarks"]
+    paths = ["artifacts", ".venv", ".tox", ".hypothesis", ".benchmarks"]
     for package_name in package_names:
         paths.extend(
             [

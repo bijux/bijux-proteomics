@@ -31,7 +31,8 @@ node_modules/
 *.egg-info/
 pip-wheel-metadata/
 
-artifacts/*
+artifacts/
+artifacts
 packages/*/artifacts/
 packages/*/artifacts
 
@@ -59,4 +60,3 @@ packages/*/artifacts
 **/*.pyo
 *.swp
 *.swo
-
