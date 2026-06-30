@@ -122,6 +122,13 @@ def test_python_api_modules_import_owned_support_modules_directly() -> None:
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the targeted selection io facade instead of an owner module"
                 )
+            if (
+                node.module
+                == "bijux_proteomics.interfaces.support.targeted_selection_io.selection_tables"
+            ):
+                violations.append(
+                    f"{path.relative_to(PYTHON_API_ROOT)} imports the targeted selection table facade instead of an owner module"
+                )
             if node.module == "bijux_proteomics.interfaces.support.biomarker_candidate_support":
                 violations.append(
                     f"{path.relative_to(PYTHON_API_ROOT)} imports the biomarker candidate support facade instead of an owner module"
