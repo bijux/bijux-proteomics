@@ -32,6 +32,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalResultSelectionPolicy",
         "_resolve_biological_result_selection_policy",
     ),
+    "biological_report_bundle_contracts.py": (
+        "BiologicalResultReportBundle",
+        "BiologicalResultReportSummary",
+    ),
+    "biological_report_export_contracts.py": (
+        "BiologicalResultReportArtifactPaths",
+        "BiologicalResultReportExportManifest",
+    ),
     "biological_report_section_confidence.py": (
         "_build_biological_report_section_confidence_entries",
         "_count_section_confidence_labels",
