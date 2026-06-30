@@ -8,10 +8,6 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 
 from bijux_proteomics.domain.semantic_ids import build_protein_card_id
-from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
-from bijux_proteomics.identification.protein_coverage import (
-    build_protein_coverage_report,
-)
 from bijux_proteomics.interpretation import (
     BiologicalContextKind,
     BiologicalContextMappingReport,
@@ -28,8 +24,6 @@ from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
-    MissingValueKind,
-    QuantValue,
 )
 from bijux_proteomics.review import (
     FinalClaimEvidenceTier,
@@ -87,6 +81,14 @@ from bijux_proteomics.workflow.cards.protein_evidence.rendering import (
     render_protein_evidence_card_summary_tsv,
     render_protein_evidence_card_tsv,
 )
+from bijux_proteomics.workflow.cards.protein_evidence.quantitative_evidence import (
+    build_coverage_by_protein,
+    build_differential_payload,
+    build_quantification_payload,
+    build_warnings,
+    entry_is_significant,
+    group_values_by_entity,
+)
 
 
 def build_protein_evidence_card_report(
@@ -111,7 +113,7 @@ def build_protein_evidence_card_report(
 ) -> ProteinEvidenceCardReport:
     """Build one structured card per final protein result."""
 
-    values_by_entity = _group_values_by_entity(quant_table.values)
+    values_by_entity = group_values_by_entity(quant_table.values)
     protein_peptides = {
         entity_id: tuple(
             sorted(set(quant_table.entity_member_peptides.get(entity_id, ())))
@@ -121,7 +123,7 @@ def build_protein_evidence_card_report(
     peptide_membership_counts = Counter(
         peptide for peptides in protein_peptides.values() for peptide in peptides
     )
-    coverage_by_protein = _build_coverage_by_protein(
+    coverage_by_protein = build_coverage_by_protein(
         quant_table,
         protein_sequences=protein_sequences,
     )
@@ -183,11 +185,11 @@ def build_protein_evidence_card_report(
             representative_protein_ref,
             annotation_entries=annotation_entries,
         )
-        quantification = _build_quantification_payload(
+        quantification = build_quantification_payload(
             values_by_entity.get(differential_entry.entity_id, ()),
             sample_conditions={} if sample_conditions is None else sample_conditions,
         )
-        significant = _entry_is_significant(
+        significant = entry_is_significant(
             differential_entry,
             policy=selection_policy,
         )
@@ -208,7 +210,7 @@ def build_protein_evidence_card_report(
             graph_report.graph,
             protein_id=final_entry.subject_node_ref,
         )
-        warnings = _build_warnings(
+        warnings = build_warnings(
             annotation=annotation,
             coverage=coverage,
             differential_entry=differential_entry,
@@ -284,7 +286,7 @@ def build_protein_evidence_card_report(
                 shared_peptide_count=prepared_card["shared_peptide_count"],
                 coverage=prepared_card["coverage"],
                 quantification=prepared_card["quantification"],
-                differential_result=_build_differential_payload(differential_entry),
+                differential_result=build_differential_payload(differential_entry),
                 context_terms=prepared_card["contexts"],
                 pathways=prepared_card["pathways"],
                 functional_regions=prepared_card["functional_regions"],
@@ -328,19 +330,6 @@ def build_protein_evidence_card_report(
             "final-protein summaries"
         ),
     )
-
-
-def _group_values_by_entity(
-    values: tuple[QuantValue, ...],
-) -> dict[str, tuple[QuantValue, ...]]:
-    grouped: dict[str, list[QuantValue]] = defaultdict(list)
-    for value in values:
-        grouped[value.entity_id].append(value)
-    return {
-        entity_id: tuple(sorted(entries, key=lambda entry: entry.sample_id))
-        for entity_id, entries in grouped.items()
-    }
-
 
 def _build_annotation_payload(
     representative_protein_ref: str,
@@ -393,69 +382,6 @@ def _build_annotation_payload(
         ),
         custom_annotation=dict(sorted(primary_entry.custom_annotation.items())),
     )
-
-
-def _build_quantification_payload(
-    values: tuple[QuantValue, ...],
-    *,
-    sample_conditions: dict[str, str | None],
-) -> ProteinEvidenceCardQuantification:
-    sample_values = tuple(
-        ProteinEvidenceCardSampleValue(
-            sample_id=value.sample_id,
-            condition=sample_conditions.get(value.sample_id),
-            abundance=value.abundance,
-            missing_value_kind=value.missing_value_kind,
-            source_feature_count=value.source_feature_count,
-        )
-        for value in values
-    )
-    return ProteinEvidenceCardQuantification(
-        sample_values=sample_values,
-        observed_sample_count=sum(
-            1
-            for value in sample_values
-            if value.missing_value_kind is MissingValueKind.OBSERVED
-        ),
-        zero_sample_count=sum(
-            1
-            for value in sample_values
-            if value.missing_value_kind is MissingValueKind.ZERO
-        ),
-        missing_sample_count=sum(
-            1
-            for value in sample_values
-            if value.missing_value_kind is MissingValueKind.NOT_OBSERVED
-        ),
-        filtered_sample_count=sum(
-            1
-            for value in sample_values
-            if value.missing_value_kind is MissingValueKind.FILTERED
-        ),
-    )
-
-
-def _build_differential_payload(
-    entry: DifferentialAbundanceEntry,
-) -> ProteinEvidenceCardDifferentialResult:
-    return ProteinEvidenceCardDifferentialResult(
-        condition_a=entry.condition_a,
-        condition_b=entry.condition_b,
-        observations_a=entry.observations_a,
-        observations_b=entry.observations_b,
-        complete_pair_count=entry.complete_pair_count,
-        mean_log2_abundance_a=entry.mean_log2_abundance_a,
-        mean_log2_abundance_b=entry.mean_log2_abundance_b,
-        log2_fold_change=entry.log2_fold_change,
-        p_value=entry.p_value,
-        adjusted_p_value=entry.adjusted_p_value,
-        standard_error=entry.standard_error,
-        confidence_interval_low=entry.confidence_interval_low,
-        confidence_interval_high=entry.confidence_interval_high,
-        effect_size_cohens_d=entry.effect_size_cohens_d,
-        uncertainty_note=entry.uncertainty_note,
-    )
-
 
 def _group_annotations_by_entity(
     report: ProteinAnnotationMappingReport,
@@ -767,59 +693,6 @@ def _complex_card_entry(
         enrichment_ratio=entry.enrichment_ratio,
     )
 
-
-def _build_coverage_by_protein(
-    quant_table: LabelFreeQuantTable,
-    *,
-    protein_sequences: dict[str, str],
-) -> dict[str, ProteinEvidenceCardCoverage]:
-    synthetic_records: list[PsmRecord] = []
-    for entity_id, peptides in quant_table.entity_member_peptides.items():
-        protein_refs = quant_table.entity_protein_refs.get(entity_id, ()) or (
-            entity_id,
-        )
-        for peptide_index, peptide in enumerate(sorted(set(peptides)), start=1):
-            synthetic_records.append(
-                PsmRecord(
-                    spectrum_id=f"{entity_id}:coverage:{peptide_index}",
-                    peptide=peptide,
-                    peptide_sequence=peptide,
-                    canonical_peptide=peptide,
-                    charge=2,
-                    score=1.0,
-                    q_value=0.0,
-                    protein_refs=protein_refs,
-                    target_decoy_label=_target_decoy_label_for_refs(protein_refs),
-                    contaminant_flag=all(
-                        ref.upper().startswith("CON__") for ref in protein_refs
-                    ),
-                )
-            )
-    report = build_protein_coverage_report(
-        tuple(synthetic_records),
-        protein_sequences=protein_sequences,
-    )
-    return {
-        entry.protein_ref: ProteinEvidenceCardCoverage(
-            coverage_protein_ref=entry.protein_ref,
-            residue_count=entry.residue_count,
-            covered_residue_count=entry.covered_residue_count,
-            coverage_fraction=entry.coverage_fraction,
-            covered_peptides=entry.covered_peptides,
-        )
-        for entry in report.entries
-    }
-
-
-def _target_decoy_label_for_refs(protein_refs: tuple[str, ...]) -> TargetDecoyLabel:
-    normalized_refs = tuple(ref.upper() for ref in protein_refs)
-    if normalized_refs and all(
-        ref.startswith(("REV__", "DECOY__", "DECOY:")) for ref in normalized_refs
-    ):
-        return TargetDecoyLabel.DECOY
-    return TargetDecoyLabel.TARGET
-
-
 def _select_representative_protein_ref(
     protein_refs: tuple[str, ...],
     *,
@@ -841,19 +714,6 @@ def _select_representative_protein_ref(
         if protein_ref in protein_sequences:
             return protein_ref
     return protein_refs[0]
-
-
-def _entry_is_significant(
-    entry: DifferentialAbundanceEntry,
-    *,
-    policy: ProteinEvidenceCardSelectionPolicy,
-) -> bool:
-    return (
-        entry.adjusted_p_value is not None
-        and entry.adjusted_p_value <= policy.max_adjusted_p_value
-        and abs(entry.log2_fold_change) >= policy.min_absolute_log2_fold_change
-    )
-
 
 def _select_context_entries(
     protein_refs: tuple[str, ...],
@@ -901,67 +761,6 @@ def _select_pathway_entries(
             key=lambda entry: (entry.entry_kind.value, entry.entry_id),
         )
     )
-
-
-def _build_warnings(
-    *,
-    annotation: ProteinEvidenceCardAnnotation,
-    coverage: ProteinEvidenceCardCoverage,
-    differential_entry: DifferentialAbundanceEntry,
-    significant: bool,
-    unique_peptide_count: int,
-    peptide_count: int,
-) -> tuple[ProteinEvidenceCardWarning, ...]:
-    warnings: list[ProteinEvidenceCardWarning] = []
-    if not significant:
-        warnings.append(
-            ProteinEvidenceCardWarning(
-                code=ProteinEvidenceCardWarningCode.NOT_SIGNIFICANT,
-                message="final protein result did not satisfy the configured biological selection policy",
-            )
-        )
-    if annotation.annotation_status is ProteinAnnotationStatus.UNMAPPED:
-        warnings.append(
-            ProteinEvidenceCardWarning(
-                code=ProteinEvidenceCardWarningCode.ANNOTATION_UNMAPPED,
-                message="representative protein could not be annotated from the provided FASTA or custom annotation inputs",
-            )
-        )
-    if peptide_count > 0 and unique_peptide_count == 0:
-        warnings.append(
-            ProteinEvidenceCardWarning(
-                code=ProteinEvidenceCardWarningCode.SHARED_PEPTIDE_ONLY,
-                message="protein result is supported only by peptides shared across multiple protein targets",
-            )
-        )
-    elif unique_peptide_count < 2:
-        warnings.append(
-            ProteinEvidenceCardWarning(
-                code=ProteinEvidenceCardWarningCode.LOW_UNIQUE_PEPTIDE_SUPPORT,
-                message="protein result has fewer than two unique member peptides",
-            )
-        )
-    if coverage.residue_count == 0 or coverage.coverage_fraction < 0.1:
-        warnings.append(
-            ProteinEvidenceCardWarning(
-                code=ProteinEvidenceCardWarningCode.LOW_SEQUENCE_COVERAGE,
-                message="sequence-backed protein coverage remained below 10 percent",
-            )
-        )
-    if (
-        differential_entry.not_observed_values_a > 0
-        or differential_entry.not_observed_values_b > 0
-        or differential_entry.filtered_values_a > 0
-        or differential_entry.filtered_values_b > 0
-    ):
-        warnings.append(
-            ProteinEvidenceCardWarning(
-                code=ProteinEvidenceCardWarningCode.CONDITION_MISSINGNESS,
-                message="differential comparison includes missing or filtered values in at least one condition",
-            )
-        )
-    return tuple(warnings)
-
 
 def _graph_evidence_tier(
     evidence_tier: FinalClaimEvidenceTier,
