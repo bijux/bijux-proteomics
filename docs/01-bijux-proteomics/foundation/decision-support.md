@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Decision Support
@@ -12,6 +12,21 @@ last_reviewed: 2026-05-09
 This route exists for the question after benchmark and runtime evidence: what
 should a skeptical reviewer or decision-maker believe now, and which owner
 surface justifies that belief.
+
+The point of this route is not generic governance. It is the product surface
+where grounded evidence, contradiction handling, analytical judgment, and lab
+burden are forced onto one honest chain. If that chain is weak, the public
+language must narrow even when the code or benchmark count looks impressive.
+
+## What This Route Actually Governs
+
+- grounded evidence and contradiction state from `bijux-proteomics-knowledge`
+- recommendation posture, ranking, downgrade, and refusal from
+  `bijux-proteomics-intelligence`
+- downstream operator burden, control demand, and requested-versus-observed
+  follow-up from `bijux-proteomics-lab`
+- release wording that must stay weaker whenever those owner surfaces disagree
+  or remain advisory
 
 ## Start Here
 
@@ -30,6 +45,17 @@ surface justifies that belief.
 - Open [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
   and [Public Artifact Role Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-role-matrix/)
   when the disagreement is about which public surface still earns space.
+
+## Strongest Questions To Ask
+
+- Is the current recommendation grounded in cited knowledge, or only supported
+  by workflow-local evidence?
+- Did a runtime replay, comparator result, or observed follow-up actually
+  change the recommendation, or did only the prose change?
+- Is the current call blocked by contradiction, downgrade pressure, or
+  downstream assay burden even though one benchmark package looks strong?
+- Which artifact should a skeptical reader open first to see the strongest
+  evidence for the current sentence?
 
 ## Decision Questions
 

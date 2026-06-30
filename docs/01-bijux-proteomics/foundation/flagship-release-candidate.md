@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Flagship Release Candidate
@@ -21,13 +21,36 @@ Family-level trust in this bundle now assumes paired public benchmark packages
 and one published family-transfer report per workflow family, not one unusually
 convenient flagship package.
 
+The bundle is stronger than it was at `v0.3.7` because it now rests on a
+deeper cross-package chain: broader core scientific surfaces, clearer runtime
+rerun packets, explicit knowledge grounding, reviewable recommendation
+posture, and consequence-aware lab follow-up. It is still bounded because the
+strongest family packet is not the same thing as repository-wide readiness.
+
 ## Current Bundle
 
 - bundle id: `flagship-release-candidate-bundle`
 - strongest workflow family: `dda`
-- outsider-auditable workflow families: `dda`, `dia`, `ptm`, `targeted`
+- outsider-auditable workflow families: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- released outsider-auditable workflow families: `dda`, `dia`, `ptm`, `targeted`
 - review-grade-bounded workflow families: `lfq`
 - internal-support-only workflow families: `multiplex`
+
+## What The Bundle Proves About Real Product Depth
+
+- core now contributes more than a benchmark wrapper: the flagship families
+  lean on deeper sequence, chemistry, identification, quantification, PTM,
+  DIA, review, and workflow-contract surfaces.
+- runtime now contributes more than one launch command: the bundle assumes
+  replay lanes, preflight checks, import-versus-raw honesty, refusal surfaces,
+  and artifact-stability expectations.
+- knowledge now contributes more than citations in prose: the bundle assumes
+  workflow claim grounding, literature audits, and contradiction-aware memory.
+- intelligence now contributes more than a final score: the bundle assumes
+  recommendation confidence, falsifier-aware review, and explicit downgrade
+  posture.
+- lab now contributes more than aspirational follow-up: the bundle assumes a
+  requested-versus-observed outcome dossier and visible consequence pressure.
 
 ## What The Bundle Collects
 
@@ -107,6 +130,11 @@ role overlap.
 - `lfq` remains review-grade bounded because its external review kit and
   acceptance sheet still show missingness and normalization pressure that
   narrows the stronger outsider-facing sentence
+- `lfq` also has an outsider-auditable packet in the narrow sense that its
+  benchmark package, runtime lane, grounding route, recommendation packet, and
+  consequence route are all public; the released public sentence remains
+  review-grade bounded because those public surfaces still document the
+  narrowing pressure directly
 - `multiplex` has real package and runtime substance, but it is intentionally
   narrowed to internal support only because its companion stress package still
   collapses outsider-facing trust in the published family-transfer report

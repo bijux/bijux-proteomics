@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Product Overview
@@ -13,6 +13,35 @@ This is the shortest repository-level explanation of one bounded proteomics
 product. It exists so the reader can understand the system shape, the current
 credible workflow family set, and the best next question before package
 ownership starts to dominate the route.
+
+What matters now is that `bijux-proteomics` is no longer only a governance or
+release-shaping repository. The current product line has real scientific
+substance in the core package, reviewable execution in runtime, explicit
+scientific memory in knowledge, bounded recommendation posture in
+intelligence, and honest follow-up pressure in lab.
+
+## What Is Real Today
+
+- `bijux-proteomics-foundation` owns the shared document, identifier,
+  compatibility, and canonical serialization kernel that keeps persisted
+  scientific state reproducible across the suite.
+- `bijux-proteomics-core` now owns a materially broader scientific surface:
+  sequence parsing and digestion, chemistry and modifications, mzML and
+  spectra ingestion, identification and protein inference, label-free
+  quantification, PTM review, DIA support, benchmark assets, and workflow
+  contracts.
+- `bijux-proteomics-runtime` owns live execution, replay, import-backed
+  reruns, preflight checks, artifact integrity, and operator-facing runtime
+  bundles rather than leaving rerunability to maintainer narration.
+- `bijux-proteomics-knowledge` owns cited references, claim grounding,
+  contradiction-aware evidence memory, and biological lookup surfaces such as
+  pathways, complexes, kinase substrates, drug targets, disease terms, and
+  orthologs.
+- `bijux-proteomics-intelligence` owns ranking, readiness, falsifier-aware
+  review, interpretation summaries, and recommendation posture that stays
+  explicit about downgrade and refusal.
+- `bijux-proteomics-lab` owns assay planning, readiness, handoff honesty,
+  refusal boundaries, and requested-versus-observed outcome reconciliation.
 
 ## Start Here
 
@@ -28,6 +57,18 @@ ownership starts to dominate the route.
 - Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question is whether grounding, contradiction, recommendation, or
   public language is actually aligned.
+
+## Strongest Reader Proof
+
+- Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  when the question is which workflow families currently survive public
+  scrutiny and why that does not yet justify broader repository language.
+- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  when the question is whether the evidence roots are broad enough and honest
+  enough to support the current workflow-family sentences.
+- Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+  when the question is whether those benchmark assets can be rerun, imported,
+  replayed, and inspected without private maintainer glue.
 
 ## Current Credible Families
 
