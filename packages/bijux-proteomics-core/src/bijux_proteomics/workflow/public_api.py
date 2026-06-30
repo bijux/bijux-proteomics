@@ -698,6 +698,27 @@ WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS = tuple(
     if owner.owner_module in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
 )
 
+WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS = (
+    "export_proteomics_run_bundle",
+    "write_proteomics_run_bundle",
+    "render_proteomics_run_enrichment_tsv",
+    "render_proteomics_run_qc_summary_tsv",
+    "render_proteomics_run_summary_tsv",
+)
+
+WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS,
+        ),
+    )
+    for owner in PIPELINE_FACADE_OWNERS
+    if owner.owner_module == "bijux_proteomics.workflow.pipelines.flagship_run"
+)
+
 WORKFLOW_ROOT_PIPELINE_OWNERS = (
     *WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
@@ -709,9 +730,11 @@ WORKFLOW_ROOT_PIPELINE_OWNERS = (
         and owner.owner_module not in WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES
         and owner.owner_module not in WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES
         and owner.owner_module not in WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNER_MODULES
+        and owner.owner_module != "bijux_proteomics.workflow.pipelines.flagship_run"
         and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
     ),
     *WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS,
+    *WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
 )
@@ -916,6 +939,8 @@ __all__ = [
     "WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_EXPORT_OWNERS",
+    "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_REPORT_OWNERS",
     "WORKFLOW_ROOT_SHARED_OWNERS",

@@ -273,7 +273,7 @@ def test_bundle_writer_names_use_write_prefix_with_legacy_wrappers() -> None:
 def test_package_surfaces_expose_canonical_bundle_writers() -> None:
     assert hasattr(sequences, "write_theoretical_digest_bundle")
     assert hasattr(reports, "write_biological_result_report_bundle")
-    assert hasattr(workflow, "write_proteomics_run_bundle")
+    assert hasattr(pipelines, "write_proteomics_run_bundle")
     assert hasattr(pipelines.engines, "write_ptm_site_workflow_bundle")
     assert hasattr(pipelines.engines, "write_tmt_experiment_workflow_bundle")
     assert hasattr(benchmarks, "write_public_biological_case_study_bundle")
