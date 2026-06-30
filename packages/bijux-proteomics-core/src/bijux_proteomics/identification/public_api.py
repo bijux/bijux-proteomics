@@ -21,6 +21,9 @@ from bijux_proteomics.identification.facade_ledger import (
     list_identification_psm_api_modules,
     merge_facade_export_maps,
 )
+from bijux_proteomics.identification.search_adapters.public_api import (
+    build_search_adapter_export_owner_map,
+)
 
 IDENTIFICATION_OWNER_SUBMODULE_NAMES = (
     "adapters",
@@ -34,6 +37,7 @@ IDENTIFICATION_OWNER_SUBMODULE_NAMES = (
 IDENTIFICATION_COMPATIBILITY_SUBMODULE_NAMES = ("confidence",)
 IDENTIFICATION_ROOT_FACADE_ORDER = (
     "adapters",
+    "search_adapters",
     "contracts",
     "fdr",
     "peptide",
@@ -57,6 +61,7 @@ def build_identification_root_export_owner_map() -> dict[str, str]:
 
     return merge_facade_export_maps(
         build_facade_export_map(list_identification_adapter_api_modules()),
+        build_search_adapter_export_owner_map(),
         build_facade_export_map(list_identification_contract_api_modules()),
         build_facade_export_map(list_identification_fdr_api_modules()),
         build_facade_export_map(list_identification_peptide_api_modules()),

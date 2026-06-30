@@ -6,7 +6,15 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.identification as identification
-from bijux_proteomics.identification import adapters, contracts, fdr, peptide, protein, psm
+from bijux_proteomics.identification import (
+    adapters,
+    contracts,
+    fdr,
+    peptide,
+    protein,
+    psm,
+    search_adapters,
+)
 from bijux_proteomics.identification.public_api import (
     ADAPTERS_FACADE_BUDGET,
     CONTRACTS_FACADE_BUDGET,
@@ -92,7 +100,7 @@ def test_adapter_facade_exports_match_governed_public_api() -> None:
 
     assert tuple(adapters.__all__) == expected
     assert hasattr(adapters, "build_diann_import_report")
-    assert hasattr(adapters, "search_adapter_registry")
+    assert hasattr(adapters, "build_search_adapter_information_loss_report")
     assert _non_empty_line_count(
         "packages/bijux-proteomics-core/src/bijux_proteomics/identification/adapters/__init__.py"
     ) <= ADAPTERS_FACADE_BUDGET.max_init_lines
@@ -107,3 +115,8 @@ def test_identification_root_facade_keeps_governed_exports_and_submodules() -> N
     assert hasattr(identification, "ParsimonyReviewReport")
     assert hasattr(identification, "confidence")
     assert hasattr(identification, "search_adapters")
+
+
+def test_search_adapter_subfacade_keeps_canonical_adapter_exports() -> None:
+    assert hasattr(search_adapters, "search_adapter_registry")
+    assert hasattr(search_adapters, "normalize_search_results_with_adapter")
