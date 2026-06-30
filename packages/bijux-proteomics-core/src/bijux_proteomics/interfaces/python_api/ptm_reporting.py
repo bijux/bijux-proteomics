@@ -9,8 +9,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
-    NormalizationMethod,
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmMotifRegulationDirection,
     PtmProteinCorrectionMode,
@@ -27,11 +26,14 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     build_ptm_site_quantification_report,
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
-    parse_ms1_feature_table,
     parse_ptm_localization_tsv,
     render_ptm_occupancy_counterpart_tsv,
     render_ptm_site_occupancy_entry_tsv,
     render_ptm_site_occupancy_summary_tsv,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+    parse_ms1_feature_table,
 )
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,

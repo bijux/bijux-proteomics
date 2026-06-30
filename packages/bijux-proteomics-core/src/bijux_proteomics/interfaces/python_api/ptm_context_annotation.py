@@ -8,7 +8,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmSiteContextColumnMapping,
     build_ptm_site_context_report,

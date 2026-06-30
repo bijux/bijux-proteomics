@@ -10,7 +10,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
     json,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmSiteQuantAmbiguityPolicy,
     build_ptm_ambiguity_review_report,
@@ -19,7 +19,6 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     build_ptm_site_quantification_report,
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
-    parse_ms1_feature_table,
     parse_ptm_localization_tsv,
     render_ptm_ambiguity_review_summary_tsv,
     render_ptm_localized_site_review_tsv,
@@ -31,6 +30,9 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     render_ptm_site_quant_missingness_tsv,
     render_ptm_site_quant_summary_tsv,
     render_ptm_unlocalized_group_review_tsv,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    parse_ms1_feature_table,
 )
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,

@@ -13,7 +13,9 @@ from bijux_proteomics.interfaces.python_api.ptm_quantification import (
     run_ptm_ambiguity_review_command,
     run_ptm_quantify_sites_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import PtmSiteQuantAmbiguityPolicy
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
+    PtmSiteQuantAmbiguityPolicy,
+)
 
 
 @click.command("ambiguity-review")

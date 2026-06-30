@@ -12,9 +12,11 @@ import click
 from bijux_proteomics.interfaces.python_api.ptm_regulator import (
     run_ptm_regulator_enrichment_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
-    NormalizationMethod,
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmProteinCorrectionMode,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
 )
 from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _normalization_choice,

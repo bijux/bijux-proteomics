@@ -9,8 +9,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
 )
 from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
-from bijux_proteomics.interfaces.support.ptm_quantification import (
-    NormalizationMethod,
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmProteinCorrectionMode,
     PtmRegulatorEnrichmentPolicy,
@@ -23,9 +22,12 @@ from bijux_proteomics.interfaces.support.ptm_quantification import (
     export_ptm_regulator_enrichment_summary_tsv,
     export_ptm_regulator_enrichment_tsv,
     map_ptm_evidence_to_protein_sites,
-    parse_ms1_feature_table,
     parse_ptm_localization_tsv,
     parse_ptm_site_annotation_tsv,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+    parse_ms1_feature_table,
 )
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,

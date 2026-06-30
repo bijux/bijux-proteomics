@@ -13,12 +13,14 @@ from bijux_proteomics.interfaces.python_api.ptm_motif_annotation import (
     run_ptm_annotate_sites_command,
     run_ptm_motif_enrichment_command,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
-    NormalizationMethod,
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmMotifBackgroundMode,
     PtmMotifRegulationDirection,
     PtmProteinCorrectionMode,
     PtmSiteQuantAmbiguityPolicy,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
 )
 from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _normalization_choice,

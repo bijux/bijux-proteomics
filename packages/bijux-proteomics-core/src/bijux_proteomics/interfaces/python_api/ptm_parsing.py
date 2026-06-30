@@ -10,7 +10,7 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
     json,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification import (
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmPeptideColumnMapping,
     build_ptm_ambiguity_review_report,
