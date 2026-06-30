@@ -49,6 +49,13 @@ CARD_FACADE_OWNERS = (
     ),
 )
 
+BENCHMARK_SYNTHETIC_FACADE_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth",
+        rationale="synthetic quantification truth ownership",
+    ),
+)
+
 BENCHMARK_FIDELITY_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks",
@@ -89,7 +96,7 @@ BENCHMARK_FACADE_OWNERS = (
         rationale="public benchmark subset ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.synthetic_quant_truth",
+        owner_module="bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth",
         rationale="synthetic quantification truth ownership",
     ),
 )
@@ -132,6 +139,7 @@ EXPORT_FACADE_OWNERS = (
 BENCHMARK_SUBMODULES = {
     "datasets": "bijux_proteomics.workflow.benchmarks.datasets",
     "fidelity": "bijux_proteomics.workflow.benchmarks.fidelity",
+    "synthetic": "bijux_proteomics.workflow.benchmarks.synthetic",
 }
 
 DEMO_FACADE_OWNERS = (
@@ -520,7 +528,7 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="surprising demo interrogation ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.benchmarks.synthetic_quant_truth",
+        owner_module="bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth",
         rationale="synthetic quantification truth ownership",
     ),
     WorkflowFacadeOwner(
@@ -699,6 +707,7 @@ __all__ = [
     "BENCHMARK_FIDELITY_FACADE_OWNERS",
     "BENCHMARK_DATASET_FACADE_OWNERS",
     "BENCHMARK_FACADE_OWNERS",
+    "BENCHMARK_SYNTHETIC_FACADE_OWNERS",
     "BENCHMARK_SUBMODULES",
     "CARD_FACADE_OWNERS",
     "DEMO_FACADE_OWNERS",

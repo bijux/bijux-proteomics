@@ -27,6 +27,9 @@ _BENCHMARK_ROOT_WRAPPERS = {
     "public_benchmark_subset.py": (
         "bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_subset"
     ),
+    "synthetic_quant_truth.py": (
+        "bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth"
+    ),
 }
 
 
@@ -64,6 +67,7 @@ def test_benchmark_root_wrappers_stay_thin_nested_facades() -> None:
 def test_benchmark_subpackages_export_representative_owner_surfaces() -> None:
     datasets = importlib.import_module("bijux_proteomics.workflow.benchmarks.datasets")
     fidelity = importlib.import_module("bijux_proteomics.workflow.benchmarks.fidelity")
+    synthetic = importlib.import_module("bijux_proteomics.workflow.benchmarks.synthetic")
 
     assert hasattr(datasets, "PublicBenchmarkDescriptor")
     assert hasattr(datasets, "load_public_benchmark_descriptor")
@@ -72,3 +76,5 @@ def test_benchmark_subpackages_export_representative_owner_surfaces() -> None:
     assert hasattr(fidelity, "render_diann_benchmark_summary_tsv")
     assert hasattr(fidelity, "build_maxquant_benchmark_report")
     assert hasattr(fidelity, "render_maxquant_benchmark_summary_tsv")
+    assert hasattr(synthetic, "generate_quant_truth_dataset")
+    assert hasattr(synthetic, "render_synthetic_quant_truth_tsv")
