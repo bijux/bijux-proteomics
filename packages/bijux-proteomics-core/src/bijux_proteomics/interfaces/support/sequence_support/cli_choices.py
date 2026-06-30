@@ -1,12 +1,35 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
+# ruff: noqa: F401
 
 """Click choice factories for sequence-adjacent interface commands."""
 
 from __future__ import annotations
 
-from ..imports import *  # noqa: F401,F403
+from ..foundation import FragmentIonSeries, SearchEngineModifiedPeptideDialect, click
+from ..identification import ScoreOrientation, SearchAdapterKind
+from ..io_and_dia import FormatConversionTarget, WorkflowSchedulerKind
+from ..multiplex_targeted import (
+    SilacLabel,
+    TmtNormalizationMethod,
+    TmtSearchResultSourceKind,
+)
+from ..ptm_quantification import (
+    HeatmapMissingValuePolicy,
+    ImputationMethod,
+    NormalizationMethod,
+    PeptideMatrixGroupingMode,
+    ProteinMatrixTargetKind,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
+)
+from ..review_sequences_study import (
+    DecoyGenerationMode,
+    DuplicateAccessionPolicy,
+    FastaParseMode,
+    PeptideDigestionMode,
+)
 
 
 def _mode_choice() -> click.Choice[str]:

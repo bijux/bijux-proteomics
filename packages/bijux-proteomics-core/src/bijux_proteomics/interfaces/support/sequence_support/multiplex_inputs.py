@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
+# ruff: noqa: F401
 
 """Multiplex and SILAC input parsing helpers for interface workflows."""
 
 from __future__ import annotations
 
-from ..imports import *  # noqa: F401,F403
+from ..foundation import click
+from ..multiplex_targeted import SilacLabel, TmtReporterChannelColumn
 
 
 def _parse_tmt_channel_column_specs(
