@@ -195,7 +195,9 @@ PIPELINE_FACADE_OWNERS = (
         excluded_exports=("WorkflowResult",),
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.public_benchmark_runner",
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner"
+        ),
         rationale="public benchmark runner ownership",
         excluded_exports=("load_public_benchmark_descriptor",),
     ),
@@ -212,11 +214,11 @@ PIPELINE_FACADE_OWNERS = (
         rationale="surprising demo interrogation ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.trust_bundle",
+        owner_module="bijux_proteomics.workflow.pipelines.benchmarking.trust_bundle",
         rationale="trust bundle workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.weak_evidence",
+        owner_module="bijux_proteomics.workflow.pipelines.benchmarking.weak_evidence",
         rationale="weak evidence workflow ownership",
     ),
 )
@@ -233,9 +235,9 @@ COMPARATIVE_PIPELINE_FACADE_OWNERS = select_facade_owners(
 )
 
 BENCHMARKING_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.public_benchmark_runner",
-    "bijux_proteomics.workflow.pipelines.trust_bundle",
-    "bijux_proteomics.workflow.pipelines.weak_evidence",
+    "bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner",
+    "bijux_proteomics.workflow.pipelines.benchmarking.trust_bundle",
+    "bijux_proteomics.workflow.pipelines.benchmarking.weak_evidence",
 }
 
 BENCHMARKING_PIPELINE_FACADE_OWNERS = select_facade_owners(
@@ -332,9 +334,9 @@ WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS = (
 )
 
 WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.public_benchmark_runner",
-    "bijux_proteomics.workflow.pipelines.trust_bundle",
-    "bijux_proteomics.workflow.pipelines.weak_evidence",
+    "bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner",
+    "bijux_proteomics.workflow.pipelines.benchmarking.trust_bundle",
+    "bijux_proteomics.workflow.pipelines.benchmarking.weak_evidence",
 }
 
 WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS = select_facade_owners(

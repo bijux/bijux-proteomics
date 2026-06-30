@@ -119,14 +119,14 @@ from bijux_proteomics.workflow.pipelines.label_based_differential import (
     export_label_based_differential_volcano_plot_tsv,
     export_label_based_normalization_balance_plot_tsv,
 )
-from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
+from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_signal_assessments_tsv,
     render_public_benchmark_suite_summary_tsv,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
-from bijux_proteomics.workflow.pipelines.trust_bundle import (
+from bijux_proteomics.workflow.pipelines.benchmarking.trust_bundle import (
     build_public_benchmark_trust_bundle,
     render_trust_bundle_run_summary_tsv,
 )

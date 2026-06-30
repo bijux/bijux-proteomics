@@ -31,7 +31,7 @@ MANAGED_WORKFLOW_WRITE_OWNERS = (
     "workflow/pipelines/operations/orchestrator.py",
     "workflow/pipelines/ptm_site_workflow.py",
     "workflow/pipelines/tmt_experiment_workflow.py",
-    "workflow/pipelines/trust_bundle.py",
+    "workflow/pipelines/benchmarking/trust_bundle.py",
     "workflow/reports/biological_report_rendering.py",
 )
 

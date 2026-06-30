@@ -54,7 +54,7 @@ from bijux_proteomics.workflow.pipelines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
 )
 from bijux_proteomics.workflow.pipelines.ptm_site_workflow import PtmSiteWorkflowBundle
-from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
+from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     PublicBenchmarkRunStatus,
     PublicBenchmarkSuiteReport,

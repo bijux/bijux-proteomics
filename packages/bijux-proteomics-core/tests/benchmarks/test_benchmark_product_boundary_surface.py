@@ -38,7 +38,7 @@ def test_benchmark_weak_evidence_wrapper_stays_thin() -> None:
         "benchmarks/weak_evidence.py should stay a thin compatibility facade"
     )
     assert any(
-        node.module == "bijux_proteomics.workflow.pipelines.weak_evidence"
+        node.module == "bijux_proteomics.workflow.pipelines.benchmarking.weak_evidence"
         for node in nodes
         if isinstance(node, ast.ImportFrom)
     )
@@ -73,7 +73,7 @@ def test_benchmark_weak_evidence_exports_delegate_to_pipeline_owner() -> None:
         "bijux_proteomics.benchmarks.weak_evidence"
     )
     workflow_module = importlib.import_module(
-        "bijux_proteomics.workflow.pipelines.weak_evidence"
+        "bijux_proteomics.workflow.pipelines.benchmarking.weak_evidence"
     )
 
     assert (
