@@ -514,6 +514,15 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_pathway_activity_table_html",
         "_render_complex_activity_table_html",
     ),
+    "biological_report_html_compartment_tables.py": (
+        "_render_compartment_biology_table_html",
+    ),
+    "biological_report_html_pathway_activity_tables.py": (
+        "_render_pathway_activity_table_html",
+    ),
+    "biological_report_html_complex_activity_tables.py": (
+        "_render_complex_activity_table_html",
+    ),
     "biological_report_html_artifact_inventory.py": (
         "_render_biological_report_artifact_inventory_html",
     ),
