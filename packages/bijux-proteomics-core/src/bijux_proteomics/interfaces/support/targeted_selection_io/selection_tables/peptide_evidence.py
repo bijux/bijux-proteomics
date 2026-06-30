@@ -10,12 +10,16 @@ from pathlib import Path
 
 import click
 
-from ...imports import (
-    CrossRunReproducibilityClass,
-    PeptideEvidenceClass,
-    PeptideEvidenceEntry,
+from bijux_proteomics.identification.contracts.psm import (
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
+)
+from bijux_proteomics.identification.peptide.cross_run_reproducibility import (
+    CrossRunReproducibilityClass,
+)
+from bijux_proteomics.identification.peptide.peptide_evidence import (
+    PeptideEvidenceClass,
+    PeptideEvidenceEntry,
 )
 
 from ..field_parsing import _parse_cli_bool, _split_semicolon_field
