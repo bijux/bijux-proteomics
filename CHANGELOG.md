@@ -19,6 +19,19 @@ change contributor and maintainer workflows across the repository.
   `bijux-proteomics`, `proteomics`, `proteomics-core`,
   `proteomics-foundation`, `proteomics-runtime`,
   `proteomics-intelligence`, `proteomics-knowledge`, and `proteomics-lab`.
+- Added the shared foundation kernel for canonical serialization,
+  compatibility checks, identifiers, stable outcomes, and repository-wide
+  support helpers consumed by downstream packages and release gates.
+- Added the first full public core workflow surface for FASTA intake,
+  digestion, chemistry, identification, spectra, mzML, search adapters,
+  protein inference, label-free quantification, PTM analysis, QC, and workflow
+  planning, including benchmark-backed CLI routes and walkthrough assets.
+- Added the canonical runtime execution package with deterministic replay,
+  archived rerun bundles, benchmark rerun kits, and public runtime proof
+  routes for outsider rerun review.
+- Added grounded scientific-memory, analytical-judgment, and lab-consequence
+  owner surfaces so recommendation posture, contradiction handling, assay
+  burden, and observed follow-up now stay explicit instead of implied.
 
 ### Changed
 
@@ -28,6 +41,9 @@ change contributor and maintainer workflows across the repository.
 - Folded reader-first docs routes into the numbered handbook owners so public
   product overview, workflow, execution, benchmark, decision, lab, and
   maintenance pages no longer depend on extra top-level journey directories.
+- Rebuilt the public documentation system around hostile-review questions:
+  workflow trust limits, benchmark freshness, flagship release evidence,
+  runtime comparability, recommendation drift, and lab follow-up boundaries.
 - Expanded repository-owned quality and release gates with architecture
   regression, public-API typecheck, circular-import scope, package-tree
   layout, orphan-module, generated-file, scientific-concept-ownership, and

@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-10
+last_reviewed: 2026-06-30
 ---
 
 # Bijux Proteomics
@@ -27,6 +27,21 @@ runtime entrypoints.
   [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - owner map and handoff boundaries:
   [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+
+## 0.3.8 Release Snapshot
+
+- `foundation` now owns the durable kernel for identifiers, compatibility,
+  serialization, and stable shared outcomes used across release gates.
+- `core` now owns the first broad public scientific workflow surface from
+  FASTA intake through QC and workflow planning, with benchmark-backed docs and
+  walkthrough routes.
+- `runtime` is now the canonical execution package for replay, rerun kits,
+  operator handoff, and public runtime-proof routes.
+- `knowledge`, `intelligence`, and `lab` now keep grounding,
+  recommendation posture, and assay consequence explicit instead of hiding
+  them behind core or runtime prose.
+- reader-first product routes now live inside numbered handbook owners rather
+  than extra top-level journey directories.
 
 ## Current Credible Workflow Families
 
@@ -90,7 +105,35 @@ for the live limit list.
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-## Reader Paths
+## Start By Question
+
+- Start with
+  [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+  when you need the shortest explanation of what the product claims today.
+- Start with
+  [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  when you need to know which workflow families are publishable, bounded, or
+  still internal only.
+- Start with
+  [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  when you need to inspect the evidence roots behind a workflow claim.
+- Start with
+  [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+  when the question is how a benchmark-backed workflow actually gets rerun.
+- Start with
+  [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the question is why a recommendation changed or what consequence logic
+  is being applied.
+- Start with
+  [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+  when the question is what downstream assay burden, refusal, or learning loop
+  a workflow result creates.
+- Start with
+  [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
+  when the question is which gate, report, or release checkpoint governs a
+  repository change.
+
+## Role-Based Starts
 
 - Scientist:
   [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
@@ -98,16 +141,6 @@ for the live limit list.
   [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - Maintainer:
   [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
-
-## Reader-First Sections
-
-- [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
-- [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-- [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-- [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-- [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-- [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
-- [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
 
 ## Package Family At A Glance
 
@@ -140,6 +173,27 @@ installed under the shorter, reserve-worthy, or migration-safe names below.
 | `proteomics-intelligence` | `bijux-proteomics-intelligence` |
 | `proteomics-knowledge` | `bijux-proteomics-knowledge` |
 | `proteomics-lab` | `bijux-proteomics-lab` |
+
+## Numbered Handbook Owners
+
+- `01-bijux-proteomics` owns root product framing, trust limits, release
+  posture, and cross-package boundaries.
+- `02-agentic-proteins` owns legacy compatibility entrypoints and the
+  migration bridge into canonical runtime ownership.
+- `03-bijux-proteomics-foundation` owns shared contracts and serialization
+  primitives.
+- `04-bijux-proteomics-core` owns benchmark-backed scientific workflow
+  contracts and public benchmark assets.
+- `05-bijux-proteomics-intelligence` owns interpretation posture,
+  recommendation challenge routes, and learning-facing judgment.
+- `06-bijux-proteomics-knowledge` owns grounded scientific memory,
+  contradiction review, and claim grounding.
+- `07-bijux-proteomics-lab` owns assay consequence, refusal routes, and
+  outcome learning.
+- `08-bijux-proteomics-maintain` owns repository quality, release, and
+  maintainer operations.
+- `09-bijux-proteomics-runtime` owns execution, replay, rerun comparability,
+  and operator-facing runtime proof.
 
 ## Boundary
 
