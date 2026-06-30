@@ -962,6 +962,109 @@ WORKFLOW_BENCHMARK_WRAPPER_TARGETS = {
     ),
 }
 
+WORKFLOW_ROOT_PIPELINE_WRAPPER_TARGETS = {
+    "advanced_workflow_family.py": (
+        "bijux_proteomics.workflow.pipelines.advanced_workflow_family"
+    ),
+    "advanced_diann.py": "bijux_proteomics.workflow.pipelines.advanced_diann",
+    "advanced_fragpipe.py": "bijux_proteomics.workflow.pipelines.advanced_fragpipe",
+    "advanced_maxquant.py": "bijux_proteomics.workflow.pipelines.advanced_maxquant",
+    "advanced_ptm.py": "bijux_proteomics.workflow.pipelines.advanced_ptm",
+    "advanced_targeted.py": "bijux_proteomics.workflow.pipelines.advanced_targeted",
+    "advanced_tmt.py": "bijux_proteomics.workflow.pipelines.advanced_tmt",
+    "dda_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.dda_biological_workflow"
+    ),
+    "dia_dda_comparison.py": (
+        "bijux_proteomics.workflow.pipelines.dia_dda_comparison"
+    ),
+    "dia_differential_analysis.py": (
+        "bijux_proteomics.workflow.pipelines.dia_differential_analysis"
+    ),
+    "diann_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.diann_biological_workflow"
+    ),
+    "discovery_to_assay.py": "bijux_proteomics.workflow.pipelines.discovery_to_assay",
+    "flagship_run.py": "bijux_proteomics.workflow.pipelines.flagship_run",
+    "integrated_scientific_report.py": (
+        "bijux_proteomics.workflow.pipelines.integrated_scientific_report"
+    ),
+    "label_based_differential_analysis.py": (
+        "bijux_proteomics.workflow.pipelines.label_based_differential_analysis"
+    ),
+    "label_based_reporting.py": (
+        "bijux_proteomics.workflow.pipelines.label_based_reporting"
+    ),
+    "maxquant_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.maxquant_biological_workflow"
+    ),
+    "multi_study.py": "bijux_proteomics.workflow.pipelines.multi_study",
+    "orchestrator.py": "bijux_proteomics.workflow.pipelines.orchestrator",
+    "ptm_site_workflow.py": "bijux_proteomics.workflow.pipelines.ptm_site_workflow",
+    "public_benchmark_runner.py": (
+        "bijux_proteomics.workflow.pipelines.public_benchmark_runner"
+    ),
+    "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
+    "surprising_demo.py": "bijux_proteomics.workflow.pipelines.surprising_demo",
+    "surprising_demo_interrogation.py": (
+        "bijux_proteomics.workflow.pipelines.surprising_demo_interrogation"
+    ),
+    "tmt_experiment_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.tmt_experiment_workflow"
+    ),
+    "trust_bundle.py": "bijux_proteomics.workflow.pipelines.trust_bundle",
+    "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
+}
+
+WORKFLOW_PIPELINE_DEMO_WRAPPER_TARGETS = {
+    "scale_demo.py": "bijux_proteomics.workflow.demo.scale_demo",
+    "surprising_demo.py": "bijux_proteomics.workflow.demo.surprising_demo",
+    "surprising_demo_interrogation.py": (
+        "bijux_proteomics.workflow.demo.surprising_demo_interrogation"
+    ),
+}
+
+WORKFLOW_PIPELINE_ADVANCED_WRAPPER_TARGETS = {
+    "advanced_diann.py": (
+        "bijux_proteomics.workflow.pipelines.advanced.advanced_diann"
+    ),
+    "advanced_fragpipe.py": (
+        "bijux_proteomics.workflow.pipelines.advanced.advanced_fragpipe"
+    ),
+    "advanced_maxquant.py": (
+        "bijux_proteomics.workflow.pipelines.advanced.advanced_maxquant"
+    ),
+    "advanced_ptm.py": "bijux_proteomics.workflow.pipelines.advanced.advanced_ptm",
+    "advanced_targeted.py": (
+        "bijux_proteomics.workflow.pipelines.advanced.advanced_targeted"
+    ),
+    "advanced_tmt.py": "bijux_proteomics.workflow.pipelines.advanced.advanced_tmt",
+    "advanced_workflow_family.py": (
+        "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
+    ),
+}
+
+WORKFLOW_PIPELINE_ENGINE_WRAPPER_TARGETS = {
+    "dda_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow"
+    ),
+    "diann_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow"
+    ),
+    "label_based_reporting.py": (
+        "bijux_proteomics.workflow.pipelines.engines.label_based_reporting"
+    ),
+    "maxquant_biological_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow"
+    ),
+    "ptm_site_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.engines.ptm_site_workflow"
+    ),
+    "tmt_experiment_workflow.py": (
+        "bijux_proteomics.workflow.pipelines.engines.tmt_experiment_workflow"
+    ),
+}
+
 
 def ordered_facade_owners(
     owners: tuple[WorkflowFacadeOwner, ...],
@@ -1148,6 +1251,9 @@ __all__ = [
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_OWNER_FILES",
+    "WORKFLOW_PIPELINE_ADVANCED_WRAPPER_TARGETS",
+    "WORKFLOW_PIPELINE_DEMO_WRAPPER_TARGETS",
+    "WORKFLOW_PIPELINE_ENGINE_WRAPPER_TARGETS",
     "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_REPORT_OWNERS",
@@ -1165,6 +1271,7 @@ __all__ = [
     "WORKFLOW_ROOT_STUDY_OWNERS",
     "WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS",
     "WORKFLOW_ROOT_SUBMODULES",
+    "WORKFLOW_ROOT_PIPELINE_WRAPPER_TARGETS",
     "WORKFLOW_ROOT_WRAPPER_TARGETS",
     "WorkflowFacadeOwner",
     "build_lazy_export_index",
