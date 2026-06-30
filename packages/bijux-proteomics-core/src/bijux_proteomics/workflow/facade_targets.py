@@ -15,6 +15,7 @@ WORKFLOW_ROOT_OWNER_FILES = frozenset(
         "facade_pipeline_catalog.py",
         "facade_export_catalog.py",
         "facade_runtime.py",
+        "facade_study_catalog.py",
         "facade_targets.py",
         "public_api.py",
         "result_types.py",
