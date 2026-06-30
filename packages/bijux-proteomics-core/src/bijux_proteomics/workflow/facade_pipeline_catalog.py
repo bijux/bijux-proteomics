@@ -168,7 +168,7 @@ PIPELINE_FACADE_OWNERS = (
         rationale="DIA differential analysis ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.discovery_to_assay",
+        owner_module="bijux_proteomics.workflow.pipelines.synthesis.discovery_to_assay",
         rationale="discovery-to-assay workflow ownership",
     ),
     WorkflowFacadeOwner(
@@ -176,7 +176,9 @@ PIPELINE_FACADE_OWNERS = (
         rationale="flagship workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.integrated_scientific_report",
+        owner_module=(
+            "bijux_proteomics.workflow.pipelines.synthesis.integrated_scientific_report"
+        ),
         rationale="integrated scientific report ownership",
     ),
     WorkflowFacadeOwner(
@@ -184,7 +186,7 @@ PIPELINE_FACADE_OWNERS = (
         rationale="label-based differential workflow ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.pipelines.multi_study",
+        owner_module="bijux_proteomics.workflow.pipelines.synthesis.multi_study",
         rationale="multi-study workflow ownership",
     ),
     WorkflowFacadeOwner(
@@ -242,9 +244,9 @@ BENCHMARKING_PIPELINE_FACADE_OWNERS = select_facade_owners(
 )
 
 SYNTHESIS_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.discovery_to_assay",
-    "bijux_proteomics.workflow.pipelines.integrated_scientific_report",
-    "bijux_proteomics.workflow.pipelines.multi_study",
+    "bijux_proteomics.workflow.pipelines.synthesis.discovery_to_assay",
+    "bijux_proteomics.workflow.pipelines.synthesis.integrated_scientific_report",
+    "bijux_proteomics.workflow.pipelines.synthesis.multi_study",
 }
 
 SYNTHESIS_PIPELINE_FACADE_OWNERS = select_facade_owners(
@@ -310,9 +312,9 @@ WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS = (
 )
 
 WORKFLOW_ROOT_STUDY_PIPELINE_OWNER_MODULES = {
-    "bijux_proteomics.workflow.pipelines.discovery_to_assay",
-    "bijux_proteomics.workflow.pipelines.integrated_scientific_report",
-    "bijux_proteomics.workflow.pipelines.multi_study",
+    "bijux_proteomics.workflow.pipelines.synthesis.discovery_to_assay",
+    "bijux_proteomics.workflow.pipelines.synthesis.integrated_scientific_report",
+    "bijux_proteomics.workflow.pipelines.synthesis.multi_study",
 }
 
 WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS = select_facade_owners(

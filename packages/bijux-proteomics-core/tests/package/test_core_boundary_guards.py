@@ -40,7 +40,7 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
         "bijux_proteomics_knowledge.memory.models.claims",
         "bijux_proteomics_knowledge.memory.models.evidence",
     },
-    "workflow/pipelines/integrated_scientific_report.py": {
+    "workflow/pipelines/synthesis/integrated_scientific_report.py": {
         "bijux_proteomics_intelligence.reviews",
         "bijux_proteomics_knowledge.memory.models.claims",
     },

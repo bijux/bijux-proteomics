@@ -26,7 +26,7 @@ MANAGED_WORKFLOW_WRITE_OWNERS = (
     "workflow/pipelines/dda_biological_workflow.py",
     "workflow/pipelines/diann_biological_workflow.py",
     "workflow/pipelines/operations/flagship_run.py",
-    "workflow/pipelines/integrated_scientific_report.py",
+    "workflow/pipelines/synthesis/integrated_scientific_report.py",
     "workflow/pipelines/maxquant_biological_workflow.py",
     "workflow/pipelines/operations/orchestrator.py",
     "workflow/pipelines/ptm_site_workflow.py",
