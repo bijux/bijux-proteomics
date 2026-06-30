@@ -161,17 +161,27 @@ from bijux_proteomics.identification.score_separation_diagnostic import (
     render_score_separation_bins_tsv,
     render_score_separation_summary_tsv,
 )
-from bijux_proteomics.identification.search_adapters import (
-    ScoreOrientation,
-    SearchAdapterKind,
-    build_search_adapter_capability_matrix,
+from bijux_proteomics.identification.search_adapters.comparison import (
+    compare_search_result_reports,
+)
+from bijux_proteomics.identification.search_adapters.conformance import (
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
-    compare_search_result_reports,
-    get_search_adapter_manifest,
+)
+from bijux_proteomics.identification.search_adapters.contracts import (
+    ScoreOrientation,
+    SearchAdapterKind,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,
+)
+from bijux_proteomics.identification.search_adapters.parameter_review import (
     parse_search_parameter_file,
     validate_search_parameters,
+)
+from bijux_proteomics.identification.search_adapters.registry import (
+    build_search_adapter_capability_matrix,
+    get_search_adapter_manifest,
 )
 
 __all__ = [
