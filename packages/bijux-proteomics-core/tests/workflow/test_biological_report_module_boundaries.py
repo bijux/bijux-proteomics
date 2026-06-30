@@ -409,6 +409,9 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_visual_export_contracts.py": (
         "BiologicalVisualExportNames",
     ),
+    "biological_report_visual_export_naming.py": (
+        "_build_biological_visual_export_names",
+    ),
     "biological_report_visual_exports.py": (
         "write_biological_visual_exports",
     ),
