@@ -44,6 +44,17 @@ Use this package when you need auditable scientific memory, explicit
 provenance, contradiction-aware evidence reasoning, and grounded workflow
 briefings that downstream packages can consume without re-curating locally.
 
+## At a glance
+
+- Use knowledge when evidence, claims, citations, and contradictions must stay
+  reviewable over time instead of being flattened into generic context.
+- Start with `references`, `memory.models`, and `reviews.decision_briefs`,
+  then open the
+  [knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+  for the full owner surface.
+- Route execution to runtime, recommendation posture to intelligence, assay
+  follow-up to lab, and changes to scientific meaning back to core.
+
 ## Why teams pick this package
 
 - explicit evidence and claim memory with provenance, trust, and freshness semantics

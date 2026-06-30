@@ -66,6 +66,17 @@ It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
 `lfq`, and `multiplex` workflows when reviewers need package-owned claims
 instead of presentation-only summaries.
 
+## At a glance
+
+- Use intelligence when reviewers need ranking, readiness, refusal, or
+  recommendation posture without pretending those outputs are scientific truth.
+- Start with `candidates.ranking`, `judgment.paths`, and
+  `posture.evidence`, then open the
+  [intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+  for the full owner map.
+- Route curated evidence memory to knowledge, scientific meaning to core,
+  executable control to runtime, and assay follow-up execution to lab.
+
 ## Why teams pick this package
 
 - transparent ranking and recommendation outputs with traceable decision rationale

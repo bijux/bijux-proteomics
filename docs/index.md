@@ -105,7 +105,7 @@ for the live limit list.
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-## Start By Question
+## Reader-First Sections
 
 - Start with
   [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
@@ -133,7 +133,7 @@ for the live limit list.
   when the question is which gate, report, or release checkpoint governs a
   repository change.
 
-## Role-Based Starts
+## Reader Paths
 
 - Scientist:
   [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)

@@ -9,6 +9,16 @@ release validation, OpenAPI drift detection, and repository automation.
 Use this package for CI and maintainer workflows that enforce repository
 standards; it is intentionally separate from product runtime behavior.
 
+## At a glance
+
+- Use the dev package when the question is repository policy, release proof,
+  docs integrity, OpenAPI governance, or shared automation.
+- Start with `make quality`, `make security`, or the
+  [maintenance overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
+  for maintainer-first entrypoints.
+- Route product behavior back to its owner package instead of adding science
+  or runtime semantics here.
+
 ## Why teams pick this package
 
 - one toolkit for quality, security, release, docs, and API governance gates

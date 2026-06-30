@@ -50,6 +50,17 @@ Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
 package `docs/*.md` set aligned before claiming stronger operational coverage
 or handoff safety guarantees.
 
+## At a glance
+
+- Use lab when the real question is whether a follow-up should run, can run
+  safely, and can be reconciled honestly after execution.
+- Start with the planning entrypoints for advisory and executable assay plans,
+  then open the
+  [lab handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+  for readiness, handoff, and outcome routes.
+- Route scientific truth to core, evidence memory to knowledge,
+  recommendation posture to intelligence, and execution control to runtime.
+
 ## Why teams pick this package
 
 - dependency-aware planning that keeps queue pressure, gate pressure, and

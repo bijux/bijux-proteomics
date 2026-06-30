@@ -47,6 +47,18 @@ Runtime owns execution control. It does not own the scientific workflow
 blueprint, evidence truth, ranking semantics, or lab progression logic that the
 wider proteomics engine still needs.
 
+## At a glance
+
+- Use runtime when the concern is executable workflow control, provider
+  binding, deterministic replay, or operator-facing handoff.
+- Start with `bijux-proteomics-runtime --help` for the live CLI surface, then
+  open the
+  [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  when you need the end-to-end run path.
+- Route scientific truth to core, cited evidence memory to knowledge,
+  recommendation posture to intelligence, and assay follow-up authority to
+  lab.
+
 ## Why teams pick this package
 
 - one canonical runtime surface for CLI, API, orchestration, and providers

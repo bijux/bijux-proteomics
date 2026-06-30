@@ -3,11 +3,33 @@
 `bijux-proteomics` is a bounded proteomics product for benchmark-backed
 execution, scientific review, recommendation posture, and lab consequence.
 
-Six real product packages own that chain. `agentic-proteins` stays as a legacy
-compatibility install surface for historical runtime entrypoints and imports,
-while `bijux-proteomics-dev` owns repository-health automation. Short install
-aliases now reserve `bijux-proteomics`, `proteomics`, and the family-scoped
-`proteomics-*` package names without creating second owner surfaces.
+The product is intentionally split across six owner packages so a reader can
+inspect one evidence chain from benchmark intake to downstream consequence
+without guessing who owns each handoff.
+
+`agentic-proteins` stays as the legacy compatibility install surface for
+historical runtime entrypoints and imports, while
+`bijux-proteomics-dev` owns repository-health automation, release policy, and
+docs governance. Short install aliases reserve `bijux-proteomics`,
+`proteomics`, and the family-scoped `proteomics-*` names without creating
+second owner surfaces.
+
+## At a glance
+
+- Start with the
+  [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+  if you need the product promise, package chain, and evidence posture in one
+  place.
+- Use
+  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  when a proposed change might move responsibility across package lines.
+- Treat
+  [Current capability limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+  and the
+  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  as the live boundary on public claims.
+- Install canonical owner packages when you need real behavior; use alias
+  packages only when naming, migration, or compatibility requires them.
 
 ## Product Scope
 
@@ -113,7 +135,22 @@ and the current hostile-review blockers are tracked in
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-## Reader-First Docs
+## Reader Paths
+
+- Scientist: start with
+  [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
+  and then open the
+  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/).
+- Operator: start with the
+  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  and then the
+  [Runtime migration validation runbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/).
+- Maintainer: start with
+  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  and then the
+  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/).
+
+## Reader-First Sections
 
 - [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
   explains the bounded product promise, evidence posture, and package chain.
@@ -129,21 +166,6 @@ and the current hostile-review blockers are tracked in
   explains how assay follow-up stays explicit, reviewable, and bounded.
 - [Maintenance overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
   collects maintainer routes for release, quality, and safe repository change.
-
-## Role-Based Starts
-
-- Scientist: start with
-  [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
-  and then open the
-  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/).
-- Operator: start with the
-  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  and then the
-  [Runtime migration validation runbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/).
-- Maintainer: start with
-  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-  and then the
-  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/).
 
 ## Publishable Package Map
 

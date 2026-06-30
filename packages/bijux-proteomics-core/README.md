@@ -48,6 +48,18 @@ Core also owns workflow blueprints and execution requests, but only as
 runtime-agnostic scientific contracts. It does not take over provider binding,
 run orchestration, ranking policy, reference curation, or lab readiness.
 
+## At a glance
+
+- Use core when a change defines proteomics meaning that should remain true
+  before orchestration, curation, recommendation, or lab follow-up is layered
+  on top.
+- Start with the [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md) for the
+  fastest non-developer path, or `bijux_proteomics.interfaces` for curated
+  reader-facing examples.
+- Route provider binding and replay to runtime, cited scientific memory to
+  knowledge, recommendation posture to intelligence, and assay follow-up to
+  lab.
+
 ## Why teams pick this package
 
 - explicit scientific contracts for sequence, chemistry, identification, quantification, PTM, DIA, study, and review surfaces

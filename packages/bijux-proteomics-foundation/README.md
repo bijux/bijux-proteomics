@@ -42,6 +42,17 @@ deterministic serialization.
 Use this package when you need versioned document governance, migration-safe
 serialization, and cross-package consistency for reproducible proteomics data.
 
+## At a glance
+
+- Use foundation when the problem is shared document identity, canonical JSON,
+  compatibility checks, or durable hashing across package boundaries.
+- Start with the stable root imports for shared contracts, then open the
+  [foundation handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+  when you need the full owner surface.
+- Route scientific meaning to core, execution to runtime, recommendation
+  posture to intelligence, scientific memory to knowledge, and assay follow-up
+  to lab.
+
 ## Why teams pick this kernel
 
 - one canonical document-contract baseline across every proteomics package
