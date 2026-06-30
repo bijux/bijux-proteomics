@@ -104,6 +104,21 @@ def test_package_index_pages_hand_off_shared_routes_before_local_routes() -> Non
         assert "## Start Inside" in text
 
 
+def test_mkdocs_config_split_keeps_shared_config_repository_agnostic() -> None:
+    mkdocs = _read("mkdocs.yml")
+    shared = _read("mkdocs.shared.yml")
+
+    assert "redirect_maps:" in mkdocs
+    assert "docs_package: bijux-proteomics-dev" in mkdocs
+    assert "repository: bijux-proteomics" in mkdocs
+    assert "hub_links:" in mkdocs
+
+    assert "redirect_maps:" not in shared
+    assert "docs_package:" not in shared
+    assert "repository: bijux-proteomics" not in shared
+    assert "hub_links:" not in shared
+
+
 def test_knowledge_intelligence_and_lab_indexes_route_readers_into_consequence_chain() -> (
     None
 ):

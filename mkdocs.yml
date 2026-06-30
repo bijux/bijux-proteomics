@@ -22,12 +22,50 @@ watch:
 theme:
   custom_dir: docs/overrides
 
+# MkDocs replaces inherited plugin lists instead of merging them, so the
+# repository-owned redirects live alongside the shared baseline plugins here.
+plugins:
+  - search
+  - autorefs
+  - redirects:
+      redirect_maps:
+        bijux-proteomics-dev/index.md: 08-bijux-proteomics-maintain/index.md
+        bijux-proteomics-dev/package-overview.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview.md
+        bijux-proteomics-dev/scope-and-non-goals.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals.md
+        bijux-proteomics-dev/module-map.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/operating-guidelines.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
+        bijux-proteomics-dev/quality-gates.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md
+        bijux-proteomics-dev/security-gates.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates.md
+        bijux-proteomics-dev/schema-governance.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance.md
+        bijux-proteomics-dev/release-support.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
+        bijux-proteomics-dev/documentation-integrity.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity.md
+        bijux-proteomics-dev/foundation.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview.md
+        bijux-proteomics-dev/architecture.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/interfaces.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/operations.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
+        bijux-proteomics-dev/tooling-map.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/quality.md: 08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md
+        bijux-proteomics/platform-overview.md: 01-bijux-proteomics/foundation/platform-overview.md
+        bijux-proteomics/repository-scope.md: 01-bijux-proteomics/foundation/repository-scope.md
+        bijux-proteomics/workspace-layout.md: 01-bijux-proteomics/foundation/workspace-layout.md
+        bijux-proteomics/package-map.md: 01-bijux-proteomics/foundation/package-map.md
+        bijux-proteomics/documentation-system.md: 01-bijux-proteomics/foundation/documentation-system.md
+        bijux-proteomics/api-and-schema-governance.md: 01-bijux-proteomics/operations/api-and-schema-governance.md
+        bijux-proteomics/apis.md: 01-bijux-proteomics/operations/api-and-schema-governance.md
+        bijux-proteomics/local-development.md: 01-bijux-proteomics/operations/local-development.md
+        bijux-proteomics/testing-and-validation.md: 01-bijux-proteomics/operations/testing-and-validation.md
+        bijux-proteomics/release-and-versioning.md: 01-bijux-proteomics/operations/release-and-versioning.md
+        bijux-proteomics/architecture-invariants.md: 01-bijux-proteomics/foundation/change-principles.md
+        bijux-proteomics/design-debt-ledger.md: 01-bijux-proteomics/operations/change-management.md
+        bijux-proteomics/dependency-allowlist.md: 01-bijux-proteomics/operations/artifact-governance.md
+  - git-revision-date-localized:
+      enable_creation_date: false
+      fallback_to_build_date: true
+
 extra:
   bijux:
     repository: bijux-proteomics
     docs_package: bijux-proteomics-dev
-    nav_mode: default
-    theme_key: bijux:theme
     hub_links:
       - key: bijux
         label: Bijux
