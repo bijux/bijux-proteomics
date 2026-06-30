@@ -129,6 +129,21 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalEnrichmentAssemblyReports",
         "_build_biological_enrichment_reports",
     ),
+    "biological_report_foreground_background_assembly.py": (
+        "BiologicalEnrichmentInputSets",
+        "_build_biological_enrichment_input_sets",
+    ),
+    "biological_report_go_enrichment_assembly.py": (
+        "_build_biological_go_enrichment_report",
+    ),
+    "biological_report_pathway_enrichment_assembly.py": (
+        "BiologicalPathwayEnrichmentReports",
+        "_build_biological_pathway_enrichment_reports",
+    ),
+    "biological_report_complex_enrichment_assembly.py": (
+        "BiologicalComplexEnrichmentReports",
+        "_build_biological_complex_enrichment_reports",
+    ),
     "biological_report_source_data.py": (
         "BiologicalReportSourceData",
         "_build_biological_report_source_data",
