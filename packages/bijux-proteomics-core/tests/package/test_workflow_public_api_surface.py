@@ -30,6 +30,7 @@ from bijux_proteomics.workflow.public_api import (
     ENGINE_PIPELINE_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
     OPERATIONS_PIPELINE_FACADE_OWNERS,
+    OPERATIONS_PIPELINE_OWNER_MODULES,
     PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES,
     PIPELINE_ROOT_OWNERS,
     PIPELINE_FACADE_OWNERS,
@@ -206,7 +207,7 @@ def test_workflow_root_pipeline_owners_exclude_flagship_helpers() -> None:
         == ()
     )
     assert all(
-        hasattr(pipelines, name)
+        hasattr(pipelines.operations, name)
         for name in WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS
     )
     assert all(
@@ -352,6 +353,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
 def test_workflow_pipeline_root_prefers_benchmarking_subfacade() -> None:
     assert PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES == {
         *BENCHMARKING_PIPELINE_OWNER_MODULES,
+        *OPERATIONS_PIPELINE_OWNER_MODULES,
         *SYNTHESIS_PIPELINE_OWNER_MODULES,
     }
     expected_pipeline_benchmarking, _ = build_lazy_export_index(
@@ -377,6 +379,19 @@ def test_workflow_pipeline_root_prefers_synthesis_subfacade() -> None:
     ) == ()
     assert all(
         hasattr(pipelines.synthesis, name) for name in expected_pipeline_synthesis
+    )
+
+
+def test_workflow_pipeline_root_prefers_operations_subfacade() -> None:
+    expected_pipeline_operations, _ = build_lazy_export_index(
+        ordered_facade_owners(OPERATIONS_PIPELINE_FACADE_OWNERS)
+    )
+
+    assert tuple(
+        name for name in expected_pipeline_operations if hasattr(pipelines, name)
+    ) == ()
+    assert all(
+        hasattr(pipelines.operations, name) for name in expected_pipeline_operations
     )
 
 
