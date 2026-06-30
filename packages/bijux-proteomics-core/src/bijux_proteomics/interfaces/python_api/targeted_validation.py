@@ -49,9 +49,13 @@ from bijux_proteomics.interfaces.support.validation_evidence_support.candidate_q
     _load_validation_evidence_redundancy_entries,
     _load_validation_evidence_stability_entries,
 )
-from bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs import (
+from bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs.discovery_candidates import (
     _load_validation_evidence_discovery_candidates,
+)
+from bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs.omitted_candidates import (
     _load_validation_evidence_omitted_candidates,
+)
+from bijux_proteomics.interfaces.support.validation_evidence_support.card_inputs.panel_assays import (
     _load_validation_evidence_panel_assays,
 )
 from bijux_proteomics.interfaces.support.validation_evidence_support.result_inputs import (
