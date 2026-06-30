@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-01
 ---
 
 # Package Map
@@ -12,6 +12,12 @@ last_reviewed: 2026-04-26
 The package map is the shortest route from a cross-package question to the
 owning handbook. It should help a reviewer classify work before reading deep
 code.
+
+That route matters more now because the package family is no longer easy to
+summarize as generic boundaries. The current map has to steer readers through
+shared meaning, broader core scientific ownership, runtime rerun proof,
+grounded evidence, recommendation posture, and lab consequence without making
+neighbors sound interchangeable.
 
 ## Routing Model
 
@@ -49,6 +55,17 @@ This page should let a reader classify work before diffing the whole repository.
 | `bijux-proteomics-runtime` | execution, replay, providers, and operator entrypoints | the work concerns running the system |
 | `agentic-proteins` | temporary legacy forwarding to runtime | the question starts from an old import or CLI path |
 
+## What Changed In This Map
+
+- `bijux-proteomics-core` now represents a much broader scientific owner than
+  the older workflow-rule framing implied
+- `bijux-proteomics-knowledge` and `bijux-proteomics-intelligence` now form a
+  clearer split between scientific truth and analytical judgment
+- `bijux-proteomics-lab` now matters as a real consequence owner instead of a
+  soft follow-up placeholder
+- `agentic-proteins` now has to be read strictly as a compatibility bridge,
+  not as a second runtime owner
+
 ## Shared Non-Product Surfaces
 
 - the [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
@@ -66,6 +83,16 @@ This page should let a reader classify work before diffing the whole repository.
   for the wrapper-only compatibility inventory
 - `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md`
   for the legacy-import migration path
+
+## Strongest Reader Use
+
+- use this page before deep code reading when two adjacent packages both sound
+  plausible
+- use it with
+  [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  when the question includes artifact classes or import direction
+- leave this page once the owning handbook becomes obvious; it should shorten
+  hesitation, not duplicate package-local detail
 
 ## First Proof Check
 
