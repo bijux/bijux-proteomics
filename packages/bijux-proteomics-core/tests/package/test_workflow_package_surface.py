@@ -1468,7 +1468,7 @@ def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> Non
     )
 
     assert hasattr(workflow, "SurprisingDemoConfig")
-    assert hasattr(workflow, "load_surprising_demo_manifest")
+    assert hasattr(workflow.demo, "load_surprising_demo_manifest")
     assert hasattr(workflow, "run_surprising_demo")
     assert hasattr(workflow, "surprising_demo_root")
     assert report.summary.strong_protein_count >= 1
@@ -1496,9 +1496,9 @@ def test_workflow_package_exports_scale_demo_surface(tmp_path: Path) -> None:
 
     assert hasattr(workflow, "ScaleDemoConfig")
     assert hasattr(workflow, "run_scale_demo")
-    assert hasattr(workflow, "render_scale_demo_summary_tsv")
-    assert hasattr(workflow, "render_scale_demo_stage_metrics_tsv")
-    assert hasattr(workflow, "render_scale_demo_validation_tsv")
+    assert hasattr(workflow.demo, "render_scale_demo_summary_tsv")
+    assert hasattr(workflow.demo, "render_scale_demo_stage_metrics_tsv")
+    assert hasattr(workflow.demo, "render_scale_demo_validation_tsv")
     assert report.summary.sample_count == 4
     assert report.summary.protein_count == 18
     assert report.summary.generated_feature_row_count == 144
@@ -1525,7 +1525,7 @@ def test_workflow_package_exports_surprising_demo_interrogation_surface(
     assert report.summary.answered_query_count == 4
     assert (
         "confidence_reasons"
-        in workflow.render_surprising_demo_interrogation_answers_tsv(report)
+        in workflow.demo.render_surprising_demo_interrogation_answers_tsv(report)
     )
 
 

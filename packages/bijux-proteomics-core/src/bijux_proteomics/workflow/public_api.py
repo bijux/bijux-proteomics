@@ -214,6 +214,29 @@ DEMO_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_DEMO_HELPER_EXPORTS = (
+    "render_scale_demo_stage_metrics_tsv",
+    "render_scale_demo_summary_tsv",
+    "render_scale_demo_validation_tsv",
+    "load_surprising_demo_manifest",
+    "render_surprising_demo_findings_tsv",
+    "render_surprising_demo_summary_tsv",
+    "render_surprising_demo_interrogation_answers_tsv",
+    "render_surprising_demo_interrogation_summary_tsv",
+)
+
+WORKFLOW_ROOT_DEMO_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
+        ),
+    )
+    for owner in DEMO_FACADE_OWNERS
+)
+
 STUDY_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.studies.cohort_stratification",
@@ -639,7 +662,7 @@ WORKFLOW_ROOT_OWNERS = (
     *WORKFLOW_ROOT_STUDY_OWNERS,
     *WORKFLOW_ROOT_CARD_OWNERS,
     *BENCHMARK_FACADE_OWNERS,
-    *DEMO_FACADE_OWNERS,
+    *WORKFLOW_ROOT_DEMO_OWNERS,
 )
 
 
@@ -798,6 +821,8 @@ __all__ = [
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_CARD_HELPER_EXPORTS",
     "WORKFLOW_ROOT_CARD_OWNERS",
+    "WORKFLOW_ROOT_DEMO_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_DEMO_OWNERS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",

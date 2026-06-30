@@ -34,6 +34,8 @@ from bijux_proteomics.workflow.public_api import (
     WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
     WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
     WORKFLOW_ROOT_CARD_OWNERS,
+    WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
+    WORKFLOW_ROOT_DEMO_OWNERS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
     WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
@@ -75,7 +77,7 @@ def test_workflow_root_owner_ledger_is_composed_from_shared_and_subpackage_ledge
         *WORKFLOW_ROOT_STUDY_OWNERS,
         *WORKFLOW_ROOT_CARD_OWNERS,
         *BENCHMARK_FACADE_OWNERS,
-        *DEMO_FACADE_OWNERS,
+        *WORKFLOW_ROOT_DEMO_OWNERS,
     )
 
 
@@ -189,6 +191,18 @@ def test_workflow_root_report_owners_exclude_report_serialization_helpers() -> N
         == ()
     )
     assert all(hasattr(reports, name) for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS)
+
+
+def test_workflow_root_demo_owners_exclude_demo_helpers() -> None:
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
+    assert all(hasattr(demo, name) for name in WORKFLOW_ROOT_DEMO_HELPER_EXPORTS)
 
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
