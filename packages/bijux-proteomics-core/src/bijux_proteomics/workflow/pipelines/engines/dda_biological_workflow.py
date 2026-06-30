@@ -22,7 +22,6 @@ from bijux_proteomics.identification import (
     PsmParseReport,
     PsmRecord,
     RejectedPsmRow,
-    SearchAdapterKind,
     SearchResultColumnMapping,
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
@@ -30,12 +29,17 @@ from bijux_proteomics.identification import (
     export_psm_tsv,
     load_generic_psm_table_mapping,
     normalize_psm_records,
-    normalize_search_results_with_adapter,
     parse_psm_tsv_chunked,
     render_parsimony_review_ambiguities_tsv,
     render_parsimony_review_proteins_tsv,
     render_parsimony_review_summary_tsv,
     select_best_psm_per_spectrum,
+)
+from bijux_proteomics.identification.search_adapters.contracts import (
+    SearchAdapterKind,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
+    normalize_search_results_with_adapter,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.tables import (
