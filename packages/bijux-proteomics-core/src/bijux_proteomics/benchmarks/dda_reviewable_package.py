@@ -18,8 +18,10 @@ from bijux_proteomics.identification.search_adapter_loss import (
     build_search_adapter_information_loss_report,
     build_search_adapter_parity_report,
 )
-from bijux_proteomics.identification.search_adapters import (
+from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterKind,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,
 )
 from bijux_proteomics_foundation import JsonModel

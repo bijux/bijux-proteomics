@@ -26,9 +26,11 @@ from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
     build_rejected_evidence_rows_from_psm_rows,
 )
-from bijux_proteomics.identification.search_adapters import (
+from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,
 )
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
