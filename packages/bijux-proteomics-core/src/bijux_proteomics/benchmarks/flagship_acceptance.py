@@ -17,7 +17,7 @@ from bijux_proteomics.benchmarks.flagship_challenge_corpora import (
     build_blinded_holdout_reports,
     build_perturbation_reports,
 )
-from bijux_proteomics.benchmarks.flagship_public_packages import (
+from bijux_proteomics.benchmarks.flagship.public_packages import (
     list_flagship_public_benchmark_packages,
 )
 from bijux_proteomics_foundation import JsonModel

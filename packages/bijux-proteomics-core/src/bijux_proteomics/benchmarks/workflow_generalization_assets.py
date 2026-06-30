@@ -9,7 +9,7 @@ import argparse
 import json
 from pathlib import Path
 
-from bijux_proteomics.benchmarks.flagship_public_packages import (
+from bijux_proteomics.benchmarks.flagship.public_packages import (
     FlagshipPublicBenchmarkPackage,
 )
 from bijux_proteomics.benchmarks.workflow_generalization import (

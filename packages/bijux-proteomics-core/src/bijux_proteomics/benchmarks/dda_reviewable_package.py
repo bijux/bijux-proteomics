@@ -12,7 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.benchmarks.flagship_asset_roots import flagship_asset_root
+from bijux_proteomics.benchmarks.flagship.asset_roots import flagship_asset_root
 from bijux_proteomics.identification.search_adapter_loss import (
     build_protein_inference_engine_disagreement_dossier,
     build_search_adapter_information_loss_report,

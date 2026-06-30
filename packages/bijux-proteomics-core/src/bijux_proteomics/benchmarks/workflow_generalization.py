@@ -14,14 +14,14 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.benchmarks.flagship_asset_roots import (
+from bijux_proteomics.benchmarks.flagship.asset_roots import (
     FlagshipAssetBoundaryKind,
     FlagshipAssetRootEntry,
     FlagshipCitationReference,
     FlagshipGeneratedBoundaryRecord,
     FlagshipRemoteSource,
 )
-from bijux_proteomics.benchmarks.flagship_public_packages import (
+from bijux_proteomics.benchmarks.flagship.public_packages import (
     FlagshipPublicBenchmarkAsset,
     FlagshipPublicBenchmarkPackage,
     FlagshipPublicEvidenceKind,

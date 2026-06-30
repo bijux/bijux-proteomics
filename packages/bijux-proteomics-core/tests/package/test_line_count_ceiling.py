@@ -64,10 +64,10 @@ def _exception(
 
 CORE_LINE_COUNT_EXCEPTIONS = (
     _exception("_scientific_tables.py", 1110),
+    _exception("benchmarks/flagship/asset_roots.py", 1093),
+    _exception("benchmarks/flagship/public_packages.py", 1542),
     _exception("benchmarks/flagship_acceptance.py", 1158),
-    _exception("benchmarks/flagship_asset_roots.py", 1093),
     _exception("benchmarks/flagship_challenge_corpora.py", 1167),
-    _exception("benchmarks/flagship_public_packages.py", 1542),
     _exception("benchmarks/workflow_generalization.py", 2183),
     _exception("chemistry/contracts/modified_peptides.py", 1065),
     _exception("dia/protein_matrix.py", 1138),

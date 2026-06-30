@@ -11,11 +11,11 @@ from pathlib import Path
 from bijux_proteomics.benchmarks.dda_reviewable_package import (
     build_dda_reviewable_package,
 )
-from bijux_proteomics.benchmarks.flagship_asset_roots import (
+from bijux_proteomics.benchmarks.flagship.asset_roots import (
     build_flagship_asset_root_contract,
     write_flagship_asset_support_files,
 )
-from bijux_proteomics.benchmarks.flagship_public_packages import (
+from bijux_proteomics.benchmarks.flagship.public_packages import (
     build_flagship_public_package_artifact_inventories,
     build_flagship_public_package_lifecycle_records,
     build_flagship_public_package_quality_sheets,
