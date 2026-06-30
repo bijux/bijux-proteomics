@@ -311,6 +311,18 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_write_biological_drug_target_exports",
         "_write_biological_disease_phenotype_exports",
     ),
+    "biological_report_html_scientific_artifact_inventory.py": (
+        "_build_biological_scientific_artifact_sections",
+    ),
+    "biological_report_html_contextual_artifact_inventory.py": (
+        "_build_biological_contextual_artifact_sections",
+    ),
+    "biological_report_html_activity_artifact_inventory.py": (
+        "_build_biological_activity_artifact_sections",
+    ),
+    "biological_report_html_visual_artifact_inventory.py": (
+        "_build_biological_visual_artifact_sections",
+    ),
     "biological_report_assembly.py": (
         "build_biological_result_report_bundle",
         "build_biological_result_report_bundle_from_quant_table",
