@@ -119,6 +119,48 @@ EXPORT_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS = (
+    "classify_workflow_artifact_name",
+    "find_workflow_artifact_by_id",
+    "find_workflow_artifact_by_legacy_path",
+    "index_workflow_artifact_manifest",
+    "load_workflow_artifact_manifest",
+    "render_workflow_artifact_inventory_summary_tsv",
+    "render_workflow_artifact_inventory_tsv",
+    "validate_workflow_artifact_inventory",
+    "validate_workflow_artifact_completeness",
+    "validate_workflow_artifact_manifest",
+    "render_interactive_result_bundle_summary_tsv",
+    "render_interactive_result_comparison_pathway_tsv",
+    "render_interactive_result_comparison_protein_tsv",
+    "render_interactive_result_comparison_ptm_site_tsv",
+    "render_interactive_result_comparison_qc_tsv",
+    "render_interactive_result_comparison_summary_tsv",
+    "load_result_archive",
+    "write_result_archive_lab_action_packets",
+    "render_result_manifest_command_tsv",
+    "render_result_manifest_file_tsv",
+    "render_result_manifest_input_tsv",
+    "render_result_manifest_summary_tsv",
+    "render_result_manifest_warning_tsv",
+    "render_result_search_hit_tsv",
+    "render_result_search_summary_tsv",
+    "export_targeted_assay_qc_workflow_artifacts",
+    "export_targeted_matrix_workflow_artifacts",
+)
+
+WORKFLOW_ROOT_EXPORT_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
+        ),
+    )
+    for owner in EXPORT_FACADE_OWNERS
+)
+
 BENCHMARK_SUBMODULES = {
     "datasets": "bijux_proteomics.workflow.benchmarks.datasets",
     "fidelity": "bijux_proteomics.workflow.benchmarks.fidelity",
@@ -412,7 +454,7 @@ WORKFLOW_ROOT_SHARED_OWNERS = (
 WORKFLOW_ROOT_OWNERS = (
     *WORKFLOW_ROOT_SHARED_OWNERS,
     *REPORT_FACADE_OWNERS,
-    *EXPORT_FACADE_OWNERS,
+    *WORKFLOW_ROOT_EXPORT_OWNERS,
     *WORKFLOW_ROOT_PIPELINE_OWNERS,
     *WORKFLOW_ROOT_STUDY_OWNERS,
     *CARD_FACADE_OWNERS,
@@ -567,6 +609,8 @@ __all__ = [
     "CARD_FACADE_OWNERS",
     "DEMO_FACADE_OWNERS",
     "EXPORT_FACADE_OWNERS",
+    "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_EXPORT_OWNERS",
     "WORKFLOW_ROOT_SHARED_OWNERS",
     "PIPELINE_FACADE_OWNERS",
     "REPORT_FACADE_OWNERS",

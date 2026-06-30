@@ -478,7 +478,7 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "design_assay_from_discovery")
     assert hasattr(module, "compare_studies")
     assert hasattr(module, "build_mechanism_cards")
-    assert hasattr(module, "load_result_archive")
+    assert hasattr(module.exports, "load_result_archive")
     assert hasattr(module, "load_public_benchmark_descriptor")
     assert hasattr(module, "build_public_benchmark_subset")
     assert hasattr(module, "generate_quant_truth_dataset")

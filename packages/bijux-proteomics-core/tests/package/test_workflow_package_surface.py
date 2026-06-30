@@ -314,13 +314,15 @@ def test_workflow_package_exports_result_manifest_surface() -> None:
 
     assert hasattr(workflow, "build_result_manifest_from_artifacts")
     assert workflow.ResultManifestSourceKind.PTM_REPORT.value == "ptm_report"
-    assert "artifact_key" in workflow.render_result_manifest_file_tsv(report)
-    assert "schema_version" in workflow.render_result_manifest_summary_tsv(report)
+    assert "artifact_key" in workflow.exports.render_result_manifest_file_tsv(report)
+    assert "schema_version" in workflow.exports.render_result_manifest_summary_tsv(
+        report
+    )
 
 
 def test_workflow_package_exports_result_archive_surface() -> None:
-    assert hasattr(workflow, "load_result_archive")
-    assert hasattr(workflow, "write_result_archive_lab_action_packets")
+    assert hasattr(workflow.exports, "load_result_archive")
+    assert hasattr(workflow.exports, "write_result_archive_lab_action_packets")
     assert workflow.ProteomicsStudyKind.ARCHIVED.value == "archived"
 
 
@@ -335,17 +337,17 @@ def test_workflow_package_exports_artifact_layout_surface() -> None:
     assert hasattr(workflow, "WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME")
     assert hasattr(workflow, "build_workflow_artifact_inventory_entries")
     assert hasattr(workflow, "build_workflow_artifact_inventory_summary")
-    assert hasattr(workflow, "classify_workflow_artifact_name")
-    assert hasattr(workflow, "find_workflow_artifact_by_id")
-    assert hasattr(workflow, "find_workflow_artifact_by_legacy_path")
-    assert hasattr(workflow, "index_workflow_artifact_manifest")
-    assert hasattr(workflow, "render_workflow_artifact_inventory_summary_tsv")
-    assert hasattr(workflow, "render_workflow_artifact_inventory_tsv")
-    assert hasattr(workflow, "validate_workflow_artifact_completeness")
-    assert hasattr(workflow, "validate_workflow_artifact_inventory")
-    assert hasattr(workflow, "load_workflow_artifact_manifest")
+    assert hasattr(workflow.exports, "classify_workflow_artifact_name")
+    assert hasattr(workflow.exports, "find_workflow_artifact_by_id")
+    assert hasattr(workflow.exports, "find_workflow_artifact_by_legacy_path")
+    assert hasattr(workflow.exports, "index_workflow_artifact_manifest")
+    assert hasattr(workflow.exports, "render_workflow_artifact_inventory_summary_tsv")
+    assert hasattr(workflow.exports, "render_workflow_artifact_inventory_tsv")
+    assert hasattr(workflow.exports, "validate_workflow_artifact_completeness")
+    assert hasattr(workflow.exports, "validate_workflow_artifact_inventory")
+    assert hasattr(workflow.exports, "load_workflow_artifact_manifest")
     assert hasattr(workflow, "synchronize_workflow_artifact_layout")
-    assert hasattr(workflow, "validate_workflow_artifact_manifest")
+    assert hasattr(workflow.exports, "validate_workflow_artifact_manifest")
 
 
 def test_workflow_package_exports_output_validation_surface(tmp_path: Path) -> None:
@@ -1583,9 +1585,9 @@ def test_workflow_package_exports_interactive_result_bundle_surface() -> None:
     )
 
     assert hasattr(workflow, "build_interactive_result_bundle_from_artifacts")
-    assert hasattr(workflow, "render_interactive_result_bundle_summary_tsv")
-    assert "sample_count" in workflow.render_interactive_result_bundle_summary_tsv(
-        bundle
+    assert hasattr(workflow.exports, "render_interactive_result_bundle_summary_tsv")
+    assert "sample_count" in (
+        workflow.exports.render_interactive_result_bundle_summary_tsv(bundle)
     )
 
 
@@ -1632,11 +1634,12 @@ def test_workflow_package_exports_interactive_result_comparison_surface() -> Non
     )
 
     assert hasattr(workflow, "build_interactive_result_comparison_from_artifacts")
+    assert hasattr(workflow.exports, "render_interactive_result_comparison_summary_tsv")
     assert "changed_protein_count" in (
-        workflow.render_interactive_result_comparison_summary_tsv(payload)
+        workflow.exports.render_interactive_result_comparison_summary_tsv(payload)
     )
     assert "representative_protein_ref" in (
-        workflow.render_interactive_result_comparison_protein_tsv(payload)
+        workflow.exports.render_interactive_result_comparison_protein_tsv(payload)
     )
 
 
@@ -1673,5 +1676,7 @@ def test_workflow_package_exports_result_search_index_surface() -> None:
 
     assert hasattr(workflow, "build_result_search_index_from_artifacts")
     assert hasattr(workflow, "search_result_index")
-    assert "indexed_document_count" in workflow.render_result_search_summary_tsv(report)
-    assert "evidence_snippets" in workflow.render_result_search_hit_tsv(report)
+    assert "indexed_document_count" in (
+        workflow.exports.render_result_search_summary_tsv(report)
+    )
+    assert "evidence_snippets" in workflow.exports.render_result_search_hit_tsv(report)
