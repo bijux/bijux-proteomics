@@ -32,9 +32,13 @@ from bijux_proteomics.workflow.cards.protein_evidence_cards import ProteinEviden
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCardReport,
 )
-from bijux_proteomics.workflow.reports.biological_report_claim_candidates import (
+from bijux_proteomics.workflow.reports.biological_report_pathway_claim_candidates import (
     _build_biological_pathway_claim_candidates,
+)
+from bijux_proteomics.workflow.reports.biological_report_protein_claim_candidates import (
     _build_biological_protein_claim_candidates,
+)
+from bijux_proteomics.workflow.reports.biological_report_regulator_claim_candidates import (
     _build_biological_regulator_claim_candidates,
 )
 from bijux_proteomics.workflow.reports.biological_report_pathway_hypothesis_candidates import (
