@@ -161,7 +161,7 @@ def test_workflow_package_exports_protein_mechanism_card_surface(
 
 def test_workflow_package_exports_core_orchestrator_surface() -> None:
     assert hasattr(workflow, "run_proteomics_workflow")
-    assert hasattr(workflow, "export_targeted_assay_qc_workflow_artifacts")
+    assert hasattr(workflow.exports, "export_targeted_assay_qc_workflow_artifacts")
     assert workflow.WorkflowMode.FRAGPIPE.value == "fragpipe"
     assert workflow.TargetedWorkflowStage.ASSAY_QC.value == "assay_qc"
 
