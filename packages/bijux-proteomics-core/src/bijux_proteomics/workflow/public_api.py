@@ -359,9 +359,7 @@ ADVANCED_PIPELINE_FACADE_OWNERS = (
         rationale="advanced FragPipe pipeline ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module=(
-            "bijux_proteomics.workflow.pipelines.advanced.advanced_maxquant"
-        ),
+        owner_module=("bijux_proteomics.workflow.pipelines.advanced.advanced_maxquant"),
         rationale="advanced MaxQuant pipeline ownership",
     ),
     WorkflowFacadeOwner(
@@ -376,6 +374,37 @@ ADVANCED_PIPELINE_FACADE_OWNERS = (
         owner_module="bijux_proteomics.workflow.pipelines.advanced.advanced_tmt",
         rationale="advanced TMT pipeline ownership",
     ),
+)
+
+WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS = (
+    "validate_advanced_workflow_family_contract",
+    "render_advanced_diann_protein_decisions_tsv",
+    "render_advanced_diann_workflow_summary_tsv",
+    "render_advanced_fragpipe_discrepancy_tsv",
+    "render_advanced_fragpipe_peptide_evidence_tsv",
+    "render_advanced_fragpipe_workflow_summary_tsv",
+    "render_advanced_maxquant_peptide_contributions_tsv",
+    "render_advanced_maxquant_workflow_summary_tsv",
+    "render_advanced_ptm_excluded_ambiguity_tsv",
+    "render_advanced_ptm_workflow_summary_tsv",
+    "render_advanced_targeted_evidence_cards_tsv",
+    "render_advanced_targeted_workflow_summary_tsv",
+    "render_advanced_tmt_evidence_cards_tsv",
+    "render_advanced_tmt_peptide_confidence_tsv",
+    "render_advanced_tmt_protein_compression_tsv",
+    "render_advanced_tmt_workflow_summary_tsv",
+)
+
+WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS,
+        ),
+    )
+    for owner in ADVANCED_PIPELINE_FACADE_OWNERS
 )
 
 ENGINE_PIPELINE_FACADE_OWNERS = (
@@ -475,10 +504,14 @@ PIPELINE_FACADE_OWNERS = (
     ),
 )
 
-WORKFLOW_ROOT_PIPELINE_OWNERS = tuple(
-    owner
-    for owner in PIPELINE_FACADE_OWNERS
-    if not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
+WORKFLOW_ROOT_PIPELINE_OWNERS = (
+    *WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
+    *(
+        owner
+        for owner in PIPELINE_FACADE_OWNERS
+        if owner not in ADVANCED_PIPELINE_FACADE_OWNERS
+        and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
+    ),
 )
 
 WORKFLOW_ROOT_SUBMODULES = {
@@ -606,7 +639,9 @@ def module_directory(
 def _module_source_path(owner_module: str) -> Path:
     spec = find_spec(owner_module)
     if spec is None or spec.origin is None:
-        raise ValueError(f"workflow facade owner module is not discoverable: {owner_module}")
+        raise ValueError(
+            f"workflow facade owner module is not discoverable: {owner_module}"
+        )
     return Path(spec.origin)
 
 
@@ -652,6 +687,7 @@ def _public_assigned_names(target: ast.expr) -> list[str]:
 
 
 __all__ = [
+    "ADVANCED_PIPELINE_FACADE_OWNERS",
     "BENCHMARK_FIDELITY_FACADE_OWNERS",
     "BENCHMARK_DATASET_FACADE_OWNERS",
     "BENCHMARK_FACADE_OWNERS",
@@ -660,6 +696,10 @@ __all__ = [
     "CARD_FACADE_OWNERS",
     "DEMO_FACADE_OWNERS",
     "EXPORT_FACADE_OWNERS",
+    "ENGINE_PIPELINE_FACADE_OWNERS",
+    "PIPELINE_SUBMODULES",
+    "WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_CARD_HELPER_EXPORTS",
     "WORKFLOW_ROOT_CARD_OWNERS",
     "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",

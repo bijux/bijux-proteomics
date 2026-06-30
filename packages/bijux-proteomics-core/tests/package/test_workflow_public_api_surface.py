@@ -16,17 +16,22 @@ from bijux_proteomics.workflow import (
 from bijux_proteomics.workflow import cross_study_protein_harmonization
 from bijux_proteomics.workflow import public_benchmark_descriptors
 from bijux_proteomics.workflow.public_api import (
+    ADVANCED_PIPELINE_FACADE_OWNERS,
     BENCHMARK_DATASET_FACADE_OWNERS,
     BENCHMARK_FACADE_OWNERS,
     BENCHMARK_FIDELITY_FACADE_OWNERS,
     BENCHMARK_SYNTHETIC_FACADE_OWNERS,
     BENCHMARK_SUBMODULES,
+    ENGINE_PIPELINE_FACADE_OWNERS,
     CARD_FACADE_OWNERS,
     DEMO_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
     PIPELINE_FACADE_OWNERS,
+    PIPELINE_SUBMODULES,
     REPORT_FACADE_OWNERS,
     STUDY_FACADE_OWNERS,
+    WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS,
+    WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
     WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
     WORKFLOW_ROOT_CARD_OWNERS,
     WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
@@ -46,7 +51,9 @@ from bijux_proteomics.workflow.result_types import WorkflowResult
 
 
 def test_workflow_root_public_api_matches_governed_owner_ledger() -> None:
-    expected_names, _ = build_lazy_export_index(ordered_facade_owners(WORKFLOW_ROOT_OWNERS))
+    expected_names, _ = build_lazy_export_index(
+        ordered_facade_owners(WORKFLOW_ROOT_OWNERS)
+    )
 
     assert tuple(workflow.__all__) == expected_names
     assert set(WORKFLOW_ROOT_SUBMODULES).isdisjoint(workflow.__all__)
@@ -75,33 +82,71 @@ def test_workflow_root_pipeline_owners_exclude_demo_surfaces() -> None:
     )
 
 
+def test_workflow_root_pipeline_owners_exclude_advanced_helpers() -> None:
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
+    assert all(
+        hasattr(pipelines.advanced, name)
+        for name in WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS
+    )
+    assert WORKFLOW_ROOT_PIPELINE_OWNERS[
+        : len(WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS)
+    ] == (WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS)
+
+
 def test_workflow_root_study_owners_exclude_study_serialization_helpers() -> None:
-    assert tuple(
-        name
-        for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS
-        if hasattr(workflow, name)
-    ) == ()
-    assert all(hasattr(studies, name) for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS)
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
+    assert all(
+        hasattr(studies, name) for name in WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS
+    )
 
 
 def test_workflow_root_export_owners_exclude_export_helpers() -> None:
-    assert tuple(
-        name for name in WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS if hasattr(workflow, name)
-    ) == ()
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
     assert all(hasattr(exports, name) for name in WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS)
 
 
 def test_workflow_root_card_owners_exclude_card_serialization_helpers() -> None:
-    assert tuple(
-        name for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS if hasattr(workflow, name)
-    ) == ()
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
     assert all(hasattr(cards, name) for name in WORKFLOW_ROOT_CARD_HELPER_EXPORTS)
 
 
 def test_workflow_root_report_owners_exclude_report_serialization_helpers() -> None:
-    assert tuple(
-        name for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS if hasattr(workflow, name)
-    ) == ()
+    assert (
+        tuple(
+            name
+            for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS
+            if hasattr(workflow, name)
+        )
+        == ()
+    )
     assert all(hasattr(reports, name) for name in WORKFLOW_ROOT_REPORT_HELPER_EXPORTS)
 
 
@@ -118,13 +163,23 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     expected_benchmarks, _ = build_lazy_export_index(
         ordered_facade_owners(BENCHMARK_FACADE_OWNERS)
     )
-    expected_cards, _ = build_lazy_export_index(ordered_facade_owners(CARD_FACADE_OWNERS))
-    expected_demo, _ = build_lazy_export_index(ordered_facade_owners(DEMO_FACADE_OWNERS))
+    expected_cards, _ = build_lazy_export_index(
+        ordered_facade_owners(CARD_FACADE_OWNERS)
+    )
+    expected_demo, _ = build_lazy_export_index(
+        ordered_facade_owners(DEMO_FACADE_OWNERS)
+    )
     expected_exports, _ = build_lazy_export_index(
         ordered_facade_owners(EXPORT_FACADE_OWNERS)
     )
     expected_pipelines, _ = build_lazy_export_index(
         ordered_facade_owners(PIPELINE_FACADE_OWNERS)
+    )
+    expected_pipeline_advanced, _ = build_lazy_export_index(
+        ordered_facade_owners(ADVANCED_PIPELINE_FACADE_OWNERS)
+    )
+    expected_pipeline_engines, _ = build_lazy_export_index(
+        ordered_facade_owners(ENGINE_PIPELINE_FACADE_OWNERS)
     )
     expected_reports, _ = build_lazy_export_index(
         ordered_facade_owners(REPORT_FACADE_OWNERS)
@@ -136,19 +191,17 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
     assert tuple(benchmarks.__all__) == expected_benchmarks
     assert set(BENCHMARK_SUBMODULES).isdisjoint(benchmarks.__all__)
     assert all(hasattr(benchmarks, name) for name in BENCHMARK_SUBMODULES)
-    assert (
-        tuple(benchmarks.datasets.__all__) == expected_benchmark_datasets
-    )
-    assert (
-        tuple(benchmarks.fidelity.__all__) == expected_benchmark_fidelity
-    )
-    assert (
-        tuple(benchmarks.synthetic.__all__) == expected_benchmark_synthetic
-    )
+    assert tuple(benchmarks.datasets.__all__) == expected_benchmark_datasets
+    assert tuple(benchmarks.fidelity.__all__) == expected_benchmark_fidelity
+    assert tuple(benchmarks.synthetic.__all__) == expected_benchmark_synthetic
     assert tuple(cards.__all__) == expected_cards
     assert tuple(demo.__all__) == expected_demo
     assert tuple(exports.__all__) == expected_exports
     assert tuple(pipelines.__all__) == expected_pipelines
+    assert set(PIPELINE_SUBMODULES).isdisjoint(pipelines.__all__)
+    assert all(hasattr(pipelines, name) for name in PIPELINE_SUBMODULES)
+    assert tuple(pipelines.advanced.__all__) == expected_pipeline_advanced
+    assert tuple(pipelines.engines.__all__) == expected_pipeline_engines
     assert tuple(reports.__all__) == expected_reports
     assert tuple(studies.__all__) == expected_studies
 
