@@ -36,11 +36,20 @@ from bijux_proteomics.workflow.pipelines.tmt_experiment_workflow import (
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
 )
+from bijux_proteomics.workflow.studies.study_results.modification import (
+    build_proteomics_study_result_from_ptm_workflow_bundle,
+)
+from bijux_proteomics.workflow.studies.study_results.multiplex import (
+    build_proteomics_study_result_from_tmt_workflow_bundle,
+)
 from bijux_proteomics.workflow.studies.study_results.label_free import (
     build_proteomics_study_result_from_biological_report_bundle,
     build_proteomics_study_result_from_dda_workflow_bundle,
     build_proteomics_study_result_from_diann_workflow_bundle,
     build_proteomics_study_result_from_maxquant_workflow_bundle,
+)
+from bijux_proteomics.workflow.studies.study_results.validation import (
+    build_proteomics_study_result_from_targeted_validation_workflow_report,
 )
 from bijux_proteomics.workflow.studies.study_results.assembly import (
     _biological_card_surfaces,
@@ -216,88 +225,6 @@ def build_proteomics_study_result_from_advanced_maxquant_workflow_report(
     )
 
 
-def build_proteomics_study_result_from_tmt_workflow_bundle(
-    bundle: TmtExperimentWorkflowBundle,
-) -> ProteomicsStudyResult:
-    """Normalize one TMT workflow bundle into a study result."""
-
-    report = bundle.report
-    matrix_surfaces = []
-    if report.tmt_matrix_report is not None:
-        matrix_surfaces.append(
-            ProteomicsStudyMatrixSurface(
-                surface_name="tmt_matrix_report",
-                kind=ProteomicsStudyMatrixKind.REPORTER_CHANNEL,
-                entity_count=report.tmt_matrix_report.summary.protein_row_count,
-                sample_count=report.summary.sample_count,
-                note=report.tmt_matrix_report.note,
-            )
-        )
-    if report.tmt_ratio_report is not None:
-        matrix_surfaces.append(
-            ProteomicsStudyMatrixSurface(
-                surface_name="tmt_ratio_report",
-                kind=ProteomicsStudyMatrixKind.PROTEIN_RATIO,
-                entity_count=report.summary.protein_ratio_count,
-                sample_count=report.summary.sample_count,
-                note=report.tmt_ratio_report.note,
-            )
-        )
-    return _build_study_result(
-        study_kind=ProteomicsStudyKind.TMT,
-        source_surface="TmtExperimentWorkflowBundle",
-        design=_design_from_tmt_workflow(bundle),
-        matrix_surfaces=tuple(matrix_surfaces),
-        statistic_surfaces=(
-            ProteomicsStudyStatisticSurface(
-                surface_name="differential_analysis_report",
-                kind=ProteomicsStudyStatisticKind.DIFFERENTIAL_LABEL_BASED,
-                entity_count=(
-                    0
-                    if report.differential_analysis_report.differential_abundance_report
-                    is None
-                    else len(
-                        report.differential_analysis_report.differential_abundance_report.entries
-                    )
-                ),
-                significant_entity_count=(
-                    0
-                    if report.differential_analysis_report.differential_abundance_report
-                    is None
-                    else sum(
-                        1
-                        for entry in report.differential_analysis_report.differential_abundance_report.entries
-                        if entry.adjusted_p_value is not None
-                        and entry.adjusted_p_value <= 0.1
-                    )
-                ),
-                note=report.differential_analysis_report.note,
-            ),
-        ),
-        qc_surfaces=(
-            ProteomicsStudyQcSurface(
-                surface_name="metadata_validation_report",
-                kind=ProteomicsStudyQcKind.TMT_METADATA_VALIDATION,
-                issue_count=bundle.summary.missing_source_channel_count,
-                note=bundle.metadata_validation_report.note,
-            ),
-            ProteomicsStudyQcSurface(
-                surface_name="sample_qc_entries",
-                kind=ProteomicsStudyQcKind.LABEL_BASED_SAMPLE_QC,
-                issue_count=bundle.summary.sample_qc_entry_count,
-                note="tmt workflow preserves sample-level multiplex qc entries",
-            ),
-        ),
-        card_surfaces=(),
-        biological_conclusions=(),
-        label_based_report=report,
-        note=(
-            "study result keeps tmt design, reporter matrix, ratio, differential, "
-            "and multiplex qc surfaces on one comparable object"
-        ),
-    )
-
-
 def build_proteomics_study_result_from_advanced_tmt_workflow_report(
     report: AdvancedTmtWorkflowReport,
 ) -> ProteomicsStudyResult:
@@ -333,85 +260,6 @@ def build_proteomics_study_result_from_advanced_tmt_workflow_report(
             "study result preserves the advanced tmt review surface through the "
             "canonical label-based study object without dropping interference-aware "
             "signal review or evidence-card summaries"
-        ),
-    )
-
-
-def build_proteomics_study_result_from_ptm_workflow_bundle(
-    bundle: PtmSiteWorkflowBundle,
-) -> ProteomicsStudyResult:
-    """Normalize one PTM-site workflow bundle into a study result."""
-
-    report = bundle.report
-    matrix_surfaces = []
-    statistic_surfaces = []
-    card_surfaces = []
-    conclusions: list[ProteomicsStudyConclusionEntry] = []
-    if report.site_quantification is not None:
-        matrix_surfaces.append(
-            ProteomicsStudyMatrixSurface(
-                surface_name="site_quantification",
-                kind=ProteomicsStudyMatrixKind.PTM_SITE,
-                entity_count=report.summary.quantified_site_row_count,
-                sample_count=len(report.site_quantification.sample_ids),
-                note=report.site_quantification.note,
-            )
-        )
-    if report.differential_analysis is not None:
-        statistic_surfaces.append(
-            ProteomicsStudyStatisticSurface(
-                surface_name="differential_analysis",
-                kind=ProteomicsStudyStatisticKind.DIFFERENTIAL_PTM_SITE,
-                entity_count=len(
-                    report.differential_analysis.differential_report.entries
-                ),
-                significant_entity_count=report.summary.differential_site_count,
-                note=report.differential_analysis.note,
-            )
-        )
-    if report.evidence_cards is not None:
-        card_surfaces.append(
-            ProteomicsStudyCardSurface(
-                surface_name="ptm_evidence_cards",
-                kind=ProteomicsStudyCardKind.PTM_EVIDENCE,
-                card_count=report.evidence_cards.summary.card_count,
-                warning_count=report.evidence_cards.summary.warning_card_count,
-                note=report.evidence_cards.note,
-            )
-        )
-        conclusions.extend(
-            ProteomicsStudyConclusionEntry(
-                conclusion_id=claim.claim_id,
-                kind=ProteomicsStudyConclusionKind.PTM_NARRATIVE_CLAIM,
-                subject_id=claim.site_key,
-                subject_label=claim.site_key,
-                status=claim.claim_kind.value,
-                score=None,
-                evidence_surface="ptm_evidence_cards",
-                summary_text=claim.text,
-            )
-            for claim in report.evidence_cards.narrative_claims
-        )
-    return _build_study_result(
-        study_kind=ProteomicsStudyKind.PTM,
-        source_surface="PtmSiteWorkflowBundle",
-        design=_design_from_experimental_entries(bundle.experiment_design.entries),
-        matrix_surfaces=tuple(matrix_surfaces),
-        statistic_surfaces=tuple(statistic_surfaces),
-        qc_surfaces=(
-            ProteomicsStudyQcSurface(
-                surface_name="evidence_parse_report",
-                kind=ProteomicsStudyQcKind.PTM_EVIDENCE_PARSING,
-                issue_count=bundle.summary.rejected_evidence_count,
-                note="ptm workflow preserves accepted and rejected localized evidence rows before site quantification",
-            ),
-        ),
-        card_surfaces=tuple(card_surfaces),
-        biological_conclusions=tuple(conclusions),
-        ptm_report=report,
-        note=(
-            "study result keeps ptm evidence parsing, site quantification, "
-            "differential analysis, and site-level narrative claims on one object"
         ),
     )
 
@@ -470,96 +318,6 @@ def build_proteomics_study_result_from_advanced_fragpipe_workflow_report(
             "protein-group discrepancy review"
         ),
     )
-
-
-def build_proteomics_study_result_from_targeted_validation_workflow_report(
-    report: TargetedValidationWorkflowReport,
-) -> ProteomicsStudyResult:
-    """Normalize one advanced targeted-validation workflow report into a study result."""
-
-    sample_ids = tuple(
-        sorted({item.sample_id for item in report.import_report.observations})
-    )
-    design = _design_from_sample_metadata(
-        (ProteomicsStudyDesignEntry(sample_id=sample_id) for sample_id in sample_ids),
-        note=(
-            "targeted validation preserves sample identifiers directly from the "
-            "imported targeted observations even when the design-condition mapping "
-            "is not carried forward on the review report object"
-        ),
-    )
-    conclusions = tuple(
-        ProteomicsStudyConclusionEntry(
-            conclusion_id=entry.candidate_id,
-            kind=_conclusion_kind_from_targeted_verdict(entry.verdict.value),
-            subject_id=entry.candidate_id,
-            subject_label=entry.display_label,
-            status=entry.verdict.value,
-            score=None,
-            evidence_surface="advanced_targeted_evidence_cards",
-            summary_text=entry.note,
-        )
-        for entry in report.validation_report.entries
-    )
-    return _build_study_result(
-        study_kind=ProteomicsStudyKind.TARGETED,
-        source_surface="TargetedValidationWorkflowReport",
-        design=design,
-        matrix_surfaces=(
-            ProteomicsStudyMatrixSurface(
-                surface_name="targeted_target_matrix",
-                kind=ProteomicsStudyMatrixKind.TARGETED_TARGET,
-                entity_count=report.summary.matrix_target_count,
-                sample_count=len(sample_ids),
-                note="targeted validation preserves one precursor-target matrix over the imported assay observations",
-            ),
-        ),
-        statistic_surfaces=(
-            ProteomicsStudyStatisticSurface(
-                surface_name="targeted_validation_report",
-                kind=ProteomicsStudyStatisticKind.TARGETED_VALIDATION,
-                entity_count=report.summary.discovery_claim_count,
-                significant_entity_count=report.summary.confirmed_count
-                + report.summary.contradicted_count,
-                note="targeted validation preserves decisive confirmed and contradicted claim outcomes beside inconclusive follow-up results",
-            ),
-        ),
-        qc_surfaces=(
-            ProteomicsStudyQcSurface(
-                surface_name="targeted_assay_qc",
-                kind=ProteomicsStudyQcKind.TARGETED_ASSAY_QC,
-                issue_count=report.summary.unreliable_target_entry_count
-                + report.summary.flagged_coelution_target_entry_count
-                + report.summary.drift_flagged_fragment_ratio_observation_count,
-                note="targeted validation preserves assay reliability, coelution, and fragment-ratio drift review before candidate verdicts",
-            ),
-        ),
-        card_surfaces=(
-            ProteomicsStudyCardSurface(
-                surface_name="advanced_targeted_evidence_cards",
-                kind=ProteomicsStudyCardKind.TARGETED_VALIDATION,
-                card_count=report.summary.evidence_card_count,
-                warning_count=report.summary.inconclusive_count,
-                note="targeted validation preserves one candidate-level evidence card per reviewed biomarker candidate",
-            ),
-        ),
-        biological_conclusions=conclusions,
-        note=(
-            "study result preserves advanced targeted validation as one canonical "
-            "targeted study object with target-matrix, assay-qc, verdict, evidence-card, "
-            "and candidate-conclusion surfaces"
-        ),
-    )
-
-
-def _conclusion_kind_from_targeted_verdict(
-    verdict: str,
-) -> ProteomicsStudyConclusionKind:
-    if verdict == "confirmed":
-        return ProteomicsStudyConclusionKind.SUPPORTED_CLAIM
-    if verdict == "contradicted":
-        return ProteomicsStudyConclusionKind.REJECTED_CLAIM
-    return ProteomicsStudyConclusionKind.REFUSED_CLAIM
 
 
 __all__ = [
