@@ -9,10 +9,6 @@ from collections.abc import Sequence
 import csv
 from pathlib import Path
 
-from bijux_proteomics.chemistry.modified_peptide_parser import (
-    SearchEngineModifiedPeptideDialect,
-    build_search_engine_modified_peptide_report,
-)
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     PsmRecord,
@@ -50,6 +46,16 @@ from bijux_proteomics.identification.adapters.fragpipe_import.rendering import (
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
     render_fragpipe_summary_tsv,
+)
+from bijux_proteomics.identification.adapters.fragpipe_import.table_support import (
+    canonical_modified_peptide,
+    fragpipe_peptide_entity_id,
+    has_modified_content,
+    is_open_search_candidate,
+    optional_float,
+    optional_int,
+    optional_text,
+    split_multi_value,
 )
 
 
@@ -113,9 +119,9 @@ def build_fragpipe_import_report(
         protein_reference_count=len(protein_rows),
         open_search_evidence_count=len(open_search_evidence),
         protein_quantity_count=len(protein_quantity_rows),
-        modified_psm_count=sum(1 for row in psm_rows if _has_modified_content(row)),
+        modified_psm_count=sum(1 for row in psm_rows if has_modified_content(row)),
         modified_peptide_row_count=sum(
-            1 for row in peptide_rows if _has_modified_content(row)
+            1 for row in peptide_rows if has_modified_content(row)
         ),
         open_search_psm_count=sum(1 for row in psm_rows if row.open_search_candidate),
         open_search_peptide_count=sum(
@@ -170,18 +176,18 @@ def _build_fragpipe_canonical_psm_rows(
         if record is None:
             continue
         raw = row.raw_fields
-        mass_difference = _optional_float(raw.get("Mass Difference"))
+        mass_difference = optional_float(raw.get("Mass Difference"))
         rows.append(
             FragpipeCanonicalPsmEntry(
                 record=record,
-                assigned_modifications=_split_multi_value(
+                assigned_modifications=split_multi_value(
                     raw.get("Assigned Modifications")
                 ),
-                observed_modifications=_split_multi_value(
+                observed_modifications=split_multi_value(
                     raw.get("Observed Modifications")
                 ),
                 mass_difference=mass_difference,
-                open_search_candidate=_is_open_search_candidate(
+                open_search_candidate=is_open_search_candidate(
                     mass_difference,
                     tolerance=open_search_mass_tolerance,
                 ),
@@ -221,8 +227,8 @@ def _build_fragpipe_psm_rows(
             )
         raw = row.raw_fields
         modified_peptide = raw.get("Modified Peptide", "").strip() or None
-        canonical_modified = _canonical_modified_peptide(modified_peptide)
-        mass_difference = _optional_float(raw.get("Mass Difference"))
+        canonical_modified = canonical_modified_peptide(modified_peptide)
+        mass_difference = optional_float(raw.get("Mass Difference"))
         rows.append(
             FragpipePsmReviewEntry(
                 spectrum_id=record.spectrum_id,
@@ -235,14 +241,14 @@ def _build_fragpipe_psm_rows(
                 q_value=record.q_value,
                 protein_refs=record.protein_refs,
                 target_decoy_label=record.target_decoy_label,
-                assigned_modifications=_split_multi_value(
+                assigned_modifications=split_multi_value(
                     raw.get("Assigned Modifications")
                 ),
-                observed_modifications=_split_multi_value(
+                observed_modifications=split_multi_value(
                     raw.get("Observed Modifications")
                 ),
                 mass_difference=mass_difference,
-                open_search_candidate=_is_open_search_candidate(
+                open_search_candidate=is_open_search_candidate(
                     mass_difference,
                     tolerance=open_search_mass_tolerance,
                 ),
@@ -279,31 +285,31 @@ def _parse_fragpipe_peptide_table(
         for row_number, row in enumerate(reader, start=2):
             peptide = str(row.get("Peptide", "")).strip()
             modified_peptide = str(row.get("Modified Peptide", "")).strip() or None
-            mass_difference = _optional_float(row.get("Mass Difference"))
-            proteins = _split_multi_value(row.get("Protein"))
-            mapped_proteins = _split_multi_value(row.get("Mapped Proteins"))
+            mass_difference = optional_float(row.get("Mass Difference"))
+            proteins = split_multi_value(row.get("Protein"))
+            mapped_proteins = split_multi_value(row.get("Mapped Proteins"))
             rows.append(
                 FragpipePeptideReviewEntry(
                     peptide=peptide,
                     modified_peptide=modified_peptide,
-                    canonical_modified_peptide=_canonical_modified_peptide(
+                    canonical_modified_peptide=canonical_modified_peptide(
                         modified_peptide
                     ),
-                    charge=_optional_int(row.get("Charge")),
+                    charge=optional_int(row.get("Charge")),
                     protein_refs=proteins,
                     mapped_protein_refs=mapped_proteins,
-                    assigned_modifications=_split_multi_value(
+                    assigned_modifications=split_multi_value(
                         row.get("Assigned Modifications")
                     ),
-                    observed_modifications=_split_multi_value(
+                    observed_modifications=split_multi_value(
                         row.get("Observed Modifications")
                     ),
-                    hyperscore=_optional_float(row.get("Hyperscore")),
-                    probability=_optional_float(row.get("Probability")),
-                    q_value=_optional_float(row.get("QValue")),
-                    spectral_count=_optional_int(row.get("Spectral Count")),
+                    hyperscore=optional_float(row.get("Hyperscore")),
+                    probability=optional_float(row.get("Probability")),
+                    q_value=optional_float(row.get("QValue")),
+                    spectral_count=optional_int(row.get("Spectral Count")),
                     mass_difference=mass_difference,
-                    open_search_candidate=_is_open_search_candidate(
+                    open_search_candidate=is_open_search_candidate(
                         mass_difference,
                         tolerance=open_search_mass_tolerance,
                     ),
@@ -349,14 +355,14 @@ def _parse_fragpipe_protein_table(
             rows.append(
                 FragpipeProteinReviewEntry(
                     protein_ref=protein_ref,
-                    entry_name=_optional_text(row.get("Entry Name")),
-                    gene_name=_optional_text(row.get("Gene")),
-                    description=_optional_text(row.get("Protein Description")),
-                    coverage_fraction=_optional_float(row.get("Coverage")),
-                    total_peptides=_optional_int(row.get("Total Peptides")),
-                    unique_peptides=_optional_int(row.get("Unique Peptides")),
-                    spectral_count=_optional_int(row.get("Spectral Count")),
-                    probability=_optional_float(row.get("Probability")),
+                    entry_name=optional_text(row.get("Entry Name")),
+                    gene_name=optional_text(row.get("Gene")),
+                    description=optional_text(row.get("Protein Description")),
+                    coverage_fraction=optional_float(row.get("Coverage")),
+                    total_peptides=optional_int(row.get("Total Peptides")),
+                    unique_peptides=optional_int(row.get("Unique Peptides")),
+                    spectral_count=optional_int(row.get("Spectral Count")),
+                    probability=optional_float(row.get("Probability")),
                     target_decoy_label=parse_target_decoy_label(
                         protein_refs=(protein_ref,),
                         explicit_label=None,
@@ -399,7 +405,7 @@ def _build_fragpipe_open_search_evidence(
         rows.append(
             FragpipeOpenSearchEvidenceEntry(
                 entity_kind="peptide",
-                entity_id=_fragpipe_peptide_entity_id(
+                entity_id=fragpipe_peptide_entity_id(
                     peptide=peptide_row.peptide,
                     modified_peptide=peptide_row.modified_peptide,
                     charge=peptide_row.charge,
@@ -441,7 +447,7 @@ def _parse_fragpipe_quant_table(
                 policy=decoy_policy,
             )
             for column_name, quantity_kind, sample_id in quant_columns:
-                abundance = _optional_float(raw_row.get(column_name))
+                abundance = optional_float(raw_row.get(column_name))
                 if abundance is None:
                     continue
                 rows.append(
@@ -483,82 +489,3 @@ def _fragpipe_quant_columns(
                     columns.append((field_name, quantity_kind, sample_id))
                 break
     return tuple(columns)
-
-
-def _canonical_modified_peptide(notation: str | None) -> str | None:
-    if notation is None:
-        return None
-    try:
-        return build_search_engine_modified_peptide_report(
-            notation,
-            dialect=SearchEngineModifiedPeptideDialect.FRAGPIPE,
-        ).canonical_notation
-    except ValueError:
-        return None
-
-
-def _split_multi_value(value: object) -> tuple[str, ...]:
-    if value is None:
-        return ()
-    text = str(value).strip()
-    if not text:
-        return ()
-    separators = (";", ",")
-    tokens = [text]
-    for separator in separators:
-        expanded: list[str] = []
-        for token in tokens:
-            expanded.extend(token.split(separator))
-        tokens = expanded
-    normalized = tuple(token.strip() for token in tokens if token.strip())
-    return tuple(dict.fromkeys(normalized))
-
-
-def _optional_float(value: object) -> float | None:
-    if value is None:
-        return None
-    text = str(value).strip()
-    if not text:
-        return None
-    return float(text)
-
-
-def _optional_int(value: object) -> int | None:
-    if value is None:
-        return None
-    text = str(value).strip()
-    if not text:
-        return None
-    return int(text)
-
-
-def _optional_text(value: object) -> str | None:
-    if value is None:
-        return None
-    text = str(value).strip()
-    return text or None
-
-
-def _is_open_search_candidate(
-    mass_difference: float | None, *, tolerance: float
-) -> bool:
-    if mass_difference is None:
-        return False
-    return abs(mass_difference) > tolerance
-
-
-def _has_modified_content(
-    row: FragpipePsmReviewEntry | FragpipePeptideReviewEntry,
-) -> bool:
-    if row.canonical_modified_peptide is None:
-        return False
-    return row.canonical_modified_peptide != row.peptide
-
-
-def _fragpipe_peptide_entity_id(
-    *, peptide: str, modified_peptide: str | None, charge: int | None
-) -> str:
-    modified_key = modified_peptide or peptide
-    if charge is None:
-        return f"{modified_key}|unassigned"
-    return f"{modified_key}|z{charge}"
