@@ -16,6 +16,13 @@ because the repository now has enough public proof surfaces that a hostile
 reader needs a stable opening order. Without that order, the stronger current
 scientific and runtime work would still look like scattered governance prose.
 
+The index therefore functions as a public scrutiny map for the current release
+surface. It shows that the repository now has enough benchmark, rerun,
+grounding, recommendation, and consequence artifacts that coexistence itself
+must be justified. If two pages appear to answer the same question, this index
+should explain which one is the stronger challenge route and which one exists
+to narrow or stabilize language around it.
+
 - governed artifact budget: `20`
 - current artifact count: `20`
 
@@ -64,3 +71,13 @@ The registry is intentionally stricter than a link list. If a new public artifac
   side note
 - artifact count alone is not a success signal; distinct review value is
   required for every entry
+
+## Strongest Reader Use
+
+- start with the repository-wide entries when deciding whether any release
+  language is earned at all
+- move to workflow-family entries only after the whole-repository challenge
+  route is clear
+- treat each coexistence rationale as a replacement pressure: if a weaker page
+  no longer narrows or stabilizes a stronger one, it should not survive the
+  next docs pass

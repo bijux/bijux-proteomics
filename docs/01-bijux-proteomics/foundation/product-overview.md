@@ -20,6 +20,14 @@ substance in the core package, reviewable execution in runtime, explicit
 scientific memory in knowledge, bounded recommendation posture in
 intelligence, and honest follow-up pressure in lab.
 
+The important correction is that this product should now be read as a
+scientific workflow system with explicit review pressure, not as a docs-first
+governance shell around disconnected packages. The product promise is
+concrete: ingest benchmark-backed proteomics material, preserve reproducible
+shared meaning, execute a reviewable runtime path, ground the result
+scientifically, decide what recommendation posture is still justified, and
+only then ask whether downstream assay burden is worth accepting.
+
 ## What Is Real Today
 
 - `bijux-proteomics-foundation` owns the shared document, identifier,
@@ -42,6 +50,19 @@ intelligence, and honest follow-up pressure in lab.
   explicit about downgrade and refusal.
 - `bijux-proteomics-lab` owns assay planning, readiness, handoff honesty,
   refusal boundaries, and requested-versus-observed outcome reconciliation.
+
+## What The Repository Can Now Defend
+
+- benchmark-backed workflow-family language is no longer carried by release
+  prose alone; it is carried by paired public benchmark packages, runtime
+  rerun lanes, grounding routes, recommendation packets, and consequence
+  ledgers
+- biology and chemistry depth no longer sit only in aspirational structure;
+  the current core package now carries sequence, spectra, mzML, PTM, DIA,
+  quantification, and benchmark-surface responsibility in one visible owner
+- the knowledge and intelligence layers now make disagreement, downgrade, and
+  refusal legible enough that public language can be challenged instead of
+  merely asserted
 
 ## Start Here
 
@@ -69,6 +90,17 @@ intelligence, and honest follow-up pressure in lab.
 - Open [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the question is whether those benchmark assets can be rerun, imported,
   replayed, and inspected without private maintainer glue.
+
+## Why This Page Must Stay Product-First
+
+- package handbooks matter, but most first-time readers are trying to decide
+  whether the repository has real scientific substance before they care which
+  owner package carries it
+- the root story now needs to explain biological depth, runtime proof,
+  grounding pressure, and assay consequence in one route or it will still
+  understate what changed since `v0.3.7`
+- if this page ever sounds stronger than the claim-limit, readiness, and
+  consequence pages, the repository-level wording is wrong
 
 ## Current Credible Families
 

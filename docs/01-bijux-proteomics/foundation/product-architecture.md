@@ -27,6 +27,11 @@ more visible lab consequence than the earlier docs suggested. The architecture
 page should make that product depth legible instead of sounding like a neutral
 package inventory.
 
+The architecture is therefore not only a dependency map. It is the shortest
+end-to-end explanation of how this repository turns proteomics material into a
+bounded scientific sentence. If any hop in that chain weakens, the public
+language must narrow even when the upstream code still looks sophisticated.
+
 ## Lifecycle
 
 | Stage | Owner | What the owner contributes | Primary surface |
@@ -44,6 +49,17 @@ Two repository surfaces sit beside that chain rather than inside it:
   callers migrate to canonical runtime ownership.
 - `bijux-proteomics-dev` owns repository-health automation, docs integrity, and
   release governance.
+
+## What Became Deeper Since The Earlier Handbooks
+
+- core now carries visibly broader biological and chemical work instead of
+  stopping at generic workflow contracts
+- runtime now exposes stronger replay, rerun, import, and operator-facing proof
+  surfaces instead of leaving reproducibility implicit
+- knowledge and intelligence now carry more exact grounding, contradiction,
+  challenge, confidence, and downgrade routes
+- lab now contributes a clearer requested-versus-observed outcome loop instead
+  of ending at soft next-step language
 
 ## What The Architecture Protects
 
@@ -91,6 +107,14 @@ Two repository surfaces sit beside that chain rather than inside it:
 
 If one of those hops is weak, the public sentence must narrow even when the
 other hops look strong.
+
+## What This Page Prevents
+
+- benchmark-backed scientific depth being mistaken for blanket release
+  readiness
+- runtime rerun realism being mistaken for scientific transfer proof
+- strong analytical judgment being mistaken for free downstream lab consequence
+- package-local excellence being mistaken for a coherent end-to-end product
 
 ## First Proof Check
 

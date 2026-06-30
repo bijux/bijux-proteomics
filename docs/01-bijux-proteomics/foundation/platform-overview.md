@@ -21,6 +21,12 @@ governance neat. It exists because broad proteomics work now crosses sequence
 and chemistry rules, benchmark-backed scientific interpretation, runtime proof,
 grounded evidence, recommendation posture, and downstream assay consequence.
 
+The platform therefore should be read as an authority chain for one bounded
+scientific product, not as a packaging convenience. Each hop exists because a
+different kind of truth is being asserted: shared identifier truth, workflow
+contract truth, execution truth, evidence truth, recommendation truth, and
+downstream consequence truth.
+
 ## Platform Model
 
 ```mermaid
@@ -62,6 +68,15 @@ This page should give the shortest honest explanation of the package chain. Read
 
 `bijux-proteomics-runtime` governs execution, replay, and operator-facing runtime behavior while `agentic-proteins` remains the compatibility bridge.
 
+## What This Split Lets Reviewers Ask
+
+- did a change alter chemistry, sequence, benchmark, PTM, or quantification
+  meaning in core, or only how runtime executes it
+- did a public sentence widen because evidence and grounding improved, or
+  because recommendation posture drifted
+- did assay-worth-it language change because observed outcomes improved, or
+  because the repository blurred consequence with analytical confidence
+
 ## Why The Split Pays Off
 
 A package boundary is justified only when it reduces one concrete review risk.
@@ -78,6 +93,18 @@ without guessing which layer silently owns the decision.
   scientific depth
 - why compatibility surfaces like `agentic-proteins` still exist without
   regaining canonical ownership
+
+## Strongest Platform Proof Route
+
+- start with
+  [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  when the question is how benchmark intake becomes consequence-bearing review
+- continue to
+  [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  when the question becomes family-specific rather than repository-wide
+- then open runtime, knowledge, intelligence, and lab routes only after the
+  reader understands which owner is allowed to strengthen or narrow the public
+  sentence
 
 ## First Proof Check
 
