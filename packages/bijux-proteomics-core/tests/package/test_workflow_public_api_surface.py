@@ -4,10 +4,19 @@
 from __future__ import annotations
 
 from bijux_proteomics import workflow
-from bijux_proteomics.workflow import cards, demo, exports, pipelines, reports, studies
+from bijux_proteomics.workflow import (
+    benchmarks,
+    cards,
+    demo,
+    exports,
+    pipelines,
+    reports,
+    studies,
+)
 from bijux_proteomics.workflow import cross_study_protein_harmonization
 from bijux_proteomics.workflow import public_benchmark_descriptors
 from bijux_proteomics.workflow.public_api import (
+    BENCHMARK_FACADE_OWNERS,
     CARD_FACADE_OWNERS,
     DEMO_FACADE_OWNERS,
     EXPORT_FACADE_OWNERS,
@@ -31,6 +40,9 @@ def test_workflow_root_public_api_matches_governed_owner_ledger() -> None:
 
 
 def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
+    expected_benchmarks, _ = build_lazy_export_index(
+        facade_owner_modules(BENCHMARK_FACADE_OWNERS)
+    )
     expected_cards, _ = build_lazy_export_index(facade_owner_modules(CARD_FACADE_OWNERS))
     expected_demo, _ = build_lazy_export_index(facade_owner_modules(DEMO_FACADE_OWNERS))
     expected_exports, _ = build_lazy_export_index(
@@ -46,6 +58,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
         facade_owner_modules(STUDY_FACADE_OWNERS)
     )
 
+    assert tuple(benchmarks.__all__) == expected_benchmarks
     assert tuple(cards.__all__) == expected_cards
     assert tuple(demo.__all__) == expected_demo
     assert tuple(exports.__all__) == expected_exports

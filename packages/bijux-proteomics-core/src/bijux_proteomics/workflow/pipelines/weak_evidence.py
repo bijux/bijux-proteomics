@@ -25,7 +25,7 @@ from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     run_public_benchmark_descriptor,
 )
-from bijux_proteomics.workflow.public_benchmark_descriptors import (
+from bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors import (
     PublicBenchmarkDescriptor,
     load_public_benchmark_descriptor,
     public_benchmark_root,

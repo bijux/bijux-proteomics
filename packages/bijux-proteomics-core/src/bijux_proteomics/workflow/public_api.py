@@ -45,6 +45,17 @@ CARD_FACADE_OWNERS = (
     ),
 )
 
+BENCHMARK_FACADE_OWNERS = (
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors",
+        rationale="public benchmark descriptor ownership",
+    ),
+    WorkflowFacadeOwner(
+        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_subset",
+        rationale="public benchmark subset ownership",
+    ),
+)
+
 EXPORT_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.exports.artifact_layout",
@@ -252,6 +263,7 @@ PIPELINE_FACADE_OWNERS = (
 )
 
 WORKFLOW_ROOT_SUBMODULES = {
+    "benchmarks": "bijux_proteomics.workflow.benchmarks",
     "cards": "bijux_proteomics.workflow.cards",
     "demo": "bijux_proteomics.workflow.demo",
     "exports": "bijux_proteomics.workflow.exports",
@@ -428,11 +440,11 @@ WORKFLOW_ROOT_OWNERS = (
         rationale="protein mechanism card ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.public_benchmark_descriptors",
+        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors",
         rationale="public benchmark descriptor ownership",
     ),
     WorkflowFacadeOwner(
-        owner_module="bijux_proteomics.workflow.public_benchmark_subset",
+        owner_module="bijux_proteomics.workflow.benchmarks.public_benchmark_subset",
         rationale="public benchmark subset ownership",
     ),
     WorkflowFacadeOwner(
@@ -637,6 +649,7 @@ def _public_assigned_names(target: ast.expr) -> list[str]:
 
 
 __all__ = [
+    "BENCHMARK_FACADE_OWNERS",
     "CARD_FACADE_OWNERS",
     "DEMO_FACADE_OWNERS",
     "EXPORT_FACADE_OWNERS",

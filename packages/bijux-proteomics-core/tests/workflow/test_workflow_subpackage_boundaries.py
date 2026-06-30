@@ -11,6 +11,12 @@ _WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
 _ROOT_WRAPPER_TARGETS = {
+    "public_benchmark_descriptors.py": (
+        "bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors"
+    ),
+    "public_benchmark_subset.py": (
+        "bijux_proteomics.workflow.benchmarks.public_benchmark_subset"
+    ),
     "biological_report_assembly.py": (
         "bijux_proteomics.workflow.reports.biological_report_assembly"
     ),
@@ -121,11 +127,16 @@ def test_workflow_root_wrappers_stay_thin_subpackage_facades() -> None:
 
 
 def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
+    benchmarks = importlib.import_module("bijux_proteomics.workflow.benchmarks")
     reports = importlib.import_module("bijux_proteomics.workflow.reports")
     cards = importlib.import_module("bijux_proteomics.workflow.cards")
     exports = importlib.import_module("bijux_proteomics.workflow.exports")
     demo = importlib.import_module("bijux_proteomics.workflow.demo")
     studies = importlib.import_module("bijux_proteomics.workflow.studies")
+
+    assert hasattr(benchmarks, "PublicBenchmarkDescriptor")
+    assert hasattr(benchmarks, "load_public_benchmark_descriptor")
+    assert hasattr(benchmarks, "build_public_benchmark_subset")
 
     assert hasattr(reports, "build_biological_result_report_bundle")
     assert hasattr(reports, "export_biological_result_report_bundle")
