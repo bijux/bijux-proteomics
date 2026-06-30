@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # bijux-proteomics-knowledge
@@ -53,6 +53,8 @@ flowchart LR
 - evidence records and claim state
 - confidence semantics and contradiction handling
 - knowledge-level review boundaries used by downstream packages
+- grounding, literature-pressure, and biological-context surfaces that stop the
+  repository from sounding more certain than its evidence state earns
 
 ## Why This Package Matters More Now
 
@@ -61,6 +63,9 @@ flowchart LR
 - stronger workflow packets need stronger contradiction and citation discipline
 - downstream recommendation and lab consequence can now be traced back to
   visible evidence state instead of inferred background knowledge
+- biological reasoning is now explicit enough that readers can inspect where
+  confidence came from, where contradiction remains open, and why hesitation is
+  scientifically responsible instead of operationally inconvenient
 
 ## Shared Reader Routes
 
@@ -86,11 +91,43 @@ flowchart LR
 - Open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/)
   when the question is a claim, evidence, or confidence-facing contract.
 
+## Reader Questions This Package Can Answer
+
+- which parts of a workflow story are directly grounded and which still depend
+  on bounded inference
+- where contradiction remains unresolved instead of being smoothed into a
+  single recommendation sentence
+- how literature pressure, comparator pressure, and biological-context pressure
+  reshape confidence before a lab or decision surface is allowed to promote the
+  claim
+- whether a public workflow sentence has earned trust through explicit evidence
+  state rather than tone
+
+## Evidence Proof Surfaces
+
+- decision-support pages when the question is still cross-package and public
+  facing
+- workflow grounding and literature audit pages when the real issue is whether
+  the repository can justify what it says
+- architecture pages for claim, contradiction, and confidence separation
+- interfaces pages for evidence and claim-facing contracts that downstream
+  packages must not rewrite
+
 ## What It Refuses
 
 - scoring and recommendation policy
 - execution orchestration and operator surfaces
 - assay planning and outcome promotion
+
+## Why Readers Underestimate Knowledge
+
+- this package is easy to mistake for a passive ledger unless the contradiction
+  and grounding routes are shown clearly
+- repository honesty depends on this owner more than on any confidence-sounding
+  prose elsewhere
+- stronger scientific depth only becomes visible to a reader when evidence
+  state, hesitation, and literature pressure are documented as first-class
+  surfaces
 
 ## Strongest Proof Route
 
@@ -106,3 +143,5 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge`
 - `packages/bijux-proteomics-knowledge/tests`
 - confidence and contradiction modules once the claim narrows to one seam
+- grounding, citation, and contradiction-review artifacts when the public claim
+  itself is under scrutiny

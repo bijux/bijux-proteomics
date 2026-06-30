@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # bijux-proteomics-intelligence
@@ -48,6 +48,8 @@ flowchart LR
 - candidate scoring and ranking policy
 - scenario evaluation and recommendation logic
 - explanation and reporting surfaces for those decisions
+- confidence, regret, and challenge-facing judgment surfaces that show where
+  analytical posture narrows before the lab or operator is asked to act
 
 ## Why This Package Matters More Now
 
@@ -57,6 +59,9 @@ flowchart LR
   package must expose rather than smooth away
 - lab consequence now depends on explicit analytical judgment instead of an
   implied handoff
+- the repository now exposes enough challenge artifacts that readers can ask
+  whether a recommendation survived counterfactual pressure rather than merely
+  whether it sounds persuasive
 
 ## Shared Reader Routes
 
@@ -81,11 +86,42 @@ flowchart LR
 - Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
   when the issue is a policy-facing surface or explanation output.
 
+## Reader Questions This Package Can Answer
+
+- why the current recommendation moved instead of staying at an earlier,
+  seemingly safer posture
+- which workflow families still carry bounded recommendation posture even when
+  their benchmark and runtime routes look strong
+- whether overconfidence, underconfidence, or regret pressure is already
+  visible in the shipped analytical artifacts
+- how recommendation language changes when contradiction, comparator pressure,
+  or lab burden is reintroduced
+
+## Analytical Proof Surfaces
+
+- decision-support pages for repository-wide recommendation posture before the
+  question narrows to one policy surface
+- workflow recommendation confidence for overconfidence, underconfidence, and
+  regret-facing evidence
+- workflow recommendation challenges for blinded and counterfactual pressure on
+  each family
+- architecture and interface pages for how scoring, scenarios, and explanation
+  outputs stay separated from evidence truth
+
 ## What It Refuses
 
 - evidence truth and contradiction handling
 - durable program contracts and shared payload meaning
 - execution and operator-facing runtime behavior
+
+## Why Readers Misread This Package
+
+- a weak description makes intelligence look like generic orchestration prose
+  instead of accountable judgment
+- recommendation posture can sound stronger than it is unless challenge and
+  regret routes are shown next to the score
+- this package is easiest to overstate when it is not visibly chained back to
+  knowledge, runtime, and lab consequence
 
 ## Strongest Proof Route
 
@@ -101,3 +137,5 @@ flowchart LR
 - `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
 - `packages/bijux-proteomics-intelligence/tests`
 - explainability and reporting modules once a claim narrows to one surface
+- challenge, confidence, and counterfactual artifacts when the question is
+  whether the recommendation survived scrutiny rather than merely existed
