@@ -16,11 +16,11 @@ from bijux_proteomics.review import BiomarkerCandidateKind
 
 
 def test_biomarker_candidate_support_facade_exports_primary_loaders() -> None:
-    assert biomarker_candidate_support.__all__ == [
+    assert biomarker_candidate_support.__all__ == (
         "_build_biomarker_candidates_from_biological_report_dir",
         "_build_biomarker_candidates_from_ptm_report_dir",
         "_load_biomarker_candidate_inputs",
-    ]
+    )
 
 
 def test_biological_report_candidate_loader_matches_out_of_order_differential_rows(
