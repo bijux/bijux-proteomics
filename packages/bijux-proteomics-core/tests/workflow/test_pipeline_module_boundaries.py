@@ -191,6 +191,15 @@ def test_demo_pipeline_wrappers_delegate_to_demo_owners() -> None:
 def test_advanced_pipeline_wrappers_delegate_to_advanced_owners() -> None:
     root = _workflow_source_root() / "pipelines"
     expected_targets = {
+        "advanced_diann.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_diann"
+        ),
+        "advanced_fragpipe.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_fragpipe"
+        ),
+        "advanced_maxquant.py": (
+            "bijux_proteomics.workflow.pipelines.advanced.advanced_maxquant"
+        ),
         "advanced_workflow_family.py": (
             "bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family"
         ),
