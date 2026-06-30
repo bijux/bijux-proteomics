@@ -838,6 +838,110 @@ WORKFLOW_ROOT_OWNERS = (
     *WORKFLOW_ROOT_DEMO_OWNERS,
 )
 
+WORKFLOW_ROOT_OWNER_FILES = frozenset(
+    {
+        "__init__.py",
+        "blueprint.py",
+        "public_api.py",
+        "result_types.py",
+    }
+)
+
+WORKFLOW_ROOT_WRAPPER_TARGETS = {
+    "artifact_layout.py": "bijux_proteomics.workflow.exports.artifact_layout",
+    "biological_report_assembly.py": (
+        "bijux_proteomics.workflow.reports.biological_report_assembly"
+    ),
+    "biological_report_claims.py": (
+        "bijux_proteomics.workflow.reports.biological_report_claims"
+    ),
+    "biological_report_html.py": (
+        "bijux_proteomics.workflow.reports.biological_report_html"
+    ),
+    "biological_report_html_support.py": (
+        "bijux_proteomics.workflow.reports.biological_report_html_support"
+    ),
+    "biological_report_models.py": (
+        "bijux_proteomics.workflow.reports.biological_report_models"
+    ),
+    "biological_report_ranking.py": (
+        "bijux_proteomics.workflow.reports.biological_report_ranking"
+    ),
+    "biological_report_rendering.py": (
+        "bijux_proteomics.workflow.reports.biological_report_rendering"
+    ),
+    "biological_report_section_confidence.py": (
+        "bijux_proteomics.workflow.reports.biological_report_section_confidence"
+    ),
+    "biological_report_selection.py": (
+        "bijux_proteomics.workflow.reports.biological_report_selection"
+    ),
+    "biological_reporting.py": "bijux_proteomics.workflow.reports.biological_reporting",
+    "biological_result_graph.py": (
+        "bijux_proteomics.workflow.reports.biological_result_graph"
+    ),
+    "cohort_stratification.py": (
+        "bijux_proteomics.workflow.studies.cohort_stratification"
+    ),
+    "cross_species_effect_comparison.py": (
+        "bijux_proteomics.workflow.studies.cross_species_effect_comparison"
+    ),
+    "cross_study_effect_comparison.py": (
+        "bijux_proteomics.workflow.studies.cross_study_effect_comparison"
+    ),
+    "cross_study_evidence_cards.py": (
+        "bijux_proteomics.workflow.cards.cross_study_evidence_cards"
+    ),
+    "cross_study_meta_analysis.py": (
+        "bijux_proteomics.workflow.studies.cross_study_meta_analysis"
+    ),
+    "cross_study_pathway_comparison.py": (
+        "bijux_proteomics.workflow.studies.cross_study_pathway_comparison"
+    ),
+    "cross_study_protein_harmonization.py": (
+        "bijux_proteomics.workflow.studies.cross_study_protein_harmonization"
+    ),
+    "diann_benchmarks.py": "bijux_proteomics.workflow.benchmarks.diann_benchmarks",
+    "interactive_result_bundle.py": (
+        "bijux_proteomics.workflow.exports.interactive_result_bundle"
+    ),
+    "interactive_result_comparison.py": (
+        "bijux_proteomics.workflow.exports.interactive_result_comparison"
+    ),
+    "maxquant_benchmarks.py": (
+        "bijux_proteomics.workflow.benchmarks.maxquant_benchmarks"
+    ),
+    "mechanisms.py": "bijux_proteomics.workflow.cards.mechanisms",
+    "output_validation.py": "bijux_proteomics.workflow.exports.output_validation",
+    "protein_evidence_cards.py": (
+        "bijux_proteomics.workflow.cards.protein_evidence_cards"
+    ),
+    "protein_mechanism_cards.py": (
+        "bijux_proteomics.workflow.cards.protein_mechanism_cards"
+    ),
+    "public_benchmark_descriptors.py": (
+        "bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors"
+    ),
+    "public_benchmark_subset.py": (
+        "bijux_proteomics.workflow.benchmarks.public_benchmark_subset"
+    ),
+    "public_dataset_comparison.py": (
+        "bijux_proteomics.workflow.studies.public_dataset_comparison"
+    ),
+    "result_archive.py": "bijux_proteomics.workflow.exports.result_archive",
+    "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
+    "result_search_index.py": "bijux_proteomics.workflow.exports.result_search_index",
+    "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
+    "study_result.py": "bijux_proteomics.workflow.studies.study_result",
+    "synthetic_quant_truth.py": (
+        "bijux_proteomics.workflow.benchmarks.synthetic_quant_truth"
+    ),
+    "targeted_review_workflow.py": (
+        "bijux_proteomics.workflow.exports.targeted_review_workflow"
+    ),
+    "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
+}
+
 
 def ordered_facade_owners(
     owners: tuple[WorkflowFacadeOwner, ...],
@@ -1021,6 +1125,7 @@ __all__ = [
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS",
     "WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS",
+    "WORKFLOW_ROOT_OWNER_FILES",
     "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS",
     "WORKFLOW_ROOT_REPORT_OWNERS",
@@ -1038,6 +1143,7 @@ __all__ = [
     "WORKFLOW_ROOT_STUDY_OWNERS",
     "WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS",
     "WORKFLOW_ROOT_SUBMODULES",
+    "WORKFLOW_ROOT_WRAPPER_TARGETS",
     "WorkflowFacadeOwner",
     "build_lazy_export_index",
     "list_owned_public_names",

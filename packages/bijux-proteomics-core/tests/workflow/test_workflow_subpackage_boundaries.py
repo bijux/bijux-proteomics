@@ -7,109 +7,14 @@ import ast
 import importlib
 from pathlib import Path
 
+from bijux_proteomics.workflow.public_api import (
+    WORKFLOW_ROOT_OWNER_FILES,
+    WORKFLOW_ROOT_WRAPPER_TARGETS,
+)
+
 _WORKFLOW_ROOT = (
     Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics" / "workflow"
 )
-_ROOT_OWNER_FILES = {
-    "__init__.py",
-    "blueprint.py",
-    "public_api.py",
-    "result_types.py",
-}
-_ROOT_WRAPPER_TARGETS = {
-    "mechanisms.py": "bijux_proteomics.workflow.cards.mechanisms",
-    "diann_benchmarks.py": "bijux_proteomics.workflow.benchmarks.diann_benchmarks",
-    "maxquant_benchmarks.py": (
-        "bijux_proteomics.workflow.benchmarks.maxquant_benchmarks"
-    ),
-    "public_benchmark_descriptors.py": (
-        "bijux_proteomics.workflow.benchmarks.public_benchmark_descriptors"
-    ),
-    "public_benchmark_subset.py": (
-        "bijux_proteomics.workflow.benchmarks.public_benchmark_subset"
-    ),
-    "synthetic_quant_truth.py": (
-        "bijux_proteomics.workflow.benchmarks.synthetic_quant_truth"
-    ),
-    "biological_report_assembly.py": (
-        "bijux_proteomics.workflow.reports.biological_report_assembly"
-    ),
-    "biological_report_claims.py": (
-        "bijux_proteomics.workflow.reports.biological_report_claims"
-    ),
-    "biological_report_html.py": (
-        "bijux_proteomics.workflow.reports.biological_report_html"
-    ),
-    "biological_report_html_support.py": (
-        "bijux_proteomics.workflow.reports.biological_report_html_support"
-    ),
-    "biological_report_models.py": (
-        "bijux_proteomics.workflow.reports.biological_report_models"
-    ),
-    "biological_report_ranking.py": (
-        "bijux_proteomics.workflow.reports.biological_report_ranking"
-    ),
-    "biological_report_rendering.py": (
-        "bijux_proteomics.workflow.reports.biological_report_rendering"
-    ),
-    "biological_report_section_confidence.py": (
-        "bijux_proteomics.workflow.reports.biological_report_section_confidence"
-    ),
-    "biological_report_selection.py": (
-        "bijux_proteomics.workflow.reports.biological_report_selection"
-    ),
-    "biological_reporting.py": "bijux_proteomics.workflow.reports.biological_reporting",
-    "biological_result_graph.py": (
-        "bijux_proteomics.workflow.reports.biological_result_graph"
-    ),
-    "cross_study_effect_comparison.py": (
-        "bijux_proteomics.workflow.studies.cross_study_effect_comparison"
-    ),
-    "cross_study_meta_analysis.py": (
-        "bijux_proteomics.workflow.studies.cross_study_meta_analysis"
-    ),
-    "cross_study_pathway_comparison.py": (
-        "bijux_proteomics.workflow.studies.cross_study_pathway_comparison"
-    ),
-    "cross_study_protein_harmonization.py": (
-        "bijux_proteomics.workflow.studies.cross_study_protein_harmonization"
-    ),
-    "cross_species_effect_comparison.py": (
-        "bijux_proteomics.workflow.studies.cross_species_effect_comparison"
-    ),
-    "public_dataset_comparison.py": (
-        "bijux_proteomics.workflow.studies.public_dataset_comparison"
-    ),
-    "cross_study_evidence_cards.py": (
-        "bijux_proteomics.workflow.cards.cross_study_evidence_cards"
-    ),
-    "protein_evidence_cards.py": (
-        "bijux_proteomics.workflow.cards.protein_evidence_cards"
-    ),
-    "protein_mechanism_cards.py": (
-        "bijux_proteomics.workflow.cards.protein_mechanism_cards"
-    ),
-    "artifact_layout.py": "bijux_proteomics.workflow.exports.artifact_layout",
-    "interactive_result_bundle.py": (
-        "bijux_proteomics.workflow.exports.interactive_result_bundle"
-    ),
-    "interactive_result_comparison.py": (
-        "bijux_proteomics.workflow.exports.interactive_result_comparison"
-    ),
-    "output_validation.py": "bijux_proteomics.workflow.exports.output_validation",
-    "result_archive.py": "bijux_proteomics.workflow.exports.result_archive",
-    "result_manifest.py": "bijux_proteomics.workflow.exports.result_manifest",
-    "result_search_index.py": ("bijux_proteomics.workflow.exports.result_search_index"),
-    "targeted_review_workflow.py": (
-        "bijux_proteomics.workflow.exports.targeted_review_workflow"
-    ),
-    "scale_demo.py": "bijux_proteomics.workflow.pipelines.scale_demo",
-    "cohort_stratification.py": (
-        "bijux_proteomics.workflow.studies.cohort_stratification"
-    ),
-    "study_result.py": "bijux_proteomics.workflow.studies.study_result",
-    "weak_evidence.py": "bijux_proteomics.workflow.pipelines.weak_evidence",
-}
 
 
 def _significant_nodes(path: Path) -> list[ast.stmt]:
@@ -130,7 +35,7 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
 
 
 def test_workflow_root_wrappers_stay_thin_subpackage_facades() -> None:
-    for filename, expected_target in _ROOT_WRAPPER_TARGETS.items():
+    for filename, expected_target in WORKFLOW_ROOT_WRAPPER_TARGETS.items():
         nodes = _significant_nodes(_WORKFLOW_ROOT / filename)
         assert nodes, f"{filename} should contain a compatibility re-export"
         assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
@@ -150,7 +55,7 @@ def test_workflow_root_keeps_only_shared_facade_owners() -> None:
         if nodes and all(isinstance(node, ast.ImportFrom) for node in nodes):
             continue
         owner_files.add(path.name)
-    assert owner_files == _ROOT_OWNER_FILES
+    assert owner_files == WORKFLOW_ROOT_OWNER_FILES
 
 
 def test_workflow_subpackages_export_representative_owner_surfaces() -> None:
