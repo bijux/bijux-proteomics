@@ -14,6 +14,7 @@ _BENCHMARK_ROOT = (
     / "workflow"
     / "benchmarks"
 )
+_BENCHMARK_ROOT_OWNER_FILES = {"__init__.py"}
 _BENCHMARK_ROOT_WRAPPERS = {
     "diann_benchmarks.py": (
         "bijux_proteomics.workflow.benchmarks.fidelity.diann_benchmarks"
@@ -62,6 +63,16 @@ def test_benchmark_root_wrappers_stay_thin_nested_facades() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its canonical benchmark owner"
+
+
+def test_benchmark_root_keeps_only_shared_facade_owner() -> None:
+    owner_files: set[str] = set()
+    for path in _BENCHMARK_ROOT.glob("*.py"):
+        nodes = _significant_nodes(path)
+        if nodes and all(isinstance(node, ast.ImportFrom) for node in nodes):
+            continue
+        owner_files.add(path.name)
+    assert owner_files == _BENCHMARK_ROOT_OWNER_FILES
 
 
 def test_benchmark_subpackages_export_representative_owner_surfaces() -> None:
