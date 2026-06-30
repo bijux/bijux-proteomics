@@ -71,39 +71,53 @@ from bijux_proteomics.review import (
     render_result_query_evidence_tsv,
     render_result_query_summary_tsv,
 )
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.contaminant_database import (
+    append_contaminant_database,
+)
+from bijux_proteomics.sequences.fasta import (
     DecoyGenerationMode,
     DuplicateAccessionPolicy,
-    FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
-    PeptideChemicalLiabilityTier,
-    PeptideDetectabilityTier,
-    PeptideUniquenessClass,
-    append_contaminant_database,
     build_decoy_generation_manifest,
     build_decoy_generation_report,
-    build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
-    build_peptide_detectability_report,
-    build_peptide_property_report,
-    build_theoretical_digest_bundle,
     deduplicate_fasta_records,
     filter_fasta_records,
     generate_decoy_records,
     parse_fasta_document,
+    render_records_fasta,
+    sequence_checksum,
+    validate_target_decoy_database,
+)
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta_profile import (
+    FastaDatabaseProfile,
+    build_fasta_database_profile,
     render_fasta_profile_invalid_sequence_tsv,
     render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
+)
+from bijux_proteomics.sequences.peptide_chemical_liability import (
+    PeptideChemicalLiabilityTier,
+)
+from bijux_proteomics.sequences.peptide_detectability import (
+    PeptideDetectabilityTier,
+    build_peptide_detectability_report,
     render_peptide_detectability_tsv,
-    render_records_fasta,
-    sequence_checksum,
-    validate_target_decoy_database,
+)
+from bijux_proteomics.sequences.peptide_properties import (
+    build_peptide_property_report,
+)
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
+)
+from bijux_proteomics.sequences.theoretical_digest import (
+    build_theoretical_digest_bundle,
     write_theoretical_digest_bundle,
 )
-from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     ProteaseRule,
