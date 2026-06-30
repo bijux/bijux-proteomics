@@ -14,10 +14,12 @@ from bijux_proteomics.interpretation.compartment_biology import (
     CompartmentBiologyReport,
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
-    _BIOLOGICAL_REPORT_SECTION_TITLES,
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,
+)
+from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
+    _build_biological_report_section_confidence_entry,
 )
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,
@@ -47,7 +49,7 @@ def _build_drug_target_entry(
     report: DrugTargetInterpretationReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.entry_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.DRUG_TARGET_INTERPRETATION,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no drug-target relationships were supported by explicit target annotations",
@@ -59,7 +61,7 @@ def _build_drug_target_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.DRUG_TARGET_INTERPRETATION,
         label,
         (
@@ -73,7 +75,7 @@ def _build_disease_phenotype_entry(
     report: DiseasePhenotypeInterpretationReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.evaluated_term_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no disease or phenotype terms were evaluable from the supplied annotations",
@@ -88,7 +90,7 @@ def _build_disease_phenotype_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.DISEASE_PHENOTYPE_INTERPRETATION,
         label,
         (
@@ -102,7 +104,7 @@ def _build_cohort_entry(
     report: CohortStratificationReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.supported_stratum_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.COHORT_STRATIFICATION,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no supported subgroup strata passed the cohort stratification feasibility checks",
@@ -112,7 +114,7 @@ def _build_cohort_entry(
         label = BiologicalReportSectionConfidenceLabel.EXPLORATORY
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.COHORT_STRATIFICATION,
         label,
         (
@@ -126,7 +128,7 @@ def _build_tissue_context_entry(
     report: TissueCellTypeContextReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.sample_with_marker_definition_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.TISSUE_CELL_TYPE_CONTEXT,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no samples carried marker definitions for tissue or cell-type validation",
@@ -138,7 +140,7 @@ def _build_tissue_context_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.HIGH
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.TISSUE_CELL_TYPE_CONTEXT,
         label,
         (
@@ -153,7 +155,7 @@ def _build_compartment_entry(
     report: CompartmentBiologyReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.compartment_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no compartments were evaluable from the supplied localization context",
@@ -170,24 +172,11 @@ def _build_compartment_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.COMPARTMENT_BIOLOGY,
         label,
         (
             "compartment confidence derives from condition comparisons, unresolved members, "
             "and unknown-localization counts"
         ),
-    )
-
-
-def _build_section_confidence_entry(
-    section_key: BiologicalReportSectionKey,
-    confidence_label: BiologicalReportSectionConfidenceLabel,
-    rationale: str,
-) -> BiologicalReportSectionConfidenceEntry:
-    return BiologicalReportSectionConfidenceEntry(
-        section_key=section_key,
-        section_title=_BIOLOGICAL_REPORT_SECTION_TITLES[section_key],
-        confidence_label=confidence_label,
-        rationale=rationale,
     )

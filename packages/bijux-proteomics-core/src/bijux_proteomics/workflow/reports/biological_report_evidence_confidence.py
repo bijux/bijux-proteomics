@@ -24,10 +24,12 @@ from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCardReport,
 )
 from bijux_proteomics.workflow.reports.biological_report_models import (
-    _BIOLOGICAL_REPORT_SECTION_TITLES,
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,
+)
+from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
+    _build_biological_report_section_confidence_entry,
 )
 
 
@@ -60,23 +62,23 @@ def _build_experiment_confidence_entry(
     summary = report.summary
     if summary.overall_tier is ConfidenceTier.HIGH:
         if summary.low_confidence_component_count == 0:
-            return _build_section_confidence_entry(
+            return _build_biological_report_section_confidence_entry(
                 BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
                 BiologicalReportSectionConfidenceLabel.HIGH,
                 "overall experimental confidence is high and no components were downgraded",
             )
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
             BiologicalReportSectionConfidenceLabel.MODERATE,
             "overall experimental confidence is high but at least one component remained low-confidence",
         )
     if summary.overall_tier is ConfidenceTier.MODERATE:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
             BiologicalReportSectionConfidenceLabel.MODERATE,
             "overall experimental confidence is moderate after aggregating metadata, missingness, power, and QC checks",
         )
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.EXPERIMENT_CONFIDENCE,
         BiologicalReportSectionConfidenceLabel.WEAK,
         "overall experimental confidence is low because multiple design or QC components were downgraded",
@@ -87,7 +89,7 @@ def _build_evidence_ranking_entry(
     report: EvidenceAwareRankingReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or not report.entries:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no evidence-aware ranking entries were produced",
@@ -99,7 +101,7 @@ def _build_evidence_ranking_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.EVIDENCE_AWARE_RANKING,
         label,
         f"ranking confidence derives from the top evidence-aware final score ({top_score:.3f}) across governed findings",
@@ -110,7 +112,7 @@ def _build_claim_validation_entry(
     report: BiologicalClaimValidationReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.candidate_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no biological claim candidates were available for validation",
@@ -134,7 +136,7 @@ def _build_claim_validation_entry(
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
         rationale = "validated biological claims are sparse relative to the candidate claim set"
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
         label,
         rationale,
@@ -149,12 +151,12 @@ def _build_hypothesis_entry(
         or report.summary.candidate_count == 0
         or report.summary.hypothesis_count == 0
     ):
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.BIOLOGICAL_HYPOTHESES,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no graph-backed biological hypotheses were produced",
         )
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.BIOLOGICAL_HYPOTHESES,
         BiologicalReportSectionConfidenceLabel.EXPLORATORY,
         (
@@ -168,7 +170,7 @@ def _build_foreground_background_entry(
     model: BiologicalForegroundBackgroundModel,
 ) -> BiologicalReportSectionConfidenceEntry:
     if not model.summary.valid_for_enrichment:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.ENRICHMENT_FOREGROUND_BACKGROUND,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "foreground/background construction failed the enrichment validity checks",
@@ -180,7 +182,7 @@ def _build_foreground_background_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.ENRICHMENT_FOREGROUND_BACKGROUND,
         label,
         (
@@ -194,7 +196,7 @@ def _build_regulator_inference_entry(
     report: RegulatorInferenceReport | None,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report is None or report.summary.entry_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.REGULATOR_INFERENCE,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no regulator entries were supported by the supplied evidence tables",
@@ -207,7 +209,7 @@ def _build_regulator_inference_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.REGULATOR_INFERENCE,
         label,
         (
@@ -221,7 +223,7 @@ def _build_protein_mechanism_entry(
     report: ProteinMechanismCardReport,
 ) -> BiologicalReportSectionConfidenceEntry:
     if report.summary.card_count == 0:
-        return _build_section_confidence_entry(
+        return _build_biological_report_section_confidence_entry(
             BiologicalReportSectionKey.PROTEIN_MECHANISM_CARDS,
             BiologicalReportSectionConfidenceLabel.INVALID,
             "no protein mechanism cards were generated",
@@ -241,24 +243,11 @@ def _build_protein_mechanism_entry(
         label = BiologicalReportSectionConfidenceLabel.MODERATE
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-    return _build_section_confidence_entry(
+    return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.PROTEIN_MECHANISM_CARDS,
         label,
         (
             "protein mechanism card confidence derives from per-card propagated confidence tiers and "
             f"{report.summary.weak_evidence_card_count} weak-evidence card(s)"
         ),
-    )
-
-
-def _build_section_confidence_entry(
-    section_key: BiologicalReportSectionKey,
-    confidence_label: BiologicalReportSectionConfidenceLabel,
-    rationale: str,
-) -> BiologicalReportSectionConfidenceEntry:
-    return BiologicalReportSectionConfidenceEntry(
-        section_key=section_key,
-        section_title=_BIOLOGICAL_REPORT_SECTION_TITLES[section_key],
-        confidence_label=confidence_label,
-        rationale=rationale,
     )
