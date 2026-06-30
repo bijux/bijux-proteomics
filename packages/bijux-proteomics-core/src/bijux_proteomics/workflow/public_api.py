@@ -436,6 +436,52 @@ ENGINE_PIPELINE_FACADE_OWNERS = (
     ),
 )
 
+WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS = (
+    "render_dda_biological_workflow_summary_tsv",
+    "render_filtered_dda_psms_tsv",
+    "render_rejected_psm_rows_tsv",
+    "render_protein_group_discrepancies_tsv",
+    "write_dda_biological_workflow_bundle",
+    "export_dda_biological_workflow_bundle",
+    "render_diann_biological_workflow_summary_tsv",
+    "write_diann_biological_workflow_bundle",
+    "export_diann_biological_workflow_bundle",
+    "render_label_based_report_summary_tsv",
+    "render_label_based_sample_qc_tsv",
+    "write_label_based_report_bundle",
+    "export_label_based_report_bundle",
+    "render_maxquant_biological_workflow_summary_tsv",
+    "render_filtered_maxquant_protein_groups_tsv",
+    "render_maxquant_enrichment_foreground_tsv",
+    "render_maxquant_lfq_summary_tsv",
+    "render_maxquant_lfq_matrix_tsv",
+    "write_maxquant_biological_workflow_bundle",
+    "export_maxquant_biological_workflow_bundle",
+    "render_ptm_site_workflow_summary_tsv",
+    "render_ptm_site_workflow_accepted_evidence_tsv",
+    "render_ptm_site_workflow_rejected_evidence_tsv",
+    "write_ptm_site_workflow_bundle",
+    "export_ptm_site_workflow_bundle",
+    "render_tmt_experiment_workflow_summary_tsv",
+    "render_tmt_workflow_import_summary_tsv",
+    "render_tmt_workflow_accepted_reporter_rows_tsv",
+    "render_tmt_workflow_rejected_reporter_rows_tsv",
+    "write_tmt_experiment_workflow_bundle",
+    "export_tmt_experiment_workflow_bundle",
+)
+
+WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS = tuple(
+    WorkflowFacadeOwner(
+        owner_module=owner.owner_module,
+        rationale=owner.rationale,
+        excluded_exports=(
+            *owner.excluded_exports,
+            *WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
+        ),
+    )
+    for owner in ENGINE_PIPELINE_FACADE_OWNERS
+)
+
 PIPELINE_SUBMODULES = {
     "advanced": "bijux_proteomics.workflow.pipelines.advanced",
     "engines": "bijux_proteomics.workflow.pipelines.engines",
@@ -506,10 +552,12 @@ PIPELINE_FACADE_OWNERS = (
 
 WORKFLOW_ROOT_PIPELINE_OWNERS = (
     *WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
+    *WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
     *(
         owner
         for owner in PIPELINE_FACADE_OWNERS
         if owner not in ADVANCED_PIPELINE_FACADE_OWNERS
+        and owner not in ENGINE_PIPELINE_FACADE_OWNERS
         and not owner.owner_module.startswith("bijux_proteomics.workflow.demo.")
     ),
 )
@@ -702,6 +750,8 @@ __all__ = [
     "WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_CARD_HELPER_EXPORTS",
     "WORKFLOW_ROOT_CARD_OWNERS",
+    "WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS",
+    "WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS",
     "WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS",
     "WORKFLOW_ROOT_EXPORT_OWNERS",
     "WORKFLOW_ROOT_REPORT_HELPER_EXPORTS",
