@@ -33,7 +33,12 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_resolve_biological_result_selection_policy",
     ),
     "biological_report_bundle_contracts.py": (
+        "BiologicalActivityReportBundle",
+        "BiologicalContextualReportBundle",
+        "BiologicalEnrichmentReportBundle",
         "BiologicalResultReportBundle",
+        "BiologicalScientificReportBundle",
+        "BiologicalVisualReportBundle",
     ),
     "biological_report_summary_contracts.py": (
         "BiologicalResultReportSummary",

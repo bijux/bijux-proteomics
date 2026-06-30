@@ -195,6 +195,41 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.summary.invalid_section_count >= 1
 
 
+def test_build_biological_result_report_bundle_preserves_flat_public_payload() -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.scientific.differential_report is report.differential_report
+    assert report.contextual.context_mapping_report is report.context_mapping_report
+    assert report.visual.heatmap_report is report.heatmap_report
+
+    payload = report.to_dict()
+
+    assert "scientific" not in payload
+    assert "contextual" not in payload
+    assert "activity" not in payload
+    assert "enrichment" not in payload
+    assert "visual" not in payload
+    assert payload["differential_report"]["entries"]
+    assert payload["context_mapping_report"]["mapped_entries"]
+    assert payload["heatmap_report"]["rows"]
+    assert payload["selection_policy"] == report.selection_policy.to_dict()
+    assert payload["summary"]["protein_count"] == report.summary.protein_count
+
+
 def test_build_biological_result_report_bundle_preserves_compartment_biology() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
