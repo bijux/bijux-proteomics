@@ -114,4 +114,5 @@ def test_identification_root_public_api_ledger_stays_governed() -> None:
         "peptide",
         "protein",
         "psm",
+        "search_adapters",
     )

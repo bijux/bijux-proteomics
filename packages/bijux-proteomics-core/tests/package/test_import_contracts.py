@@ -213,12 +213,16 @@ def test_identification_subpackage_import_contract() -> None:
     protein = importlib.import_module("bijux_proteomics.identification.protein")
     fdr = importlib.import_module("bijux_proteomics.identification.fdr")
     adapters = importlib.import_module("bijux_proteomics.identification.adapters")
+    search_adapters = importlib.import_module(
+        "bijux_proteomics.identification.search_adapters"
+    )
 
     assert hasattr(psm, "extract_psm_features")
     assert hasattr(peptide, "build_peptide_evidence_report")
     assert hasattr(protein, "build_protein_grouping_report")
     assert hasattr(fdr, "build_psm_target_decoy_fdr_report")
     assert hasattr(adapters, "build_diann_import_report")
+    assert hasattr(search_adapters, "search_adapter_registry")
 
 
 def test_review_subpackage_import_contract() -> None:

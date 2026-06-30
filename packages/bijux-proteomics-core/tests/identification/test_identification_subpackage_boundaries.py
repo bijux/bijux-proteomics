@@ -6,7 +6,14 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from bijux_proteomics.identification import adapters, fdr, peptide, protein, psm
+from bijux_proteomics.identification import (
+    adapters,
+    fdr,
+    peptide,
+    protein,
+    psm,
+    search_adapters,
+)
 
 _WRAPPER_MODULES = (
     "identification/calibration_benchmarks.py",
@@ -70,6 +77,8 @@ def test_identification_subpackages_export_representative_owner_surfaces() -> No
     assert hasattr(fdr, "build_empirical_score_calibration_report")
     assert hasattr(adapters, "build_diann_import_report")
     assert hasattr(adapters, "build_search_adapter_information_loss_report")
+    assert hasattr(search_adapters, "build_search_adapter_corpus_conformance_matrix")
+    assert hasattr(search_adapters, "search_adapter_registry")
 
 
 def test_identification_root_wrappers_stay_compatibility_only() -> None:

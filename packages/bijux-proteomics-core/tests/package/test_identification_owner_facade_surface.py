@@ -102,6 +102,8 @@ def test_identification_root_facade_keeps_governed_exports_and_submodules() -> N
     assert "SearchAdapterKind" in identification.__all__
     assert "ParsimonyReviewReport" in identification.__all__
     assert "confidence" in identification.__all__
+    assert "search_adapters" in identification.__all__
     assert hasattr(identification, "SearchAdapterKind")
     assert hasattr(identification, "ParsimonyReviewReport")
     assert hasattr(identification, "confidence")
+    assert hasattr(identification, "search_adapters")

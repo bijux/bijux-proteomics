@@ -29,6 +29,7 @@ IDENTIFICATION_OWNER_SUBMODULE_NAMES = (
     "peptide",
     "protein",
     "psm",
+    "search_adapters",
 )
 IDENTIFICATION_COMPATIBILITY_SUBMODULE_NAMES = ("confidence",)
 IDENTIFICATION_ROOT_FACADE_ORDER = (
@@ -47,6 +48,7 @@ IDENTIFICATION_ROOT_SUBMODULES = {
     "peptide": "bijux_proteomics.identification.peptide",
     "protein": "bijux_proteomics.identification.protein",
     "psm": "bijux_proteomics.identification.psm",
+    "search_adapters": "bijux_proteomics.identification.search_adapters",
 }
 
 
