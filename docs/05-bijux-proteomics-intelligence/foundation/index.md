@@ -18,6 +18,15 @@ longer hide behind vague prose. This section exists to show where
 recommendation posture begins, how challenge evidence disciplines that posture,
 and why explanation must stay visibly downstream from scientific truth.
 
+## Why Readers Should Stay Here Longer
+
+- this is where the repository shows that recommendation language is not a
+  vague afterthought layered on top of benchmarks
+- blinded challenges, counterfactual collapses, regret, and downgrade posture
+  now make analytical judgment inspectable instead of merely assertive
+- the package exposes real public routes for how one family sentence survives,
+  weakens, or collapses under withheld evidence
+
 ```mermaid
 flowchart LR
     evidence["evidence input"]
@@ -88,6 +97,15 @@ flowchart LR
 - which recommendation behavior belongs here before runtime or lab acts on it
 - when a proposed change is really about evidence truth or workflow rules and
   should leave this package
+
+## Reader Questions This Section Can Answer Well
+
+- why one workflow family still stops at a downgrade even when its benchmark
+  packet looks strong
+- which hidden evidence pattern would make the current recommendation regretful
+- where overconfidence is already measurable instead of only suspected
+- how recommendation pressure differs from scientific truth and downstream lab
+  consequence
 
 ## Strongest Intelligence Proof
 

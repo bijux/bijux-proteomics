@@ -4,13 +4,22 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-05-08
+last_reviewed: 2026-07-01
 ---
 
 # Workflow Recommendation Confidence
 
 `bijux-proteomics-intelligence` now ships one confidence bundle that keeps the
 recommendation layer honest under withheld evidence.
+
+## Why This Surface Matters
+
+- confidence here is not a vibe score; it is a public record of where the
+  recommendation layer would break if easy evidence disappeared
+- this is one of the clearest places where the repository now shows real
+  analytical seriousness instead of just cautious wording
+- the bundle makes stronger recommendation language expensive because it must
+  survive counterfactual loss, overconfidence review, and regret review
 
 ## What Ships
 
@@ -36,6 +45,15 @@ recommendation layer honest under withheld evidence.
   of `0.5`
 - no workflow family currently shows a hindsight-backed underconfidence event
 
+## How To Read The Current Bundle
+
+- read the counterfactual report as the fastest test of whether the current
+  sentence still depends on one missing evidence axis
+- read the overconfidence audit as the place where public language is most at
+  risk of sounding broader than the artifacts earn
+- read the regret ledger as the maintainers' own admission of which workflow
+  temptations still look too easy before hidden evidence lands
+
 ## What The Regret Ledger Captures
 
 The regret ledger is not prose perfume.
@@ -55,6 +73,12 @@ These surfaces make stronger intelligence authority expensive.
 If the package wants to sound more certain in public, it now has to survive the
 blinded challenge results, the counterfactual collapses, and the regret ledger
 without hiding where the current recommendation posture still breaks.
+
+## What This Still Does Not Earn
+
+- decision-grade authority for any current flagship family
+- scientific truth independent of core and knowledge
+- freedom from downstream lab burden once the consequence chain is read in full
 
 ## Combined Consequence Route
 

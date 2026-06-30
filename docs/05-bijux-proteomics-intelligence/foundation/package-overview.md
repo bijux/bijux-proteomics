@@ -20,6 +20,16 @@ judgment, recommendation posture, benchmark review, and learning refinement.
 Those families now expose real public surfaces instead of one vague
 "decision" layer.
 
+## Why This Package Feels More Real Now
+
+- the package now exposes challenge, confidence, regret, and bounded
+  recommendation surfaces that outsiders can inspect directly
+- recommendation posture is no longer hidden inside one summary judgment; it is
+  broken into candidate pressure, scenario reading, review packets, and
+  follow-up learning loops
+- the analytical layer now has enough public shape that readers can tell where
+  intelligence adds judgment and where it must still defer to truth owners
+
 ## Concrete Analytical Families
 
 - `candidates` for ranking, shortlist pressure, and falsifier-aware selection
@@ -48,6 +58,15 @@ Those families now expose real public surfaces instead of one vague
 - publish bounded recommendation posture and review surfaces without claiming
   scientific truth
 
+## What Readers Commonly Underestimate
+
+- this package is not just a recommendation button; it owns the public record
+  of where analytical confidence breaks
+- this package names regret and overconfidence explicitly, which means public
+  recommendation authority can now be challenged with its own artifacts
+- this package is where benchmark evidence turns into bounded policy language,
+  not where benchmark evidence becomes truth
+
 ## What It Refuses
 
 - evidence truth and contradiction state
@@ -62,6 +81,15 @@ Those families now expose real public surfaces instead of one vague
   result becomes a bounded analytical reading
 - hand off to knowledge when the missing argument is grounding or
   contradiction, not recommendation logic
+
+## Best Reader Route
+
+- start here when the question is whether `bijux-proteomics` has a real
+  analytical layer or only careful prose around benchmark packets
+- continue to [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/)
+  when you need to see how recommendations behaved under hidden evidence
+- continue to [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+  when you need to see where current posture is still too easy to overstate
 
 ## First Proof Check
 
