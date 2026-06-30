@@ -11,7 +11,7 @@ from typing import TypedDict
 
 import click
 
-from ..imports import (
+from ...imports import (
     CrossRunReproducibilityClass,
     DiscoveryTargetProteinEntry,
     DiscoveryTargetedPeptideSelectionEntry,
@@ -29,7 +29,7 @@ from ..imports import (
     TargetedTransitionSelectionPeptideEntry,
 )
 
-from .field_parsing import _parse_cli_bool, _split_semicolon_field
+from ..field_parsing import _parse_cli_bool, _split_semicolon_field
 
 
 class _SelectedTransitionAssayPayload(TypedDict):
