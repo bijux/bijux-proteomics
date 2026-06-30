@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Workflow Claim Limits
@@ -12,12 +12,30 @@ last_reviewed: 2026-05-07
 This page is the release-facing claim-limit source of truth for the flagship
 workflow families.
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Released outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
 
 Family-level trust now requires two public benchmark packages plus one
 published cross-package generalization report. The current scorecard lives at
 `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/family_stability_scorecard.json`.
+
+What changed since `v0.3.7` is not only wording. The matrix now sits on a
+deeper chain of proof: broader core scientific surfaces, clearer runtime
+rerun lanes, explicit knowledge grounding, recommendation posture, and visible
+lab consequence pressure. That means the repository can now distinguish between
+families that have a full outsider-readable packet and families whose released
+sentence must still stay narrower.
+
+## What This Matrix Governs
+
+- what the repository can publicly say today for each workflow family
+- which family has a full benchmark, runtime, grounding, recommendation, and
+  consequence packet
+- which family still narrows at the released sentence because one part of that
+  packet remains downgrade-heavy
+- which family stops at internal support even though code, runtime, and public
+  benchmark substance exist
 
 ## Current Limits
 
@@ -53,6 +71,17 @@ The current lab-consequence evidence is still benchmark-simulated rather than
 live wet-lab release proof. It earns bounded consequence language because the
 requested-versus-observed loop is now explicit, not because the repository has
 already closed real laboratory deployment risk.
+
+## Why LFQ Still Narrows At Release Time
+
+- LFQ now has a full outsider-auditable packet in the narrow sense: public
+  benchmark packages, runtime lane, grounding route, recommendation posture,
+  requested-versus-observed outcome dossier, and assay-worth-it ledger row
+- the released sentence still remains review-grade bounded because missingness,
+  normalization pressure, and sparse-cohort transfer risk remain visible in
+  its own external review and acceptance surfaces
+- this is intentional honesty rather than inconsistency: the packet is public,
+  and the narrowing pressure is public too
 
 ## Family Transfer Evidence
 

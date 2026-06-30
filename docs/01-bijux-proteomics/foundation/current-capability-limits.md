@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-06-30
 ---
 
 # Current Capability Limits
@@ -15,6 +15,12 @@ or can describe more easily than it can prove.
 It exists so repository releases, handbook pages, and package-level claims can
 point to one exact limits surface instead of letting each package describe
 scope drift differently.
+
+The repository is materially stronger now than older docs suggested. The
+current limit surface does not exist because the product is thin. It exists
+because the product now has enough scientific, runtime, grounding,
+recommendation, and lab depth that overclaiming would be easier if the
+honesty boundary were not explicit.
 
 ## Repository-Wide Limits
 
@@ -28,12 +34,19 @@ Internal-support-only workflow families today: `multiplex`.
   consequence
 - LFQ remains review-grade bounded because its current external review kit and
   acceptance surface still narrow the stronger outsider-facing sentence
-- PTM and targeted remain bounded because their shared consequence chain still
-  ends at exploratory-only follow-up, and one doubled assay burden can still
-  collapse the recommendation back toward refusal
+- LFQ, PTM, and targeted remain bounded because their strongest current public consequence route still ends at exploratory-only follow-up, and one doubled assay burden can still collapse the recommendation back toward refusal
 - DDA still stops short of in-repo live-engine rerun parity
 - multiplex still remains internal support only, so no release language should
   let it ride for free on adjacent flagship trust claims
+
+## Why Stronger Code Still Does Not Mean Wider Language
+
+- more chemistry, sequence, quantification, PTM, DIA, knowledge, and
+  recommendation depth does not erase transfer limits
+- one strong benchmark family does not authorize broader repository language
+- one visible runtime lane does not close the lab-consequence boundary
+- one promising follow-up packet does not convert exploratory-only follow-up
+  into decision-grade biological proof
 
 ## Scientific Limits
 
@@ -69,6 +82,14 @@ Internal-support-only workflow families today: `multiplex`.
   before widening
   LFQ, PTM, or targeted language from bounded recommendation toward
   decision-grade claims
+
+## Honest Reading
+
+- DDA is limited by execution realism
+- LFQ is limited by cohort transfer and review pressure
+- PTM is limited by ambiguity and assay burden
+- targeted is limited by calibration, interference, and downstream burden
+- multiplex is limited by collapsed outsider trust under stress
 
 ## Boundary
 

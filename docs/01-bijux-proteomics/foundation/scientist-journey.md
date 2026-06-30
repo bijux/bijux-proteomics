@@ -4,7 +4,7 @@ audience: scientist
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Scientist Journey
@@ -12,6 +12,12 @@ last_reviewed: 2026-05-09
 Start here when the question is: pick one flagship workflow family and show me
 the shortest route from public benchmark package to scientific meaning,
 runtime evidence, recommendation posture, and lab consequence.
+
+This route matters more now because the repository has more real scientific
+substance than its older docs admitted. A scientist no longer needs to guess
+whether chemistry, sequence, quantification, PTM, grounding, or consequence
+are real product surfaces. The point of this page is to move through those
+surfaces in an honest order.
 
 ## One-Family Route
 
@@ -27,6 +33,17 @@ the [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-prot
 | 5 | Which curated grounding and literature pressure still shape the call? | `bijux-proteomics-knowledge` | [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/) and [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/) |
 | 6 | Which recommendation confidence and challenge surfaces keep policy honest? | `bijux-proteomics-intelligence` | [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/) and [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/) |
 | 7 | Which lab consequence or refusal boundary stops the story from outrunning downstream reality? | `bijux-proteomics-lab` and repository docs | [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/) and [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) |
+
+## What A Strong Scientist Read Looks Like
+
+- start with one family instead of trying to trust the whole repository at once
+- treat benchmark assets as evidence roots, not as decoration
+- treat runtime evidence as reproducibility proof, not as a substitute for
+  scientific meaning
+- treat recommendation posture as a bounded analytical layer, not as truth by
+  itself
+- stop at lab consequence and current capability limits before widening the
+  sentence in your own head
 
 ## What This Route Avoids
 
