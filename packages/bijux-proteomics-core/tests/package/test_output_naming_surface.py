@@ -62,7 +62,7 @@ LEGACY_BUNDLE_WRAPPERS = {
             "write_psm_peptide_protein_trace_bundle"
         ),
     },
-    "io/spectra/spectrum_contracts.py": {
+    "io/spectra/spectrum_contracts/__init__.py": {
         "export_annotated_spectrum_bundle": "write_annotated_spectrum_bundle",
     },
     "benchmarks/public_case_studies.py": {

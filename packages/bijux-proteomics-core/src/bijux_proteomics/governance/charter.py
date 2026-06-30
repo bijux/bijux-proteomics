@@ -186,7 +186,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/raw/precursor_isotope_fit.py",
             "io/raw/raw_signal_evidence_cards.py",
             "io/spectra/__init__.py",
-            "io/spectra/spectrum_contracts.py",
+            "io/spectra/spectrum_contracts/__init__.py",
             "io/spectra/spectrum_entropy.py",
             "io/spectra/spectrum_peak_matching.py",
             "io/spectra/chimeric_spectrum.py",
