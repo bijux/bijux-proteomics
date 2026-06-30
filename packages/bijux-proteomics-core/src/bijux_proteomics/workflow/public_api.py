@@ -507,6 +507,7 @@ WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS = tuple(
 
 PIPELINE_SUBMODULES = {
     "advanced": "bijux_proteomics.workflow.pipelines.advanced",
+    "benchmarking": "bijux_proteomics.workflow.pipelines.benchmarking",
     "comparative": "bijux_proteomics.workflow.pipelines.comparative",
     "engines": "bijux_proteomics.workflow.pipelines.engines",
 }
@@ -584,6 +585,18 @@ COMPARATIVE_PIPELINE_FACADE_OWNERS = tuple(
     owner
     for owner in PIPELINE_FACADE_OWNERS
     if owner.owner_module in COMPARATIVE_PIPELINE_OWNER_MODULES
+)
+
+BENCHMARKING_PIPELINE_OWNER_MODULES = {
+    "bijux_proteomics.workflow.pipelines.public_benchmark_runner",
+    "bijux_proteomics.workflow.pipelines.trust_bundle",
+    "bijux_proteomics.workflow.pipelines.weak_evidence",
+}
+
+BENCHMARKING_PIPELINE_FACADE_OWNERS = tuple(
+    owner
+    for owner in PIPELINE_FACADE_OWNERS
+    if owner.owner_module in BENCHMARKING_PIPELINE_OWNER_MODULES
 )
 
 WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS = (
@@ -926,6 +939,8 @@ def _public_assigned_names(target: ast.expr) -> list[str]:
 
 __all__ = [
     "ADVANCED_PIPELINE_FACADE_OWNERS",
+    "BENCHMARKING_PIPELINE_FACADE_OWNERS",
+    "BENCHMARKING_PIPELINE_OWNER_MODULES",
     "BENCHMARK_FIDELITY_FACADE_OWNERS",
     "BENCHMARK_DATASET_FACADE_OWNERS",
     "BENCHMARK_FACADE_OWNERS",

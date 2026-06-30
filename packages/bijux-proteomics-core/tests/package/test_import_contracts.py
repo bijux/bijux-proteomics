@@ -502,6 +502,9 @@ def test_workflow_result_types_import_contract() -> None:
 def test_workflow_pipeline_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow.pipelines")
     advanced = importlib.import_module("bijux_proteomics.workflow.pipelines.advanced")
+    benchmarking = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.benchmarking"
+    )
     comparative = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.comparative"
     )
@@ -521,8 +524,12 @@ def test_workflow_pipeline_package_import_contract() -> None:
 
     assert module.__name__ == "bijux_proteomics.workflow.pipelines"
     assert advanced.__name__ == "bijux_proteomics.workflow.pipelines.advanced"
+    assert benchmarking.__name__ == "bijux_proteomics.workflow.pipelines.benchmarking"
     assert comparative.__name__ == "bijux_proteomics.workflow.pipelines.comparative"
     assert engines.__name__ == "bijux_proteomics.workflow.pipelines.engines"
+    assert hasattr(benchmarking, "run_public_benchmark_descriptor_suite")
+    assert hasattr(benchmarking, "build_trust_bundle")
+    assert hasattr(benchmarking, "run_weak_evidence_benchmark")
     assert hasattr(comparative, "build_diann_vs_dda_psm_comparison_report")
     assert hasattr(comparative, "build_dia_differential_analysis_report")
     assert hasattr(comparative, "build_label_based_differential_analysis_report")
