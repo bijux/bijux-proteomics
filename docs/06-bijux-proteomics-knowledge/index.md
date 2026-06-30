@@ -10,15 +10,16 @@ last_reviewed: 2026-07-01
 # bijux-proteomics-knowledge
 
 `bijux-proteomics-knowledge` owns evidence state in `bijux-proteomics`. It is
-where claims, confidence, contradiction handling, and knowledge-level review
-rules stay explicit instead of being spread across runtime or scoring code.
-This package matters because serious systems do not only need facts; they need
-structured disagreement, confidence, and traceable reasons to hesitate.
+where claims, confidence, contradiction handling, grounding, and knowledge-level
+review rules stay explicit instead of being spread across runtime or scoring
+code. Serious systems do not only need facts; they need structured
+disagreement, confidence, and traceable reasons to hesitate.
 
-This package is also much richer now than a simple evidence ledger. It owns
-selective scientific memory, contradiction-aware review, claim grounding,
-literature audit routes, and biological context surfaces that stop the rest of
-the product from improvising why a workflow result should be believed.
+This package is much richer now than a passive evidence ledger. It owns
+selective scientific memory, contradiction-aware review, workflow claim
+grounding, literature audit routes, and biological context surfaces that stop
+the rest of the product from improvising why a workflow result should be
+believed.
 
 ```mermaid
 flowchart LR
@@ -47,6 +48,8 @@ flowchart LR
 - recommendation code cannot quietly rewrite evidence state
 - runtime code cannot smuggle operational convenience in as scientific truth
 - contradiction is preserved as information instead of being treated as failure
+- stronger workflow stories can be slowed by real grounding pressure instead of
+  by vague caution language
 
 ## What It Owns
 
@@ -85,6 +88,12 @@ flowchart LR
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
   for the package role and boundary.
+- Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+  when the question is which exact public sentence the repository can still
+  justify.
+- Open [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
+  when the question is where curated reading pressure already outruns the
+  shipped benchmark or comparator packet.
 - Open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)
   when the concern is how claims, confidence, and contradiction handling stay
   separated.
@@ -119,24 +128,15 @@ flowchart LR
 - execution orchestration and operator surfaces
 - assay planning and outcome promotion
 
-## Why Readers Underestimate Knowledge
-
-- this package is easy to mistake for a passive ledger unless the contradiction
-  and grounding routes are shown clearly
-- repository honesty depends on this owner more than on any confidence-sounding
-  prose elsewhere
-- stronger scientific depth only becomes visible to a reader when evidence
-  state, hesitation, and literature pressure are documented as first-class
-  surfaces
-
 ## Strongest Proof Route
 
 - start at [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question is still cross-package
-- continue to [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
-  for package-owned evidence and grounding routes
-- open the workflow grounding and literature audit pages when the real question
-  is whether the current public sentence has earned its scientific backing
+- continue to [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+  when the current public sentence itself is under scrutiny
+- open [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
+  when the grounding dispute becomes a reading-pressure dispute rather than an
+  execution dispute
 
 ## First Proof Check
 
