@@ -496,6 +496,15 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_drug_target_table_html",
         "_render_disease_phenotype_table_html",
     ),
+    "biological_report_html_regulator_tables.py": (
+        "_render_regulator_inference_table_html",
+    ),
+    "biological_report_html_drug_target_tables.py": (
+        "_render_drug_target_table_html",
+    ),
+    "biological_report_html_disease_phenotype_tables.py": (
+        "_render_disease_phenotype_table_html",
+    ),
     "biological_report_html_sample_context_tables.py": (
         "_render_tissue_cell_type_context_table_html",
         "_render_cohort_stratification_table_html",
