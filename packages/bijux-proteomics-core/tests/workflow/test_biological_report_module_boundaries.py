@@ -43,6 +43,10 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalResultReportArtifactPaths",
         "BiologicalResultReportExportManifest",
     ),
+    "biological_report_export_manifest_building.py": (
+        "_build_biological_result_report_artifact_paths",
+        "_build_biological_result_report_export_manifest",
+    ),
     "biological_report_section_confidence.py": (
         "_build_biological_report_section_confidence_entries",
         "_count_section_confidence_labels",
