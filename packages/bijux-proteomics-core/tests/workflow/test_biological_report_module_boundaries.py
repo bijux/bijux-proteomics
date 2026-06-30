@@ -141,7 +141,9 @@ def test_biological_reporting_facade_delegates_to_split_owners() -> None:
         "render_biological_report_section_confidence_tsv",
         "render_biological_result_report_summary_tsv",
     }
-    assert import_map["bijux_proteomics.review"] >= {"VolcanoReviewPolicy"}
+    assert import_map[
+        "bijux_proteomics.review.explanations.volcano_plots"
+    ] >= {"VolcanoReviewPolicy"}
     assert exported_names >= {
         "BiologicalReportSectionConfidenceEntry",
         "BiologicalReportSectionConfidenceLabel",

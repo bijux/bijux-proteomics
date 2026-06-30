@@ -74,20 +74,28 @@ from bijux_proteomics.quantification.provenance import (
 from bijux_proteomics.quantification.statistics import (
     render_differential_abundance_tsv,
 )
-from bijux_proteomics.review import (
+from bijux_proteomics.review.claims.biological_claim_validation import (
+    render_biological_claim_validation_summary_tsv,
+    render_rejected_biological_claim_tsv,
+    render_supported_biological_claim_tsv,
+)
+from bijux_proteomics.review.claims.biological_hypotheses import (
+    render_biological_hypothesis_summary_tsv,
+    render_biological_hypothesis_tsv,
+    render_rejected_biological_hypothesis_candidate_tsv,
+)
+from bijux_proteomics.review.evidence_graph.evidence_graph_export import (
     export_proteomics_evidence_graph,
+    render_proteomics_evidence_graph_edges_tsv,
+    render_proteomics_evidence_graph_nodes_tsv,
+)
+from bijux_proteomics.review.belief.evidence_aware_ranking import (
+    render_evidence_aware_ranking_tsv,
+)
+from bijux_proteomics.review.explanations.volcano_plots import (
     export_volcano_review_html,
     export_volcano_review_json,
     export_volcano_review_svg,
-    render_biological_claim_validation_summary_tsv,
-    render_biological_hypothesis_summary_tsv,
-    render_biological_hypothesis_tsv,
-    render_evidence_aware_ranking_tsv,
-    render_proteomics_evidence_graph_edges_tsv,
-    render_proteomics_evidence_graph_nodes_tsv,
-    render_rejected_biological_claim_tsv,
-    render_rejected_biological_hypothesis_candidate_tsv,
-    render_supported_biological_claim_tsv,
     render_volcano_review_tsv,
 )
 from bijux_proteomics.study import (

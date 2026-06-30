@@ -19,7 +19,7 @@ from bijux_proteomics.quantification.contracts import (
     parse_ms1_feature_table,
     parse_ms1_feature_table_chunked,
 )
-from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
 from bijux_proteomics.study import (
     ExperimentDesign,
     LcmsRunQcReport,
