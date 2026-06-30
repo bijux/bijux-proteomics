@@ -27,11 +27,15 @@ rerun packets, explicit knowledge grounding, reviewable recommendation
 posture, and consequence-aware lab follow-up. It is still bounded because the
 strongest family packet is not the same thing as repository-wide readiness.
 
+This page therefore should be read as the strongest current release sentence,
+not as a victory lap. Its job is to say exactly what the repository can defend
+today after all known narrowing pressure has already been applied.
+
 ## Current Bundle
 
 - bundle id: `flagship-release-candidate-bundle`
 - strongest workflow family: `dda`
-- outsider-auditable workflow families: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- full outsider-readable family packets: `dda`, `dia`, `lfq`, `ptm`, `targeted`
 - released outsider-auditable workflow families: `dda`, `dia`, `ptm`, `targeted`
 - review-grade-bounded workflow families: `lfq`
 - internal-support-only workflow families: `multiplex`
@@ -51,6 +55,15 @@ strongest family packet is not the same thing as repository-wide readiness.
   posture.
 - lab now contributes more than aspirational follow-up: the bundle assumes a
   requested-versus-observed outcome dossier and visible consequence pressure.
+
+## Why The Bundle Still Stays Narrow
+
+- one strong family packet does not erase weaker rerun, comparator, transfer,
+  or consequence pressure in another family
+- bounded outsider-auditable language is earned family by family, not granted
+  to the whole repository at once
+- broader repository language still has to survive the hostile route, the
+  readiness matrix, and the explicit blocker pages
 
 ## What The Bundle Collects
 
@@ -114,6 +127,15 @@ when the right next question is rerunability instead of bundle language.
 Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
 when the right next question is grounding, recommendation posture, or artifact
 role overlap.
+
+## Strongest Reader Use
+
+- open this page after the product overview when the question becomes release
+  posture rather than package architecture
+- use it together with the hostile review kit and readiness matrix, not as a
+  standalone trust page
+- if another surface sounds stronger than this bundle, that surface is wrong
+  until the evidence moves
 
 ## Honest Reading
 

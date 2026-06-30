@@ -12,9 +12,10 @@ last_reviewed: 2026-06-30
 This page is the release-facing claim-limit source of truth for the flagship
 workflow families.
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 Released outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
+Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
 
 Family-level trust now requires two public benchmark packages plus one
 published cross-package generalization report. The current scorecard lives at
@@ -41,6 +42,12 @@ stopping short of the broadest released sentence.
   packet remains downgrade-heavy
 - which family stops at internal support even though code, runtime, and public
   benchmark substance exist
+
+The distinction that matters most now is this:
+
+- `outsider-auditable` is the stronger release-language set
+- `full outsider-readable family packets` is the wider proof-packet set
+- LFQ currently belongs to the second set but not the first
 
 ## Current Limits
 

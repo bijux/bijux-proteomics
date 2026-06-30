@@ -18,6 +18,11 @@ skeptical reader can challenge real scientific and runtime claims, not only
 docs phrasing. The hostile route is how the repository proves that its
 strongest public sentences can be audited without private commentary.
 
+It is also the page that stops the stronger current product from being judged
+only by its most polished surfaces. The hostile route makes benchmark,
+rerunability, grounding, recommendation, and release blockers visible in one
+opening order so the review starts at the hardest route, not the nicest prose.
+
 ## Open In This Order
 
 - `docs/01-bijux-proteomics/foundation/release-readiness-matrix.md`
@@ -40,6 +45,16 @@ strongest public sentences can be audited without private commentary.
   consequence challenge together
 - whether blocker pages stay visible before anyone widens the language by
   interpretation
+
+## Why This Route Matters More Now
+
+- the repository now has enough real scientific and runtime substance that a
+  skeptical reader can challenge concrete claims instead of only documentation
+  style
+- stronger benchmark and rerun packets make it easier to overread the current
+  release ceiling unless the blocker pages stay in the opening order
+- the hostile route proves whether the current flagship sentence survives the
+  hardest reading sequence the repository itself can justify
 
 ## Family Challenge Lanes
 
@@ -87,6 +102,14 @@ strongest public sentences can be audited without private commentary.
 ## Non-Negotiable Reading Rule
 
 If the current release-readiness matrix still shows blocked categories, no reviewer should widen the root promise by interpretation alone. The blocker pages below are part of the review kit because they keep the failure modes visible before maintainers start explaining them away.
+
+## Strongest Honest Outcome
+
+- if the reader still lands on a blocked category, the route worked
+- if the strongest family packet survives but the repository-wide sentence
+  still narrows, that is the intended result
+- this page is successful when it prevents language drift, not when it makes
+  the repository sound more complete
 
 ## Honest Result
 

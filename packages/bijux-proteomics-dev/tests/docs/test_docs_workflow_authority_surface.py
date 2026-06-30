@@ -22,7 +22,11 @@ def test_workflow_authority_matrix_doc_names_outsider_and_internal_support_sets(
 
     assert "# Workflow Claim Limits" in text
     assert (
-        "Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`."
+        "Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`."
+        in text
+    )
+    assert (
+        "Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`."
         in text
     )
     assert "Internal-support-only workflow families today: `multiplex`." in text
