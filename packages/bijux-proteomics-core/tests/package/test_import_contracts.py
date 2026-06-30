@@ -85,6 +85,14 @@ def test_benchmarks_package_import_contract() -> None:
     assert hasattr(module, "build_core_algorithm_performance_benchmark_report")
 
 
+def test_flagship_benchmark_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.benchmarks.flagship")
+
+    assert hasattr(module, "flagship_asset_root")
+    assert hasattr(module, "build_flagship_dda_public_benchmark_package")
+    assert not hasattr(module, "build_flagship_acceptance_dashboard")
+
+
 def test_core_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interfaces.cli")
 

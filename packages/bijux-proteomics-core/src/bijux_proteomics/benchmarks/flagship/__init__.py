@@ -1,4 +1,4 @@
-"""Flagship benchmark owners for public package and asset-root proof surfaces."""
+"""Flagship benchmark asset-root and public-package owners."""
 
 from __future__ import annotations
 

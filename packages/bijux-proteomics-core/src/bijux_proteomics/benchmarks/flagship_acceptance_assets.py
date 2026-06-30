@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from bijux_proteomics.benchmarks.flagship_acceptance import (
+from bijux_proteomics.benchmarks.flagship.acceptance import (
     build_flagship_acceptance_dashboard,
     build_flagship_acceptance_history_ledger,
     build_flagship_acceptance_rationale_dossier,

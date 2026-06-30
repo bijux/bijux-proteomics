@@ -10,7 +10,7 @@ import csv
 import json
 from pathlib import Path
 
-from bijux_proteomics.benchmarks.flagship_challenge_corpora import (
+from bijux_proteomics.benchmarks.flagship.challenge_corpora import (
     BlindedHoldoutReport,
     ChallengeKind,
     PerturbationReactionReport,

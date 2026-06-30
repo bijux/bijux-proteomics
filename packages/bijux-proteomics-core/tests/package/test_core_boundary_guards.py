@@ -18,7 +18,7 @@ ALLOWED_RUNTIME_IMPORTS = {
     },
 }
 ALLOWED_CROSS_PACKAGE_IMPORTS = {
-    "benchmarks/flagship_acceptance.py": {
+    "benchmarks/flagship/acceptance.py": {
         "bijux_proteomics_intelligence.reviews.benchmarks",
         "bijux_proteomics_knowledge.references.workflows.benchmarks",
         "bijux_proteomics_knowledge.references.workflows.comparator_failures",
