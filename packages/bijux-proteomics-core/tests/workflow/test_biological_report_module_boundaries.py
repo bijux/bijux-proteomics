@@ -76,6 +76,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_select_heatmap_entity_ids",
         "_select_significant_entity_ids",
     ),
+    "biological_report_graph_qc.py": (
+        "_attach_lab_run_qc_feedback",
+        "_qc_claim_state",
+        "_qc_trust_class",
+    ),
     "biological_report_claims.py": (
         "_build_biological_claim_validation_report",
         "_build_biological_evidence_aware_ranking_report",
