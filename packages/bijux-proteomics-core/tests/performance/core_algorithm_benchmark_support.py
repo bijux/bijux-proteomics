@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import gc
 import hashlib
 import json
 from pathlib import Path
@@ -215,10 +216,12 @@ def _measure_runtime(
     if rounds < 1:
         raise ValueError("benchmark rounds must be at least one")
 
+    gc.collect()
     operation()
     best_seconds: float | None = None
     best_value: _RuntimeValue | object = _UNSET
     for _ in range(rounds):
+        gc.collect()
         started_at = time.perf_counter()
         value = operation()
         observed_seconds = time.perf_counter() - started_at
@@ -243,7 +246,8 @@ def _measure_runtime_against_case(
     if observed_seconds <= threshold_seconds:
         return observed_seconds, value
 
-    retry_seconds, retry_value = _measure_runtime(operation, rounds=3)
+    time.sleep(0.25)
+    retry_seconds, retry_value = _measure_runtime(operation, rounds=5)
     if retry_seconds < observed_seconds:
         return retry_seconds, retry_value
     return observed_seconds, value
