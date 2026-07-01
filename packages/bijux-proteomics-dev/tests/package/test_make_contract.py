@@ -20,11 +20,17 @@ def test_root_make_uses_shared_check_venv_location() -> None:
     assert '"$(CURDIR)/configs/.pytest_cache"' in repository_root_make
 
 
-def test_make_tree_stays_free_of_local_python_sources() -> None:
-    assert list((REPO_ROOT / "makes").rglob("*.py")) == []
+def test_make_tree_limits_python_helpers_to_shared_mirror() -> None:
+    python_files = sorted(
+        path.relative_to(REPO_ROOT / "makes")
+        for path in (REPO_ROOT / "makes").rglob("*.py")
+    )
+
+    assert python_files == [Path("bijux-py/repository/artifact_aliases.py")]
 
 
-def test_make_setup_routes_repository_artifact_layout_through_dev_package() -> None:
+def test_make_setup_routes_shared_hook_variables_through_dev_package() -> None:
+    env_make = (REPO_ROOT / "makes" / "env.mk").read_text(encoding="utf-8")
     package_make = (REPO_ROOT / "makes" / "bijux-py" / "package.mk").read_text(
         encoding="utf-8"
     )
@@ -32,16 +38,19 @@ def test_make_setup_routes_repository_artifact_layout_through_dev_package() -> N
         REPO_ROOT / "makes" / "bijux-py" / "repository" / "root.mk"
     ).read_text(encoding="utf-8")
 
-    assert "-m bijux_proteomics_dev.workspace.artifact_layout" in package_make
-    assert "-m bijux_proteomics_dev.workspace.artifact_layout" in repository_root_make
+    assert "PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT ?=" in env_make
+    assert "bijux_proteomics_dev/workspace/artifact_layout.py" in env_make
+    assert "PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)" in env_make
+    assert "ROOT_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)" in env_make
+    assert '"$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)" package' in package_make
+    assert '"$(PYTHON)" "$(ROOT_ARTIFACT_ALIAS_SCRIPT)" root' in repository_root_make
 
 
-def test_package_make_bootstraps_virtualenv_from_python_executable_target() -> None:
+def test_package_make_installs_dependencies_through_venv_python() -> None:
     package_make = (REPO_ROOT / "makes" / "bijux-py" / "package.mk").read_text(
         encoding="utf-8"
     )
 
-    assert "$(VENV_PYTHON): | setup" in package_make
-    assert "$(PACKAGE_INSTALL_STAMP): $(VENV_PYTHON)" in package_make
-    assert "install: $(VENV_PYTHON)" in package_make
-    assert "ensure-venv: $(VENV_PYTHON)" in package_make
+    assert '--python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_BOOTSTRAP_PACKAGES)' in package_make
+    assert '--python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_PYTHON_PACKAGES)' in package_make
+    assert '--python "$(VENV_PYTHON)" --editable "$(PACKAGE_INSTALL_SPEC)"' in package_make
