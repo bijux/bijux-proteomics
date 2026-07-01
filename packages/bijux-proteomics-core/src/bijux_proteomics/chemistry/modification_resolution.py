@@ -15,6 +15,8 @@ from bijux_proteomics.chemistry.contracts import (
 )
 from bijux_proteomics.chemistry.modification_registry import (
     modification_registry as _modification_registry_root_export,
+)
+from bijux_proteomics.chemistry.modification_registry import (
     resolve_modification,
 )
 from bijux_proteomics.chemistry.public_api import rebind_package_export

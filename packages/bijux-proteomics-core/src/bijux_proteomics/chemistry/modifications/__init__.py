@@ -58,7 +58,6 @@ from bijux_proteomics.chemistry.modification_registry import (
     resolve_modification_definition,
     resolve_modification_site,
 )
-from bijux_proteomics.chemistry.public_api import rebind_package_export
 from bijux_proteomics.chemistry.modification_resolution import (
     ModificationResolutionReport,
     ModificationResolutionSource,
@@ -86,6 +85,7 @@ from bijux_proteomics.chemistry.open_search_unknown_mod import (
     UnknownModificationHypothesis,
     build_open_search_unknown_mod_report,
 )
+from bijux_proteomics.chemistry.public_api import rebind_package_export
 
 rebind_package_export(
     "bijux_proteomics.chemistry",
