@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.domain.errors import DesignError
-from bijux_proteomics.interfaces.support.timecourse_support import (
+from bijux_proteomics.interfaces.support.timecourse_support.timepoint_order import (
     _parse_timepoint_order_file,
 )
 

@@ -5,12 +5,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from .parser_memory_benchmark_support import (
     benchmark_diann_import_memory,
     benchmark_maxquant_import_memory,
 )
 
 
+@pytest.mark.slow
 def test_generated_large_diann_import_stays_below_memory_ceiling(
     tmp_path: Path,
 ) -> None:
@@ -22,6 +25,7 @@ def test_generated_large_diann_import_stays_below_memory_ceiling(
     assert report.memory_headroom_mb >= 0.0
 
 
+@pytest.mark.slow
 def test_generated_large_maxquant_import_stays_below_memory_ceiling(
     tmp_path: Path,
 ) -> None:

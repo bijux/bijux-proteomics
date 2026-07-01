@@ -15,7 +15,6 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
@@ -47,6 +46,18 @@ Runtime owns execution control. It does not own the scientific workflow
 blueprint, evidence truth, ranking semantics, or lab progression logic that the
 wider proteomics engine still needs.
 
+## At a glance
+
+- Use runtime when the concern is executable workflow control, provider
+  binding, deterministic replay, or operator-facing handoff.
+- Start with `bijux-proteomics-runtime --help` for the live CLI surface, then
+  open the
+  [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  when you need the end-to-end run path.
+- Route scientific truth to core, cited evidence memory to knowledge,
+  recommendation posture to intelligence, and assay follow-up authority to
+  lab.
+
 ## Why teams pick this package
 
 - one canonical runtime surface for CLI, API, orchestration, and providers
@@ -69,6 +80,16 @@ wider proteomics engine still needs.
 - publish one useful run path from clean install to reviewable output
 - publish one useful import-only path from third-party result to reviewable output
 - integrate canonical runtime surfaces while legacy imports remain compat-only
+
+## 0.3.8 Release Highlights
+
+- Runtime now publishes advanced DIA-NN dry-run, resume, comparison, archive,
+  and architecture-demo workflows as public owner surfaces.
+- Workflow DAG typing, semantic cache fingerprints, partial rerun plans,
+  workflow failure artifacts, and reviewable handoff archives now stay
+  machine-readable instead of living in ad hoc runtime glue.
+- Black-box rerun and reviewable sequence/import paths are now explicit parts
+  of the runtime trust story rather than maintainer-only knowledge.
 
 ## Installation
 
@@ -112,11 +133,14 @@ The stable root API stays intentionally small:
 Minimal executable example:
 
 ```python
+from pathlib import Path
+
 from bijux_proteomics_runtime import AppConfig, create_app
 
-app = create_app(AppConfig(base_dir=TMP_PATH, docs_enabled=False))
+base_dir = Path("artifacts/readme-runtime-app")
+app = create_app(AppConfig(base_dir=base_dir, docs_enabled=False))
 
-assert app.state.base_dir == TMP_PATH
+assert app.state.base_dir == base_dir
 assert app.docs_url is None
 assert any(route.path == "/health" for route in app.routes)
 ```
@@ -213,7 +237,7 @@ schema = DocumentSchema(
     created_by="bijux-proteomics-runtime",
     document_kind="artifact_bundle",
     package_name="bijux-proteomics-runtime",
-    package_version="0.1.0",
+    package_version="0.3.8",
 )
 ```
 
@@ -336,14 +360,17 @@ result = OperationResult.success(
 ## Documentation
 
 - [Advanced DIA-NN Python API tutorial](docs/ADVANCED-DIANN-PYTHON-API.md)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+- [Operator rerun journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Public surfaces dossier](docs/PUBLIC-SURFACES.md)
 - [Route ownership dossier](docs/ROUTE-OWNERSHIP.md)
 - [Provider ownership dossier](docs/PROVIDER-OWNERSHIP.md)
 - [Artifact lineage dossier](docs/ARTIFACT-LINEAGE.md)
+- [Benchmark rerun kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/)
 - [Package guide](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/foundation/ownership-boundary/)
-- [Architecture overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/architecture/)
-- [Interface contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operations/release-and-versioning/)
+- [Runtime execution boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-execution-boundary/)
+- [Runtime environment contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-environment-contracts/)
+- [Runtime artifact stability](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-artifact-stability/)
+- [Repository release and versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/)

@@ -10,21 +10,56 @@ change contributor and maintainer workflows across the repository.
 
 ## Unreleased
 
+## 0.3.8 - 2026-07-01
+
 ### Added
 
-- Added install aliases for the canonical workspace packages: `bijux-proteomics`,
-  `proteomics`, `proteomics-core`, `proteomics-foundation`,
-  `proteomics-runtime`, `proteomics-intelligence`, `proteomics-knowledge`,
-  and `proteomics-lab`.
+- Added the canonical `bijux-proteomics-runtime` publication line, kept
+  `agentic-proteins` as the explicit compatibility bridge, and introduced the
+  short alias distributions `bijux-proteomics`, `proteomics`,
+  `proteomics-core`, `proteomics-foundation`, `proteomics-runtime`,
+  `proteomics-intelligence`, `proteomics-knowledge`, and `proteomics-lab`.
+- Added the shared foundation kernel for canonical serialization,
+  compatibility checks, identifiers, stable outcomes, optional dependency
+  guards, shared testing helpers, and maintainer-support utilities consumed by
+  downstream packages and release gates.
+- Added the first broad public core workflow surface across FASTA intake,
+  digestion, chemistry, identification, spectra, mzML ingestion, search
+  adapters, protein inference, label-free quantification, PTM analysis, QC,
+  and workflow planning, plus benchmark-backed CLI routes and walkthrough
+  assets.
+- Added the canonical runtime execution package with typed CLI and API
+  entrypoints, deterministic replay, archived rerun bundles, benchmark rerun
+  kits, comparability matrices, and outsider-readable runtime proof routes.
+- Added grounded scientific-memory, analytical-judgment, and lab-consequence
+  owner surfaces so contradiction handling, recommendation posture, assay
+  burden, handoff quality, and observed follow-up now stay explicit instead of
+  implied.
 
 ### Changed
 
-- Updated repository governance, package-shape manifests, and release-family
-  reports so alias packages are tracked as install surfaces without being
-  treated as second owner packages.
-- Updated the repository and documentation landing pages to explain the alias
-  package layer while keeping canonical owner packages as the primary product
-  reference surface.
+- Reworked repository and package docs around canonical owner packages,
+  workflow trust limits, executable README API examples, and reader-first
+  navigation that starts from product questions instead of package trivia.
+- Folded reader-first docs routes into the numbered handbook owners so public
+  product overview, workflow, benchmark, execution, decision, lab, and
+  maintenance pages no longer depend on extra top-level journey directories.
+- Rebuilt the public documentation system around hostile-review questions:
+  flagship release candidates, benchmark freshness, workflow-family authority,
+  runtime comparability, recommendation drift, and lab follow-up boundaries.
+- Expanded repository-owned quality and release gates with architecture
+  regression, runtime-boundary validation, public-API typing and docstring
+  checks, package-tree and orphan-module audits, generated-file markers,
+  scientific-concept ownership, artifact-root hygiene, and cross-package smoke
+  checkpoints.
+- Aligned root and package build metadata, optional extras, fallback versions,
+  dependency floors, and release automation with the `0.3.8` publication line.
+
+### Fixed
+
+- Hardened security and release gating around optional provider dependencies,
+  dependency vulnerability floors, safe-msgpack handling, alias-package
+  publication surfaces, and package-root artifact expectations.
 
 ## 0.3.7 - 2026-04-21
 

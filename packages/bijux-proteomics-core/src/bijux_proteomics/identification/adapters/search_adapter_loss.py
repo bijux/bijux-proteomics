@@ -12,13 +12,17 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification.confidence import (
     compare_protein_inference_strategies,
 )
-from bijux_proteomics.identification.search_adapters import (
+from bijux_proteomics.identification.search_adapters.conformance import (
+    build_search_adapter_conformance_report,
+)
+from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterConformanceReport,
     SearchAdapterFieldAccounting,
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
     SearchResultFamily,
-    build_search_adapter_conformance_report,
+)
+from bijux_proteomics.identification.search_adapters.input_review import (
     build_search_adapter_field_accounting,
 )
 from bijux_proteomics_foundation import JsonModel

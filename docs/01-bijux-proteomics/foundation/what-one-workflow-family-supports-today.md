@@ -4,122 +4,86 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-07-01
 ---
 
 # What One Workflow Family Supports Today
 
-`bijux-proteomics` now has one checked flagship workflow chain:
-`flagship-workflows`.
+This page explains what a workflow family has to contain before the repository
+can give it a serious public sentence.
 
-That phrase is intentionally narrow. It means one governed workflow proof set
-exists from sequence intake through search/confidence, quantification, PTM
-review, scientific-kernel review, evidence review, decision review, lab
-handoff, and follow-up. It does **not** mean the repository now has broad
-proteomics workflow coverage.
+The question is no longer whether one family has a convenient demo. The real
+question is whether one family now has enough benchmark, runtime, grounding,
+recommendation, and consequence depth that outsiders can challenge it end to
+end without relying on maintainer memory.
 
-## Open First
+## The Minimum Family Packet
 
-The strongest shipped evidence path currently starts with the DDA public
-package, not with a governance report.
+For this repository, one workflow family only earns a serious sentence when it
+has all of the following:
 
-Open these files first:
+- one flagship public benchmark package
+- one companion pressure package that tests adjacent transfer or stress
+- one explicit runtime lane with rerun or replay proof
+- one claim-grounding and contradiction route
+- one recommendation-pressure route
+- one downstream consequence or refusal route
 
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/artifact_inventory.json`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/scientific_invariants.json`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/comparator_confrontations.py`
+If one of those pieces is missing, the family may still be useful, but the
+sentence has to narrow.
 
-Those files show the actual current DDA support surface:
+## Why DDA Still Works As The Clearest Example
 
-- one raw-like spectrum
-- one primary MaxQuant import lane
-- one MSFragger comparator export
-- explicit search settings
-- numeric invariants
-- one demonstrated protein-rollup warning
+DDA remains the best first family because its packet is easy to inspect as one
+bounded chain:
 
-## What Exists Now
+- a flagship benchmark package
+- a companion cross-engine pressure package
+- a real import-backed runtime review lane
+- grounded scientific and comparator pressure
+- recommendation challenge and downgrade routes
+- consequence and follow-up boundaries
 
-The current checked workflow surface supports one narrow workflow story, and
-the DDA public package is the clearest outsider-readable entrypoint into it:
+It is not the strongest family in every dimension, but it remains the clearest
+reader-first example of the full pattern.
 
-- runtime-owned sequence, search/confidence, quantification, PTM, and lab
-  handoff artifacts
-- core-owned DDA public package with artifact inventory, invariant ledger, and
-  warning ledger
-- knowledge-owned benchmark manifest and comparator confrontation pinned to the
-  same DDA public package
-- intelligence-owned decision review with downgrade chains
-- lab-owned follow-up packet with explicit progression blockers
+## What This Means In Practice
 
-Current reviewer anchors for that story:
+One serious family packet does **not** mean:
 
-- runtime lane:
-  `dda-maxquant-pipeline-corpus`
-- benchmark manifest:
-  `benchmark:dda_search_reproducibility`
-- comparator path:
-  `comparator_path:msfragger_imported_dda_review`
-- validating tests:
-  `packages/bijux-proteomics-core/tests/benchmarks/test_dda_reviewable_package_surface.py`
-  `packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py`
-  `packages/bijux-proteomics-knowledge/tests/references/test_references_benchmarks.py`
+- broad proteomics coverage
+- repository-wide readiness
+- decision-grade downstream authority
 
-Current outsider-facing review pages for that story:
+It means something narrower and still important:
 
-- `docs/01-bijux-proteomics/foundation/why-trust-dda.md`
-- `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
-- `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
+one family can now be challenged from public evidence root to downstream
+consequence through tracked owner surfaces.
 
-## Claim Taxonomy
+## Current Family Reading
 
-Workflow-facing claims in this repository should stay in one of four tiers:
+| family | current family packet status | main reason the sentence still narrows |
+| --- | --- | --- |
+| `dda` | full bounded public packet | runtime remains `import_only` |
+| `dia` | full bounded public packet | library and consequence pressure still narrow the broader sentence |
+| `lfq` | full review-grade packet | missingness and transfer pressure still block stronger public language |
+| `ptm` | full bounded public packet | localization evidence still outruns consequence confidence |
+| `targeted` | full bounded public packet | calibration, interference, and burden still narrow broader certainty |
+| `multiplex` | real packet, internal-support only | outsider trust still collapses under stress |
 
-- `owned_contract`
-- `benchmark_backed_behavior`
-- `runtime_proven_workflow`
-- `future_work`
+## Strongest Companion Routes
 
-This page is where `runtime_proven_workflow` claims are allowed. If a workflow
-family does not have a checked artifact-backed surface with validating tests,
-it should stay in `benchmark_backed_behavior` or `future_work`.
-
-## What This Does Not Mean
-
-The canonical proof set does not authorize broad claims about:
-
-- glycopeptide workflow coverage
-- library-search scientific depth
-- external-engine parity as solved scientific behavior
-- broad cohort-grade DDA trust beyond the tracked imported-result package
-
-Those remain explicit boundary-only surfaces until they have their own checked
-proof sets.
-
-## Reference-Grade Boundary
-
-One undeniable workflow is necessary, but it is not enough by itself to make
-the whole repository `reference-grade` or `elite`.
-
-The next honest rise in posture will not come from more repository self-audit.
-It will come from stronger flagship evidence:
-
-- more than one public benchmark package that outsiders can inspect from files
-  alone
-- stronger runtime execution families than the current import-only DDA and DIA
-  lanes
-- live-engine or broader multi-run comparator confrontation where the current
-  package still stops at imported-result pressure
-- decision and follow-up surfaces that continue to survive those harder public
-  packages
+- [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+  for the current family-level sentence
+- [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  for the evidence-root requirements
+- [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+  for the runtime-lane requirements
+- [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  for the combined grounding, recommendation, and consequence route
 
 ## Boundary
 
-Only `flagship-workflows` may be described with this one-workflow-family
-sentence.
-Every other workflow family remains future-only until it has its own
-artifact-backed proof surface.
+This page explains what one serious family packet now means. It should not be
+read as a shortcut to broader repository claims than the current family and
+capability-limit pages can defend.

@@ -5,11 +5,26 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.interfaces.support.biomarker_candidate_support import (
+import bijux_proteomics.interfaces.support.biomarker_candidate_support as biomarker_candidate_support
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.biological_candidates import (
     _build_biomarker_candidates_from_biological_report_dir,
+)
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.panel_candidate_inputs import (
+    _load_biomarker_candidate_inputs,
+)
+from bijux_proteomics.interfaces.support.biomarker_candidate_support.ptm_candidates import (
     _build_biomarker_candidates_from_ptm_report_dir,
 )
 from bijux_proteomics.review import BiomarkerCandidateKind
+from bijux_proteomics.targeted import TargetedPanelCandidateKind
+
+
+def test_biomarker_candidate_support_facade_exports_primary_loaders() -> None:
+    assert biomarker_candidate_support.__all__ == (
+        "_build_biomarker_candidates_from_biological_report_dir",
+        "_build_biomarker_candidates_from_ptm_report_dir",
+        "_load_biomarker_candidate_inputs",
+    )
 
 
 def test_biological_report_candidate_loader_matches_out_of_order_differential_rows(
@@ -135,3 +150,30 @@ def test_ptm_report_candidate_loader_matches_out_of_order_differential_rows(
     assert candidates[0].effect_size == 1.2
     assert "ortholog:conserved" in candidates[0].annotation_labels
     assert "mechanism:activation" in candidates[0].annotation_labels
+
+
+def test_panel_candidate_input_loader_parses_rank_reason_codes(
+    tmp_path: Path,
+) -> None:
+    input_tsv = tmp_path / "biomarker_candidates.tsv"
+    input_tsv.write_text(
+        "\n".join(
+            (
+                "candidate_id\tcandidate_kind\tdisplay_label\ttarget_protein_ref\tsite_key\tpriority_rank\tfinal_score\tpenalty_total\trank_reason_codes",
+                "protein:pg-1\tprotein\tKIN1\tP11111\t\t1\t0.91\t0.05\tspecificity;detectability",
+                "site:P22222:T9:Phospho\tptm_site\tP22222 T9 Phospho\tP22222\tP22222:T9:Phospho\t2\t0.77\t0.11\tmechanism",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    inputs = _load_biomarker_candidate_inputs(input_tsv)
+
+    assert tuple(item.candidate_kind for item in inputs) == (
+        TargetedPanelCandidateKind.PROTEIN,
+        TargetedPanelCandidateKind.PTM_SITE,
+    )
+    assert inputs[0].rank_reason_codes == ("specificity", "detectability")
+    assert inputs[0].site_key is None
+    assert inputs[1].site_key == "P22222:T9:Phospho"

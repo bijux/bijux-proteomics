@@ -24,7 +24,7 @@ from bijux_proteomics._scientific_tables import (
     build_psm_table_schema,
     validate_scientific_table,
 )
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )

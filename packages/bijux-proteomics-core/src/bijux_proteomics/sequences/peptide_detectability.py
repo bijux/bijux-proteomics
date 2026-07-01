@@ -10,7 +10,7 @@ from math import isclose
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import ModificationRegistryDocument
+from bijux_proteomics.chemistry.modifications import ModificationRegistryDocument
 from bijux_proteomics.sequences.digestion import ProteaseRule
 from bijux_proteomics.sequences.peptide_properties import (
     PeptidePropertyReport,

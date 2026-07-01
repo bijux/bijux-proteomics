@@ -18,7 +18,6 @@
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -42,6 +41,17 @@ deterministic serialization.
 Use this package when you need versioned document governance, migration-safe
 serialization, and cross-package consistency for reproducible proteomics data.
 
+## At a glance
+
+- Use foundation when the problem is shared document identity, canonical JSON,
+  compatibility checks, or durable hashing across package boundaries.
+- Start with the stable root imports for shared contracts, then open the
+  [foundation handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+  when you need the full owner surface.
+- Route scientific meaning to core, execution to runtime, recommendation
+  posture to intelligence, scientific memory to knowledge, and assay follow-up
+  to lab.
+
 ## Why teams pick this kernel
 
 - one canonical document-contract baseline across every proteomics package
@@ -56,6 +66,17 @@ serialization, and cross-package consistency for reproducible proteomics data.
 - serialize domain models into canonical JSON for reproducible comparisons
 - validate migration paths before accepting persisted record upgrades
 - centralize shared contract behavior so other packages stay focused on domain logic
+
+## 0.3.8 Release Highlights
+
+- The shared kernel now covers canonical document metadata, JSON rendering,
+  stable hashing, identifier kinds, refusal and result envelopes, and schema
+  compatibility checks in one bounded package.
+- Foundation also ships the shared optional-dependency guards, alias helpers,
+  generated-file markers, and reusable test-policy primitives that the release
+  gates now depend on.
+- The public root stays intentionally small while durable owner families make
+  long-term boundaries explicit for contributors and downstream packages.
 
 ## Installation
 
@@ -149,7 +170,7 @@ schema = DocumentSchema(
     created_by="bijux-proteomics-foundation",
     document_kind="contract_bundle",
     package_name="bijux-proteomics-foundation",
-    package_version="0.1.0",
+    package_version="0.3.8",
 )
 ```
 
@@ -295,6 +316,8 @@ result = OperationResult.success(
 
 ## Documentation
 
+- [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)

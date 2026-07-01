@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Protein coverage and parsimony CLI commands."""
 
@@ -16,7 +15,13 @@ from bijux_proteomics.interfaces.python_api.protein_coverage_and_parsimony impor
     run_protein_coverage_plot_command,
     run_protein_parsimony_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.identification import (
+    ParsimonyVariant,
+    ScoreOrientation,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _score_orientation_choice,
+)
 
 
 @click.command("protein-coverage")

@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pydantic import ConfigDict, Field
 
@@ -207,11 +207,11 @@ def summarize_missing_values(
     policy: MissingValueSummaryPolicy | None = None,
 ) -> MissingValueSummaryReport:
     """Summarize missing values with explicit correction and sparse-entity filters."""
-    from bijux_proteomics.quantification.missingness.missingness import (
+    from bijux_proteomics.quantification.missingness import (
         summarize_missing_values as _implementation,
     )
 
-    return _implementation(table, policy=policy)
+    return cast(MissingValueSummaryReport, _implementation(table, policy=policy))
 
 
 def build_missing_data_mechanism_report(
@@ -219,11 +219,11 @@ def build_missing_data_mechanism_report(
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> MissingDataMechanismReport:
     """Classify missingness patterns with explicit mechanism labels."""
-    from bijux_proteomics.quantification.missingness.missingness import (
+    from bijux_proteomics.quantification.missingness import (
         build_missing_data_mechanism_report as _implementation,
     )
 
-    return _implementation(table, design_entries)
+    return cast(MissingDataMechanismReport, _implementation(table, design_entries))
 
 
 def build_missingness_classifier_report(
@@ -234,13 +234,16 @@ def build_missingness_classifier_report(
     bin_count: int = 4,
 ) -> MissingnessClassifierReport:
     """Bundle sample, entity, condition, intensity, and mechanism missingness views."""
-    from bijux_proteomics.quantification.missingness.missingness import (
+    from bijux_proteomics.quantification.missingness import (
         build_missingness_classifier_report as _implementation,
     )
 
-    return _implementation(
-        table,
-        design_entries=design_entries,
-        policy=policy,
-        bin_count=bin_count,
+    return cast(
+        MissingnessClassifierReport,
+        _implementation(
+            table,
+            design_entries=design_entries,
+            policy=policy,
+            bin_count=bin_count,
+        ),
     )

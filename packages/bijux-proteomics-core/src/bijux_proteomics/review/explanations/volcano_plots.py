@@ -20,10 +20,10 @@ from bijux_proteomics_foundation import JsonModel
 if TYPE_CHECKING:
     from bijux_proteomics.ptm.differential_analysis import PtmDifferentialVolcanoPlot
     from bijux_proteomics.quantification.contracts import DifferentialAbundanceReport
-    from bijux_proteomics.workflow.pipelines.dia_differential_analysis import (
+    from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis import (
         DiaDifferentialVolcanoPlot,
     )
-    from bijux_proteomics.workflow.pipelines.label_based_differential_analysis import (
+    from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import (
         LabelBasedDifferentialVolcanoPlot,
     )
 

@@ -14,7 +14,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
@@ -24,7 +24,7 @@ from bijux_proteomics._scientific_tables import (
     build_psm_table_schema,
     validate_scientific_table,
 )
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
@@ -277,7 +277,7 @@ def compare_parsimony_variants(
         variant=primary_variant,
         review_variants=variants,
     )
-    return report.variant_comparison
+    return cast(ParsimonyVariantComparisonReport, report.variant_comparison)
 
 
 __all__ = [

@@ -23,7 +23,7 @@ def test_parse_structure_from_pdb_text_reads_raw_pdb_payload() -> None:
     structure = parse_structure_from_pdb_text(_MINIMAL_PDB)
 
     assert structure.id == "pred"
-    residues = list(structure.get_residues())  # type: ignore[no-untyped-call]
+    residues = list(structure.get_residues())
     assert len(residues) == 1
     assert residues[0].get_resname() == "ALA"
 

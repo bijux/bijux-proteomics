@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )

@@ -25,30 +25,30 @@ MISSINGNESS_COMPANION_OWNERS = {
         "render_protein_intensity_matrix_tsv",
         "render_protein_intensity_missingness_mask_tsv",
     ),
-    "quantification/rollup/protein_lfq.py": (
+    "quantification/rollup/protein_lfq/rendering.py": (
         "render_protein_lfq_matrix_tsv",
         "render_protein_lfq_missingness_mask_tsv",
     ),
-    "workflow/pipelines/dia_differential_analysis.py": (
+    "workflow/pipelines/comparative/dia_differential_analysis.py": (
         "render_dia_differential_matrix_tsv",
         "render_dia_differential_missingness_tsv",
     ),
-    "workflow/pipelines/label_based_differential_analysis.py": (
+    "workflow/pipelines/comparative/label_based_differential/rendering.py": (
         "render_label_based_differential_matrix_tsv",
         "render_label_based_differential_missingness_tsv",
     ),
 }
 
 MISSINGNESS_SIDE_CAR_EXPORT_OWNERS = {
-    "workflow/pipelines/maxquant_biological_workflow.py": (
+    "workflow/pipelines/engines/maxquant_biological_workflow.py": (
         "lfq_missingness_tsv",
         "render_label_free_quant_missingness_matrix_tsv",
     ),
-    "workflow/pipelines/dda_biological_workflow.py": (
+    "workflow/pipelines/engines/dda_biological_workflow.py": (
         "protein_lfq_missingness_tsv",
         "protein_lfq_missingness_mask_tsv",
     ),
-    "workflow/pipelines/diann_biological_workflow.py": (
+    "workflow/pipelines/engines/diann_biological_workflow.py": (
         "precursor_missingness_tsv",
         "peptide_missingness_tsv",
         "protein_missingness_tsv",

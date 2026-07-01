@@ -17,9 +17,19 @@ from bijux_proteomics.chemistry.contracts import (
     build_modified_peptide,
 )
 from bijux_proteomics.chemistry.modification_registry import (
+    modification_registry as _modification_registry_root_export,
+)
+from bijux_proteomics.chemistry.modification_registry import (
     resolve_modification_definition,
 )
+from bijux_proteomics.chemistry.public_api import rebind_package_export
 from bijux_proteomics_foundation import JsonModel
+
+rebind_package_export(
+    "bijux_proteomics.chemistry",
+    "modification_registry",
+    _modification_registry_root_export,
+)
 
 _C13_NEUTRON_SHIFT = 1.0033548378
 _SUPPORTED_ELEMENT_SYMBOLS = ("C", "H", "N", "O", "S", "P")

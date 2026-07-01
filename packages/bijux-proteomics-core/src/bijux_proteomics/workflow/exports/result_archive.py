@@ -46,7 +46,7 @@ from bijux_proteomics.workflow.exports.result_manifest import (
     ResultManifestReport,
     ResultManifestSourceKind,
 )
-from bijux_proteomics.workflow.study_result import (
+from bijux_proteomics.workflow.studies.study_results import (
     ProteomicsStudyCardKind,
     ProteomicsStudyCardSurface,
     ProteomicsStudyConclusionEntry,

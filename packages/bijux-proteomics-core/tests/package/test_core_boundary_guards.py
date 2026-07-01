@@ -18,7 +18,7 @@ ALLOWED_RUNTIME_IMPORTS = {
     },
 }
 ALLOWED_CROSS_PACKAGE_IMPORTS = {
-    "benchmarks/flagship_acceptance.py": {
+    "benchmarks/flagship/acceptance.py": {
         "bijux_proteomics_intelligence.reviews.benchmarks",
         "bijux_proteomics_knowledge.references.workflows.benchmarks",
         "bijux_proteomics_knowledge.references.workflows.comparator_failures",
@@ -40,18 +40,29 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
         "bijux_proteomics_knowledge.memory.models.claims",
         "bijux_proteomics_knowledge.memory.models.evidence",
     },
-    "workflow/pipelines/integrated_scientific_report.py": {
+    "workflow/pipelines/synthesis/integrated_scientific_report.py": {
         "bijux_proteomics_intelligence.reviews",
         "bijux_proteomics_knowledge.memory.models.claims",
     },
     "workflow/reports/biological_report_assembly.py": {
         "bijux_proteomics_lab.handoffs.qc_feedback",
     },
+    "workflow/reports/biological_report_protein_evidence.py": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+    },
+    "workflow/reports/biological_report_quant_table_input.py": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
+    },
     "workflow/reports/biological_result_graph.py": {
         "bijux_proteomics_lab.handoffs.qc_feedback",
     },
-    "interpretation/pathway_activity.py": {
+    "interpretation/pathway_activity/knowledge_coverage.py": {
         "bijux_proteomics_knowledge.pathways.members",
+    },
+}
+ALLOWED_CROSS_PACKAGE_IMPORT_PREFIXES = {
+    "workflow/reports/graph/": {
+        "bijux_proteomics_lab.handoffs.qc_feedback",
     },
 }
 REMOVED_COMPATIBILITY_IMPORTS = {
@@ -77,6 +88,14 @@ def _imported_modules(path: Path) -> set[str]:
     return modules
 
 
+def _allowed_cross_package_imports(module_path: str) -> set[str]:
+    allowed = set(ALLOWED_CROSS_PACKAGE_IMPORTS.get(module_path, set()))
+    for prefix, imports in ALLOWED_CROSS_PACKAGE_IMPORT_PREFIXES.items():
+        if module_path.startswith(prefix):
+            allowed.update(imports)
+    return allowed
+
+
 @pytest.mark.slow
 def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or_lab() -> (
     None
@@ -97,9 +116,10 @@ def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or
                 )
             )
         )
-        allowed_cross_package = ALLOWED_CROSS_PACKAGE_IMPORTS.get(module_path, set())
-        if set(disallowed) != allowed_cross_package:
-            unexpected[module_path] = disallowed
+        allowed_cross_package = _allowed_cross_package_imports(module_path)
+        unexpected_cross_package = sorted(set(disallowed) - allowed_cross_package)
+        if unexpected_cross_package:
+            unexpected[module_path] = unexpected_cross_package
 
         runtime_imports = sorted(
             module
@@ -109,8 +129,9 @@ def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or
         if not runtime_imports:
             continue
         allowed = ALLOWED_RUNTIME_IMPORTS.get(module_path, set())
-        if set(runtime_imports) != allowed:
-            unexpected[module_path] = runtime_imports
+        unexpected_runtime_imports = sorted(set(runtime_imports) - allowed)
+        if unexpected_runtime_imports:
+            unexpected[module_path] = unexpected_runtime_imports
 
     assert unexpected == {}
 

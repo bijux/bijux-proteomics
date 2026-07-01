@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Multiplex ratio and differential CLI commands."""
 
@@ -16,7 +15,19 @@ from bijux_proteomics.interfaces.python_api.multiplex_analysis import (
     run_tmt_ratio_command,
     run_tmt_report_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
+    TmtNormalizationMethod,
+    TmtSearchResultSourceKind,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _label_based_differential_normalization_choice,
+    _tmt_normalization_method_choice,
+    _tmt_ratio_normalization_choice,
+    _tmt_source_kind_choice,
+)
 
 
 @click.command("tmt-ratios")

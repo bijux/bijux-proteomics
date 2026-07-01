@@ -7,34 +7,15 @@ import ast
 import importlib
 from pathlib import Path
 
-_PIPELINE_MODULES = (
-    "advanced_workflow_family",
-    "advanced_diann",
-    "advanced_fragpipe",
-    "advanced_maxquant",
-    "advanced_ptm",
-    "advanced_targeted",
-    "advanced_tmt",
-    "dda_biological_workflow",
-    "dia_dda_comparison",
-    "dia_differential_analysis",
-    "diann_biological_workflow",
-    "discovery_to_assay",
-    "flagship_run",
-    "integrated_scientific_report",
-    "label_based_differential_analysis",
-    "label_based_reporting",
-    "maxquant_biological_workflow",
-    "multi_study",
-    "orchestrator",
-    "ptm_site_workflow",
-    "public_benchmark_runner",
-    "scale_demo",
-    "surprising_demo",
-    "surprising_demo_interrogation",
-    "tmt_experiment_workflow",
-    "trust_bundle",
-    "weak_evidence",
+from bijux_proteomics.workflow.public_api import (
+    WORKFLOW_PIPELINE_ADVANCED_WRAPPER_TARGETS,
+    WORKFLOW_PIPELINE_DEMO_WRAPPER_TARGETS,
+    WORKFLOW_PIPELINE_ENGINE_WRAPPER_TARGETS,
+    WORKFLOW_ROOT_PIPELINE_WRAPPER_TARGETS,
+)
+
+_PIPELINE_MODULES = tuple(
+    Path(filename).stem for filename in WORKFLOW_ROOT_PIPELINE_WRAPPER_TARGETS
 )
 _FORBIDDEN_HELPER_TOKENS = (
     "_parse_",
@@ -50,7 +31,6 @@ _APPROVED_ASSEMBLY_HELPERS = {
         "_parse_source_protein_refs",
     },
     "dia_dda_comparison": {"_parse_optional_float"},
-    "label_based_differential_analysis": {"_normalize_input_report"},
 }
 
 
@@ -78,15 +58,15 @@ def _significant_nodes(path: Path) -> list[ast.stmt]:
 def test_workflow_root_owners_are_thin_pipeline_facades() -> None:
     root = _workflow_source_root()
 
-    for module_name in _PIPELINE_MODULES:
-        path = root / f"{module_name}.py"
+    for filename, expected_target in WORKFLOW_ROOT_PIPELINE_WRAPPER_TARGETS.items():
+        path = root / filename
         nodes = _significant_nodes(path)
         assert nodes, f"{path} should contain a pipeline re-export"
         assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
             f"{path} should stay a thin compatibility facade"
         )
         assert any(
-            node.module == f"bijux_proteomics.workflow.pipelines.{module_name}"
+            node.module == expected_target
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{path} should re-export its owned workflow pipeline"
@@ -168,15 +148,8 @@ def test_workflow_sources_do_not_import_benchmark_modules() -> None:
 
 def test_demo_pipeline_wrappers_delegate_to_demo_owners() -> None:
     root = _workflow_source_root() / "pipelines"
-    expected_targets = {
-        "scale_demo.py": "bijux_proteomics.workflow.demo.scale_demo",
-        "surprising_demo.py": "bijux_proteomics.workflow.demo.surprising_demo",
-        "surprising_demo_interrogation.py": (
-            "bijux_proteomics.workflow.demo.surprising_demo_interrogation"
-        ),
-    }
 
-    for filename, expected_target in expected_targets.items():
+    for filename, expected_target in WORKFLOW_PIPELINE_DEMO_WRAPPER_TARGETS.items():
         nodes = _significant_nodes(root / filename)
         assert nodes, f"{filename} should contain a demo re-export"
         assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
@@ -187,3 +160,69 @@ def test_demo_pipeline_wrappers_delegate_to_demo_owners() -> None:
             for node in nodes
             if isinstance(node, ast.ImportFrom)
         ), f"{filename} should re-export its owned demo surface"
+
+
+def test_advanced_pipeline_wrappers_delegate_to_advanced_owners() -> None:
+    root = _workflow_source_root() / "pipelines"
+
+    for filename, expected_target in WORKFLOW_PIPELINE_ADVANCED_WRAPPER_TARGETS.items():
+        nodes = _significant_nodes(root / filename)
+        assert nodes, f"{filename} should contain an advanced workflow re-export"
+        assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
+            f"{filename} should stay a thin compatibility facade"
+        )
+        assert any(
+            node.module == expected_target
+            for node in nodes
+            if isinstance(node, ast.ImportFrom)
+        ), f"{filename} should re-export its advanced owner surface"
+
+
+def test_engine_pipeline_wrappers_delegate_to_engine_owners() -> None:
+    root = _workflow_source_root() / "pipelines"
+
+    for filename, expected_target in WORKFLOW_PIPELINE_ENGINE_WRAPPER_TARGETS.items():
+        nodes = _significant_nodes(root / filename)
+        assert nodes, f"{filename} should contain an engine workflow re-export"
+        assert all(isinstance(node, ast.ImportFrom) for node in nodes), (
+            f"{filename} should stay a thin compatibility facade"
+        )
+        assert any(
+            node.module == expected_target
+            for node in nodes
+            if isinstance(node, ast.ImportFrom)
+        ), f"{filename} should re-export its engine owner surface"
+
+
+def test_workflow_pipeline_root_stays_namespace_only() -> None:
+    pipelines = importlib.import_module("bijux_proteomics.workflow.pipelines")
+
+    assert tuple(pipelines.__all__) == ()
+    assert hasattr(pipelines, "advanced")
+    assert hasattr(pipelines, "benchmarking")
+    assert hasattr(pipelines, "comparative")
+    assert hasattr(pipelines, "engines")
+    assert hasattr(pipelines, "operations")
+    assert hasattr(pipelines, "synthesis")
+
+
+def test_workflow_pipeline_subfacades_keep_canonical_owner_exports() -> None:
+    pipelines = importlib.import_module("bijux_proteomics.workflow.pipelines")
+
+    assert not hasattr(pipelines, "run_advanced_tmt_workflow")
+    assert hasattr(pipelines.advanced, "run_advanced_tmt_workflow")
+
+    assert not hasattr(pipelines, "run_weak_evidence_benchmark")
+    assert hasattr(pipelines.benchmarking, "run_weak_evidence_benchmark")
+
+    assert not hasattr(pipelines, "build_dia_differential_analysis_report")
+    assert hasattr(pipelines.comparative, "build_dia_differential_analysis_report")
+
+    assert not hasattr(pipelines, "build_tmt_experiment_workflow_bundle")
+    assert hasattr(pipelines.engines, "build_tmt_experiment_workflow_bundle")
+
+    assert not hasattr(pipelines, "run_proteomics_workflow")
+    assert hasattr(pipelines.operations, "run_proteomics_workflow")
+
+    assert not hasattr(pipelines, "design_assay_from_discovery")
+    assert hasattr(pipelines.synthesis, "design_assay_from_discovery")

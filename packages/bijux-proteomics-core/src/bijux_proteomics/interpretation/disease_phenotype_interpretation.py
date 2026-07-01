@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import ConfidenceTier
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.interpretation.biological_context_mapping import (
     BiologicalContextKind,
     BiologicalContextRecord,
@@ -26,12 +26,12 @@ from bijux_proteomics.interpretation.protein_set_enrichment import (
 )
 from bijux_proteomics.interpretation.protein_set_scoring import ProteinSetRecord
 from bijux_proteomics.io.stable_outputs import sort_strings
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceReport,
-    LabelFreeQuantTable,
-    QuantEntityLevel,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.quantification.contracts.input_models import QuantEntityLevel
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
 DiseasePhenotypeConfidenceStatus = ConfidenceTier

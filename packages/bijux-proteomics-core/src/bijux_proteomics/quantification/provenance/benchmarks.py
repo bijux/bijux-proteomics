@@ -10,7 +10,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     LabelBasedQuantPolicy,
     LabelFreeQuantTable,
     MissingnessConditionSummaryReport,
@@ -24,15 +24,19 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
+)
+from bijux_proteomics.quantification.missingness import (
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
-    normalize_label_free_table,
     summarize_missing_values,
 )
 from bijux_proteomics.quantification.missingness.readiness import (
     QuantDecisionReadinessReport,
     build_quant_decision_readiness_report,
+)
+from bijux_proteomics.quantification.normalization import (
+    normalize_label_free_table,
 )
 from bijux_proteomics.quantification.provenance.review import (
     MissingnessMechanismKind,

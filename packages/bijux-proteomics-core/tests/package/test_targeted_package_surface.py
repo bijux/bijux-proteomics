@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
@@ -44,7 +45,10 @@ def _format_fixture(name: str) -> Path:
 
 
 def _protein_records() -> tuple[NormalizedProteinRecord, ...]:
-    return parse_fasta_document(">sp|P00001|KIN1 GN=KIN1\nPEPTIDER\n").accepted_records
+    return cast(
+        tuple[NormalizedProteinRecord, ...],
+        parse_fasta_document(">sp|P00001|KIN1 GN=KIN1\nPEPTIDER\n").accepted_records,
+    )
 
 
 def test_targeted_package_exports_target_matrix_owner_surface() -> None:

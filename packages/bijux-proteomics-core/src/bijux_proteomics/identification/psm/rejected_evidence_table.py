@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import csv
 import io
-from typing import Protocol, cast
+from typing import Protocol, TypeAlias, cast
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -25,7 +25,7 @@ class _IssueLike(Protocol):
     message: str
 
 
-_RejectedEvidenceSourceRow = RejectedPsmRow | ScientificTableRejectedRow
+_RejectedEvidenceSourceRow: TypeAlias = RejectedPsmRow | ScientificTableRejectedRow
 
 
 class RejectedEvidenceTableEntry(JsonModel):

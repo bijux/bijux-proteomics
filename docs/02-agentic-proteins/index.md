@@ -50,9 +50,9 @@ flowchart LR
 
 ## Shared Reader Routes
 
-- Use [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- Use [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
   when the question is still product-wide rather than compatibility-specific.
-- Use [Execution](https://bijux.io/bijux-proteomics/execution/)
+- Use [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
   when the question is about canonical runtime behavior instead of the legacy
   bridge.
 

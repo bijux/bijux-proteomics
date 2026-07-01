@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import identification
+from bijux_proteomics.identification import search_adapters
 
 
 def _matrix_root() -> Path:
@@ -13,13 +14,16 @@ def _matrix_root() -> Path:
 
 
 def test_identification_package_exports_search_adapter_split_surface() -> None:
-    matrix = identification.build_search_adapter_corpus_conformance_matrix(
+    matrix = search_adapters.build_search_adapter_corpus_conformance_matrix(
         _matrix_root()
     )
 
     assert hasattr(identification, "SearchAdapterKind")
-    assert hasattr(identification, "search_adapter_registry")
-    assert hasattr(identification, "normalize_search_results_with_adapter")
-    assert hasattr(identification, "build_search_adapter_corpus_conformance_matrix")
+    assert hasattr(search_adapters, "search_adapter_registry")
+    assert hasattr(search_adapters, "normalize_search_results_with_adapter")
+    assert hasattr(search_adapters, "build_search_adapter_corpus_conformance_matrix")
+    assert not hasattr(identification, "build_search_adapter_corpus_conformance_matrix")
+    assert not hasattr(identification, "search_adapter_registry")
+    assert not hasattr(identification, "normalize_search_results_with_adapter")
     assert identification.SearchAdapterKind.COMET.value == "comet"
     assert matrix.passes is True

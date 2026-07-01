@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Peptide-matrix CLI commands."""
 
@@ -13,7 +12,15 @@ import click
 from bijux_proteomics.interfaces.python_api.peptide_matrix_building import (
     run_peptide_matrix_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    PeptideMatrixGroupingMode,
+    QuantRollupMethod,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _peptide_matrix_builder_input_kind_choice,
+    _peptide_matrix_grouping_choice,
+    _quant_rollup_choice,
+)
 
 
 @click.command("peptide-matrix")

@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # Foundation
@@ -17,6 +17,12 @@ The central question here is simple: why should this repository stay a package
 family instead of collapsing into a blur of shared code and mixed ownership. If
 that question is unresolved, the rest of the handbook will only restate the
 same confusion in smaller pieces.
+
+That question is more important now because the repository has grown far beyond
+lightweight governance and package bookkeeping. The current platform carries
+real sequence, chemistry, benchmark, execution, grounding, recommendation, and
+lab surfaces. If the foundation section does not explain how those surfaces fit
+together, the rest of the docs will understate the product.
 
 ```mermaid
 flowchart TB
@@ -43,48 +49,56 @@ This section should move a reader from system-level confusion to a package-level
 - it helps the reader see the family as a designed system instead of a pile of
   sibling packages
 
+## What Changed Since v0.3.7
+
+- the repository now has materially deeper scientific owner surfaces in core
+- runtime now contributes public rerun and replay proof instead of only
+  operator-facing command surfaces
+- knowledge, intelligence, and lab now contribute a visible consequence chain
+  rather than background explanation
+- release trust now depends on public scrutiny routes, not only package-local
+  handbooks
+
 ## Start With
 
-- Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
-  for the shortest explanation of the end-to-end product chain.
-- Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-  when the question is which package should own the work, import, or artifact.
-- Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
-  when the question is why the current package split still exists and which
-  split is only temporary compatibility.
-- Open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
-  when a change crosses root and package boundaries.
-- Open [Public Language Glossary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-language-glossary/)
-  when the question is which release-facing terms are still allowed and which old phrases were retired.
-- Open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
-  when a reviewer needs a hard yes-or-no gate.
-- Open [What One Workflow Family Supports Today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
-  when the question is what one real workflow family can currently support from shipped evidence.
-- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
-  when the question is whether public wording currently outruns hard evidence.
-- Open [Release Narrowing Protocol](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-narrowing-protocol/)
-  when the question is how workflow-family language narrows automatically after
-  release evidence degrades.
-- Open [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
-  when the question is how a skeptical outsider should challenge the strongest
-  current repository claim without maintainer narration.
-- Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
-  when the question is which workflow family a skeptical outsider can audit
-  today.
-- Open [Elite Readiness Scorecard](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/elite-readiness-scorecard/)
-  when the question is whether repository language is outrunning public
-  evidence.
-- Open [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
-  when the question is which blocked release bars still forbid stronger
-  language.
-- Open [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
-  when the question is which exact blockers still keep the repository from a
-  stronger release sentence.
-- Open [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
-  when the question is where a hostile reader should actually start opening
-  files.
-- Open [Public Artifact Role Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-role-matrix/)
-  when the question is why several public surfaces still coexist instead of collapsing into one page.
+- Structure:
+  open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/),
+  [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/),
+  and [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
+  when the question is why the package family exists and where ownership
+  should land.
+- Public language:
+  open [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/),
+  [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/),
+  and [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the question starts from external wording rather than internal package
+  seams.
+- Release truth:
+  open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/),
+  [Release Narrowing Protocol](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-narrowing-protocol/),
+  and [Elite Readiness Scorecard](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/elite-readiness-scorecard/)
+  when you need the shortest route from wording to proof burden.
+- Public proof:
+  open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/),
+  [What One Workflow Family Supports Today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/),
+  [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/),
+  and [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
+  when the question is what an outsider can audit today without maintainer
+  narration.
+- Readiness blockers:
+  open [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
+  and [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
+  when the question is what still forbids stronger release language.
+
+## Fastest Proof Route
+
+- Start with [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  to understand the end-to-end chain.
+- Continue to [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  to see which categories still block stronger language.
+- Finish at [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  and [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
+  to see what an outsider can actually open today.
 
 ## Section Pages
 

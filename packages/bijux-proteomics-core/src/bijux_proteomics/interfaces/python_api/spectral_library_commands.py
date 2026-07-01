@@ -1,12 +1,37 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Spectral library Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Any,
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    SpectralSimilarityMethod,
+    SpectrumSimilarityMode,
+    build_spectral_library_index,
+    build_spectral_library_summary,
+    build_spectrum_library_similarity_report,
+    build_spectrum_similarity_comparison_report,
+    find_spectral_library_candidates,
+    import_spectral_library,
+    render_spectral_library_candidates_tsv,
+    render_spectral_library_search_tsv,
+    render_spectral_library_summary_tsv,
+    render_spectrum_similarity_tsv,
+    search_spectral_library,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
+from bijux_proteomics.interfaces.support.targeted_selection_io.spectrum_similarity import (
+    _load_similarity_spectra,
+    _select_similarity_spectrum,
+)
 
 
 def run_spectrum_similarity_command(

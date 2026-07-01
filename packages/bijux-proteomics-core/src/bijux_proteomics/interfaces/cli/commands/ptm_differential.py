@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """PTM differential CLI commands."""
 
@@ -14,7 +13,16 @@ from bijux_proteomics.interfaces.python_api.ptm_differential import (
     run_ptm_differential_command,
     run_ptm_estimate_occupancy_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
+    PtmProteinCorrectionMode,
+    PtmSiteQuantAmbiguityPolicy,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _normalization_choice,
+)
 
 
 @click.command("estimate-occupancy")

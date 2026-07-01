@@ -10,26 +10,28 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO_ROOT / "src" / "bijux_proteomics"
 ATOMIC_FILE_OWNER = SOURCE_ROOT / "_atomic_files.py"
 OUTPUT_TABLE_OWNER = SOURCE_ROOT / "_output_tables.py"
-OUTPUT_PROTOCOL_OWNER = SOURCE_ROOT / "interfaces" / "support" / "output_protocol.py"
+OUTPUT_PROTOCOL_OWNER = (
+    SOURCE_ROOT / "interfaces" / "support" / "output_protocol" / "artifact_output.py"
+)
 ARTIFACT_LAYOUT_OWNER = SOURCE_ROOT / "workflow" / "exports" / "artifact_layout.py"
 MANAGED_WORKFLOW_WRITE_OWNERS = (
     "workflow/demo/scale_demo.py",
     "workflow/demo/surprising_demo.py",
-    "workflow/pipelines/advanced_diann.py",
-    "workflow/pipelines/advanced_fragpipe.py",
-    "workflow/pipelines/advanced_maxquant.py",
-    "workflow/pipelines/advanced_ptm.py",
-    "workflow/pipelines/advanced_targeted.py",
-    "workflow/pipelines/advanced_tmt.py",
-    "workflow/pipelines/dda_biological_workflow.py",
-    "workflow/pipelines/diann_biological_workflow.py",
-    "workflow/pipelines/flagship_run.py",
-    "workflow/pipelines/integrated_scientific_report.py",
-    "workflow/pipelines/maxquant_biological_workflow.py",
-    "workflow/pipelines/orchestrator.py",
-    "workflow/pipelines/ptm_site_workflow.py",
-    "workflow/pipelines/tmt_experiment_workflow.py",
-    "workflow/pipelines/trust_bundle.py",
+    "workflow/pipelines/advanced/advanced_diann.py",
+    "workflow/pipelines/advanced/advanced_fragpipe.py",
+    "workflow/pipelines/advanced/advanced_maxquant.py",
+    "workflow/pipelines/advanced/advanced_ptm.py",
+    "workflow/pipelines/advanced/advanced_targeted.py",
+    "workflow/pipelines/advanced/advanced_tmt.py",
+    "workflow/pipelines/engines/dda_biological_workflow.py",
+    "workflow/pipelines/engines/diann_biological_workflow.py",
+    "workflow/pipelines/operations/flagship_run.py",
+    "workflow/pipelines/synthesis/integrated_scientific_report.py",
+    "workflow/pipelines/engines/maxquant_biological_workflow.py",
+    "workflow/pipelines/operations/orchestrator.py",
+    "workflow/pipelines/engines/ptm_site_workflow.py",
+    "workflow/pipelines/engines/tmt_experiment_workflow.py",
+    "workflow/pipelines/benchmarking/trust_bundle.py",
     "workflow/reports/biological_report_rendering.py",
 )
 

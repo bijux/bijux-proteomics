@@ -71,6 +71,20 @@ def _render_consequence_maps() -> str:
             "",
             "These maps are the shared consequence narrative across knowledge, intelligence, and lab. Each family starts from contradiction pressure, passes through current recommendation posture, and ends at assay burden and the cost of being wrong.",
             "",
+            "The value of this page is that it keeps the repository from pretending those three layers are interchangeable. A workflow family can have a strong benchmark packet, a convincing rerun lane, and still stop at a weaker public sentence because the downstream cost of being wrong remains too high.",
+            "",
+            "## How To Read These Maps",
+            "",
+            "- These are not vote tallies. The weakest downstream boundary controls the strongest honest public sentence.",
+            "- A family can look benchmark-strong and still remain recommendation-bounded once comparator pressure, assay burden, or follow-up failure stays unresolved.",
+            "- Read the table first for posture shape, then read the family map to see which contradiction, control demand, or consequence cost actually enforces the downgrade.",
+            "",
+            "## What This Page Protects",
+            "",
+            "- it protects trust pages from sounding stronger than the combined consequence chain",
+            "- it protects recommendation posture from sounding cleaner than the lab burden it still triggers",
+            "- it protects release language from drifting upward because one upstream packet improved while the downstream boundary stayed weak",
+            "",
             "| workflow family | knowledge posture | recommendation posture | lab posture | weakest allowed posture |",
             "| --- | --- | --- | --- | --- |",
         ]
@@ -111,9 +125,14 @@ def _render_consequence_maps() -> str:
         [
             "## Next Routes",
             "",
-            "- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/) when the question is which evidence axis or observed outcome actually moved the call.",
-            "- Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/) when the question is how requested-versus-observed follow-up should tighten the next recommendation.",
-            "- Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/) when the question is whether the honest next action is to stop, rerun, narrow, or refuse.",
+            "- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/) when the question is which evidence axis or observed outcome actually moved the call.",
+            "- Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/) when the question is how requested-versus-observed follow-up should tighten the next recommendation.",
+            "- Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/) when the question is whether the honest next action is to stop, rerun, narrow, or refuse.",
+            "",
+            "## Honest Reader Outcome",
+            "",
+            "- the reader should leave knowing which family still survives a bounded recommendation",
+            "- the reader should also know which exact downstream burden keeps that family away from decision-grade language",
         ]
     )
     return "\n".join(lines)
@@ -151,6 +170,21 @@ def _render_recommendation_changes() -> str:
             "",
             "This page answers the blunt question a hostile reviewer will ask next: what actually changes the recommendation once comparator pressure, literature pressure, lab burden, or observed outcome enters the picture?",
             "",
+            "It exists because the repository now has enough depth that recommendation language can move for real reasons rather than just cleaner prose. If the docs do not name those reasons clearly, the product sounds more arbitrary than it is and more certain than it deserves.",
+            "",
+            "## How To Read These Counterfactuals",
+            "",
+            "- Treat each family row as a stress test on the released sentence rather than a marketing recap of the current result.",
+            "- If removing one evidence axis or increasing downstream burden collapses the call, the weaker posture is part of the truthful product surface today.",
+            "- Observed outcome revisions matter only when they change the next honest sentence, not when they merely add more activity around the same uncertainty.",
+            "",
+            "## What Counts As A Real Change Driver",
+            "",
+            "- a comparator path that keeps the public sentence from outrunning transfer pressure",
+            "- a literature or grounding surface that keeps the scientific story from sounding cleaner than its evidence state",
+            "- a lab-burden shift that makes the same analytical story no longer worth the spend",
+            "- an observed outcome that materially changes the next sentence instead of just adding more work around the same uncertainty",
+            "",
         ]
     )
     for entry in changes:
@@ -160,6 +194,12 @@ def _render_recommendation_changes() -> str:
             "## Reading Rule",
             "",
             "If comparator removal, literature removal, doubled assay burden, or one observed outcome can collapse the recommendation, the public wording should stay at the weaker posture immediately.",
+            "",
+            "## Why This Page Matters More Now",
+            "",
+            "- several families now have real benchmark, runtime, and recommendation packets, so the next honest question is what actually moves the call",
+            "- a stronger repository needs clearer counterfactuals, not just stronger summaries",
+            "- this page keeps the recommendation story tied to evidence, burden, and observed outcomes instead of letting it drift into style",
         ]
     )
     return "\n".join(lines)
@@ -194,7 +234,39 @@ def _render_outcome_learning_loops() -> str:
         [
             "# Outcome Learning Loops",
             "",
-            "These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation. They keep assay burden, blocked assays, weakened evidence, and changed posture visible together instead of treating the next recommendation as memoryless.",
+            "These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation.",
+            "",
+            "They exist because downstream consequence should not be memoryless. Once the repository has asked for assays, observed only part of them, or learned that the information gain was weaker than expected, the next recommendation should change in public.",
+            "",
+            "## What One Loop Tells You",
+            "",
+            "Each workflow-family loop keeps the same questions visible:",
+            "",
+            "- what the recommendation posture was before follow-up",
+            "- what assays were requested",
+            "- what assays actually happened",
+            "- whether the loop was worth the assay spend",
+            "- how the observed result should narrow or strengthen the next recommendation",
+            "",
+            "## Cross-Family Snapshot",
+            "",
+            "| workflow family | initial posture | revised posture | worth the assay spend | current lesson |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for entry in loops:
+        lesson = (
+            entry.learning_points[0]
+            if entry.learning_points
+            else "no shipped learning point yet"
+        )
+        lines.append(
+            f"| `{entry.workflow_family.value}` | `{entry.initial_strength.value}` | "
+            f"`{entry.revised_strength.value}` | "
+            f"{'yes' if entry.worth_it else 'no'} | {lesson} |"
+        )
+    lines.extend(
+        [
             "",
         ]
     )

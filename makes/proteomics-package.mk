@@ -19,7 +19,6 @@ SECURITY_BANDIT_SKIP_IDS ?= B311
 BUILD_PER_PACKAGE_DIRS ?= 1
 API_FREEZE_COMMAND ?= $(VENV_PYTHON) -m bijux_proteomics_dev.governance.contracts.freeze_contracts
 API_OPENAPI_DRIFT_COMMAND ?= $(VENV_PYTHON) -m bijux_proteomics_dev.governance.contracts.openapi_drift
-
 test-all: TEST_MAIN_ARGS =
 test-all: PYTEST_ADDOPTS_EXTRA = -o timeout=0
 test-all: test

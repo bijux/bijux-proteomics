@@ -19,7 +19,7 @@ from bijux_proteomics._scientific_tables import (
     build_ptm_evidence_schema,
     validate_scientific_table,
 )
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     AppliedModification,
     ModificationLocalizationCandidate,
     ModificationPosition,
@@ -43,7 +43,7 @@ from bijux_proteomics.identification import (
 )
 from bijux_proteomics.ptm.parsing.peptide_parser import PtmPeptideSiteEntry
 from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
-from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 

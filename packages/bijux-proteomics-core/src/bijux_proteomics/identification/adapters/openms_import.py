@@ -22,7 +22,7 @@ from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
-    from bijux_proteomics.quantification import (
+    from bijux_proteomics.quantification.contracts import (
         Ms1FeatureParseReport,
         Ms1FeatureRecord,
     )
@@ -525,7 +525,7 @@ def _parse_openms_idxml(
 
 
 def _parse_openms_feature_table(feature_table_path: Path) -> Ms1FeatureParseReport:
-    from bijux_proteomics.quantification import (
+    from bijux_proteomics.quantification.contracts import (
         Ms1FeatureColumnMapping,
         parse_ms1_feature_table,
     )

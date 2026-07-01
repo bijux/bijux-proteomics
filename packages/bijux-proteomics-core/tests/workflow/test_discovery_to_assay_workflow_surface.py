@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
     calculate_fragment_ions,
@@ -43,12 +45,15 @@ from bijux_proteomics.workflow import (
 
 
 def _protein_records() -> tuple[NormalizedProteinRecord, ...]:
-    return parse_fasta_document(
-        ">sp|P00001|KIN1 GN=KIN1\n"
-        "PEPTIDERAAASHALEDKAAAMMMWNQK\n"
-        ">sp|O00003|OFF1 GN=OFF1\n"
-        "KAAASHALEDK\n"
-    ).accepted_records
+    return cast(
+        tuple[NormalizedProteinRecord, ...],
+        parse_fasta_document(
+            ">sp|P00001|KIN1 GN=KIN1\n"
+            "PEPTIDERAAASHALEDKAAAMMMWNQK\n"
+            ">sp|O00003|OFF1 GN=OFF1\n"
+            "KAAASHALEDK\n"
+        ).accepted_records,
+    )
 
 
 def _observed_entries() -> tuple[PeptideEvidenceEntry, ...]:

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
 from bijux_proteomics.workflow.reports.biological_report_assembly import (
     build_biological_result_report_bundle,
     build_biological_result_report_bundle_from_quant_table,

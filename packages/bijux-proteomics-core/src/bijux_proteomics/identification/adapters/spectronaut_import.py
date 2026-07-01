@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
@@ -20,11 +20,15 @@ from bijux_proteomics.identification.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
     build_rejected_evidence_rows_from_psm_rows,
 )
-from bijux_proteomics.identification.search_adapters import (
+from bijux_proteomics.identification.search_adapters.contracts import (
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
     SearchParameterReport,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,
+)
+from bijux_proteomics.identification.search_adapters.parameter_review import (
     parse_search_parameter_file,
 )
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings

@@ -16,11 +16,9 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
-[![proteomics-lab](https://img.shields.io/badge/proteomics--lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fproteomics-lab)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -41,6 +39,23 @@ It is the install and import alias for bijux-proteomics-lab.
 
 Use this package when you want a shorter distribution and import name for assay
 planning and handoff behavior without creating a second owner.
+
+## Alias at a glance
+
+- Use `proteomics-lab` when you want a shorter package name for assay
+  planning, readiness, and handoff entrypoints.
+- Start with the
+  [canonical lab package docs](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+  because this package only forwards into that owner surface.
+- Route lab behavior to `bijux-proteomics-lab`; keep this package focused on
+  compatibility naming and import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now sends readers to the current lab handbook instead of sounding
+  like a second operational owner.
+- Release guidance and compatibility wording now make the forwarding contract
+  explicit before a reader reaches the deeper sections.
 
 ## Installation
 
@@ -171,6 +186,8 @@ assert plan.recommendations[0].assay_id == "primary-binding"
 
 ## Documentation
 
+- Release guidance lives in this `README.md`, this package `CHANGELOG.md`, and
+  package `docs/*.md` under the canonical lab owner surface.
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical lab package docs](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)

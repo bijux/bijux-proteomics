@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Sample-level exploratory analysis ownership over governed quantification tables."""
+
+from __future__ import annotations
+
+from bijux_proteomics.quantification.provenance.sample_exploration.analysis import (
+    build_sample_exploration_report,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.exports import (
+    export_sample_cluster_tsv,
+    export_sample_correlation_tsv,
+    export_sample_distance_tsv,
+    export_sample_exploration_summary_tsv,
+    export_sample_outlier_tsv,
+    export_sample_pca_scores_tsv,
+    export_sample_pca_variance_tsv,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.models import (
+    ConditionClusteringReport,
+    SampleClusterEntry,
+    SampleClusterReport,
+    SampleCorrelationEntry,
+    SampleCorrelationReport,
+    SampleDistanceEntry,
+    SampleDistanceReport,
+    SampleExplorationReport,
+    SampleExplorationSummary,
+    SampleOutlierEntry,
+    SampleOutlierReport,
+    SamplePcaEntry,
+    SamplePcaReport,
+    SamplePcaVarianceEntry,
+    SamplePcaVarianceReport,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.rendering import (
+    render_sample_cluster_tsv,
+    render_sample_correlation_tsv,
+    render_sample_distance_tsv,
+    render_sample_exploration_summary_tsv,
+    render_sample_outlier_tsv,
+    render_sample_pca_scores_tsv,
+    render_sample_pca_variance_tsv,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.sample_space import (
+    build_condition_clustering_report,
+    build_sample_feature_matrix,
+    build_sample_pca_report,
+    build_sample_pca_variance_report,
+    distance_outlier_threshold,
+)
+from bijux_proteomics.quantification.provenance.sample_exploration.sample_topology import (
+    build_sample_cluster_report,
+    build_sample_correlation_report,
+    build_sample_distance_report,
+)
+
+__all__ = [
+    "ConditionClusteringReport",
+    "SampleClusterEntry",
+    "SampleClusterReport",
+    "SampleCorrelationEntry",
+    "SampleCorrelationReport",
+    "SampleDistanceEntry",
+    "SampleDistanceReport",
+    "SampleExplorationReport",
+    "SampleExplorationSummary",
+    "SampleOutlierEntry",
+    "SampleOutlierReport",
+    "SamplePcaEntry",
+    "SamplePcaReport",
+    "SamplePcaVarianceEntry",
+    "SamplePcaVarianceReport",
+    "build_condition_clustering_report",
+    "build_sample_cluster_report",
+    "build_sample_correlation_report",
+    "build_sample_distance_report",
+    "build_sample_exploration_report",
+    "build_sample_feature_matrix",
+    "build_sample_pca_report",
+    "build_sample_pca_variance_report",
+    "distance_outlier_threshold",
+    "export_sample_cluster_tsv",
+    "export_sample_correlation_tsv",
+    "export_sample_distance_tsv",
+    "export_sample_exploration_summary_tsv",
+    "export_sample_outlier_tsv",
+    "export_sample_pca_scores_tsv",
+    "export_sample_pca_variance_tsv",
+    "render_sample_cluster_tsv",
+    "render_sample_correlation_tsv",
+    "render_sample_distance_tsv",
+    "render_sample_exploration_summary_tsv",
+    "render_sample_outlier_tsv",
+    "render_sample_pca_scores_tsv",
+    "render_sample_pca_variance_tsv",
+]

@@ -30,7 +30,7 @@ def test_repository_shape_rationale_names_durable_splits_and_temporary_compat() 
 
 
 def test_dda_cross_package_handbook_routes_all_six_product_packages() -> None:
-    text = _read("docs/workflow-families/dda-cross-package-handbook.md")
+    text = _read("docs/01-bijux-proteomics/foundation/dda-cross-package-handbook.md")
 
     assert "# DDA Cross-Package Handbook" in text
     for package_name in (

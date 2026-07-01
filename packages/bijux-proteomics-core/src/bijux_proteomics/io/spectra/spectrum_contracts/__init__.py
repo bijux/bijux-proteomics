@@ -1,0 +1,172 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+"""Spectrum, MGF, and fragment-annotation contracts."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from bijux_proteomics.io.spectra.spectrum_contracts.annotation import (
+    annotate_spectrum_fragments,
+    build_annotated_spectrum_bundle,
+    build_spectrum_plot_payload,
+    export_spectrum_annotation_tsv,
+)
+from bijux_proteomics.io.spectra.spectrum_contracts.annotation import (
+    write_annotated_spectrum_bundle as _write_annotated_spectrum_bundle,
+)
+from bijux_proteomics.io.spectra.spectrum_contracts.collection import (
+    build_spectrum_collection_summary,
+    build_spectrum_lookup_index,
+    build_spectrum_provenance_manifest,
+    build_spectrum_summary_table_report,
+    iter_mgf_spectra,
+    lookup_spectra,
+    normalize_spectrum_scan_key,
+    parse_mgf,
+    render_mgf,
+    render_spectrum_distribution_tsv,
+    render_spectrum_similarity_tsv,
+    render_spectrum_summary_tsv,
+)
+from bijux_proteomics.io.spectra.spectrum_contracts.models import (
+    AnnotatedSpectrumBundle,
+    MgfParseReport,
+    PeakNormalizationPolicy,
+    PrecursorIsotopeOffsetAdvisory,
+    PrecursorIsotopeOffsetCandidate,
+    PrecursorMassError,
+    PrecursorMassErrorDistributionRow,
+    PrecursorMassErrorObservation,
+    PrecursorMassErrorQuery,
+    PrecursorMassErrorReport,
+    RejectedSpectrumBlock,
+    SpectralSimilarityMethod,
+    SpectralSimilarityScore,
+    SpectrumAnnotation,
+    SpectrumAnnotationAmbiguityKind,
+    SpectrumAnnotationAmbiguityWarning,
+    SpectrumAnnotationMatch,
+    SpectrumAnnotationParameters,
+    SpectrumAnnotationToleranceUnit,
+    SpectrumAnnotationUnmatchedPeak,
+    SpectrumCollectionSummary,
+    SpectrumDistributionRow,
+    SpectrumFilterReport,
+    SpectrumLibrarySimilarityMatch,
+    SpectrumLibrarySimilarityReport,
+    SpectrumLookupIndex,
+    SpectrumMetrics,
+    SpectrumModel,
+    SpectrumPeak,
+    SpectrumPlotPayload,
+    SpectrumPlotPeak,
+    SpectrumProvenanceManifest,
+    SpectrumSimilarityClassification,
+    SpectrumSimilarityComparisonReport,
+    SpectrumSimilarityMatchingMode,
+    SpectrumSimilarityMode,
+    SpectrumSimilarityParameters,
+    SpectrumSummaryTableReport,
+    SpectrumValidationIssue,
+)
+from bijux_proteomics.io.spectra.spectrum_contracts.processing import (
+    build_precursor_mass_error_report,
+    build_spectrum_metrics,
+    calculate_precursor_mass_error,
+    detect_precursor_isotope_offset_advisory,
+    filter_spectrum_peaks,
+    normalize_spectrum_peaks,
+    render_precursor_mass_error_distribution_tsv,
+    render_precursor_mass_error_observations_tsv,
+    render_precursor_mass_error_summary_tsv,
+)
+from bijux_proteomics.io.spectra.spectrum_contracts.similarity import (
+    build_spectrum_library_similarity_report,
+    build_spectrum_similarity_comparison_report,
+    calculate_spectral_similarity,
+)
+
+write_annotated_spectrum_bundle = _write_annotated_spectrum_bundle
+
+
+def export_annotated_spectrum_bundle(
+    bundle: AnnotatedSpectrumBundle,
+    path: Path,
+) -> None:
+    """Compatibility wrapper for the legacy annotated spectrum bundle export name."""
+    write_annotated_spectrum_bundle(bundle, path)
+
+
+__all__ = [
+    "AnnotatedSpectrumBundle",
+    "MgfParseReport",
+    "PeakNormalizationPolicy",
+    "PrecursorIsotopeOffsetAdvisory",
+    "PrecursorIsotopeOffsetCandidate",
+    "PrecursorMassError",
+    "PrecursorMassErrorDistributionRow",
+    "PrecursorMassErrorObservation",
+    "PrecursorMassErrorQuery",
+    "PrecursorMassErrorReport",
+    "RejectedSpectrumBlock",
+    "SpectralSimilarityMethod",
+    "SpectralSimilarityScore",
+    "SpectrumAnnotation",
+    "SpectrumAnnotationAmbiguityKind",
+    "SpectrumAnnotationAmbiguityWarning",
+    "SpectrumAnnotationMatch",
+    "SpectrumAnnotationParameters",
+    "SpectrumAnnotationToleranceUnit",
+    "SpectrumAnnotationUnmatchedPeak",
+    "SpectrumCollectionSummary",
+    "SpectrumDistributionRow",
+    "SpectrumFilterReport",
+    "SpectrumLibrarySimilarityMatch",
+    "SpectrumLibrarySimilarityReport",
+    "SpectrumLookupIndex",
+    "SpectrumMetrics",
+    "SpectrumModel",
+    "SpectrumPeak",
+    "SpectrumPlotPayload",
+    "SpectrumPlotPeak",
+    "SpectrumProvenanceManifest",
+    "SpectrumSimilarityClassification",
+    "SpectrumSimilarityComparisonReport",
+    "SpectrumSimilarityMatchingMode",
+    "SpectrumSimilarityMode",
+    "SpectrumSimilarityParameters",
+    "SpectrumSummaryTableReport",
+    "SpectrumValidationIssue",
+    "annotate_spectrum_fragments",
+    "build_annotated_spectrum_bundle",
+    "build_precursor_mass_error_report",
+    "build_spectrum_collection_summary",
+    "build_spectrum_library_similarity_report",
+    "build_spectrum_lookup_index",
+    "build_spectrum_metrics",
+    "build_spectrum_plot_payload",
+    "build_spectrum_provenance_manifest",
+    "build_spectrum_similarity_comparison_report",
+    "build_spectrum_summary_table_report",
+    "calculate_precursor_mass_error",
+    "calculate_spectral_similarity",
+    "detect_precursor_isotope_offset_advisory",
+    "export_annotated_spectrum_bundle",
+    "export_spectrum_annotation_tsv",
+    "filter_spectrum_peaks",
+    "iter_mgf_spectra",
+    "lookup_spectra",
+    "normalize_spectrum_peaks",
+    "normalize_spectrum_scan_key",
+    "parse_mgf",
+    "render_mgf",
+    "render_precursor_mass_error_distribution_tsv",
+    "render_precursor_mass_error_observations_tsv",
+    "render_precursor_mass_error_summary_tsv",
+    "render_spectrum_distribution_tsv",
+    "render_spectrum_similarity_tsv",
+    "render_spectrum_summary_tsv",
+    "write_annotated_spectrum_bundle",
+]

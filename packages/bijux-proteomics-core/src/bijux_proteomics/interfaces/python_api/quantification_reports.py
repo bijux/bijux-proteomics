@@ -1,12 +1,49 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Heatmap, power, and sample exploration Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    HeatmapMissingValuePolicy,
+    HeatmapPreparationPolicy,
+    Ms1FeatureColumnMapping,
+    NormalizationMethod,
+    PowerEstimationPolicy,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    build_heatmap_preparation_report,
+    build_label_free_intensity_table,
+    build_power_estimation_report,
+    build_sample_exploration_report,
+    export_heatmap_column_metadata_tsv,
+    export_heatmap_matrix_tsv,
+    export_heatmap_row_metadata_tsv,
+    export_heatmap_summary_tsv,
+    export_power_effect_size_grid_tsv,
+    export_power_estimation_summary_tsv,
+    export_power_variance_tsv,
+    export_sample_cluster_tsv,
+    export_sample_correlation_tsv,
+    export_sample_distance_tsv,
+    export_sample_exploration_summary_tsv,
+    export_sample_outlier_tsv,
+    export_sample_pca_scores_tsv,
+    export_sample_pca_variance_tsv,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
+)
 
 
 def run_heatmap_matrix_command(

@@ -9,10 +9,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
-    MissingValueKind,
-)
+from bijux_proteomics.quantification.contracts.input_models import MissingValueKind
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 
 _MISSING_VALUE_KIND_ORDER = (
     MissingValueKind.OBSERVED,

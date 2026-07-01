@@ -19,13 +19,18 @@ from bijux_proteomics.review.cards.inference_packets import (
 from bijux_proteomics.review.cards.inference_packets import (
     build_inference_disagreement_review_packet as build_inference_disagreement_review_packet,
 )
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdge as EvidenceGraphEdge,
 )
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceNode as EvidenceGraphNode,
 )
 from bijux_proteomics_foundation import JsonModel
+
+__all__ = [
+    "EvidenceGraphEdge",
+    "EvidenceGraphNode",
+]
 
 
 class EvidenceGraphQuery(JsonModel):

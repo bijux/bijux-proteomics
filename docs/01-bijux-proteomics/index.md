@@ -4,18 +4,21 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Repository Handbook
 
-This handbook explains the logic of one bounded proteomics product. It is the
-place to answer questions that no single package can answer honestly on its
-own: how benchmark assets become execution, review, recommendation, and lab
-consequence; which package owns each handoff; and which repository claims are
-still blocked.
+This handbook explains the logic of one bounded proteomics product. It exists
+for the questions that no single package can answer honestly on its own:
 
-The root discipline is restraint. The handbook should make the full product
+- how benchmark assets become execution, review, recommendation, and lab
+  consequence
+- which package owns each handoff in that chain
+- where the repository can defend strong wording today and where it still must
+  narrow
+
+The root discipline is restraint. This handbook should make the full product
 legible, then hand the reader to the true owner before repository prose starts
 pretending it owns package-local behavior.
 
@@ -23,11 +26,11 @@ pretending it owns package-local behavior.
 flowchart TB
     root["repository handbook<br/>system split and cross-package logic"]
     foundation["foundation<br/>shared meaning"]
-    core["core<br/>durable program rules"]
+    core["core<br/>scientific contracts and benchmark law"]
     knowledge["knowledge<br/>evidence state"]
-    intelligence["intelligence<br/>decision policy"]
-    lab["lab<br/>assay loop"]
-    runtime["runtime<br/>execution control"]
+    intelligence["intelligence<br/>judgment pressure"]
+    lab["lab<br/>assay burden and refusal"]
+    runtime["runtime<br/>execution proof"]
     maintain["maintainer handbook<br/>repository health"]
 
     root --> foundation
@@ -39,54 +42,74 @@ flowchart TB
     root --> maintain
 ```
 
-## What This Handbook Does Well
+## Why This Handbook Matters More Now
 
-- it shows why the system is layered instead of monolithic
-- it names the seams between meaning, rules, evidence, judgment, execution, and
-  lab action
-- it keeps the reader from blaming the wrong package for the wrong kind of
-  change
+Older repository docs could make `bijux-proteomics` look like package
+governance plus utilities. That is no longer honest. The repository now has a
+real scientific and operational chain to explain: public benchmark packets,
+runtime rerun proof, explicit grounding pressure, measurable recommendation
+challenge, and downstream assay consequence.
+
+## Strongest Repository Proof Surfaces
+
+- Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  when the question is which workflow-family sentences currently survive public
+  scrutiny.
+- Open [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  when the question is which outsider-facing artifacts should be opened and why
+  they coexist.
+- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  when the question is whether the current repository language outruns checked
+  evidence.
+- Open [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
+  when the question is how to challenge the strongest current repository claim
+  without maintainer narration.
 
 ## Shared Reader Routes
 
-- Open [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- Open [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
   when the question is still product-wide rather than repository-handbook
   specific.
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the reader already knows the question is family credibility rather than
   repository topology.
-- Open [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
-  when the question is already about safe change or release validation.
+- Open [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
+  when the question is already about safe change, release validation, or
+  repository honesty.
 
 ## Start Inside This Handbook
 
 - Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
-  when the question is how the end-to-end product chain is meant to work.
+  when the question is how benchmark, runtime, knowledge, intelligence, and
+  lab consequence are meant to compose.
 - Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-  when the question is which package or handoff owns the work.
+  when the question is which package or handoff owns disputed behavior.
+- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+  when the question is which owner currently controls the strongest honest
+  public sentence.
 - Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
-  when the question is why the current package split still exists and which
-  split is only compatibility.
-- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
-  when the question is whether public wording outruns checked evidence.
+  when the question is why the package split still exists and which part is
+  compatibility versus product substance.
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
   when the question is how the repository validates, releases, and reviews work
   across package boundaries.
 
+## Questions This Handbook Should Settle
+
+- Why is one concern a package boundary while another is only a module?
+- Which package should own a disputed behavior or public claim?
+- Which repository proof surfaces are truly shared and which are only adjacent?
+- Which strong-sounding sentence should narrow because another owner surface
+  still refuses it?
+
 ## Reader Routes
 
 - Scientist:
-  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+  [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
 - Operator:
-  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
 - Maintainer:
-  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
-
-## Questions This Handbook Owns
-
-- Why is one concern a package boundary while another is only a module?
-- Which package should own a disputed behavior?
-- Which repository surfaces are truly shared and which are only adjacent?
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
 
 ## Canonical Package Handbooks
 
@@ -104,5 +127,5 @@ flowchart TB
 ## Boundary Test
 
 If the best proof lives mostly in one package source tree, one package test
-suite, or one package API contract, the root should hand the reader off instead
-of pretending repository prose owns that behavior.
+suite, or one package API contract, this handbook should hand the reader off
+instead of pretending repository prose owns that behavior.

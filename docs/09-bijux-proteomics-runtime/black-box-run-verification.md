@@ -4,12 +4,27 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Black-Box Run Verification
 
 These routes begin from one public benchmark asset and end at one checked runtime bundle, stage lineage artifact, and replay challenge. The route is black-box on purpose: the reader should not need maintainer narration to find the next artifact.
+
+This page is narrower than the rerun kits. The rerun kits answer "where do I
+start for this family?" This page answers "what exact artifact chain proves
+that the shipped benchmark packet became the checked runtime story?"
+
+## What Counts As Verification
+
+- the benchmark entry artifact fixes the public package boundary
+- the source locator manifest proves where the benchmark packet points for its
+  runtime-facing inputs
+- the checked runtime bundle proves the emitted execution summary that the
+  repository currently stands behind
+- the stage lineage artifact shows that the run is not only a terminal output
+- the replay artifact shows how the same route should fail under hostile
+  pressure rather than only how it succeeds
 
 ## `dda`
 
@@ -88,3 +103,10 @@ These routes begin from one public benchmark asset and end at one checked runtim
 - replay artifact: `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/failure_replay.json`
 - validating tests: `packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py`
 - note: Open the public benchmark manifest first, then the source locator, then the checked runtime bundle, stage lineage, and replay artifact. The route is meant to survive without maintainer narration.
+
+## What This Route Protects Against
+
+- claiming that a benchmark package is reviewable when no checked runtime story
+  exists
+- confusing a successful bundle with an untested replay boundary
+- hiding execution lineage behind one terminal artifact

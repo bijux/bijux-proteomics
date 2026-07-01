@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Multiplex matrix and normalization CLI commands."""
 
@@ -16,7 +15,14 @@ from bijux_proteomics.interfaces.python_api.multiplex_matrix import (
     run_tmt_normalize_command,
     run_tmt_reporter_matrix_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
+    TmtNormalizationMethod,
+    TmtSearchResultSourceKind,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _tmt_normalization_method_choice,
+    _tmt_source_kind_choice,
+)
 
 
 @click.command("validate-metadata")

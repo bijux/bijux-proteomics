@@ -12,23 +12,23 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_cross_study_card_id
-from bijux_proteomics.workflow.cross_study_effect_comparison import (
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
+from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
     CrossStudyProteinEffectComparisonEntry,
     CrossStudyProteinEffectStudyEntry,
 )
-from bijux_proteomics.workflow.cross_study_meta_analysis import (
+from bijux_proteomics.workflow.studies.cross_study_meta_analysis import (
     CrossStudyMetaAnalysisEntry,
     CrossStudyMetaAnalysisRejectedEntry,
 )
-from bijux_proteomics.workflow.cross_study_pathway_comparison import (
+from bijux_proteomics.workflow.studies.cross_study_pathway_comparison import (
     CrossStudyPathwayComparisonEntry,
     CrossStudyPathwayComparisonStatus,
     CrossStudyPathwayStudyEntry,
 )
-from bijux_proteomics.workflow.public_dataset_comparison import (
+from bijux_proteomics.workflow.studies.public_dataset_comparison import (
     PublicDatasetComparisonDatasetStatus,
     PublicDatasetComparisonDatasetSummary,
     PublicDatasetComparisonReport,
@@ -313,7 +313,7 @@ def build_public_dataset_evidence_card_report(
 ) -> CrossStudyEvidenceCardReport:
     """Run public dataset comparison first, then build cross-study evidence cards."""
 
-    from bijux_proteomics.workflow.public_dataset_comparison import (
+    from bijux_proteomics.workflow.studies.public_dataset_comparison import (
         build_public_dataset_comparison_report,
     )
 

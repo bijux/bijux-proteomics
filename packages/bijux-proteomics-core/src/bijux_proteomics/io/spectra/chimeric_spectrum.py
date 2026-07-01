@@ -12,7 +12,8 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import build_modified_peptide, calculate_peptide_mz
+from bijux_proteomics.chemistry.mass import calculate_peptide_mz
+from bijux_proteomics.chemistry.modifications import build_modified_peptide
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.io.spectra import (
     SpectrumAnnotation,

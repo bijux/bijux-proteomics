@@ -12,8 +12,9 @@ from typing import TypedDict
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.chemistry import (
-    IsotopicLabelingPolicy,
+from bijux_proteomics.chemistry.isotopes import IsotopicLabelingPolicy
+from bijux_proteomics.chemistry.mass import calculate_monoisotopic_peptide_mass
+from bijux_proteomics.chemistry.modifications import (
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
     StaticModification,
@@ -21,7 +22,6 @@ from bijux_proteomics.chemistry import (
     VariableModificationEnumerationEntry,
     VariableModificationEnumerationReport,
     build_modification_registry,
-    calculate_monoisotopic_peptide_mass,
     enumerate_variable_modifications,
 )
 from bijux_proteomics.sequences.digestion import (

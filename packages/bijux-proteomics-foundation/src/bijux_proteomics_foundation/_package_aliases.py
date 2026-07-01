@@ -26,7 +26,7 @@ __all__ = [
 def alias_package_version(
     distribution_name: str,
     *,
-    fallback: str = "0.3.6",
+    fallback: str = "0.3.8",
 ) -> str:
     """Return installed version metadata for a thin alias distribution."""
 

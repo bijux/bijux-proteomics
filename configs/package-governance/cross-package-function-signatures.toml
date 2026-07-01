@@ -1034,17 +1034,6 @@ consumer_module = "bijux_proteomics_runtime.workflows.architecture_demo"
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.workflow"
-function_name = "load_result_archive"
-signature_text = "(path: 'Path') -> 'ProteomicsStudyResult'"
-consumer_distributions = ["bijux-proteomics-runtime"]
-consumer_modules = ["bijux_proteomics_runtime.rehydrate.loading"]
-[[entry.import_site]]
-consumer_distribution = "bijux-proteomics-runtime"
-consumer_module = "bijux_proteomics_runtime.rehydrate.loading"
-
-[[entry]]
-provider_distribution = "bijux-proteomics-core"
-provider_module = "bijux_proteomics.workflow"
 function_name = "run_scale_demo"
 signature_text = "(config: 'ScaleDemoConfig') -> 'ScaleDemoReport'"
 consumer_distributions = ["bijux-proteomics-runtime"]
@@ -1077,6 +1066,17 @@ consumer_module = "bijux_proteomics_lab.planning.assays"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-lab"
 consumer_module = "bijux_proteomics_lab.readiness.stages"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.workflow.exports"
+function_name = "load_result_archive"
+signature_text = "(path: 'Path') -> 'ProteomicsStudyResult'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.rehydrate.loading"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.rehydrate.loading"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
@@ -1148,10 +1148,10 @@ provider_module = "bijux_proteomics_foundation"
 function_name = "hash_model"
 signature_text = "(model: 'JsonModel', *, policy: 'StableHashPolicy | None' = None) -> 'str'"
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev"]
-consumer_modules = ["bijux_proteomics.lab.qc", "bijux_proteomics_dev.governance.contracts.serialization_compatibility"]
+consumer_modules = ["bijux_proteomics.lab.qc.support", "bijux_proteomics_dev.governance.contracts.serialization_compatibility"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.lab.qc"
+consumer_module = "bijux_proteomics.lab.qc.support"
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-dev"
 consumer_module = "bijux_proteomics_dev.governance.contracts.serialization_compatibility"
@@ -1344,10 +1344,10 @@ provider_module = "bijux_proteomics_foundation.outcomes.optional_dependencies"
 function_name = "import_optional_module"
 signature_text = "(module_name: 'str', *, dependency_name: 'str', feature_name: 'str', install_hint: 'str') -> 'Any'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.sequences.digestion"]
+consumer_modules = ["bijux_proteomics.sequences.digestion.analysis"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.sequences.digestion"
+consumer_module = "bijux_proteomics.sequences.digestion.analysis"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-foundation"
@@ -1606,10 +1606,10 @@ provider_module = "bijux_proteomics_intelligence.reviews"
 function_name = "validate_intelligence_report_contract"
 signature_text = "(contract: 'IntelligenceReportContract') -> 'None'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.workflow.pipelines.integrated_scientific_report"]
+consumer_modules = ["bijux_proteomics.workflow.pipelines.synthesis.integrated_scientific_report"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.workflow.pipelines.integrated_scientific_report"
+consumer_module = "bijux_proteomics.workflow.pipelines.synthesis.integrated_scientific_report"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1617,10 +1617,10 @@ provider_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 function_name = "build_dda_benchmark_review"
 signature_text = "(*, benchmark_manifest: 'BenchmarkManifest | None' = None, source_path: 'Path | None' = None) -> 'WorkflowBenchmarkReview'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.benchmarks.flagship_acceptance"]
+consumer_modules = ["bijux_proteomics.benchmarks.flagship.acceptance"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.benchmarks.flagship_acceptance"
+consumer_module = "bijux_proteomics.benchmarks.flagship.acceptance"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1628,10 +1628,10 @@ provider_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 function_name = "build_dia_benchmark_review"
 signature_text = "(*, benchmark_manifest: 'BenchmarkManifest | None' = None, source_path: 'Path | None' = None) -> 'WorkflowBenchmarkReview'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.benchmarks.flagship_acceptance"]
+consumer_modules = ["bijux_proteomics.benchmarks.flagship.acceptance"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.benchmarks.flagship_acceptance"
+consumer_module = "bijux_proteomics.benchmarks.flagship.acceptance"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1639,10 +1639,10 @@ provider_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 function_name = "build_lfq_benchmark_review"
 signature_text = "(*, benchmark_manifest: 'BenchmarkManifest | None' = None, feature_path: 'Path | None' = None, design_path: 'Path | None' = None) -> 'WorkflowBenchmarkReview'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.benchmarks.flagship_acceptance"]
+consumer_modules = ["bijux_proteomics.benchmarks.flagship.acceptance"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.benchmarks.flagship_acceptance"
+consumer_module = "bijux_proteomics.benchmarks.flagship.acceptance"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1650,10 +1650,10 @@ provider_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 function_name = "build_multiplex_benchmark_review"
 signature_text = "(*, benchmark_manifest: 'BenchmarkManifest | None' = None, feature_path: 'Path | None' = None, design_path: 'Path | None' = None) -> 'WorkflowBenchmarkReview'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.benchmarks.flagship_acceptance"]
+consumer_modules = ["bijux_proteomics.benchmarks.flagship.acceptance"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.benchmarks.flagship_acceptance"
+consumer_module = "bijux_proteomics.benchmarks.flagship.acceptance"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1661,10 +1661,10 @@ provider_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 function_name = "build_ptm_benchmark_review"
 signature_text = "(*, benchmark_manifest: 'BenchmarkManifest | None' = None, localization_path: 'Path | None' = None, feature_path: 'Path | None' = None, protein_fasta_path: 'Path | None' = None) -> 'WorkflowBenchmarkReview'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.benchmarks.flagship_acceptance"]
+consumer_modules = ["bijux_proteomics.benchmarks.flagship.acceptance"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.benchmarks.flagship_acceptance"
+consumer_module = "bijux_proteomics.benchmarks.flagship.acceptance"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1672,10 +1672,10 @@ provider_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 function_name = "build_targeted_benchmark_review"
 signature_text = "(*, benchmark_manifest: 'BenchmarkManifest | None' = None, qc_path: 'Path | None' = None) -> 'WorkflowBenchmarkReview'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.benchmarks.flagship_acceptance"]
+consumer_modules = ["bijux_proteomics.benchmarks.flagship.acceptance"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.benchmarks.flagship_acceptance"
+consumer_module = "bijux_proteomics.benchmarks.flagship.acceptance"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-intelligence"
@@ -1784,7 +1784,7 @@ provider_module = "bijux_proteomics_intelligence.reviews.workflow_authority"
 function_name = "build_workflow_authority_matrix"
 signature_text = "() -> 'WorkflowAuthorityMatrix'"
 consumer_distributions = ["bijux-proteomics-dev"]
-consumer_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.release_narrowing_protocol", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_lab_consequence"]
+consumer_modules = ["bijux_proteomics_dev.release.governance.benchmark_review_support", "bijux_proteomics_dev.release.governance.release_narrowing_protocol", "bijux_proteomics_dev.release.governance.workflow_authority_docs", "bijux_proteomics_dev.release.governance.workflow_lab_consequence", "bijux_proteomics_dev.release.governance.workflow_public_scrutiny"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-dev"
 consumer_module = "bijux_proteomics_dev.release.governance.benchmark_review_support"
@@ -1797,6 +1797,9 @@ consumer_module = "bijux_proteomics_dev.release.governance.workflow_authority_do
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-dev"
 consumer_module = "bijux_proteomics_dev.release.governance.workflow_lab_consequence"
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-dev"
+consumer_module = "bijux_proteomics_dev.release.governance.workflow_public_scrutiny"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-knowledge"
@@ -1961,10 +1964,10 @@ provider_module = "bijux_proteomics_knowledge.pathways.members"
 function_name = "resolve_pathway_members"
 signature_text = "(protein_ids: 'tuple[str, ...]', pathway_pack: 'AnnotationPack | tuple[PathwayMembershipRecord, ...]', *, policy: 'PathwayCoveragePolicy | None' = None) -> 'PathwayMembershipResolutionReport'"
 consumer_distributions = ["bijux-proteomics-core"]
-consumer_modules = ["bijux_proteomics.interpretation.pathway_activity"]
+consumer_modules = ["bijux_proteomics.interpretation.pathway_activity.knowledge_coverage"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-core"
-consumer_module = "bijux_proteomics.interpretation.pathway_activity"
+consumer_module = "bijux_proteomics.interpretation.pathway_activity.knowledge_coverage"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-knowledge"

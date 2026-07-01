@@ -9,9 +9,11 @@ from collections.abc import Sequence
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
-    IsotopeEnvelopeStatus,
+from bijux_proteomics.chemistry.contracts.mass_projection import (
     approximate_peptide_isotope_envelope,
+)
+from bijux_proteomics.chemistry.contracts.models import (
+    IsotopeEnvelopeStatus,
 )
 from bijux_proteomics_foundation import JsonModel
 

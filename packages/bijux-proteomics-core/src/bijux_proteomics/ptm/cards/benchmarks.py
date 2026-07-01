@@ -10,19 +10,6 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.ptm import (
-    PtmEvidenceRecord,
-    PtmMotifBackgroundMode,
-    PtmOccupancyCounterpartEvidenceEntry,
-    PtmOccupancyUncertainty,
-    PtmProteinSiteMapping,
-    PtmSiteEntry,
-    build_ptm_motif_enrichment_background_provenance_report,
-    build_ptm_occupancy_counterpart_report,
-)
-from bijux_proteomics.ptm import (
-    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
-)
 from bijux_proteomics.ptm.cards.proteoforms import (
     ProteoformEvidenceLevel,
     ProteoformPtmAssignment,
@@ -35,7 +22,24 @@ from bijux_proteomics.ptm.cards.review import (
     build_ubiquitin_remnant_workflow_report,
     evaluate_glycopeptide_support_boundary,
 )
-from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.ptm.contracts import (
+    PtmEvidenceRecord,
+    PtmOccupancyUncertainty,
+    PtmProteinSiteMapping,
+    PtmSiteEntry,
+)
+from bijux_proteomics.ptm.localization.localization_scoring import (
+    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
+)
+from bijux_proteomics.ptm.quant.occupancy_estimation import (
+    PtmOccupancyCounterpartEvidenceEntry,
+    build_ptm_occupancy_counterpart_report,
+)
+from bijux_proteomics.ptm.regulation.motif_analysis import (
+    PtmMotifBackgroundMode,
+    build_ptm_motif_enrichment_background_provenance_report,
+)
+from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 

@@ -4,12 +4,18 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Public Language Glossary
 
 This page governs the release-facing vocabulary that root docs, package docs, and public route contracts may use without drifting back into repository lore.
+
+The glossary matters more now because the repository has stronger real product
+depth than it did at `v0.3.7`. Once benchmark, runtime, grounding,
+recommendation, and consequence routes all become more substantial, the real
+risk is that public wording outruns the weakest hop and makes the whole system
+sound cleaner or broader than the proof chain actually allows.
 
 ## Allowed Terms
 
@@ -20,6 +26,15 @@ This page governs the release-facing vocabulary that root docs, package docs, an
 | `independent rerun dossier` | `independent rerun dossier` | `docs/01-bijux-proteomics/foundation/independent-rerun-dossiers.md`, `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md` | This names a distinct reviewer-facing artifact that tests whether one workflow sentence survives a second challenge lane. |
 | `external review kit` | `external review kit` | `docs/01-bijux-proteomics/foundation/external-review-kits.md`, `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md` | This names the shortest outsider opening order through benchmark, rerun, and recommendation evidence for one workflow family. |
 | `decision brief` | `decision brief` | `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/decision_briefs.py` | This remains a stable route-contract term for package-owned packet creation, lookup, diff, and export operations. |
+
+## Why These Terms Need Tight Control
+
+- one relaxed release word can erase the difference between grounded evidence
+  and recommendation posture
+- one vague trust phrase can hide whether a workflow family is bounded,
+  review-grade, or internal-support-only
+- one legacy campaign label can make the repository sound broader than the
+  current family packets justify
 
 ## Retired Terms
 
@@ -36,3 +51,10 @@ This page governs the release-facing vocabulary that root docs, package docs, an
 - `validate_public_language()` rejects retired phrases in root docs, package READMEs, foundation docs, and release-support surfaces.
 - `workflow_public_scrutiny.py` and `final_preflight.py` both depend on this glossary before stronger release wording may pass.
 - New public terms belong here before they spread across repository-owned docs or public route contracts.
+
+## Strongest Reader Use
+
+- open this page when a root doc, README, trust page, or release note sounds
+  stronger than the current readiness and claim-limit surfaces
+- treat retired phrases as a warning that the wording is trying to compress a
+  real boundary back into repository shorthand

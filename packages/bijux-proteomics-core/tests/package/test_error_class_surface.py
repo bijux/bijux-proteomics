@@ -11,12 +11,12 @@ from bijux_proteomics import domain
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 ERROR_OWNER_PATHS = (
-    "workflow/public_benchmark_descriptors.py",
+    "workflow/benchmarks/public_benchmark_descriptors.py",
     "workflow/result_archive.py",
-    "workflow/study_result.py",
+    "workflow/studies/study_result.py",
     "review/structure_reports/render.py",
     "targeted/result_validation.py",
-    "interfaces/support/timecourse_support.py",
+    "interfaces/support/timecourse_support/timepoint_order.py",
 )
 
 

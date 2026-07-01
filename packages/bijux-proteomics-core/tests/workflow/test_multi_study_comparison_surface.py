@@ -132,17 +132,25 @@ def _report_with_changed_effects_and_pathways(
     return (
         base_report.model_copy(
             update={
-                "protein_cards": base_report.protein_cards.model_copy(
-                    update={"cards": tuple(updated_cards)}
-                ),
-                "differential_report": base_report.differential_report.model_copy(
-                    update={"entries": tuple(updated_entries)}
-                ),
-                "pathway_enrichment_report": base_report.pathway_enrichment_report.model_copy(
+                "scientific": base_report.scientific.model_copy(
                     update={
-                        "entries": (
-                            shared_pathway,
-                            study_specific_active,
+                        "protein_cards": base_report.protein_cards.model_copy(
+                            update={"cards": tuple(updated_cards)}
+                        ),
+                        "differential_report": base_report.differential_report.model_copy(
+                            update={"entries": tuple(updated_entries)}
+                        ),
+                    }
+                ),
+                "enrichment": base_report.enrichment.model_copy(
+                    update={
+                        "pathway_enrichment_report": base_report.pathway_enrichment_report.model_copy(
+                            update={
+                                "entries": (
+                                    shared_pathway,
+                                    study_specific_active,
+                                )
+                            }
                         )
                     }
                 ),
@@ -150,11 +158,15 @@ def _report_with_changed_effects_and_pathways(
         ),
         base_report.model_copy(
             update={
-                "pathway_enrichment_report": base_report.pathway_enrichment_report.model_copy(
+                "enrichment": base_report.enrichment.model_copy(
                     update={
-                        "entries": (
-                            shared_pathway,
-                            study_specific_inactive,
+                        "pathway_enrichment_report": base_report.pathway_enrichment_report.model_copy(
+                            update={
+                                "entries": (
+                                    shared_pathway,
+                                    study_specific_inactive,
+                                )
+                            }
                         )
                     }
                 )
@@ -179,14 +191,22 @@ def _single_protein_report(
     )
     return base_report.model_copy(
         update={
-            "protein_cards": base_report.protein_cards.model_copy(
-                update={"cards": cards}
+            "scientific": base_report.scientific.model_copy(
+                update={
+                    "protein_cards": base_report.protein_cards.model_copy(
+                        update={"cards": cards}
+                    ),
+                    "differential_report": base_report.differential_report.model_copy(
+                        update={"entries": entries}
+                    ),
+                }
             ),
-            "differential_report": base_report.differential_report.model_copy(
-                update={"entries": entries}
+            "activity": base_report.activity.model_copy(
+                update={"pathway_activity_report": None}
             ),
-            "pathway_activity_report": None,
-            "pathway_enrichment_report": None,
+            "enrichment": base_report.enrichment.model_copy(
+                update={"pathway_enrichment_report": None}
+            ),
         }
     )
 
@@ -242,14 +262,22 @@ def _ambiguous_mouse_report(
     )
     return base_report.model_copy(
         update={
-            "protein_cards": base_report.protein_cards.model_copy(
-                update={"cards": mouse_cards}
+            "scientific": base_report.scientific.model_copy(
+                update={
+                    "protein_cards": base_report.protein_cards.model_copy(
+                        update={"cards": mouse_cards}
+                    ),
+                    "differential_report": base_report.differential_report.model_copy(
+                        update={"entries": mouse_entries}
+                    ),
+                }
             ),
-            "differential_report": base_report.differential_report.model_copy(
-                update={"entries": mouse_entries}
+            "activity": base_report.activity.model_copy(
+                update={"pathway_activity_report": None}
             ),
-            "pathway_activity_report": None,
-            "pathway_enrichment_report": None,
+            "enrichment": base_report.enrichment.model_copy(
+                update={"pathway_enrichment_report": None}
+            ),
         }
     )
 

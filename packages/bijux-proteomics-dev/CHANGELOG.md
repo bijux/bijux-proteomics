@@ -7,14 +7,44 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-07-01
+
 ### Added
 
 - Added runtime boundary automation that enforces lower-layer import direction, compat forwarding policy for `agentic-proteins`, and runtime type ownership collision checks.
 - Added runtime migration ledger generation and coverage enforcement for full `agentic-proteins` module classification with owner and reason fields.
+- Added repository quality and governance gates for architecture regression,
+  canonical package tree layout, orphan-module audits, generated-file markers,
+  core dependency minimization, circular-import scope, public-API typecheck,
+  scientific-concept ownership, cross-package smoke boundaries, and repo-wide
+  pytest collection.
+- Added executable package README API examples, reproducible test dependency
+  surfaces, and documented fast and slow test lanes.
+- Added artifact-root and package-hygiene enforcement so disposable caches,
+  reports, and benchmark byproducts stay under repository-owned `artifacts/`
+  paths instead of hardening into package roots.
 
 ### Changed
 
-- Repository quality flow now includes a dedicated `make quality-runtime-boundaries` gate.
+- Repository quality flow now includes a dedicated
+  `make quality-runtime-boundaries` gate.
+- Quality flow now routes package docs, public API smoke, release checkpoints,
+  and runtime handoff validation through explicit repository-owned maintainer
+  gates.
+- Documentation and release governance now track numbered handbook owners,
+  shared MkDocs baseline separation, scoped external review-kit authority, and
+  narrower LFQ public authority wording.
+- Aligned the dependency floor and fallback version with the `0.3.8` release
+  line.
+
+### Fixed
+
+- Hardened governance subprocess execution, bytecode cleanup, package
+  ownership inventories, security dependency floors, and safe-msgpack
+  auditing.
+- Stopped package-root artifact aliasing, tolerated disappearing cache
+  directories during hygiene checks, and aligned repository artifact contracts
+  with disposable local worktree behavior.
 
 ## [0.3.7] - 2026-04-21
 

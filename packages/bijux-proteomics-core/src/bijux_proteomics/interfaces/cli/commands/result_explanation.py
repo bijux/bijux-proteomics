@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Result explanation CLI commands."""
 
@@ -17,7 +16,10 @@ from bijux_proteomics.interfaces.python_api.result_explanation import (
     run_result_explanation_command,
     run_result_question_answer_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    ResultExplanationKind,
+    ResultQueryKind,
+)
 
 
 @click.command("result-question-answer")

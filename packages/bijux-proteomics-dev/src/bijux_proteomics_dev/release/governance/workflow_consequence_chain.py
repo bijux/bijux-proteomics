@@ -64,16 +64,32 @@ __all__ = [
 
 
 WORKFLOW_CONSEQUENCE_MAPS_PATH = (
-    REPO_ROOT / "docs" / "decision-support" / "workflow-consequence-maps.md"
+    REPO_ROOT
+    / "docs"
+    / "01-bijux-proteomics"
+    / "foundation"
+    / "workflow-consequence-maps.md"
 )
 RECOMMENDATION_CHANGE_PATH = (
-    REPO_ROOT / "docs" / "decision-support" / "what-changed-the-recommendation.md"
+    REPO_ROOT
+    / "docs"
+    / "01-bijux-proteomics"
+    / "foundation"
+    / "what-changed-the-recommendation.md"
 )
 LAB_CONSEQUENCE_OUTCOME_LEARNING_PATH = (
-    REPO_ROOT / "docs" / "lab-consequence" / "outcome-learning-loops.md"
+    REPO_ROOT
+    / "docs"
+    / "07-bijux-proteomics-lab"
+    / "foundation"
+    / "outcome-learning-loops.md"
 )
 LAB_CONSEQUENCE_REFUSAL_HANDBOOK_PATH = (
-    REPO_ROOT / "docs" / "lab-consequence" / "workflow-refusal-handbook.md"
+    REPO_ROOT
+    / "docs"
+    / "07-bijux-proteomics-lab"
+    / "foundation"
+    / "workflow-refusal-handbook.md"
 )
 
 

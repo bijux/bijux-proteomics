@@ -5,20 +5,102 @@
 
 from __future__ import annotations
 
-from importlib import import_module
-from typing import Any
-
-_CLAIM_MODULES = (
-    "bijux_proteomics.review.claims.analysis_recommendations",
-    "bijux_proteomics.review.claims.biological_claim_validation",
-    "bijux_proteomics.review.claims.biological_hypotheses",
-    "bijux_proteomics.review.claims.result_queries",
+from bijux_proteomics.review.claims.analysis_recommendations import (
+    AnalysisRecommendation,
+    AnalysisRecommendationKind,
+    AnalysisRecommendationPriority,
+    AnalysisRecommendationReport,
+    AnalysisRecommendationSummary,
+    build_analysis_recommendation_report_from_artifacts,
+    render_analysis_recommendation_summary_tsv,
+    render_analysis_recommendation_tsv,
+)
+from bijux_proteomics.review.claims.biological_claim_validation import (
+    BiologicalClaimCandidate,
+    BiologicalClaimDirection,
+    BiologicalClaimKind,
+    BiologicalClaimStatus,
+    BiologicalClaimValidationEntry,
+    BiologicalClaimValidationPolicy,
+    BiologicalClaimValidationReason,
+    BiologicalClaimValidationReport,
+    BiologicalClaimValidationSummary,
+    build_biological_claim_validation_report,
+    render_biological_claim_validation_summary_tsv,
+    render_rejected_biological_claim_tsv,
+    render_supported_biological_claim_tsv,
+)
+from bijux_proteomics.review.claims.biological_hypotheses import (
+    BiologicalHypothesisCandidate,
+    BiologicalHypothesisConfidenceTier,
+    BiologicalHypothesisEntry,
+    BiologicalHypothesisKind,
+    BiologicalHypothesisRejectionReason,
+    BiologicalHypothesisReport,
+    BiologicalHypothesisSummary,
+    RejectedBiologicalHypothesisCandidate,
+    build_biological_hypothesis_report,
+    render_biological_hypothesis_summary_tsv,
+    render_biological_hypothesis_tsv,
+    render_rejected_biological_hypothesis_candidate_tsv,
+)
+from bijux_proteomics.review.claims.result_queries import (
+    ResultQueryAnswer,
+    ResultQueryEvidenceLink,
+    ResultQueryKind,
+    ResultQueryReport,
+    ResultQueryRequest,
+    ResultQueryStatus,
+    ResultQuerySummary,
+    build_result_query_report_from_artifacts,
+    render_result_query_answer_tsv,
+    render_result_query_evidence_tsv,
+    render_result_query_summary_tsv,
 )
 
-
-def __getattr__(name: str) -> Any:
-    for module_path in _CLAIM_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            return getattr(module, name)
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+__all__ = [
+    "AnalysisRecommendation",
+    "AnalysisRecommendationKind",
+    "AnalysisRecommendationPriority",
+    "AnalysisRecommendationReport",
+    "AnalysisRecommendationSummary",
+    "BiologicalClaimCandidate",
+    "BiologicalClaimDirection",
+    "BiologicalClaimKind",
+    "BiologicalClaimStatus",
+    "BiologicalClaimValidationEntry",
+    "BiologicalClaimValidationPolicy",
+    "BiologicalClaimValidationReason",
+    "BiologicalClaimValidationReport",
+    "BiologicalClaimValidationSummary",
+    "BiologicalHypothesisCandidate",
+    "BiologicalHypothesisConfidenceTier",
+    "BiologicalHypothesisEntry",
+    "BiologicalHypothesisKind",
+    "BiologicalHypothesisRejectionReason",
+    "BiologicalHypothesisReport",
+    "BiologicalHypothesisSummary",
+    "RejectedBiologicalHypothesisCandidate",
+    "ResultQueryAnswer",
+    "ResultQueryEvidenceLink",
+    "ResultQueryKind",
+    "ResultQueryReport",
+    "ResultQueryRequest",
+    "ResultQueryStatus",
+    "ResultQuerySummary",
+    "build_analysis_recommendation_report_from_artifacts",
+    "build_biological_claim_validation_report",
+    "build_biological_hypothesis_report",
+    "build_result_query_report_from_artifacts",
+    "render_analysis_recommendation_summary_tsv",
+    "render_analysis_recommendation_tsv",
+    "render_biological_claim_validation_summary_tsv",
+    "render_biological_hypothesis_summary_tsv",
+    "render_biological_hypothesis_tsv",
+    "render_rejected_biological_claim_tsv",
+    "render_rejected_biological_hypothesis_candidate_tsv",
+    "render_result_query_answer_tsv",
+    "render_result_query_evidence_tsv",
+    "render_result_query_summary_tsv",
+    "render_supported_biological_claim_tsv",
+]

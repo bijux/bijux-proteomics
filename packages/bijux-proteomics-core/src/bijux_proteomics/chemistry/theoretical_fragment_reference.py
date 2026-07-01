@@ -9,15 +9,26 @@ from collections.abc import Sequence
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
-    FragmentIonSeries,
+from bijux_proteomics.chemistry.contracts.fragment_ions import (
     calculate_fragment_ions,
+)
+from bijux_proteomics.chemistry.contracts.models import (
+    FragmentIonSeries,
+)
+from bijux_proteomics.chemistry.contracts.modified_peptides import (
     parse_modified_peptide,
 )
 from bijux_proteomics.chemistry.modification_registry import (
     modification_registry,
 )
+from bijux_proteomics.chemistry.public_api import rebind_package_export
 from bijux_proteomics_foundation import JsonModel
+
+rebind_package_export(
+    "bijux_proteomics.chemistry",
+    "modification_registry",
+    modification_registry,
+)
 
 
 class TheoreticalFragmentReferenceIon(JsonModel):

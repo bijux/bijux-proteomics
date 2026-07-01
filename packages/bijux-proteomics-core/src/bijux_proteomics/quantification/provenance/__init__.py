@@ -5,24 +5,24 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
 
-_PROVENANCE_EXPORT_MODULES = (
-    "bijux_proteomics.quantification.provenance.benchmarks",
-    "bijux_proteomics.quantification.provenance.heatmap_preparation",
-    "bijux_proteomics.quantification.provenance.replicate_qc",
-    "bijux_proteomics.quantification.provenance.review",
-    "bijux_proteomics.quantification.provenance.sample_exploration",
-    "bijux_proteomics.quantification.provenance.value_provenance",
+from bijux_proteomics.quantification.public_api import (
+    PROVENANCE_FACADE_OWNERS,
+    build_lazy_export_index,
+    facade_owner_modules,
+    module_directory,
+    resolve_public_export,
+)
+
+__all__, _PROVENANCE_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(PROVENANCE_FACADE_OWNERS)
 )
 
 
 def __getattr__(name: str) -> Any:
-    for module_path in _PROVENANCE_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return resolve_public_export(__name__, globals(), _PROVENANCE_EXPORT_INDEX, name)
+
+
+def __dir__() -> list[str]:
+    return module_directory(globals(), __all__)

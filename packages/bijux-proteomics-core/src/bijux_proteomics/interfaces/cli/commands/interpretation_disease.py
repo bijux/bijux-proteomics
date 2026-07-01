@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Interpretation disease CLI commands."""
 
@@ -13,7 +12,10 @@ import click
 from bijux_proteomics.interfaces.python_api.interpretation_disease import (
     run_disease_phenotype_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+    QuantRollupMethod,
+)
 
 
 @click.command("disease-phenotype")

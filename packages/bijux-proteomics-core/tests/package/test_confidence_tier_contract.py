@@ -17,13 +17,13 @@ ALIAS_OWNERS = {
     "review/evidence_graph/evidence_graph_confidence.py": "EvidenceGraphConfidenceTier",
     "review/claims/biological_hypotheses.py": "BiologicalHypothesisConfidenceTier",
     "study/design/experiment_confidence.py": "ExperimentConfidenceTier",
-    "interpretation/pathway_activity.py": "PathwayActivityConfidenceStatus",
-    "interpretation/protein_set_scoring.py": "ProteinSetScoreConfidenceStatus",
+    "interpretation/pathway_activity/__init__.py": "PathwayActivityConfidenceStatus",
+    "interpretation/protein_set_scoring/__init__.py": "ProteinSetScoreConfidenceStatus",
     "interpretation/disease_phenotype_interpretation.py": "DiseasePhenotypeConfidenceStatus",
-    "interpretation/complex_activity.py": "ComplexActivityConfidenceStatus",
+    "interpretation/complex_activity/__init__.py": "ComplexActivityConfidenceStatus",
     "io/raw/run_qc.py": "SpectrumQualityTier",
     "study/metadata/sample_sheet_repairs.py": "SampleSheetRepairConfidence",
-    "workflow/mechanisms.py": "MechanismCardConfidence",
+    "workflow/cards/mechanisms.py": "MechanismCardConfidence",
 }
 GENERIC_CONFIDENCE_VALUES = {
     "high",
@@ -101,7 +101,7 @@ def test_no_other_owner_defines_incompatible_generic_confidence_tiers() -> None:
 
 def test_biological_report_summary_uses_shared_experiment_confidence_tier() -> None:
     source_text = (
-        SOURCE_ROOT / "workflow" / "reports" / "biological_report_models.py"
+        SOURCE_ROOT / "workflow" / "reports" / "biological_report_summary_contracts.py"
     ).read_text(encoding="utf-8")
 
     assert "experiment_confidence_tier: ConfidenceTier" in source_text

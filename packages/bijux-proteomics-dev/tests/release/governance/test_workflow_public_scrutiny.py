@@ -46,6 +46,10 @@ def test_workflow_public_scrutiny_blocks_unready_external_review_kit(
             )
         ),
     )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny._earned_outsider_auditable_workflow_families",
+        lambda: frozenset({"dia"}),
+    )
 
     issues = validate_workflow_public_scrutiny(REPO_ROOT)
 
@@ -63,6 +67,35 @@ def test_workflow_public_scrutiny_blocks_unready_external_review_kit(
         )
         in issues
     )
+
+
+def test_workflow_public_scrutiny_ignores_unready_review_grade_family(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.validate_public_artifact_governance",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.build_workflow_external_review_kit_family",
+        lambda: SimpleNamespace(
+            kits=(
+                SimpleNamespace(
+                    workflow_family=SimpleNamespace(value="lfq"),
+                    standalone_verifier_report=SimpleNamespace(verified=False),
+                    ready_for_outsider_review=False,
+                ),
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny._earned_outsider_auditable_workflow_families",
+        lambda: frozenset({"dda", "dia", "ptm", "targeted"}),
+    )
+
+    issues = validate_workflow_public_scrutiny(REPO_ROOT)
+
+    assert not any(issue.code.startswith("external-review-kit-") for issue in issues)
 
 
 def test_workflow_public_scrutiny_blocks_banned_release_language(

@@ -14,10 +14,12 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.protein_region_context_models import (
     ProteinRegionContextColumnMapping,
     ProteinRegionContextRecord,
     ProteinSiteRegionReference,
+)
+from bijux_proteomics.sequences.protein_region_context_workflows import (
     build_protein_site_region_context_report,
     parse_protein_region_context_tsv,
 )

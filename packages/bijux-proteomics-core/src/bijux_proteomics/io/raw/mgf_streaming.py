@@ -16,7 +16,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
-    from bijux_proteomics.io.spectra.spectrum_contracts import (
+    from bijux_proteomics.io.spectra.spectrum_contracts.models import (
         MgfParseReport,
         RejectedSpectrumBlock,
         SpectrumModel,
@@ -69,7 +69,9 @@ def _issue(
     line_number: int | None = None,
     raw_line: str | None = None,
 ) -> SpectrumValidationIssue:
-    from bijux_proteomics.io.spectra.spectrum_contracts import SpectrumValidationIssue
+    from bijux_proteomics.io.spectra.spectrum_contracts.models import (
+        SpectrumValidationIssue,
+    )
 
     return SpectrumValidationIssue(
         code=code,
@@ -295,7 +297,7 @@ def iter_mgf_spectra(path: Path) -> Iterator[SpectrumModel]:
 def parse_mgf(path: Path) -> MgfParseReport:
     """Aggregate one streamed MGF parse into the stable report contract."""
 
-    from bijux_proteomics.io.spectra.spectrum_contracts import MgfParseReport
+    from bijux_proteomics.io.spectra.spectrum_contracts.models import MgfParseReport
 
     accepted: list[SpectrumModel] = []
     rejected: list[RejectedSpectrumBlock] = []

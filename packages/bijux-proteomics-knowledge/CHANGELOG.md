@@ -4,9 +4,34 @@ All notable changes for `bijux-proteomics-knowledge` are recorded here.
 
 ## Unreleased
 
+## 0.3.8 - 2026-07-01
+
+### Added
+
+- Added grounded scientific memory surfaces for cited references, ontologies,
+  benchmark manifests, curated corpora, scientific rules, workflow briefing
+  packets, comparator dossiers, contradiction audits, and machine-readable
+  release-gate registries.
+- Added query and resolution surfaces for protein identity, feature overlap,
+  pathway membership, complex membership, kinase substrates, drug targets,
+  disease terms, knowledge coverage, and cross-species orthologs.
+- Added structured public grounding documentation and compatibility coverage
+  for the public data-pack routes that now back workflow claim grounding.
+
 ### Changed
 
-- No unreleased changes yet.
+- Reorganized the package around durable `memory`, `references`, `reviews`,
+  and `contracts` owner families, renamed public decision-brief routes, and
+  tightened provenance and workflow caveat boundaries.
+- Expanded executable README and package docs plus structured public docstrings
+  for grounding and review APIs.
+- Aligned dependency floors and fallback version with the `0.3.8` release
+  line.
+
+### Fixed
+
+- Restored lint and typing contracts and stabilized accession-resolution
+  assertions.
 
 ## 0.3.7 - 2026-04-21
 

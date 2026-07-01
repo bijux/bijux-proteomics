@@ -9,6 +9,16 @@ release validation, OpenAPI drift detection, and repository automation.
 Use this package for CI and maintainer workflows that enforce repository
 standards; it is intentionally separate from product runtime behavior.
 
+## At a glance
+
+- Use the dev package when the question is repository policy, release proof,
+  docs integrity, OpenAPI governance, or shared automation.
+- Start with `make quality`, `make security`, or the
+  [maintenance overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
+  for maintainer-first entrypoints.
+- Route product behavior back to its owner package instead of adding science
+  or runtime semantics here.
+
 ## Why teams pick this package
 
 - one toolkit for quality, security, release, docs, and API governance gates
@@ -24,6 +34,18 @@ standards; it is intentionally separate from product runtime behavior.
   benchmark, owner, tests, and explicit scientific limits
 - detect OpenAPI and schema drift before publication
 - automate maintainership checks for docs and repository health
+
+## 0.3.8 Release Highlights
+
+- The maintainer package now owns architecture regression, runtime-boundary,
+  package-tree, orphan-module, circular-import, public-API typecheck,
+  generated-file, scientific-concept, and cross-package smoke gates.
+- README API examples are now executed against the shipped package surfaces,
+  and the repository test lanes are documented as explicit fast and slow
+  contracts.
+- Release validation now treats bridge migration, package ownership, and
+  runtime handoff checks as first-class repository policy instead of scattered
+  workflow glue.
 
 ## Installation
 
@@ -157,9 +179,11 @@ It does not define runtime product APIs or proteomics domain behavior.
 
 ## Documentation
 
+- [Maintenance overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
+- [Maintainer safe change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
 - [Scope and non-goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
 - [Module map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
 - [Quality gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/)

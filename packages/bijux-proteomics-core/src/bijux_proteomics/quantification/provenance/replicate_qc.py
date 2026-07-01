@@ -12,11 +12,17 @@ import math
 import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.input_models import MissingValueKind
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    _condition_lookup,
+    _matrix_value_index,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
     LabelFreeQuantTable,
-    MissingValueKind,
-    QcOutlierSampleEntry,
     QuantValue,
+)
+from bijux_proteomics.quantification.contracts.study_qc import (
+    QcOutlierSampleEntry,
     ReplicateAndBatchQcReport,
     ReplicateCorrelationReport,
     ReplicateCvConditionEntry,
@@ -25,8 +31,6 @@ from bijux_proteomics.quantification.contracts import (
     SampleReliabilityQcStatus,
     SampleReliabilityWeightEntry,
     SampleReliabilityWeightReport,
-    _condition_lookup,
-    _matrix_value_index,
     build_replicate_correlation_report,
 )
 from bijux_proteomics.quantification.normalization.batch_effect import (

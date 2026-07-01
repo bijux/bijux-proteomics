@@ -10,24 +10,25 @@ from typing import Any, cast
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmEvidenceCardReport
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
-    QuantEntityLevel,
     QuantRollupMethod,
-    build_label_free_intensity_table,
-    parse_ms1_feature_table,
-    parse_ms1_feature_table_chunked,
 )
-from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
 from bijux_proteomics.study import (
     ExperimentDesign,
     LcmsRunQcReport,
     QcRunAssessmentReport,
     coerce_experiment_design,
 )
-from bijux_proteomics.workflow.reports.biological_report_models import (
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
+)
+from bijux_proteomics.workflow.reports.biological_report_ms1_feature_quant_table import (
+    _build_biological_quant_table_from_ms1_feature_input,
+)
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy,
 )
@@ -65,41 +66,21 @@ def build_biological_result_report_bundle_from_ms1_feature_input(
 ) -> BiologicalResultReportBundle:
     """Build a biological report bundle from an MS1 feature table input."""
 
-    from bijux_proteomics.workflow.reports.biological_report_assembly import (
+    from bijux_proteomics.workflow.reports.biological_report_quant_table_input import (
         build_biological_result_report_bundle_from_quant_table,
     )
 
     experiment_design = coerce_experiment_design(design_entries)
-    active_mapping = mapping or Ms1FeatureColumnMapping(
-        sample_id="sample_id",
-        feature_id="feature_id",
-        peptide="peptide",
-        intensity="intensity",
-        protein_refs="proteins",
-        charge="charge",
-        mz="mz",
-        retention_time_seconds="retention_time_seconds",
-        missing_reason="missing_reason",
-        protein_separator=";",
-    )
     active_selection_policy = _resolve_biological_result_selection_policy(
         selection_policy,
         protocol_context_tsv_path=protocol_context_tsv_path,
     )
-    parse_report = (
-        parse_ms1_feature_table_chunked(
-            input_tsv_path,
-            mapping=active_mapping,
-            chunk_size_rows=chunk_size_rows,
-        )
-        if chunk_size_rows is not None
-        else parse_ms1_feature_table(input_tsv_path, mapping=active_mapping)
-    )
-    quant_table = build_label_free_intensity_table(
-        parse_report.accepted_records,
-        entity_level=QuantEntityLevel.PROTEIN,
+    quant_table = _build_biological_quant_table_from_ms1_feature_input(
+        input_tsv_path,
+        mapping=mapping,
         aggregation_method=aggregation_method,
         top_n=top_n,
+        chunk_size_rows=chunk_size_rows,
     )
     return build_biological_result_report_bundle_from_quant_table(
         quant_table,

@@ -18,7 +18,6 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -40,6 +39,17 @@ This package owns one thing: legacy compatibility routing for historical CLI,
 HTTP, agent, execution, provider, state, and tool entrypoints while all real
 behavior stays in canonical packages.
 
+## At a glance
+
+- Use `agentic-proteins` only when an existing integration still depends on
+  the legacy command, import root, or bridge submodule tree.
+- Start new execution work from the
+  [canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  and treat this package as a migration bridge, not as a second runtime owner.
+- Route runtime behavior to `bijux-proteomics-runtime`, lower scientific
+  behavior to the canonical `bijux-proteomics-*` packages, and keep this layer
+  forwarding-only.
+
 ## Compatibility contract
 
 - mirrors the canonical runtime root exports at `agentic_proteins`
@@ -48,6 +58,15 @@ behavior stays in canonical packages.
 - keeps the historical submodule tree explicit so legacy imports stay
   inspectable
 - exists to preserve migration safety for existing integrations
+
+## 0.3.8 Release Highlights
+
+- The package now states its forwarding-only contract directly instead of
+  sounding like a second runtime owner.
+- Direct dependencies and optional extras are narrowed to the canonical
+  `bijux-proteomics-core` and `bijux-proteomics-runtime` packages.
+- Legacy CLI and import continuity remain documented, but new integrations are
+  pointed at the canonical runtime package first.
 
 ## Installation
 
@@ -186,7 +205,10 @@ assert legacy_cli is canonical_cli
 
 ## Documentation
 
+- [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Compatibility package docs](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
+- [Changelog](CHANGELOG.md)

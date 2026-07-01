@@ -14,7 +14,7 @@ from bijux_proteomics_foundation.testing.source_tree_complexity import (
 
 pytestmark = [pytest.mark.governance, pytest.mark.slow]
 
-CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
+CORE_SRC_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 COMPLEXITY_CEILING = 25
 
 
@@ -134,8 +134,8 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     _exception("io/raw/run_qc.py", "build_spectrum_run_qc_report", 38),
     _exception("io/tables/target_panel.py", "_parse_target_panel_row", 27),
     _exception("io/tables/transition_table.py", "_parse_transition_row", 29),
-    _exception("lab/qc.py", "_build_run_status_reasons", 37),
-    _exception("lab/qc.py", "build_lcms_run_qc_report", 55),
+    _exception("lab/qc/assessment.py", "_build_run_status_reasons", 37),
+    _exception("lab/qc/run_reports.py", "build_lcms_run_qc_report", 55),
     _exception("multiplex/ratio_analysis.py", "build_tmt_ratio_report", 43),
     _exception(
         "multiplex/reporter_ion_import.py",
@@ -189,7 +189,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         40,
     ),
     _exception(
-        "quantification/missingness/missingness.py",
+        "quantification/missingness/mechanism_report.py",
         "build_missing_data_mechanism_report",
         26,
     ),
@@ -204,12 +204,7 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         31,
     ),
     _exception(
-        "quantification/provenance/review.py",
-        "build_quant_review_bundle",
-        36,
-    ),
-    _exception(
-        "quantification/statistics/differential_abundance.py",
+        "quantification/statistics/differential_abundance/analysis.py",
         "build_differential_abundance_report",
         49,
     ),
@@ -235,12 +230,10 @@ CORE_COMPLEXITY_EXCEPTIONS = (
     ),
     _exception("study/design/experiment_design.py", "build_experiment_design", 27),
     _exception(
-        "targeted/assay_interference.py",
-        "build_targeted_assay_interference_report",
-        30,
+        "targeted/assay_qc/analysis.py",
+        "build_targeted_assay_qc_report",
+        84,
     ),
-    _exception("targeted/assay_qc.py", "build_targeted_assay_qc_report", 84),
-    _exception("targeted/biomarker_stability.py", "_build_candidate_entry", 39),
     _exception(
         "targeted/transition_coelution.py",
         "build_targeted_transition_coelution_report",
@@ -252,44 +245,19 @@ CORE_COMPLEXITY_EXCEPTIONS = (
         31,
     ),
     _exception(
-        "workflow/cross_species_effect_comparison.py",
-        "build_cross_species_effect_comparison_report_from_observations",
-        27,
-    ),
-    _exception(
-        "workflow/cross_study_meta_analysis.py",
-        "_build_meta_analysis_entry",
-        31,
-    ),
-    _exception(
-        "workflow/cross_study_pathway_comparison.py",
-        "_build_pathway_comparison_entry",
-        26,
-    ),
-    _exception(
-        "workflow/cross_study_protein_harmonization.py",
-        "build_cross_study_protein_harmonization_report_from_observations",
-        35,
-    ),
-    _exception(
-        "workflow/pipelines/dia_dda_comparison.py",
+        "workflow/pipelines/comparative/dia_dda_comparison.py",
         "build_dia_dda_comparison_report",
         31,
     ),
     _exception(
-        "workflow/public_dataset_comparison.py",
-        "build_public_dataset_comparison_report_from_suite",
+        "workflow/studies/cross_species_effect_comparison.py",
+        "build_cross_species_effect_comparison_report_from_observations",
         27,
     ),
     _exception(
-        "workflow/reports/biological_report_assembly.py",
-        "build_biological_result_report_bundle_from_quant_table",
-        61,
-    ),
-    _exception(
-        "workflow/reports/biological_report_section_confidence.py",
-        "_build_biological_report_section_confidence_entries",
-        68,
+        "workflow/studies/public_dataset_comparison.py",
+        "build_public_dataset_comparison_report_from_suite",
+        27,
     ),
 )
 

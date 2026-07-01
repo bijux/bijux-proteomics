@@ -19,7 +19,6 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 
@@ -50,6 +49,17 @@ Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
 package `docs/*.md` set aligned before claiming stronger operational coverage
 or handoff safety guarantees.
 
+## At a glance
+
+- Use lab when the real question is whether a follow-up should run, can run
+  safely, and can be reconciled honestly after execution.
+- Start with the planning entrypoints for advisory and executable assay plans,
+  then open the
+  [lab handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+  for readiness, handoff, and outcome routes.
+- Route scientific truth to core, evidence memory to knowledge,
+  recommendation posture to intelligence, and execution control to runtime.
+
 ## Why teams pick this package
 
 - dependency-aware planning that keeps queue pressure, gate pressure, and
@@ -73,6 +83,18 @@ or handoff safety guarantees.
   controls, caveats, field loss, and refusal reasons
 - reconcile observed outcomes back into supported, weakened, or blocked
   feedback for downstream review
+
+## 0.3.8 Release Highlights
+
+- Lab now publishes typed design, planning, readiness, handoff,
+  reconciliation, and follow-up packet surfaces across DDA, DIA, LFQ, PTM, and
+  targeted workflows.
+- Targeted benchmark rehearsal, refusal, outcome dossier, and learning
+  surfaces now make assay burden and observed follow-up visible before stronger
+  downstream claims are made.
+- The package root is deliberately narrowed to planning entrypoints while the
+  durable owner bands keep readiness, handoff, outcome, and benchmark behavior
+  auditable.
 
 ## Installation
 
@@ -184,13 +206,13 @@ Lab owns the downstream burden and observed outcome part of the shared
 consequence chain, not a separate trust story that can outrank knowledge or
 intelligence.
 
-- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is whether assay burden or the cost of being wrong already
   blocks stronger public recommendation language
-- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
   when the question is how requested-versus-observed follow-up should tighten
   or weaken the next recommendation
-- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the honest next action is to stop, rerun, narrow, or refuse before more
   assay spend
 
@@ -293,10 +315,13 @@ intelligence.
 
 ## Documentation
 
+- [Lab consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+- [Outcome learning loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)
 - [Interface contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/)
+- [Workflow refusal handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
 - [Experiment design and protocol planning](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/EXPERIMENT_DESIGN.md)

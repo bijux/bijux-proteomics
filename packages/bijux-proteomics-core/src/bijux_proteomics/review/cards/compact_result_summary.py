@@ -17,7 +17,7 @@ from bijux_proteomics.review.claims.analysis_recommendations import (
     AnalysisRecommendationReport,
     build_analysis_recommendation_report_from_artifacts,
 )
-from bijux_proteomics.review.claims.result_queries import (
+from bijux_proteomics.review.claims.result_query_artifacts import (
     _empty_to_none,
     _find_protein_card,
     _load_result_artifact_context,

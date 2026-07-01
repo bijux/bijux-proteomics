@@ -18,7 +18,7 @@ from bijux_proteomics.identification.protein_inference_benchmarks import (
     ProteinInferenceBenchmarkScenarioKind,
     ProteinInferenceBenchmarkSuiteReport,
 )
-from bijux_proteomics.identification.search_adapters import SearchAdapterKind
+from bijux_proteomics.identification.search_adapters.contracts import SearchAdapterKind
 from bijux_proteomics_foundation import JsonModel
 
 

@@ -16,7 +16,9 @@ from statistics import mean
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io import ExperimentalDesignEntry
-from bijux_proteomics.sequences import PeptideUniquenessClass
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
+)
 from bijux_proteomics.targeted.assay_qc import (
     TargetedTargetQcEntry,
     build_targeted_assay_qc_report,

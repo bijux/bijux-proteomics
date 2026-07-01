@@ -4,18 +4,36 @@ All notable changes for `bijux-proteomics-lab` are recorded here.
 
 ## Unreleased
 
+## 0.3.8 - 2026-07-01
+
 ### Added
 
-- Added typed experiment-design and protocol-planning contracts for sample
-  preparation metadata, instrument metadata, design validation, power
-  advisories, run-order randomization, fractionation plans, multiplex channel
-  planning, QC/spike-in insertion, carryover risk review, and bundled protocol
-  evidence.
+- Added typed experiment-design, protocol-planning, planning-readiness,
+  handoff, reconciliation, and follow-up packet contracts for DDA, DIA, LFQ,
+  PTM, and targeted workflows.
+- Added targeted benchmark rehearsal, refusal, outcome dossier, and learning
+  surfaces so assay burden, handoff quality, and observed follow-up stay
+  reviewable.
+- Added canonical artifact envelope records and QC-feedback handoff routes so
+  assay planning and observed outcomes can travel with explicit packet
+  structure.
 
 ### Changed
 
-- Expanded package documentation with an experiment-design workflow guide and
-  README coverage for the new planning surface.
+- Reorganized the package around durable owner bands for design, planning,
+  readiness, lifecycle, handoffs, outcomes, reconciliation, and benchmarks and
+  narrowed the package root to planning entrypoints.
+- Expanded package docs with executable API examples and workflow notes for
+  experiment design, handoff safety, refusal limits, and outcome learning.
+- Aligned dependency floors and fallback version with the `0.3.8` release
+  line.
+
+### Fixed
+
+- Decoupled feedback forecasting from queue ownership and normalized handoff
+  and package contracts.
+- Restored canonical PTM occupancy evidence imports so lab follow-up packets
+  consume the same owner surfaces the rest of the product chain does.
 
 ## 0.3.7 - 2026-04-21
 

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Public benchmark and demo CLI commands."""
 
@@ -21,8 +20,7 @@ from bijux_proteomics.interfaces.python_api.benchmark_demo import (
     run_surprising_demo_query_command,
     run_surprising_demo_report_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.workflow import SurprisingDemoQueryKind
 
 
 @click.command("public-benchmark-runner")

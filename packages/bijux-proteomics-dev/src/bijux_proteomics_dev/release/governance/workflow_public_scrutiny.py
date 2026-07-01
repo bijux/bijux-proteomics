@@ -15,6 +15,10 @@ from bijux_proteomics_dev.release.governance.public_language import (
 from bijux_proteomics_intelligence.reviews.external_review_kits import (
     build_workflow_external_review_kit_family,
 )
+from bijux_proteomics_intelligence.reviews.workflow_authority import (
+    WorkflowAuthorityKind,
+    build_workflow_authority_matrix,
+)
 
 __all__ = [
     "WorkflowPublicScrutinyIssue",
@@ -48,6 +52,19 @@ def _read_target_doc(repo_root: Path, relative_path: Path) -> str:
     return (repo_root / relative_path).read_text(encoding="utf-8")
 
 
+def _earned_outsider_auditable_workflow_families() -> frozenset[str]:
+    matrix = build_workflow_authority_matrix()
+    return frozenset(
+        row.workflow_family.value
+        for row in matrix.rows
+        if any(
+            cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
+            and cell.earned
+            for cell in row.cells
+        )
+    )
+
+
 def validate_workflow_public_scrutiny(
     repo_root: Path,
 ) -> tuple[WorkflowPublicScrutinyIssue, ...]:
@@ -55,9 +72,14 @@ def validate_workflow_public_scrutiny(
 
     issues: list[WorkflowPublicScrutinyIssue] = []
     kit_family = build_workflow_external_review_kit_family()
+    outsider_auditable_workflow_families = (
+        _earned_outsider_auditable_workflow_families()
+    )
     for issue in validate_public_artifact_governance():
         issues.append(WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail))
     for kit in kit_family.kits:
+        if kit.workflow_family.value not in outsider_auditable_workflow_families:
+            continue
         if not kit.standalone_verifier_report.verified:
             issues.append(
                 WorkflowPublicScrutinyIssue(

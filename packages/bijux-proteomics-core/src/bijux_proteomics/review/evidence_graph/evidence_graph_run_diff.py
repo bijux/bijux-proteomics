@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdgeKind,
     ProteomicsEvidenceGraph,
     ProteomicsEvidenceNodeKind,

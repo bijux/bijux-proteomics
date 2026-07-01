@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """QC reporting CLI commands."""
 
@@ -11,7 +10,6 @@ from pathlib import Path
 import click
 
 from bijux_proteomics.interfaces.python_api.qc_commands import run_qc_report_command
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("report")

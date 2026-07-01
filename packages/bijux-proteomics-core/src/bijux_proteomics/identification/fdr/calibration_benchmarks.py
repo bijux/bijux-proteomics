@@ -17,7 +17,7 @@ from bijux_proteomics.identification.fdr.confidence import (
     build_empirical_score_calibration_report,
     build_entrapment_evaluation_report,
 )
-from bijux_proteomics.identification.search_adapters import SearchAdapterKind
+from bijux_proteomics.identification.search_adapters.contracts import SearchAdapterKind
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 

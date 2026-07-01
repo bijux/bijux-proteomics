@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+"""Compatibility facade for sequence support helper ownership."""
+
+from __future__ import annotations
+
+from .cli_choices import (
+    _conversion_target_choice,
+    _decoy_mode_choice,
+    _digestion_mode_choice,
+    _duplicate_accession_policy_choice,
+    _export_format_choice,
+    _fragment_series_choice,
+    _heatmap_missing_value_choice,
+    _imputation_choice,
+    _label_based_differential_normalization_choice,
+    _mode_choice,
+    _modified_peptide_dialect_choice,
+    _normalization_choice,
+    _peptide_matrix_builder_input_kind_choice,
+    _peptide_matrix_grouping_choice,
+    _peptide_matrix_input_kind_choice,
+    _protein_matrix_target_choice,
+    _quant_entity_level_choice,
+    _quant_measure_choice,
+    _quant_rollup_choice,
+    _score_orientation_choice,
+    _search_adapter_choice,
+    _silac_label_choice,
+    _tmt_normalization_method_choice,
+    _tmt_ratio_normalization_choice,
+    _tmt_source_kind_choice,
+    _validate_kind_choice,
+    _workflow_scheduler_choice,
+)
+from .digestion_parameters import (
+    _resolve_cli_protease_rule,
+    _resolve_cli_theoretical_digest_modifications,
+)
+from .fasta_inputs import _emit_fasta_profile, _load_fasta_report
+from .input_resolution import (
+    _build_decoy_policy,
+    _build_psm_mapping,
+    _build_run_detection_contexts,
+    _default_psm_mapping,
+    _file_sha256,
+    _filter_review_psms,
+    _infer_input_kind,
+    _load_precursor_mass_error_queries,
+    _select_design_entry,
+)
+from .multiplex_inputs import _parse_silac_label_spec, _parse_tmt_channel_column_specs
+
+__all__ = (
+    "_build_decoy_policy",
+    "_build_psm_mapping",
+    "_build_run_detection_contexts",
+    "_conversion_target_choice",
+    "_decoy_mode_choice",
+    "_default_psm_mapping",
+    "_digestion_mode_choice",
+    "_duplicate_accession_policy_choice",
+    "_emit_fasta_profile",
+    "_export_format_choice",
+    "_file_sha256",
+    "_filter_review_psms",
+    "_fragment_series_choice",
+    "_heatmap_missing_value_choice",
+    "_imputation_choice",
+    "_infer_input_kind",
+    "_label_based_differential_normalization_choice",
+    "_load_fasta_report",
+    "_load_precursor_mass_error_queries",
+    "_mode_choice",
+    "_modified_peptide_dialect_choice",
+    "_normalization_choice",
+    "_parse_silac_label_spec",
+    "_parse_tmt_channel_column_specs",
+    "_peptide_matrix_builder_input_kind_choice",
+    "_peptide_matrix_grouping_choice",
+    "_peptide_matrix_input_kind_choice",
+    "_protein_matrix_target_choice",
+    "_quant_entity_level_choice",
+    "_quant_measure_choice",
+    "_quant_rollup_choice",
+    "_resolve_cli_protease_rule",
+    "_resolve_cli_theoretical_digest_modifications",
+    "_score_orientation_choice",
+    "_search_adapter_choice",
+    "_select_design_entry",
+    "_silac_label_choice",
+    "_tmt_normalization_method_choice",
+    "_tmt_ratio_normalization_choice",
+    "_tmt_source_kind_choice",
+    "_validate_kind_choice",
+    "_workflow_scheduler_choice",
+)

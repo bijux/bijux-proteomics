@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 import re
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -304,9 +305,9 @@ def _build_entries(
 
 def _annotation_source(match: RegulatorEvidenceRecord) -> str:
     if match.source_accession:
-        return match.source_accession
+        return cast(str, match.source_accession)
     if match.source_name:
-        return match.source_name
+        return cast(str, match.source_name)
     return "curated_kinase_pack"
 
 

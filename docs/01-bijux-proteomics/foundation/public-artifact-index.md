@@ -4,41 +4,76 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Public Artifact Index
 
-This page is the reviewer-facing registry of shipped public artifacts. Every entry declares its owner package, intended audience, question answered, and why it still exists next to its neighboring surfaces.
+This page is the stable opening-order registry for the public proof surfaces
+the repository expects outsiders to inspect.
 
-- governed artifact budget: `20`
-- current artifact count: `20`
+These artifacts are not decorative links. They exist because the repository
+now has enough benchmark, runtime, grounding, recommendation, and consequence
+surfaces that readers need a clear starting order instead of reverse
+engineering intent from the tree.
 
-| artifact id | owner package | audience | question answered | coexistence rationale |
-| --- | --- | --- | --- | --- |
-| `artifact-index:release-candidate` | `bijux-proteomics-docs` | `scientist` | Which workflow families can the repository defend today? | The release-candidate page names the bounded family set, while the hostile review kit is the harder challenge route and the scorecard is the narrower language ceiling. |
-| `artifact-index:elite-readiness-scorecard` | `bijux-proteomics-docs` | `maintainer` | How far may repository-wide language go today? | The scorecard is weaker than the release-candidate bundle because it summarizes a boundary rather than naming each family surface. |
-| `artifact-index:hostile-review-kit` | `bijux-proteomics-docs` | `skeptical outsider` | What is the shortest whole-repository challenge route? | The hostile review kit is the strongest whole-repository opening order because it routes directly from the root promise into the hardest challenge surfaces. |
-| `artifact-index:why-not-ready` | `bijux-proteomics-docs` | `reviewer` | Which blocked release bars still fail right now? | This page names live blockers, while its paired next-step page turns those same categories into closing conditions instead of duplicating softer trust prose. |
-| `artifact-index:what-makes-ready` | `bijux-proteomics-docs` | `maintainer` | What concrete evidence would move the release boundary next? | This page exists next to the blocker ledger because closing conditions are an action surface, not just a list of current failures. |
-| `artifact-index:dda:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does dda still earn bounded outsider-auditable language today? | The trust page narrows one workflow-family sentence, while the release-candidate page names the broader family set and the external review kit is the harder challenge lane. |
-| `artifact-index:dda:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can dda survive a second checked rerun challenge? | The rerun dossier exists because the trust page alone is too claim-oriented, while the external review kit is the stronger outsider path that packages the dossier with the key benchmark and recommendation files. |
-| `artifact-index:dda:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the dda sentence? | The external review kit remains the strongest family-level challenge artifact because it packages the rerun lane with the benchmark, recommendation, and consequence surfaces needed to reject the claim honestly. |
-| `artifact-index:dia:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does dia still earn bounded outsider-auditable language today? | The trust page narrows one workflow-family sentence, while the release-candidate page names the broader family set and the external review kit is the harder challenge lane. |
-| `artifact-index:dia:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can dia survive a second checked rerun challenge? | The rerun dossier exists because the trust page alone is too claim-oriented, while the external review kit is the stronger outsider path that packages the dossier with the key benchmark and recommendation files. |
-| `artifact-index:dia:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the dia sentence? | The external review kit remains the strongest family-level challenge artifact because it packages the rerun lane with the benchmark, recommendation, and consequence surfaces needed to reject the claim honestly. |
-| `artifact-index:lfq:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does lfq still earn bounded outsider-auditable language today? | The trust page narrows one workflow-family sentence, while the release-candidate page names the broader family set and the external review kit is the harder challenge lane. |
-| `artifact-index:lfq:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can lfq survive a second checked rerun challenge? | The rerun dossier exists because the trust page alone is too claim-oriented, while the external review kit is the stronger outsider path that packages the dossier with the key benchmark and recommendation files. |
-| `artifact-index:lfq:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the lfq sentence? | The external review kit remains the strongest family-level challenge artifact because it packages the rerun lane with the benchmark, recommendation, and consequence surfaces needed to reject the claim honestly. |
-| `artifact-index:ptm:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does ptm still earn bounded outsider-auditable language today? | The trust page narrows one workflow-family sentence, while the release-candidate page names the broader family set and the external review kit is the harder challenge lane. |
-| `artifact-index:ptm:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can ptm survive a second checked rerun challenge? | The rerun dossier exists because the trust page alone is too claim-oriented, while the external review kit is the stronger outsider path that packages the dossier with the key benchmark and recommendation files. |
-| `artifact-index:ptm:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the ptm sentence? | The external review kit remains the strongest family-level challenge artifact because it packages the rerun lane with the benchmark, recommendation, and consequence surfaces needed to reject the claim honestly. |
-| `artifact-index:targeted:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does targeted still earn bounded outsider-auditable language today? | The trust page narrows one workflow-family sentence, while the release-candidate page names the broader family set and the external review kit is the harder challenge lane. |
-| `artifact-index:targeted:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can targeted survive a second checked rerun challenge? | The rerun dossier exists because the trust page alone is too claim-oriented, while the external review kit is the stronger outsider path that packages the dossier with the key benchmark and recommendation files. |
-| `artifact-index:targeted:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the targeted sentence? | The external review kit remains the strongest family-level challenge artifact because it packages the rerun lane with the benchmark, recommendation, and consequence surfaces needed to reject the claim honestly. |
+## How To Use This Index
 
-## Why This Exists
+- start with repository-wide artifacts when the question is whether any wider
+  public sentence is earned at all
+- move to workflow-family artifacts only after the repository boundary is clear
+- treat every coexistence rationale as a removal pressure: if two artifacts no
+  longer serve distinct review roles, one of them should disappear
 
-The index exists so a hostile reader can open the strongest current surfaces in a stable order instead of reverse-engineering the repository by package structure.
+## Repository-Wide Artifacts
 
-The registry is intentionally stricter than a link list. If a new public artifact cannot name a distinct audience, question, and coexistence reason, it should replace an older surface instead of shipping beside it.
+| artifact | reader question | why it exists |
+| --- | --- | --- |
+| [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/) | what is the strongest release sentence today | names the current bounded family bundle |
+| [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) | where must the language still stop | acts as the honesty boundary for all stronger prose |
+| [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/) | what is the shortest whole-repository challenge route | gives the harder outsider-facing opening order |
+| [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/) | what concrete evidence would widen the boundary | converts blocker categories into closing conditions |
+
+## Workflow-Family Artifact Pattern
+
+Each public flagship family should now be readable through three different
+artifact roles:
+
+| role | strongest question answered |
+| --- | --- |
+| trust page | why does this family still earn its current bounded sentence |
+| independent rerun dossier | can the family survive a second checked rerun or replay challenge |
+| external review kit | what should a skeptical outsider open first to challenge the family sentence |
+
+That pattern exists for `dda`, `dia`, `lfq`, `ptm`, and `targeted`.
+`multiplex` is intentionally outside the outsider-facing kit set because its
+current public posture still stops at internal support only.
+
+## Why The Index Exists
+
+The index protects against three failures:
+
+- starting with the smoothest page instead of the hardest challenge route
+- shipping new public artifacts that do not add distinct review value
+- letting weaker surfaces ride next to stronger ones without naming the
+  difference
+
+## What This Says About The Current Product
+
+- the repository now has enough public scientific and runtime substance that
+  artifact coexistence itself has to be governed
+- public scrutiny is now a first-class product surface rather than a
+  maintainer-only concern
+- artifact count is not the success signal; distinct challenge value is
+  required for each public surface
+
+## Strongest Next Page
+
+After this page, open the
+[Public Artifact Role Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-role-matrix/)
+to see how stronger and weaker public artifacts sit beside each other.
+
+## Boundary
+
+This index should explain opening order and coexistence. It should not replace
+the stronger challenge artifacts that it points to.

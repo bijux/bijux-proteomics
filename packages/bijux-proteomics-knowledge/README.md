@@ -19,7 +19,6 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
 
@@ -44,6 +43,17 @@ Use this package when you need auditable scientific memory, explicit
 provenance, contradiction-aware evidence reasoning, and grounded workflow
 briefings that downstream packages can consume without re-curating locally.
 
+## At a glance
+
+- Use knowledge when evidence, claims, citations, and contradictions must stay
+  reviewable over time instead of being flattened into generic context.
+- Start with `references`, `memory.models`, and `reviews.decision_briefs`,
+  then open the
+  [knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+  for the full owner surface.
+- Route execution to runtime, recommendation posture to intelligence, assay
+  follow-up to lab, and changes to scientific meaning back to core.
+
 ## Why teams pick this package
 
 - explicit evidence and claim memory with provenance, trust, and freshness semantics
@@ -57,6 +67,17 @@ briefings that downstream packages can consume without re-curating locally.
 - retrieve grounded workflow caveats, benchmark claims, and ontology mappings
 - explain why a scientific conclusion changed over time without losing provenance
 - surface unresolved knowledge gaps before downstream packages rank, schedule, or execute work
+
+## 0.3.8 Release Highlights
+
+- Knowledge now exposes cited references, benchmark manifests, curated corpora,
+  scientific rules, workflow briefing packets, comparator dossiers, and
+  machine-readable release-gate registries as first-class public surfaces.
+- Public resolution and lookup APIs now cover protein identity, feature
+  overlap, pathway membership, complex membership, kinase substrates, drug
+  targets, disease terms, knowledge coverage, and cross-species orthologs.
+- The package is now grouped by durable `memory`, `references`, `reviews`, and
+  `contracts` owners so provenance and trust semantics are easier to defend.
 
 ## Installation
 
@@ -132,13 +153,13 @@ becomes selective, cited, and reviewable scientific memory.
 Knowledge is the first owner in the cross-package consequence chain, not a
 complete trust story by itself.
 
-- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is how contradiction pressure becomes a weaker or stronger
   recommendation and then a real assay burden
-- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   when the question is whether literature pressure, comparator pressure, or
   downstream lab burden actually moved the call
-- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
   when the question is how requested-versus-observed follow-up should tighten
   the next knowledge-facing claim
 
@@ -247,6 +268,9 @@ scientific memory with provenance:
 
 ## Documentation
 
+- [Decision support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+- [Workflow consequence maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+- [Workflow claim grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)

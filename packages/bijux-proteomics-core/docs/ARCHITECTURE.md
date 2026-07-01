@@ -36,16 +36,95 @@ runtime-agnostic workflow seams.
 - `review/` owns decision briefs, collaboration bundles, and structure-report
   surfaces
 - `workflow/` owns scientific workflow blueprints
-- `interfaces/` owns runtime-facing seams, examples, and CLI boundaries
+- `interfaces/` owns runtime-facing seams, reader-facing examples, Python API
+  command runners, CLI boundaries, and compatibility registries for
+  interface-owned helper modules
 - `benchmarks/` owns packaged corpus, adoption, and benchmark evidence surfaces
 - `governance/` owns the machine-readable package charter and owner-map
   boundaries for core scientific surfaces
+
+## Workflow surface layout
+
+- `workflow/__init__.py` is the governed root facade for stable package-level workflow imports
+- `workflow/public_api.py` is the workflow owner ledger; add or remove root exports there instead of extending scan-based import logic
+- `workflow/reports/`, `workflow/cards/`, `workflow/exports/`, `workflow/demo/`, and `workflow/pipelines/` are the owned subfacades and should carry new public workflow surfaces before the root facade widens
+- `workflow/pipelines/label_based_differential/` is the canonical owner package for labeled differential analysis; keep orchestration in `analysis.py`, source assembly in `inputs.py`, data contracts in `models.py`, normalization in `normalization.py`, tabular output in `rendering.py`, and quantitative methods in `statistics.py`
+- `workflow/pipelines/label_based_differential_analysis.py` is a compatibility facade only and should stay a thin re-export over the owned package
+- root-level modules under `workflow/` that simply preserve historic import paths are compatibility wrappers, not new ownership targets
+- when a symbol can be owned by a deeper scientific module, prefer that canonical owner and keep the root facade as an explicit re-export boundary rather than a second source of truth
 
 ## Canonical tree layout
 
 - Import roots: `bijux_proteomics`
 - Top-level families: `benchmarks/`, `biology/`, `chemistry/`, `dia/`, `domain/`, `governance/`, `identification/`, `interfaces/`, `interpretation/`, `io/`, `isotope_labeling/`, `lab/`, `multiplex/`, `panels/`, `proteoforms/`, `ptm/`, `quantification/`, `review/`, `sequences/`, `study/`, `targeted/`, `workflow/`
 - Root modules: `_atomic_files.py`, `_output_tables.py`, `_scientific_tables.py`, `_tabular.py`, `programs.py`, `public_api.py`, `scientific_tables.py`, `tabular.py`
+
+## Interface boundaries
+
+- `bijux_proteomics.interfaces` is a curated package-root example surface for
+  reader-facing scientific walkthroughs
+- `bijux_proteomics.interfaces.python_api` is the programmatic runner surface
+  for package-owned command execution
+- `bijux_proteomics.interfaces.cli` owns the interactive CLI entrypoint and
+  command grouping
+- `bijux_proteomics.interfaces.support` and
+  `bijux_proteomics.interfaces.cli.support` are compatibility registries for
+  support submodules, not the preferred internal import target
+- internal interface code should import owner modules such as
+  `foundation`, `identification`, `interpretation`, `io_and_dia`,
+  `multiplex_targeted`, `ptm_quantification`, `review_sequences_study`, and
+  `workflow` directly instead of reaching through a root support barrel
+
+## Quantification boundaries
+
+- `bijux_proteomics.quantification` is the package-root public facade for
+  reader-facing quantitative workflows and compatibility wrappers
+- `bijux_proteomics.quantification.public_api` is the quantification owner
+  ledger; export ownership, collision precedence, and facade budgets live
+  there instead of being implied by barrel ordering
+- `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
+  `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
+  quantification subfacades and should widen before the root compatibility
+  facade grows
+- `bijux_proteomics.quantification.statistics.differential_abundance` is the
+  canonical owner package for differential abundance; keep report assembly in
+  `analysis.py`, contrast-specific engines in `contrast_statistics.py`,
+  design validation in `design_context.py`, observation collection in
+  `observation_vectors.py`, tabular output in `rendering.py`, and reliability
+  weighting in `weighting.py`
+- `bijux_proteomics.quantification.statistics.differential_result_robustness`
+  is the canonical owner package for robustness scoring; keep report assembly
+  in `analysis.py`, bootstrap resampling in `bootstrap.py`, row construction
+  in `entry_builders.py`, public data contracts in `models.py`, and scoring
+  rules in `scoring_policy.py`
+- `bijux_proteomics.quantification.contracts` is a curated public contract
+  facade, not the preferred internal import target for core source code
+- internal quantitative code should import owner modules such as `design`,
+  `differential`, `input_models`, `label_based`, `matrix_building`,
+  `matrix_models`, `missingness`, `normalization_imputation`,
+  `protein_rollup`, and `study_qc` directly
+- private helpers with underscore-prefixed names belong to their owner modules
+  only and should not be widened through package-root facades
+
+## Identification boundaries
+
+- `bijux_proteomics.identification` is the reader-facing compatibility facade
+  for identification evidence, confidence, and search-adapter workflows
+- `bijux_proteomics.identification.psm`, `peptide`, `protein`, `fdr`,
+  `contracts`, and `adapters` are curated facades over tighter owner modules
+- `bijux_proteomics.identification.public_api` is the machine-readable ledger
+  for those facades: export ownership, rationale, and surface budgets live
+  there instead of being implied by wildcard barrels
+- `bijux_proteomics.identification.facade_ledger` is the canonical source tree
+  for the ledger families themselves, grouped into `psm`, `peptide`,
+  `protein`, `fdr`, `contracts`, and `adapters` rather than a single oversized
+  catalog module
+- internal code should prefer owner modules such as
+  `identification.psm.psm_rescoring`, `identification.fdr.confidence`, or
+  `identification.protein.protein_grouping` when it needs one bounded concern
+- compatibility wrappers such as `identification.confidence` remain available
+  for callers, but they are not the preferred import target for new internal
+  code
 
 ## Dependency direction
 

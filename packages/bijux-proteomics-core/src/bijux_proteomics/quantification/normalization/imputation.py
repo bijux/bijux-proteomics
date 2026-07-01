@@ -11,26 +11,32 @@ import numpy as np
 
 from bijux_proteomics.domain.semantic_ids import build_matrix_id
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
+    PairedDifferentialPolicy,
+    build_differential_abundance_report,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    ImputationMethod,
+    MissingValueKind,
+    QuantMeasureKind,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantCellImputationProvenance,
+    QuantValue,
+    QuantValueOrigin,
+)
+from bijux_proteomics.quantification.contracts.normalization_imputation import (
     ImputationDependentHitEntry,
     ImputationEntry,
-    ImputationMethod,
     ImputationReport,
     ImputationSensitivityChangedSignificanceEntry,
     ImputationSensitivityEntry,
     ImputationSensitivityOverlapEntry,
     ImputationSensitivityReport,
-    LabelFreeQuantTable,
-    MissingValueKind,
-    PairedDifferentialPolicy,
-    QuantCellImputationProvenance,
-    QuantMeasureKind,
-    QuantValue,
-    QuantValueOrigin,
-    build_differential_abundance_report,
 )
 from bijux_proteomics.quantification.matrix.core_matrix import (
     quant_matrix_to_dense_array,

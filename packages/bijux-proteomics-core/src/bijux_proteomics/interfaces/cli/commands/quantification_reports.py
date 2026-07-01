@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Heatmap, power, and sample exploration CLI commands."""
 
@@ -15,7 +14,18 @@ from bijux_proteomics.interfaces.python_api.quantification_reports import (
     run_power_estimate_command,
     run_sample_exploration_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    HeatmapMissingValuePolicy,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantRollupMethod,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _heatmap_missing_value_choice,
+    _normalization_choice,
+    _quant_entity_level_choice,
+    _quant_rollup_choice,
+)
 
 
 @click.command("heatmap-matrix")

@@ -10,13 +10,15 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.fragments import (
     FragmentIon,
     FragmentIonSeries,
+    calculate_fragment_ions,
+)
+from bijux_proteomics.chemistry.modifications import (
     ModificationPosition,
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
-    calculate_fragment_ions,
     get_modification,
     parse_modified_peptide,
 )

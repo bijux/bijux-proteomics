@@ -3,8 +3,15 @@
 
 from __future__ import annotations
 
+import ast
 from importlib import import_module
 from pathlib import Path
+
+from bijux_proteomics.identification.search_adapters.public_api import (
+    SEARCH_ADAPTER_FACADE_BUDGET,
+    build_search_adapter_export_owner_map,
+    list_search_adapter_export_names,
+)
 
 _SEARCH_ADAPTER_ROOT = (
     Path(__file__).resolve().parents[2]
@@ -13,6 +20,7 @@ _SEARCH_ADAPTER_ROOT = (
     / "identification"
     / "search_adapters"
 )
+_PYTHON_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 _MAX_MODULE_LINES = 1000
 _MODULE_EXPORTS = {
     "contracts": (
@@ -121,5 +129,41 @@ def test_search_adapter_modules_expose_owned_surfaces() -> None:
 def test_search_adapter_facade_preserves_representative_exports() -> None:
     facade = import_module("bijux_proteomics.identification.search_adapters")
 
+    assert tuple(facade.__all__) == list_search_adapter_export_names()
+    assert len(facade.__all__) <= SEARCH_ADAPTER_FACADE_BUDGET.max_public_symbols
+    assert len(build_search_adapter_export_owner_map()) == len(facade.__all__)
+
     for export_name in _FACADE_EXPORTS:
         assert hasattr(facade, export_name), export_name
+
+
+def test_search_adapter_facade_init_stays_within_budget() -> None:
+    init_path = _SEARCH_ADAPTER_ROOT / "__init__.py"
+    line_count = sum(
+        1 for line in init_path.read_text(encoding="utf-8").splitlines() if line.strip()
+    )
+
+    assert line_count <= SEARCH_ADAPTER_FACADE_BUDGET.max_init_lines
+
+
+def test_internal_modules_import_search_adapter_owner_modules_directly() -> None:
+    violations: list[str] = []
+    for path in sorted(_PYTHON_ROOT.rglob("*.py")):
+        if path == _SEARCH_ADAPTER_ROOT / "__init__.py":
+            continue
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(module):
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module == "bijux_proteomics.identification.search_adapters"
+            ):
+                violations.append(
+                    f"{path.relative_to(_PYTHON_ROOT)} imports the search adapter root facade instead of an owner module"
+                )
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name == "bijux_proteomics.identification.search_adapters":
+                        violations.append(
+                            f"{path.relative_to(_PYTHON_ROOT)} imports the search adapter root facade instead of an owner module"
+                        )
+    assert not violations, "\n".join(violations)

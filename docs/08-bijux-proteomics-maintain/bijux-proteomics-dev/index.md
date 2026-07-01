@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-01
 ---
 
 # bijux-proteomics-dev
@@ -35,6 +35,8 @@ This section should let a maintainer trace a repository rule back to the exact h
 - repository rules are code, not just conventions written in Markdown
 - maintainers can change policy with reviewable ownership and tests
 - docs quality, release safety, and schema discipline share one explicit toolkit
+- release posture, docs honesty, and API proof checks are inspectable surfaces
+  instead of hidden CI trivia
 
 ## Start With
 
@@ -48,6 +50,17 @@ This section should let a maintainer trace a repository rule back to the exact h
   and [Operating Guidelines](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines/)
   when the question is where maintainer code should live at all
 
+## Reader Questions This Package Can Answer
+
+- which exact helper family owns a failing docs, release, security, or API
+  contract
+- whether a repository rule is enforced by executable checks or only repeated
+  in prose
+- where a maintainer should extend tooling without accidentally swallowing
+  product-domain code
+- how to trace a release or documentation expectation back to the checked test
+  surface that keeps it honest
+
 ## Read By Responsibility
 
 - [Schema Governance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance/)
@@ -59,11 +72,31 @@ This section should let a maintainer trace a repository rule back to the exact h
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
   to keep the toolkit from swallowing product code
 
+## Why This Package Matters More Than It Looks
+
+- the rest of the repository can only present itself honestly if this package
+  keeps documentation, release, and contract surfaces verifiable
+- stronger scientific and runtime depth increase the cost of weak maintainer
+  tooling because bad checks can distort public claims
+- this package is the proof that repository discipline is engineered, not
+  performative
+
+## Maintainer Proof Surfaces
+
+- module map for helper-family ownership before touching code
+- documentation integrity for reader-facing honesty, navigation, and badge
+  sync expectations
+- release support for publishable version, changelog, and artifact gates
+- schema governance and quality gates when a package-facing contract or API
+  claim is changing
+
 ## First Proof Check
 
 - `src/bijux_proteomics_dev/docs/`
 - `src/bijux_proteomics_dev/governance/`, `release/`, `security/`, and `quality/`
 - `packages/bijux-proteomics-dev/tests`
+- checked documentation, release, and contract tests when a maintainer claim
+  needs proof rather than habit
 
 ## Design Pressure
 

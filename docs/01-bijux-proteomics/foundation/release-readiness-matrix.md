@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-06-30
 ---
 
 # Release Readiness Matrix
@@ -18,6 +18,16 @@ The machine-readable matrix lives in
 `configs/package-governance/release-readiness-matrix.toml`. It is generated
 from live package-boundary, workflow, runtime, evidence, and consequence
 validators so the root wording cannot drift ahead of the actual repository.
+
+The matrix matters more now because the repository has stronger scientific and
+runtime substance than before. Once that happens, the real risk is not only
+missing capability. It is overclaiming from one strong surface while another
+surface still narrows the release boundary.
+
+This page is the smallest release-control surface that still sees the whole
+product. It exists so root wording, package depth, runtime proof, benchmark
+substance, and consequence realism all have to agree before the released
+sentence widens.
 
 ## Matrix Categories
 
@@ -36,6 +46,41 @@ validators so the root wording cannot drift ahead of the actual repository.
 Use this page when someone asks whether the repository is ready for stronger
 public claims. The answer should begin with the matrix categories above, not
 with badges, package count, or handbook volume.
+
+## Why These Categories Are The Right Ceiling
+
+- they force the review to cross package boundaries instead of staying inside
+  the strongest owner
+- they keep benchmark, runtime, docs, and consequence pressure visible as
+  separate reasons to narrow language
+- they are small enough to stay legible but broad enough to stop cosmetic
+  readiness stories
+
+## What This Matrix Is Protecting
+
+- it keeps one strong family packet from being mistaken for repository-wide
+  readiness
+- it keeps runtime proof from outrunning benchmark, grounding, or consequence
+  weakness
+- it keeps docs from sounding cleaner than the checked release evidence
+- it keeps package-boundary drift from quietly eroding the owner model
+
+## How To Read A Failure Honestly
+
+- a blocked category is not a documentation nuisance; it is a release-language
+  boundary
+- one green category does not compensate for a red category in another owner
+  surface
+- if the matrix still blocks a category, the stronger sentence is not earned
+
+## Strongest Companion Routes
+
+- [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  for the strongest currently released bundle sentence
+- [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
+  for the blocked release bars in plain language
+- [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
+  for the closure conditions that would move the matrix
 
 ## First Proof Check
 

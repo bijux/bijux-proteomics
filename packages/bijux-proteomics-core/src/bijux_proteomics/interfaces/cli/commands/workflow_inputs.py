@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Input validation and experiment planning CLI commands."""
 
@@ -18,7 +17,12 @@ from bijux_proteomics.interfaces.python_api.workflow_inputs import (
     run_summarize_command,
     run_validate_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.review_sequences_study import FastaParseMode
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _conversion_target_choice,
+    _mode_choice,
+    _validate_kind_choice,
+)
 
 
 @click.command("validate")

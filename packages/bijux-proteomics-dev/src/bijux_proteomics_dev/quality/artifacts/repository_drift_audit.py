@@ -64,16 +64,6 @@ def _package_root(repo_root: Path, package_name: str) -> Path:
     return repo_root / "packages" / package_name
 
 
-def _is_root_artifact_symlink(path: Path, repo_root: Path) -> bool:
-    if not path.is_symlink():
-        return False
-    try:
-        target = path.resolve(strict=False)
-    except OSError:
-        return False
-    return target == (repo_root / "artifacts" / path.parent.name)
-
-
 def build_repository_drift_audit(
     repo_root: Path = REPO_ROOT,
 ) -> tuple[RepositoryDriftAuditEntry, ...]:
@@ -104,10 +94,7 @@ def build_repository_drift_audit(
                         path.relative_to(repo_root).as_posix()
                     )
         artifacts_root = root / "artifacts"
-        if artifacts_root.exists() and not _is_root_artifact_symlink(
-            artifacts_root,
-            repo_root,
-        ):
+        if artifacts_root.exists():
             package_local_artifacts.append(
                 artifacts_root.relative_to(repo_root).as_posix()
             )

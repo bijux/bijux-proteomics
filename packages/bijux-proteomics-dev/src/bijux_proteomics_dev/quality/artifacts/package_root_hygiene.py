@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,6 +25,10 @@ __all__ = [
 
 
 FORBIDDEN_PACKAGE_ROOT_SPILLOVER = (
+    "artifacts",
+    ".venv",
+    ".hypothesis",
+    ".benchmarks",
     ".coverage",
     "coverage.xml",
     "htmlcov",
@@ -69,6 +74,7 @@ def build_package_root_hygiene_report(
         root = repo_root / "packages" / package_name
         if purge_transient_caches:
             purge_forbidden_cache_dirs(root)
+            purge_forbidden_package_root_spillover(root)
         cache_paths = tuple(
             path.relative_to(repo_root).as_posix()
             for path in find_forbidden_cache_dirs(root)
@@ -88,6 +94,25 @@ def build_package_root_hygiene_report(
             )
         )
     return tuple(entries)
+
+
+def purge_forbidden_package_root_spillover(root: Path) -> tuple[Path, ...]:
+    """Remove forbidden top-level package-root spillover paths."""
+
+    removed: list[Path] = []
+    for relative_path in FORBIDDEN_PACKAGE_ROOT_SPILLOVER:
+        candidate = root / relative_path
+        try:
+            if candidate.is_symlink() or candidate.is_file():
+                candidate.unlink()
+                removed.append(candidate)
+                continue
+            if candidate.is_dir():
+                shutil.rmtree(candidate, ignore_errors=True)
+                removed.append(candidate)
+        except FileNotFoundError:
+            continue
+    return tuple(removed)
 
 
 def validate_package_root_hygiene(

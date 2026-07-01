@@ -26,5 +26,8 @@ def purge_forbidden_cache_dirs(root: Path) -> tuple[Path, ...]:
 
     removed = find_forbidden_cache_dirs(root)
     for path in removed:
-        shutil.rmtree(path)
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            continue
     return removed

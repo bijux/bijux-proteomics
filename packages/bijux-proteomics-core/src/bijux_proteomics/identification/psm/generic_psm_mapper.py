@@ -12,7 +12,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, field_validator, model_validator
 import yaml
 
-from bijux_proteomics.domain import ImportedEvidenceProvenance
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     RejectedPsmRow,
     SearchResultColumnMapping,
@@ -24,13 +24,15 @@ from bijux_proteomics.identification.psm.rejected_evidence_table import (
     RejectedEvidenceTableEntry,
     build_rejected_evidence_rows_from_psm_rows,
 )
-from bijux_proteomics.identification.search_adapters import (
+from bijux_proteomics.identification.search_adapters.contracts import (
     ScoreOrientation,
     SearchAdapterDialectManifest,
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
     SearchResultFamily,
     SearchScoreFamily,
+)
+from bijux_proteomics.identification.search_adapters.normalization import (
     normalize_search_results_with_adapter,
 )
 from bijux_proteomics_foundation import JsonModel

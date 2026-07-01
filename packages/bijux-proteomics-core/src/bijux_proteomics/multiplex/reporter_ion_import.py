@@ -12,7 +12,7 @@ import re
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics.chemistry import canonicalize_modified_peptide
+from bijux_proteomics.chemistry.modifications import canonicalize_modified_peptide
 from bijux_proteomics_foundation import JsonModel
 
 _MAXQUANT_REPORTER_RE = re.compile(

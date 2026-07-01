@@ -1,328 +1,37 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
-"""Core-owned domain models, sequence primitives, and structure primitives."""
+"""Governed public facade for core domain owners."""
 
 from __future__ import annotations
 
-from bijux_proteomics.domain.assays import AssayRequirement
-from bijux_proteomics.domain.card_schema import (
-    STANDARD_CARD_TSV_COLUMNS,
-    StandardCardEntry,
-    StandardCardKind,
-    StandardCardSubjectKind,
-    load_standard_card_tsv,
-    render_standard_card_row,
-)
-from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
-from bijux_proteomics.domain.constraints import (
-    ConstraintCategory,
-    ConstraintRiskReport,
-    ScientificConstraint,
-    assess_constraint_risk,
-    build_protein_native_constraints,
-)
-from bijux_proteomics.domain.context import (
-    ProgramContext,
-    ProgramDeliveryContext,
-    ProgramPortfolioContext,
-)
-from bijux_proteomics.domain.criteria import (
-    MeasurementDirection,
-    MetricFamily,
-    SuccessCriterion,
-    build_assay_grounded_criteria,
-    criterion_passes,
-)
-from bijux_proteomics.domain.errors import (
-    DesignError,
-    InvalidWorkflowError,
-    SchemaError,
-    ScientificEvidenceError,
-    UnsupportedFormatError,
-)
-from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
-from bijux_proteomics.domain.lifecycle import (
-    LifecycleTransition,
-    ProgramLifecycle,
-    advance_stage,
-    allowed_next_stages,
-)
-from bijux_proteomics.domain.operating_model import (
-    DecisionOwnerRole,
-    OperatingModel,
-    ReviewCadence,
-)
-from bijux_proteomics.domain.program_spec import (
-    EvidenceNeed,
-    ProgramSpec,
-    ProgramStage,
-    StageEligibility,
-    assess_stage_eligibility,
-    create_program_spec,
-    program_summary,
-    revise_program,
-)
-from bijux_proteomics.domain.reason_codes import (
-    ReasonCodeCategory,
-    ReasonCodeEntry,
-    is_registered_reason_code,
-    reason_code_categories,
-    reason_code_registry,
-    require_registered_reason_code,
-    require_registered_reason_codes,
-)
-from bijux_proteomics.domain.records import (
-    Contrast,
-    ContrastKind,
-    ImportedEvidenceProvenance,
-    MissingValueState,
-    ModifiedPeptide,
-    PeptideRecord,
-    ProteinGroup,
-    ProteinRecord,
-    PSMRecord,
-    PTMSite,
-    QuantEntityKind,
-    QuantMatrix,
-    QuantMeasureKind,
-    RejectedEvidence,
-    SampleMetadata,
-    SpectrumRecord,
-    TargetDecoyState,
-    TransitionRecord,
-)
-from bijux_proteomics.domain.repositories import (
-    DecisionQuery,
-    DuplicateReviewDecisionError,
-    ProgramNotFoundError,
-    ProgramRepository,
-    ProgramRevisionConflictError,
-    ReviewDecision,
-    ReviewDecisionRepository,
-    ReviewGateEvaluation,
-    ReviewGateState,
-    ReviewOutcome,
-    decision_timeline,
-    ensure_program_revision,
-    ensure_review_clearance,
-    ensure_unique_gate_decision,
-    latest_gate_decision,
-    require_program,
-    validate_review_decision,
-)
-from bijux_proteomics.domain.reviews import ReviewGate
-from bijux_proteomics.domain.semantic_ids import (
-    SemanticIdNamespace,
-    build_artifact_id,
-    build_cross_study_card_id,
-    build_matrix_id,
-    build_mechanism_card_id,
-    build_pathway_card_id,
-    build_pathway_claim_id,
-    build_peptide_id,
-    build_protein_card_id,
-    build_protein_claim_id,
-    build_protein_id,
-    build_protein_mechanism_card_id,
-    build_psm_id,
-    build_ptm_card_id,
-    build_ptm_claim_id,
-    build_raw_signal_card_id,
-    build_regulator_claim_id,
-    build_sample_card_id,
-    build_site_id,
-    classify_semantic_id,
-    ensure_semantic_id_namespace,
-)
-from bijux_proteomics.domain.sequence import (
-    HYDROPATHY,
-    PKA_C_TERM,
-    PKA_N_TERM,
-    PKA_SIDE,
-    primary_summary_from_sequence,
-)
-from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
-from bijux_proteomics.domain.structure import (
-    _res3_to1,
-    best_ca,
-    gdt_ha,
-    gdt_ts,
-    get_protein_chain,
-    kabsch_and_pairs,
-    load_structure_from_pdb_text,
-    mean_plddt_from_ca_bfactor,
-    parse_structure_from_pdb_text,
-    per_residue_plddt_ss,
-    residue_count,
-    secondary_summary_from_structure,
-    tertiary_summary_from_structure,
-    tm_score,
-)
-from bijux_proteomics.domain.summary import (
-    PrimarySummary,
-    SecondarySummary,
-    TertiarySummary,
-)
-from bijux_proteomics.domain.targets import (
-    ComplexMembership,
-    MechanismLiability,
-    OutcomeSeverity,
-    ProteinDomain,
-    ProteinMotif,
-    ProteinTarget,
-    PtmHotspot,
-    TargetAnnotation,
-    TargetOutcome,
-    TractabilityFlag,
-    summarize_tractability,
-    target_summary,
-)
-from bijux_proteomics.domain.validation import validate_program
+from importlib import import_module
+from typing import Any
 
-__all__ = [
-    "AssayRequirement",
-    "STANDARD_CARD_TSV_COLUMNS",
-    "ComplexMembership",
-    "coerce_confidence_tier",
-    "ConfidenceTier",
-    "ConstraintCategory",
-    "ConstraintRiskReport",
-    "DecisionOwnerRole",
-    "DecisionQuery",
-    "DesignError",
-    "DuplicateReviewDecisionError",
-    "EvidenceNeed",
-    "ImportedEvidenceProvenance",
-    "HYDROPATHY",
-    "LifecycleTransition",
-    "LiabilityCategory",
-    "MeasurementDirection",
-    "MechanismLiability",
-    "MetricFamily",
-    "OperatingModel",
-    "OutcomeSeverity",
-    "PKA_C_TERM",
-    "PKA_N_TERM",
-    "PKA_SIDE",
-    "PrimarySummary",
-    "ProgramContext",
-    "ProgramDeliveryContext",
-    "ProgramLifecycle",
-    "ProgramLiability",
-    "ProgramNotFoundError",
-    "ProgramPortfolioContext",
-    "ProgramRepository",
-    "ProgramRevisionConflictError",
-    "ProgramSpec",
-    "ProgramStage",
-    "ProteinGroup",
-    "ProteinRecord",
-    "ProteinDomain",
-    "ProteinMotif",
-    "ProteinTarget",
-    "PSMRecord",
-    "PTMSite",
-    "PtmHotspot",
-    "PeptideRecord",
-    "QuantEntityKind",
-    "QuantMatrix",
-    "QuantMeasureKind",
-    "RejectedEvidence",
-    "ReasonCodeCategory",
-    "ReasonCodeEntry",
-    "ReviewCadence",
-    "ReviewDecision",
-    "ReviewDecisionRepository",
-    "ReviewGate",
-    "ReviewGateEvaluation",
-    "ReviewGateState",
-    "ReviewOutcome",
-    "ScientificConstraint",
-    "ScientificEvidenceError",
-    "SecondarySummary",
-    "SampleMetadata",
-    "SpectrumRecord",
-    "SchemaError",
-    "StageEligibility",
-    "StandardCardEntry",
-    "StandardCardKind",
-    "StandardCardSubjectKind",
-    "SuccessCriterion",
-    "SemanticIdNamespace",
-    "SourceRowLineage",
-    "TargetAnnotation",
-    "TargetDecoyState",
-    "TargetOutcome",
-    "TertiarySummary",
-    "TransitionRecord",
-    "TractabilityFlag",
-    "Contrast",
-    "ContrastKind",
-    "InvalidWorkflowError",
-    "MissingValueState",
-    "ModifiedPeptide",
-    "UnsupportedFormatError",
-    "_res3_to1",
-    "advance_stage",
-    "allowed_next_stages",
-    "assess_constraint_risk",
-    "assess_stage_eligibility",
-    "best_ca",
-    "build_artifact_id",
-    "build_assay_grounded_criteria",
-    "build_cross_study_card_id",
-    "build_matrix_id",
-    "build_mechanism_card_id",
-    "build_pathway_card_id",
-    "build_pathway_claim_id",
-    "build_peptide_id",
-    "build_protein_card_id",
-    "build_protein_claim_id",
-    "build_protein_native_constraints",
-    "build_protein_id",
-    "build_protein_mechanism_card_id",
-    "build_psm_id",
-    "build_ptm_card_id",
-    "build_ptm_claim_id",
-    "build_raw_signal_card_id",
-    "build_regulator_claim_id",
-    "build_sample_card_id",
-    "build_site_id",
-    "classify_semantic_id",
-    "create_program_spec",
-    "criterion_passes",
-    "decision_timeline",
-    "ensure_semantic_id_namespace",
-    "ensure_program_revision",
-    "ensure_review_clearance",
-    "ensure_unique_gate_decision",
-    "gdt_ha",
-    "gdt_ts",
-    "get_protein_chain",
-    "is_registered_reason_code",
-    "kabsch_and_pairs",
-    "latest_gate_decision",
-    "load_standard_card_tsv",
-    "load_structure_from_pdb_text",
-    "mean_plddt_from_ca_bfactor",
-    "parse_structure_from_pdb_text",
-    "per_residue_plddt_ss",
-    "primary_summary_from_sequence",
-    "program_summary",
-    "reason_code_categories",
-    "reason_code_registry",
-    "require_program",
-    "require_registered_reason_code",
-    "require_registered_reason_codes",
-    "render_standard_card_row",
-    "residue_count",
-    "revise_program",
-    "secondary_summary_from_structure",
-    "summarize_tractability",
-    "target_summary",
-    "tertiary_summary_from_structure",
-    "tm_score",
-    "validate_program",
-    "validate_review_decision",
-]
+from bijux_proteomics.domain.public_api import (
+    build_domain_export_owner_map,
+    list_domain_export_names,
+)
+
+_DOMAIN_EXPORT_OWNER_MAP = build_domain_export_owner_map()
+_DOMAIN_PUBLIC_EXPORTS = list_domain_export_names()
+
+__all__ = list(_DOMAIN_PUBLIC_EXPORTS)
+
+
+def __getattr__(name: str) -> Any:
+    """Load one governed domain export lazily from its owner module."""
+
+    owner_module = _DOMAIN_EXPORT_OWNER_MAP.get(name)
+    if owner_module is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module = import_module(owner_module)
+    value = getattr(module, name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    """Return a stable directory view for the domain facade."""
+
+    return sorted(set(globals()) | set(_DOMAIN_PUBLIC_EXPORTS))

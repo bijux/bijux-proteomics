@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Primary quantification Python API entrypoints."""
 
 from __future__ import annotations
@@ -9,7 +7,7 @@ from __future__ import annotations
 from bijux_proteomics.interfaces.python_api.quantify_runner import (
     run_quantify_command as _run_quantify_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import Path
 
 
 def run_quantify_command(

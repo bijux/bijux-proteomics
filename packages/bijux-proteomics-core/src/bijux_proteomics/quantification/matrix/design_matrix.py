@@ -16,8 +16,7 @@ import numpy as np
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.design import (
     QuantDesignContrast,
     QuantDesignContrastEstimateEntry,
     QuantDesignMatrixColumn,
@@ -27,8 +26,11 @@ from bijux_proteomics.quantification.contracts import (
     QuantDesignMatrixSampleRow,
     QuantDesignModelCoefficientEntry,
     QuantDesignModelFitReport,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     _matrix_value_index,
 )
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.study.sample_run_identity import (
     SampleRunAnalysisPolicy,
     resolve_sample_run_analysis_entries,

@@ -11,7 +11,10 @@ import pytest
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics"
 
 MODULE_LOCAL_TSV_WRITE_HELPERS = {
-    "workflow/targeted_review_workflow.py": {"_write_text"},
+    "workflow/reports/biological_report_scientific_exports.py": {
+        "_write_biological_required_scientific_exports"
+    },
+    "workflow/exports/targeted_review_workflow.py": {"_write_text"},
 }
 
 
@@ -73,6 +76,7 @@ def test_tsv_exporters_route_rendered_tables_through_output_table_helper() -> No
             ):
                 continue
             allowed_helpers = {
+                "export_tsv_table",
                 "write_output_table_tsv",
                 "_write_text_output",
                 *MODULE_LOCAL_TSV_WRITE_HELPERS.get(

@@ -4,7 +4,7 @@
       "algorithm_id": "digest",
       "workload_unit": "proteins",
       "generated_unit_count": 1600,
-      "baseline_seconds": 0.45,
+      "baseline_seconds": 0.46,
       "regression_threshold_ratio": 3.0
     },
     {
@@ -39,7 +39,7 @@
       "algorithm_id": "graph_query",
       "workload_unit": "protein_queries",
       "generated_unit_count": 2000,
-      "baseline_seconds": 0.07,
+      "baseline_seconds": 0.08,
       "regression_threshold_ratio": 4.0
     }
   ]

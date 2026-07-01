@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO_ROOT / "src" / "bijux_proteomics"
 MANAGED_SEMANTIC_ID_OWNERS = (
     (
-        "ptm/cards/evidence_cards.py",
+        "ptm/cards/evidence_cards/report_building.py",
         ("build_ptm_card_id", "build_ptm_claim_id", "build_site_id"),
         ("ptm-card:", "ptm-claim:"),
     ),
@@ -25,17 +25,28 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         ("protein-mechanism-card:",),
     ),
     (
-        "workflow/reports/biological_report_claims.py",
-        (
-            "build_protein_claim_id",
-            "build_pathway_claim_id",
-            "build_regulator_claim_id",
-        ),
-        ("protein-claim:", "pathway-claim:", "regulator-claim:"),
+        "workflow/reports/biological_report_protein_claim_candidates.py",
+        ("build_protein_claim_id",),
+        ("protein-claim:",),
     ),
     (
-        "interfaces/support/biomarker_candidate_support.py",
-        ("build_protein_id", "build_site_id"),
+        "workflow/reports/biological_report_pathway_claim_candidates.py",
+        ("build_pathway_claim_id",),
+        ("pathway-claim:",),
+    ),
+    (
+        "workflow/reports/biological_report_regulator_claim_candidates.py",
+        ("build_regulator_claim_id",),
+        ("regulator-claim:",),
+    ),
+    (
+        "interfaces/support/biomarker_candidate_support/biological_candidates.py",
+        ("build_protein_id",),
+        (),
+    ),
+    (
+        "interfaces/support/biomarker_candidate_support/ptm_candidates.py",
+        ("build_site_id",),
         (),
     ),
     (
@@ -59,7 +70,7 @@ MANAGED_SEMANTIC_ID_OWNERS = (
         ("artifact:",),
     ),
     (
-        "workflow/mechanisms.py",
+        "workflow/cards/mechanisms.py",
         ("build_mechanism_card_id",),
         (
             "pathway-shift-",

@@ -16,11 +16,9 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
-[![proteomics-knowledge](https://img.shields.io/badge/proteomics--knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fproteomics-knowledge)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -41,6 +39,23 @@ It is the install and import alias for bijux-proteomics-knowledge.
 
 Use this package when you want a shorter distribution and import name for the
 curated scientific memory surface without creating a second owner.
+
+## Alias at a glance
+
+- Use `proteomics-knowledge` when you want a shorter package name for curated
+  scientific memory without changing who owns the behavior.
+- Start with the
+  [canonical knowledge package docs](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+  because this package only forwards into that owner surface.
+- Route curation and grounding behavior to `bijux-proteomics-knowledge`; keep
+  this package focused on compatibility naming and import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now points readers at the current knowledge handbook instead of
+  reading like a second memory owner.
+- Boundaries, release guidance, and compatibility wording now state the
+  forwarding-only contract more clearly.
 
 ## Installation
 
@@ -149,6 +164,8 @@ assert report.profile_id == "knowledge-default-profile"
 
 ## Documentation
 
+- Release guidance lives in this `README.md`, this package `CHANGELOG.md`, and
+  package `docs/*.md` under the canonical knowledge owner surface.
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical knowledge package docs](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)

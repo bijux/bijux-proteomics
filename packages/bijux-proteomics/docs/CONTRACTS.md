@@ -4,12 +4,14 @@
 
 - Distribution name: `bijux-proteomics`
 - Import root: `bijux_proteomics`
+- Private metadata helper: `bijux_proteomics_alias`
 - Canonical owner package: `bijux-proteomics-core`
 
 ## Stable contracts
 
 - the distribution name continues to install the canonical core owner
 - the public scientific import surface remains `bijux_proteomics`
+- the local `bijux_proteomics_alias` helper remains version metadata only
 - this package stays a naming alias rather than a second scientific owner
 
 ## Change requirements

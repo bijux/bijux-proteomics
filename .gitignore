@@ -31,8 +31,8 @@ node_modules/
 *.egg-info/
 pip-wheel-metadata/
 
-artifacts/*
-!artifacts/.gitkeep
+artifacts/
+artifacts
 packages/*/artifacts/
 packages/*/artifacts
 
@@ -60,5 +60,3 @@ packages/*/artifacts
 **/*.pyo
 *.swp
 *.swo
-
-# Repo-specific

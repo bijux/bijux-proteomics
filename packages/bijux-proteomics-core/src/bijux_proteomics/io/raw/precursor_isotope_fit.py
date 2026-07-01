@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.isotopes import (
     IsotopeEnvelopePeakPrediction,
     predict_peptide_isotope_envelope,
 )

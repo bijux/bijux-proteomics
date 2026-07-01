@@ -89,12 +89,14 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
 
     assert hasattr(workflow, "build_protein_evidence_card_report")
     assert hasattr(workflow, "build_biological_result_graph_report")
-    assert "card_id" in workflow.render_protein_evidence_card_tsv(report.protein_cards)
-    assert "graph_claim_node_id" in workflow.render_protein_evidence_card_tsv(
+    assert "card_id" in workflow.cards.render_protein_evidence_card_tsv(
         report.protein_cards
     )
-    assert "proteogenomic_support_class" in workflow.render_protein_evidence_card_tsv(
+    assert "graph_claim_node_id" in workflow.cards.render_protein_evidence_card_tsv(
         report.protein_cards
+    )
+    assert "proteogenomic_support_class" in (
+        workflow.cards.render_protein_evidence_card_tsv(report.protein_cards)
     )
     assert (
         report.protein_cards.summary.protein_result_count
@@ -142,11 +144,11 @@ def test_workflow_package_exports_protein_mechanism_card_surface(
     )
 
     assert hasattr(workflow, "build_protein_mechanism_card_report")
-    assert "evidence_tier" in workflow.render_protein_mechanism_card_tsv(
+    assert "evidence_tier" in workflow.cards.render_protein_mechanism_card_tsv(
         report.protein_mechanism_cards
     )
     assert report.evidence_aware_ranking_report is not None
-    assert "graph_claim_node_id" in workflow.render_protein_mechanism_card_tsv(
+    assert "graph_claim_node_id" in workflow.cards.render_protein_mechanism_card_tsv(
         report.protein_mechanism_cards
     )
     assert (
@@ -159,7 +161,7 @@ def test_workflow_package_exports_protein_mechanism_card_surface(
 
 def test_workflow_package_exports_core_orchestrator_surface() -> None:
     assert hasattr(workflow, "run_proteomics_workflow")
-    assert hasattr(workflow, "export_targeted_assay_qc_workflow_artifacts")
+    assert hasattr(workflow.exports, "export_targeted_assay_qc_workflow_artifacts")
     assert workflow.WorkflowMode.FRAGPIPE.value == "fragpipe"
     assert workflow.TargetedWorkflowStage.ASSAY_QC.value == "assay_qc"
 
@@ -314,13 +316,15 @@ def test_workflow_package_exports_result_manifest_surface() -> None:
 
     assert hasattr(workflow, "build_result_manifest_from_artifacts")
     assert workflow.ResultManifestSourceKind.PTM_REPORT.value == "ptm_report"
-    assert "artifact_key" in workflow.render_result_manifest_file_tsv(report)
-    assert "schema_version" in workflow.render_result_manifest_summary_tsv(report)
+    assert "artifact_key" in workflow.exports.render_result_manifest_file_tsv(report)
+    assert "schema_version" in workflow.exports.render_result_manifest_summary_tsv(
+        report
+    )
 
 
 def test_workflow_package_exports_result_archive_surface() -> None:
-    assert hasattr(workflow, "load_result_archive")
-    assert hasattr(workflow, "write_result_archive_lab_action_packets")
+    assert hasattr(workflow.exports, "load_result_archive")
+    assert hasattr(workflow.exports, "write_result_archive_lab_action_packets")
     assert workflow.ProteomicsStudyKind.ARCHIVED.value == "archived"
 
 
@@ -335,17 +339,17 @@ def test_workflow_package_exports_artifact_layout_surface() -> None:
     assert hasattr(workflow, "WORKFLOW_ARTIFACT_INVENTORY_SUMMARY_NAME")
     assert hasattr(workflow, "build_workflow_artifact_inventory_entries")
     assert hasattr(workflow, "build_workflow_artifact_inventory_summary")
-    assert hasattr(workflow, "classify_workflow_artifact_name")
-    assert hasattr(workflow, "find_workflow_artifact_by_id")
-    assert hasattr(workflow, "find_workflow_artifact_by_legacy_path")
-    assert hasattr(workflow, "index_workflow_artifact_manifest")
-    assert hasattr(workflow, "render_workflow_artifact_inventory_summary_tsv")
-    assert hasattr(workflow, "render_workflow_artifact_inventory_tsv")
-    assert hasattr(workflow, "validate_workflow_artifact_completeness")
-    assert hasattr(workflow, "validate_workflow_artifact_inventory")
-    assert hasattr(workflow, "load_workflow_artifact_manifest")
+    assert hasattr(workflow.exports, "classify_workflow_artifact_name")
+    assert hasattr(workflow.exports, "find_workflow_artifact_by_id")
+    assert hasattr(workflow.exports, "find_workflow_artifact_by_legacy_path")
+    assert hasattr(workflow.exports, "index_workflow_artifact_manifest")
+    assert hasattr(workflow.exports, "render_workflow_artifact_inventory_summary_tsv")
+    assert hasattr(workflow.exports, "render_workflow_artifact_inventory_tsv")
+    assert hasattr(workflow.exports, "validate_workflow_artifact_completeness")
+    assert hasattr(workflow.exports, "validate_workflow_artifact_inventory")
+    assert hasattr(workflow.exports, "load_workflow_artifact_manifest")
     assert hasattr(workflow, "synchronize_workflow_artifact_layout")
-    assert hasattr(workflow, "validate_workflow_artifact_manifest")
+    assert hasattr(workflow.exports, "validate_workflow_artifact_manifest")
 
 
 def test_workflow_package_exports_output_validation_surface(tmp_path: Path) -> None:
@@ -386,7 +390,9 @@ def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None
     )
 
     assert hasattr(workflow, "run_advanced_diann_workflow")
-    assert hasattr(workflow, "render_advanced_diann_protein_decisions_tsv")
+    assert hasattr(
+        workflow.pipelines.advanced, "render_advanced_diann_protein_decisions_tsv"
+    )
     assert report.summary.rejected_evidence_count == 1
     assert report.summary.downgraded_protein_count >= 1
     study_result = workflow.build_proteomics_study_result(report)
@@ -397,7 +403,7 @@ def test_workflow_package_exports_advanced_diann_surface(tmp_path: Path) -> None
     )
     assert (
         "representative_protein_ref"
-        in workflow.render_advanced_diann_protein_decisions_tsv(
+        in workflow.pipelines.advanced.render_advanced_diann_protein_decisions_tsv(
             report.accepted_protein_decisions
         )
     )
@@ -429,8 +435,13 @@ def test_workflow_package_exports_advanced_workflow_family_surface(
     )
 
     assert hasattr(workflow, "build_advanced_workflow_family_contract")
-    assert hasattr(workflow, "validate_advanced_workflow_family_contract")
-    assert workflow.validate_advanced_workflow_family_contract(contract) == ()
+    assert hasattr(
+        workflow.pipelines.advanced, "validate_advanced_workflow_family_contract"
+    )
+    assert (
+        workflow.pipelines.advanced.validate_advanced_workflow_family_contract(contract)
+        == ()
+    )
 
 
 def test_workflow_package_exports_advanced_maxquant_surface(tmp_path: Path) -> None:
@@ -449,11 +460,14 @@ def test_workflow_package_exports_advanced_maxquant_surface(tmp_path: Path) -> N
     )
 
     assert hasattr(workflow, "run_advanced_maxquant_workflow")
-    assert hasattr(workflow, "render_advanced_maxquant_peptide_contributions_tsv")
+    assert hasattr(
+        workflow.pipelines.advanced,
+        "render_advanced_maxquant_peptide_contributions_tsv",
+    )
     assert report.summary.excluded_reverse_or_contaminant_count == 2
     assert (
         "peptide_sequence"
-        in workflow.render_advanced_maxquant_peptide_contributions_tsv(
+        in workflow.pipelines.advanced.render_advanced_maxquant_peptide_contributions_tsv(
             report.peptide_contributions
         )
     )
@@ -473,10 +487,15 @@ def test_workflow_package_exports_advanced_fragpipe_surface(tmp_path: Path) -> N
     )
 
     assert hasattr(workflow, "run_advanced_fragpipe_workflow")
-    assert hasattr(workflow, "render_advanced_fragpipe_discrepancy_tsv")
+    assert hasattr(
+        workflow.pipelines.advanced, "render_advanced_fragpipe_discrepancy_tsv"
+    )
     assert report.summary.protein_group_discrepancy_count == 2
-    assert "discrepancy_reason" in workflow.render_advanced_fragpipe_discrepancy_tsv(
-        report.discrepancy_reasons
+    assert (
+        "discrepancy_reason"
+        in workflow.pipelines.advanced.render_advanced_fragpipe_discrepancy_tsv(
+            report.discrepancy_reasons
+        )
     )
 
 
@@ -515,10 +534,15 @@ def test_workflow_package_exports_advanced_ptm_surface(tmp_path: Path) -> None:
     )
 
     assert hasattr(workflow, "run_advanced_ptm_workflow")
-    assert hasattr(workflow, "render_advanced_ptm_excluded_ambiguity_tsv")
+    assert hasattr(
+        workflow.pipelines.advanced, "render_advanced_ptm_excluded_ambiguity_tsv"
+    )
     assert report.summary.ambiguous_group_row_count == 2
-    assert "group_key" in workflow.render_advanced_ptm_excluded_ambiguity_tsv(
-        report.exact_site_exclusion_audit
+    assert (
+        "group_key"
+        in workflow.pipelines.advanced.render_advanced_ptm_excluded_ambiguity_tsv(
+            report.exact_site_exclusion_audit
+        )
     )
 
 
@@ -545,11 +569,16 @@ def test_workflow_package_exports_advanced_tmt_surface(tmp_path: Path) -> None:
     )
 
     assert hasattr(workflow, "run_advanced_tmt_workflow")
-    assert hasattr(workflow, "render_advanced_tmt_evidence_cards_tsv")
+    assert hasattr(
+        workflow.pipelines.advanced, "render_advanced_tmt_evidence_cards_tsv"
+    )
     assert report.summary.excluded_protein_count == 1
     assert report.summary.high_interference_peptide_count == 2
-    assert "confidence_status" in workflow.render_advanced_tmt_evidence_cards_tsv(
-        report.evidence_cards
+    assert (
+        "confidence_status"
+        in workflow.pipelines.advanced.render_advanced_tmt_evidence_cards_tsv(
+            report.evidence_cards
+        )
     )
 
 
@@ -636,7 +665,10 @@ def test_workflow_package_exports_targeted_validation_workflow_surface(
     )
 
     assert hasattr(workflow, "run_targeted_validation_workflow")
-    assert hasattr(workflow, "render_advanced_targeted_evidence_cards_tsv")
+    assert hasattr(
+        workflow.pipelines.advanced,
+        "render_advanced_targeted_evidence_cards_tsv",
+    )
     assert report.summary.confirmed_count == 1
     assert report.summary.evidence_card_count == 1
     study_result = workflow.build_proteomics_study_result(report)
@@ -646,15 +678,23 @@ def test_workflow_package_exports_targeted_validation_workflow_surface(
         surface.kind is workflow.ProteomicsStudyCardKind.TARGETED_VALIDATION
         for surface in study_result.card_surfaces
     )
-    assert "card_id" in workflow.render_advanced_targeted_evidence_cards_tsv(
-        report.evidence_cards
+    assert (
+        "card_id"
+        in workflow.pipelines.advanced.render_advanced_targeted_evidence_cards_tsv(
+            report.evidence_cards
+        )
     )
-    assert "confidence" in workflow.render_advanced_targeted_evidence_cards_tsv(
-        report.evidence_cards
+    assert (
+        "confidence"
+        in workflow.pipelines.advanced.render_advanced_targeted_evidence_cards_tsv(
+            report.evidence_cards
+        )
     )
     assert (
         "assay_reliability_status"
-        in workflow.render_advanced_targeted_evidence_cards_tsv(report.evidence_cards)
+        in workflow.pipelines.advanced.render_advanced_targeted_evidence_cards_tsv(
+            report.evidence_cards
+        )
     )
 
 
@@ -749,15 +789,26 @@ def test_workflow_package_exports_discovery_to_assay_surface() -> None:
     )
 
     assert hasattr(workflow, "design_assay_from_discovery")
-    assert hasattr(workflow, "render_discovery_to_assay_targets_tsv")
-    assert hasattr(workflow, "render_discovery_to_assay_validation_candidate_cards_tsv")
+    assert hasattr(
+        workflow.pipelines.synthesis,
+        "render_discovery_to_assay_targets_tsv",
+    )
+    assert hasattr(
+        workflow.pipelines.synthesis,
+        "render_discovery_to_assay_validation_candidate_cards_tsv",
+    )
     assert report.summary.target_count == 1
     assert report.summary.assay_ready_target_count == 1
     assert report.validation_candidate_cards.summary.candidate_count == 1
-    assert "assay_feasibility" in workflow.render_discovery_to_assay_targets_tsv(report)
+    assert (
+        "assay_feasibility"
+        in workflow.pipelines.synthesis.render_discovery_to_assay_targets_tsv(report)
+    )
     assert (
         "final_status"
-        in workflow.render_discovery_to_assay_validation_candidate_cards_tsv(report)
+        in workflow.pipelines.synthesis.render_discovery_to_assay_validation_candidate_cards_tsv(
+            report
+        )
     )
 
 
@@ -803,8 +854,9 @@ def test_workflow_package_exports_cross_study_protein_harmonization_surface() ->
     )
     assert report.summary.harmonized_group_count == 1
     assert report.unresolved_entries == ()
-    assert "harmonized_id" in workflow.render_cross_study_protein_harmonization_tsv(
-        report
+    assert (
+        "harmonized_id"
+        in workflow.studies.render_cross_study_protein_harmonization_tsv(report)
     )
 
 
@@ -867,10 +919,13 @@ def test_workflow_package_exports_cross_study_effect_comparison_surface() -> Non
     )
     assert report.summary.replicated_hit_count == 1
     assert report.comparisons[0].replicated_hit is True
-    assert "comparison_status" in workflow.render_cross_study_effect_comparison_tsv(
+    assert (
+        "comparison_status"
+        in workflow.studies.render_cross_study_effect_comparison_tsv(report)
+    )
+    assert "replicated_hit" in workflow.studies.render_cross_study_replicated_hit_tsv(
         report
     )
-    assert "replicated_hit" in workflow.render_cross_study_replicated_hit_tsv(report)
 
 
 def test_workflow_package_exports_cross_study_meta_analysis_surface() -> None:
@@ -938,12 +993,13 @@ def test_workflow_package_exports_cross_study_meta_analysis_surface() -> None:
     )
     assert report.summary.combined_entry_count == 1
     assert report.combined_entries[0].combined_log2_fold_change > 0.0
-    assert "combined_log2_fold_change" in workflow.render_cross_study_meta_analysis_tsv(
-        report
+    assert (
+        "combined_log2_fold_change"
+        in workflow.studies.render_cross_study_meta_analysis_tsv(report)
     )
     assert (
         "fixed_weight_fraction"
-        in workflow.render_cross_study_meta_analysis_study_weight_tsv(report)
+        in workflow.studies.render_cross_study_meta_analysis_study_weight_tsv(report)
     )
 
 
@@ -1002,11 +1058,13 @@ def test_workflow_package_exports_cross_study_pathway_comparison_surface() -> No
     )
     assert report.summary.shared_signal_count == 1
     assert report.comparisons[0].coverage_fraction_range == 0.4
-    assert "comparison_status" in workflow.render_cross_study_pathway_comparison_tsv(
-        report
+    assert (
+        "comparison_status"
+        in workflow.studies.render_cross_study_pathway_comparison_tsv(report)
     )
-    assert "shared_signal" in workflow.render_cross_study_shared_pathway_signal_tsv(
-        report
+    assert (
+        "shared_signal"
+        in workflow.studies.render_cross_study_shared_pathway_signal_tsv(report)
     )
 
 
@@ -1041,15 +1099,23 @@ def test_workflow_package_exports_multi_study_comparison_surface() -> None:
     )
 
     assert hasattr(workflow, "compare_studies")
-    assert hasattr(workflow, "render_multi_study_comparison_summary_tsv")
+    assert hasattr(
+        workflow.pipelines.synthesis,
+        "render_multi_study_comparison_summary_tsv",
+    )
     assert report.summary.harmonized_protein_group_count >= 1
     assert report.summary.shared_effect_count >= 1
     assert (
         "harmonized_protein_group_count"
-        in workflow.render_multi_study_comparison_summary_tsv(report)
+        in workflow.pipelines.synthesis.render_multi_study_comparison_summary_tsv(
+            report
+        )
     )
-    assert "harmonized_id" in workflow.render_multi_study_harmonized_proteins_tsv(
-        report
+    assert (
+        "harmonized_id"
+        in workflow.pipelines.synthesis.render_multi_study_harmonized_proteins_tsv(
+            report
+        )
     )
 
 
@@ -1079,11 +1145,11 @@ def test_workflow_package_exports_mechanism_card_workflow_surface() -> None:
     report = workflow.build_mechanism_cards(biological_report)
 
     assert hasattr(workflow, "build_mechanism_cards")
-    assert hasattr(workflow, "render_mechanism_cards_tsv")
+    assert hasattr(workflow.cards, "render_mechanism_cards_tsv")
     assert report.summary.card_count >= 5
     assert report.summary.kinase_candidate_count >= 1
-    assert "evidence_for" in workflow.render_mechanism_cards_tsv(report)
-    assert "missing_evidence" in workflow.render_mechanism_cards_tsv(report)
+    assert "evidence_for" in workflow.cards.render_mechanism_cards_tsv(report)
+    assert "missing_evidence" in workflow.cards.render_mechanism_cards_tsv(report)
 
 
 def test_workflow_package_exports_cross_species_effect_comparison_surface() -> None:
@@ -1153,8 +1219,9 @@ def test_workflow_package_exports_cross_species_effect_comparison_surface() -> N
     )
     assert report.summary.conserved_effect_count == 1
     assert report.comparisons[0].target_protein_ref == "Q9MOUSE1"
-    assert "evidence_status" in workflow.render_cross_species_effect_comparison_tsv(
-        report
+    assert (
+        "evidence_status"
+        in workflow.studies.render_cross_species_effect_comparison_tsv(report)
     )
 
 
@@ -1290,8 +1357,9 @@ def test_workflow_package_exports_cohort_stratification_surface() -> None:
         == "blocked_low_subgroup_sample_count"
     )
     assert report.summary.supported_stratum_count == 2
-    assert "interaction_delta" in workflow.render_cohort_interaction_candidate_tsv(
-        report
+    assert (
+        "interaction_delta"
+        in workflow.studies.render_cohort_interaction_candidate_tsv(report)
     )
 
 
@@ -1309,7 +1377,10 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
     assert workflow.resolve_public_benchmark_root(Path("benchmarks/public")) == (
         workflow.public_benchmark_root()
     )
-    assert hasattr(workflow, "render_public_benchmark_suite_signal_assessments_tsv")
+    assert hasattr(
+        workflow.pipelines.benchmarking,
+        "render_public_benchmark_suite_signal_assessments_tsv",
+    )
 
 
 def test_workflow_package_exports_public_benchmark_subset_surface() -> None:
@@ -1396,7 +1467,10 @@ def test_workflow_package_exports_weak_evidence_surface(tmp_path: Path) -> None:
 
     assert hasattr(workflow, "build_flagship_weak_evidence_benchmark_descriptor")
     assert hasattr(workflow, "run_weak_evidence_benchmark")
-    assert hasattr(workflow, "render_weak_evidence_benchmark_summary_tsv")
+    assert hasattr(
+        workflow.pipelines.benchmarking,
+        "render_weak_evidence_benchmark_summary_tsv",
+    )
     assert report.summary.failed_qc_block_count >= 1
     assert report.summary.refused_claim_count >= 1
     assert report.refused_claims
@@ -1411,7 +1485,7 @@ def test_workflow_package_exports_surprising_demo_surface(tmp_path: Path) -> Non
     )
 
     assert hasattr(workflow, "SurprisingDemoConfig")
-    assert hasattr(workflow, "load_surprising_demo_manifest")
+    assert hasattr(workflow.demo, "load_surprising_demo_manifest")
     assert hasattr(workflow, "run_surprising_demo")
     assert hasattr(workflow, "surprising_demo_root")
     assert report.summary.strong_protein_count >= 1
@@ -1439,9 +1513,9 @@ def test_workflow_package_exports_scale_demo_surface(tmp_path: Path) -> None:
 
     assert hasattr(workflow, "ScaleDemoConfig")
     assert hasattr(workflow, "run_scale_demo")
-    assert hasattr(workflow, "render_scale_demo_summary_tsv")
-    assert hasattr(workflow, "render_scale_demo_stage_metrics_tsv")
-    assert hasattr(workflow, "render_scale_demo_validation_tsv")
+    assert hasattr(workflow.demo, "render_scale_demo_summary_tsv")
+    assert hasattr(workflow.demo, "render_scale_demo_stage_metrics_tsv")
+    assert hasattr(workflow.demo, "render_scale_demo_validation_tsv")
     assert report.summary.sample_count == 4
     assert report.summary.protein_count == 18
     assert report.summary.generated_feature_row_count == 144
@@ -1468,7 +1542,7 @@ def test_workflow_package_exports_surprising_demo_interrogation_surface(
     assert report.summary.answered_query_count == 4
     assert (
         "confidence_reasons"
-        in workflow.render_surprising_demo_interrogation_answers_tsv(report)
+        in workflow.demo.render_surprising_demo_interrogation_answers_tsv(report)
     )
 
 
@@ -1494,11 +1568,15 @@ def test_workflow_package_exports_integrated_scientific_report_surface(
         workflow.IntegratedScientificResultExampleKind
     )
     assert "linked_scientific_claim_count" in (
-        workflow.render_integrated_scientific_report_summary_tsv(report)
+        workflow.pipelines.synthesis.render_integrated_scientific_report_summary_tsv(
+            report
+        )
     )
     assert (
         "validation_needed"
-        in workflow.render_integrated_scientific_report_examples_tsv(report)
+        in workflow.pipelines.synthesis.render_integrated_scientific_report_examples_tsv(
+            report
+        )
     )
 
 
@@ -1518,8 +1596,9 @@ def test_workflow_package_exports_public_dataset_comparison_surface(
     assert report.summary.successful_study_count == 8
     assert report.summary.effect_support_study_count == 6
     assert report.summary.meta_analysis_entry_count == 6
-    assert "failure_entry_count" in workflow.render_public_dataset_combined_summary_tsv(
-        report
+    assert (
+        "failure_entry_count"
+        in workflow.studies.render_public_dataset_combined_summary_tsv(report)
     )
 
 
@@ -1556,8 +1635,10 @@ def test_workflow_package_exports_cross_study_evidence_card_surface(
         == "consistent_replication"
     )
     assert report.summary.card_count > 0
-    assert "final_status" in workflow.render_cross_study_evidence_card_tsv(report)
-    assert "dataset_state" in workflow.render_cross_study_evidence_dataset_tsv(report)
+    assert "final_status" in workflow.cards.render_cross_study_evidence_card_tsv(report)
+    assert "dataset_state" in workflow.cards.render_cross_study_evidence_dataset_tsv(
+        report
+    )
 
 
 def test_workflow_package_exports_interactive_result_bundle_surface() -> None:
@@ -1581,9 +1662,9 @@ def test_workflow_package_exports_interactive_result_bundle_surface() -> None:
     )
 
     assert hasattr(workflow, "build_interactive_result_bundle_from_artifacts")
-    assert hasattr(workflow, "render_interactive_result_bundle_summary_tsv")
-    assert "sample_count" in workflow.render_interactive_result_bundle_summary_tsv(
-        bundle
+    assert hasattr(workflow.exports, "render_interactive_result_bundle_summary_tsv")
+    assert "sample_count" in (
+        workflow.exports.render_interactive_result_bundle_summary_tsv(bundle)
     )
 
 
@@ -1630,11 +1711,12 @@ def test_workflow_package_exports_interactive_result_comparison_surface() -> Non
     )
 
     assert hasattr(workflow, "build_interactive_result_comparison_from_artifacts")
+    assert hasattr(workflow.exports, "render_interactive_result_comparison_summary_tsv")
     assert "changed_protein_count" in (
-        workflow.render_interactive_result_comparison_summary_tsv(payload)
+        workflow.exports.render_interactive_result_comparison_summary_tsv(payload)
     )
     assert "representative_protein_ref" in (
-        workflow.render_interactive_result_comparison_protein_tsv(payload)
+        workflow.exports.render_interactive_result_comparison_protein_tsv(payload)
     )
 
 
@@ -1671,5 +1753,7 @@ def test_workflow_package_exports_result_search_index_surface() -> None:
 
     assert hasattr(workflow, "build_result_search_index_from_artifacts")
     assert hasattr(workflow, "search_result_index")
-    assert "indexed_document_count" in workflow.render_result_search_summary_tsv(report)
-    assert "evidence_snippets" in workflow.render_result_search_hit_tsv(report)
+    assert "indexed_document_count" in (
+        workflow.exports.render_result_search_summary_tsv(report)
+    )
+    assert "evidence_snippets" in workflow.exports.render_result_search_hit_tsv(report)

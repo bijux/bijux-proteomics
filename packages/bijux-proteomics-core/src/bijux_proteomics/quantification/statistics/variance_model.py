@@ -15,14 +15,18 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
-from bijux_proteomics.quantification.contracts import (
-    LabelFreeQuantTable,
+from bijux_proteomics.quantification.contracts.input_models import (
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    QuantValue,
+)
+from bijux_proteomics.quantification.contracts.matrix_building import (
     _matrix_value_index,
     coerce_label_free_quant_table,
+)
+from bijux_proteomics.quantification.contracts.matrix_models import (
+    LabelFreeQuantTable,
+    QuantValue,
 )
 from bijux_proteomics_foundation import JsonModel
 

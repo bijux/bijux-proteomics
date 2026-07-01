@@ -19,24 +19,26 @@ from bijux_proteomics.identification.peptide_evidence import (
     PeptideEvidenceClass,
     PeptideEvidenceEntry,
 )
-from bijux_proteomics.sequences import (
-    NormalizedProteinRecord,
-    PeptideChemicalLiabilityTier,
-    PeptideDetectabilityTier,
-    PeptideUniquenessClass,
-    build_peptide_chemical_liability_report,
-    build_peptide_detectability_report,
-    build_peptide_uniqueness_index,
-)
 from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     ProteaseRule,
     digest_protein_records,
     get_protease_rule,
 )
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.peptide_chemical_liability import (
+    PeptideChemicalLiabilityTier,
+    build_peptide_chemical_liability_report,
+)
+from bijux_proteomics.sequences.peptide_detectability import (
+    PeptideDetectabilityTier,
+    build_peptide_detectability_report,
+)
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
     PeptideUniquenessIndexEntry,
     PeptideUniquenessIndexReport,
+    build_peptide_uniqueness_index,
 )
 from bijux_proteomics_foundation import JsonModel
 

@@ -1,12 +1,43 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """PTM regulator Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    parse_experimental_design_table,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
+    PtmLocalizationColumnMapping,
+    PtmProteinCorrectionMode,
+    PtmRegulatorEnrichmentPolicy,
+    PtmSiteAnnotationColumnMapping,
+    build_ptm_differential_analysis_report,
+    build_ptm_regulator_enrichment_report,
+    build_ptm_site_annotation_mapping_report,
+    build_ptm_site_quantification_report,
+    build_ptm_site_table,
+    export_ptm_regulator_enrichment_summary_tsv,
+    export_ptm_regulator_enrichment_tsv,
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+    parse_ptm_site_annotation_tsv,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+    parse_ms1_feature_table,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    parse_fasta_document,
+)
 
 
 def run_ptm_regulator_enrichment_command(

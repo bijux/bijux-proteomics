@@ -67,7 +67,8 @@ workflow families that the suite can defend today:
 - `multiplex`
 - `targeted`
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+Review-grade-bounded workflow families today: `lfq`.
 Internal-support-only workflow families today: `multiplex`.
 
 For the strongest current outsider-readable proof, start with the DDA package
@@ -126,18 +127,18 @@ the live package surfaces, stronger recommendation language must stop.
 Repository truth should not be cited without those shared consequence surfaces.
 Its evidence path now includes:
 
-- `docs/decision-support/workflow-consequence-maps.md`
-- `docs/decision-support/what-changed-the-recommendation.md`
-- `docs/lab-consequence/outcome-learning-loops.md`
-- `docs/lab-consequence/workflow-refusal-handbook.md`
+- `docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md`
+- `docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md`
+- `docs/07-bijux-proteomics-lab/foundation/outcome-learning-loops.md`
+- `docs/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md`
 
 Open these consequence routes before widening recommendation or assay-facing
 language:
 
-- `docs/decision-support/workflow-consequence-maps.md`
-- `docs/decision-support/what-changed-the-recommendation.md`
-- `docs/lab-consequence/outcome-learning-loops.md`
-- `docs/lab-consequence/workflow-refusal-handbook.md`
+- `docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md`
+- `docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md`
+- `docs/07-bijux-proteomics-lab/foundation/outcome-learning-loops.md`
+- `docs/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md`
 
 When the question is specifically how a runtime lane should be reopened,
 challenged, or refused, open these runtime-owned boundary surfaces before

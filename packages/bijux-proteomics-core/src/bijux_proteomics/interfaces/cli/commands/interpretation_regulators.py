@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Interpretation regulator CLI commands."""
 
@@ -14,7 +13,10 @@ from bijux_proteomics.interfaces.python_api.interpretation_regulators import (
     run_ppi_modules_command,
     run_regulator_inference_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+    QuantRollupMethod,
+)
 
 
 @click.command("regulator-inference")

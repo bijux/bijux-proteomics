@@ -1,13 +1,39 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Interpretation set and GO enrichment Python API entrypoints."""
 
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.interpretation import (
+    GoAnnotationColumnMapping,
+    GoEnrichmentCorrectionPolicy,
+    ProteinReferenceColumnMapping,
+    ProteinSetColumnMapping,
+    ProteinSetEnrichmentMissingBackgroundPolicy,
+    ProteinSetEnrichmentPolicy,
+    apply_go_enrichment_multiple_testing,
+    build_go_enrichment_report,
+    build_protein_set_enrichment_report,
+    parse_go_annotation_table,
+    parse_protein_reference_table,
+    parse_protein_set_table,
+    render_go_enrichment_summary_tsv,
+    render_go_enrichment_term_tsv,
+    render_go_enrichment_unannotated_tsv,
+    render_protein_set_enrichment_summary_tsv,
+    render_protein_set_enrichment_tsv,
+    render_protein_set_universe_gap_tsv,
+    render_rejected_go_annotation_tsv,
+    render_rejected_protein_set_membership_tsv,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 
 
 def run_protein_set_enrichment_command(

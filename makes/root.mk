@@ -29,6 +29,13 @@ export
 include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
+ROOT_SHARED_CHECK_ENV_CLEAR += \
+	-u PYTHONPYCACHEPREFIX \
+	-u XDG_CACHE_HOME \
+	-u HYPOTHESIS_STORAGE_DIRECTORY \
+	-u COVERAGE_FILE \
+	-u UV_CACHE_DIR \
+	-u NPM_CONFIG_CACHE
 ROOT_TARGET_PACKAGES_test-all := $(CHECK_PACKAGES)
 ROOT_TARGET_PACKAGES_test-all-plus-run-time := $(CHECK_PACKAGES)
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/docs.mk
@@ -71,9 +78,9 @@ quality-docs-consistency: root-check-env ## Refresh docs consistency evidence
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.consistency
 
 quality-artifact-governance: root-check-env ## Enforce artifact roots and repository file ownership
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit --check
-	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
 
 quality-public-api-types: root-check-env ## Type-check curated public API modules with governed mypy and pyright configs
 	@$(DEV_RUN) -m bijux_proteomics_dev.governance.contracts.public_api_typecheck_targets --check

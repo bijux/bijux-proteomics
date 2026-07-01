@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+import pytest
+
+import bijux_proteomics.interfaces as interface_examples
 from bijux_proteomics.interfaces.examples import (
     build_glycopeptide_refusal_example,
     build_loss_aware_search_normalization_example,
@@ -39,3 +42,30 @@ def test_loss_aware_search_normalization_example_reports_preserved_and_lost_fiel
     assert observations["preserved_native_only_columns"] == "analysis_batch"
     assert observations["unsupported_columns"] == "novel_metric"
     assert observations["lost_columns"] == "missing_runtime_tag"
+
+
+def test_interfaces_package_root_exports_curated_example_surface() -> None:
+    assert interface_examples.__all__ == (
+        "CoreScientificExample",
+        "ScientificExampleObservation",
+        "build_glycopeptide_refusal_example",
+        "build_loss_aware_search_normalization_example",
+        "build_sequence_digest_example",
+    )
+    assert (
+        interface_examples.build_sequence_digest_example
+        is build_sequence_digest_example
+    )
+    assert (
+        interface_examples.build_glycopeptide_refusal_example
+        is build_glycopeptide_refusal_example
+    )
+    assert (
+        interface_examples.build_loss_aware_search_normalization_example
+        is build_loss_aware_search_normalization_example
+    )
+
+
+def test_interfaces_package_root_rejects_unknown_exports() -> None:
+    with pytest.raises(AttributeError):
+        object.__getattribute__(interface_examples, "missing_example")

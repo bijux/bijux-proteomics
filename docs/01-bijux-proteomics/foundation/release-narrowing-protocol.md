@@ -41,12 +41,12 @@ This page is generated from live release evidence. It records how workflow-famil
 
 | workflow family | requested language | allowed language | active rules |
 | --- | --- | --- | --- |
-| `dda` | `outsider_auditable_bounded` | `review_grade_bounded` | `black-box-rerunability` |
-| `dia` | `outsider_auditable_bounded` | `review_grade_bounded` | `black-box-rerunability` |
-| `lfq` | `outsider_auditable_bounded` | `review_grade_bounded` | `black-box-rerunability` |
+| `dda` | `outsider_auditable_bounded` | `review_grade_bounded` | `benchmark-asset-quality`, `black-box-rerunability` |
+| `dia` | `outsider_auditable_bounded` | `review_grade_bounded` | `benchmark-asset-quality`, `black-box-rerunability` |
+| `lfq` | `outsider_auditable_bounded` | `review_grade_bounded` | `benchmark-asset-quality`, `black-box-rerunability`, `acceptance-bars` |
 | `multiplex` | `internal_support_only` | `internal_support_only` | `acceptance-bars` |
-| `ptm` | `outsider_auditable_bounded` | `review_grade_bounded` | `black-box-rerunability` |
-| `targeted` | `outsider_auditable_bounded` | `review_grade_bounded` | `black-box-rerunability` |
+| `ptm` | `outsider_auditable_bounded` | `review_grade_bounded` | `benchmark-asset-quality`, `black-box-rerunability` |
+| `targeted` | `outsider_auditable_bounded` | `review_grade_bounded` | `benchmark-asset-quality`, `black-box-rerunability` |
 
 ## Evidence Behind The Current Decisions
 
@@ -54,22 +54,22 @@ This page is generated from live release evidence. It records how workflow-famil
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
-- active reasons: black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`, `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`, `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`, `docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md`, `docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md`
+- active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
 
 ### `dia`
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
-- active reasons: black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`, `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`, `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`, `docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md`, `docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md`
+- active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
 
 ### `lfq`
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
-- active reasons: black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`, `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`, `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`, `docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md`, `docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md`
+- active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language, acceptance bars earn weaker language than the current requested sentence
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
 
 ### `multiplex`
 
@@ -82,12 +82,12 @@ This page is generated from live release evidence. It records how workflow-famil
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
-- active reasons: black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`, `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`, `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`, `docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md`, `docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md`
+- active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
 
 ### `targeted`
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
-- active reasons: black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`, `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`, `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`, `docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md`, `docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md`
+- active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`, `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`

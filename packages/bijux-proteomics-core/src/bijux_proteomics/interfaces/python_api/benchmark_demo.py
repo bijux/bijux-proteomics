@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Public benchmark and demo Python API entrypoints."""
 
 from __future__ import annotations
@@ -11,8 +9,56 @@ from bijux_proteomics.benchmarks import (
     render_public_biological_case_study_summary_tsv,
     write_public_biological_case_study_bundle,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Any,
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
+from bijux_proteomics.interfaces.support.workflow import (
+    ScaleDemoConfig,
+    SurprisingDemoConfig,
+    SurprisingDemoQueryKind,
+    SurprisingDemoQueryRequest,
+    build_integrated_scientific_report,
+    build_public_benchmark_trust_bundle,
+    build_public_dataset_comparison_report,
+    build_public_dataset_evidence_card_report,
+    build_surprising_demo_example_requests,
+    build_surprising_demo_interrogation_report,
+    ensure_surprising_demo_outputs,
+    render_cross_study_evidence_card_summary_tsv,
+    render_cross_study_evidence_card_tsv,
+    render_cross_study_evidence_dataset_tsv,
+    render_integrated_scientific_report_sentences_tsv,
+    render_integrated_scientific_report_summary_tsv,
+    render_public_benchmark_suite_failures_tsv,
+    render_public_benchmark_suite_signal_assessments_tsv,
+    render_public_benchmark_suite_summary_tsv,
+    render_public_dataset_combined_summary_tsv,
+    render_public_dataset_dataset_summary_tsv,
+    render_public_dataset_effect_comparison_tsv,
+    render_public_dataset_failure_tsv,
+    render_public_dataset_meta_analysis_tsv,
+    render_public_dataset_pathway_comparison_tsv,
+    render_scale_demo_stage_metrics_tsv,
+    render_scale_demo_summary_tsv,
+    render_scale_demo_validation_tsv,
+    render_surprising_demo_findings_tsv,
+    render_surprising_demo_interrogation_answers_tsv,
+    render_surprising_demo_interrogation_summary_tsv,
+    render_surprising_demo_summary_tsv,
+    render_trust_bundle_run_summary_tsv,
+    resolve_public_benchmark_path,
+    resolve_public_benchmark_root,
+    run_public_benchmark_descriptor,
+    run_public_benchmark_descriptor_suite,
+    run_scale_demo,
+    run_surprising_demo,
+)
 
 
 def run_public_benchmark_runner_command(
@@ -36,7 +82,7 @@ def run_public_benchmark_runner_command(
                 benchmark_path,
                 output_root=run_output_root,
             )
-            from bijux_proteomics.workflow.pipelines.public_benchmark_runner import (
+            from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
                 PublicBenchmarkSuiteReport,
             )
 
@@ -198,7 +244,7 @@ def run_surprising_demo_query_command(
                 SurprisingDemoQueryRequest(
                     query_id="demo-query",
                     query_kind=SurprisingDemoQueryKind(query_kind),
-                    subject_id=subject_id,
+                    subject_id=_required_demo_query_subject_id(subject_id),
                 ),
             )
         )
@@ -217,6 +263,12 @@ def run_surprising_demo_query_command(
             render_surprising_demo_interrogation_answers_tsv(report),
         )
     _emit_json(report, out_path=out_path)
+
+
+def _required_demo_query_subject_id(subject_id: str | None) -> str:
+    if subject_id is None:
+        raise ValueError("surprising demo query requires a subject identifier")
+    return subject_id
 
 
 def run_surprising_demo_report_command(

@@ -4,12 +4,26 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Runtime Replay Challenges
 
 Each challenge starts from a clean environment, reopens the tracked benchmark package, and asks the smallest hostile question that should still reconstruct the shipped runtime artifact story.
+
+These are not full benchmark reruns and they are not broad scientific
+acceptance suites. They are disciplined replay pressure. Each challenge asks
+whether the runtime lane can re-emit the checked story and whether the failure
+surface stays visible when the lane is stressed.
+
+## What A Successful Replay Proves
+
+- the reviewer can reopen the shipped public package without hidden local state
+- the runtime lane still reconstructs the checked bundle and lineage artifacts
+- invalidation is documented as part of the route rather than treated as an
+  embarrassing exception
+- the family still stops exactly where the current release language says it
+  stops
 
 ## `dda`
 
@@ -125,3 +139,12 @@ Minimal steps:
 - expected artifacts: `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/run_bundle.json`, `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/stage_lineage.json`, `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/failure_replay.json`
 - invalidation cases: `execution_failure`, `scientific_invalidation`, `structurally_incomplete_input`
 - current limit: targeted replay is real for the shipped runtime lane, but it still inherits the same benchmark and downstream claim limits as the checked bundle.
+
+## Reading Discipline
+
+- use the clean-environment requirements to avoid false confidence from a dirty
+  local workspace
+- treat the invalidation cases as part of the proof surface because a replay
+  route that only describes success is incomplete
+- hand off to environment contracts and artifact stability when the reviewer
+  asks whether the same replay should remain stable across repeated runs

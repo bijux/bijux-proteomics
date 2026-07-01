@@ -11,20 +11,22 @@ from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain import ConfidenceTier
+from bijux_proteomics.domain.confidence import ConfidenceTier
 from bijux_proteomics.io.chromatographic_evidence import (
     ChromatographicEvidenceScoreReport,
 )
 from bijux_proteomics.io.dia_fragment_coelution import DiaFragmentCoelutionReport
 from bijux_proteomics.io.fragment_ratio_stability import FragmentRatioStabilityReport
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdge,
     ProteomicsEvidenceEdgeKind,
     ProteomicsEvidenceGraph,
     ProteomicsEvidenceNode,
     ProteomicsEvidenceNodeKind,
 )
-from bijux_proteomics.sequences import PeptideChemicalLiabilityReport
+from bijux_proteomics.sequences.peptide_chemical_liability import (
+    PeptideChemicalLiabilityReport,
+)
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
@@ -197,7 +199,7 @@ def render_evidence_graph_confidence_tsv(
 ) -> str:
     """Render propagated confidence as a deterministic TSV surface."""
 
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "claim_node_id": entry.claim_node_id,
             "claim_node_ref": entry.claim_node_ref,

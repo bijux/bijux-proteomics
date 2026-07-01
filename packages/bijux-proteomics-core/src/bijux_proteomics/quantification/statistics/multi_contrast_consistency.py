@@ -14,11 +14,13 @@ from statistics import median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
-    ImputationMethod,
     MultiConditionDifferentialAbundanceReport,
+)
+from bijux_proteomics.quantification.contracts.input_models import (
+    ImputationMethod,
     NormalizationMethod,
     QuantEntityLevel,
 )

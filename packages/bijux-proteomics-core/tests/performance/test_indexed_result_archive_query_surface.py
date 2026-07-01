@@ -358,18 +358,20 @@ def test_indexed_large_result_archive_queries_stay_below_latency_threshold(
             for index in range(2500)
         ),
     )
-    artifact_index = workflow.index_workflow_artifact_manifest(manifest=manifest)
+    artifact_index = workflow.exports.index_workflow_artifact_manifest(
+        manifest=manifest
+    )
     artifact_lookup_start = time.perf_counter()
     for offset in range(0, 2000, 2):
         assert (
-            workflow.find_workflow_artifact_by_id(
+            workflow.exports.find_workflow_artifact_by_id(
                 artifact_index,
                 f"artifact:reports:tsv_table:reports:artifact_{offset}.tsv",
             )
             is not None
         )
         assert (
-            workflow.find_workflow_artifact_by_legacy_path(
+            workflow.exports.find_workflow_artifact_by_legacy_path(
                 artifact_index,
                 f"artifact_{offset}.tsv",
             )

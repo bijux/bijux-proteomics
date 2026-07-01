@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -16,9 +17,24 @@ REPO_ROOT = next(
 pytestmark = pytest.mark.slow
 
 
+def _python_executable() -> str:
+    candidate_paths = (
+        Path(sys.executable),
+        Path(getattr(sys, "_base_executable", "")),
+    )
+    for candidate in candidate_paths:
+        if candidate.is_file():
+            return str(candidate)
+    for command_name in ("python3", "python"):
+        resolved = shutil.which(command_name)
+        if resolved:
+            return resolved
+    raise AssertionError("no runnable python interpreter found for marker selection")
+
+
 def _pytest_collect_output(*args: str) -> str:
     result = subprocess.run(
-        [sys.executable, "-m", "pytest", "--collect-only", "-q", *args],
+        [_python_executable(), "-m", "pytest", "--collect-only", "-q", *args],
         cwd=REPO_ROOT,
         check=True,
         capture_output=True,

@@ -8,7 +8,6 @@ from __future__ import annotations
 import csv
 from io import StringIO
 from pathlib import Path
-from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -90,8 +89,11 @@ from bijux_proteomics.ptm.site_quantification import (
     render_ptm_site_quant_matrix_tsv,
     render_ptm_site_quant_missingness_tsv,
 )
-from bijux_proteomics.quantification import Ms1FeatureRecord, NormalizationMethod
-from bijux_proteomics.review import (
+from bijux_proteomics.quantification.contracts import (
+    Ms1FeatureRecord,
+    NormalizationMethod,
+)
+from bijux_proteomics.review.belief.evidence_aware_ranking import (
     EvidenceAwareRankingCandidate,
     EvidenceAwareRankingEntityKind,
     EvidenceAwareRankingReport,
@@ -102,8 +104,8 @@ from bijux_proteomics.review import (
     score_effect_size,
     score_support_count,
 )
-from bijux_proteomics.sequences import (
-    NormalizedProteinRecord,
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.protein_region_context_models import (
     ProteinRegionContextRecord,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import (
@@ -440,7 +442,7 @@ def _build_ptm_evidence_aware_ranking_report(
         )
         for card in evidence_cards.cards
     }
-    abundance_scores = normalize_linear_range(abundance_by_site)
+    abundance_scores = normalize_linear_range(dict(abundance_by_site.items()))
     candidates: list[EvidenceAwareRankingCandidate] = []
     for card in evidence_cards.cards:
         abundance_value = abundance_by_site[card.site_key]
@@ -693,10 +695,7 @@ def render_ptm_report_evidence_aware_ranking_tsv(report: PtmReportBundle) -> str
 
     if report.evidence_aware_ranking_report is None:
         raise ValueError("ptm report bundle does not include evidence-aware ranking")
-    return cast(
-        str,
-        render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
-    )
+    return render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report)
 
 
 def write_ptm_report_bundle(

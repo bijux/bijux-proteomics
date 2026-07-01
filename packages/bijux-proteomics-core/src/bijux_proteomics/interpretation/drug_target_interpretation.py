@@ -24,13 +24,13 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationMappingReport,
 )
 from bijux_proteomics.io.stable_outputs import sort_strings
-from bijux_proteomics.quantification.contracts import (
+from bijux_proteomics.quantification.contracts.differential import (
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
-    LabelFreeQuantTable,
-    QuantEntityLevel,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.quantification.contracts.input_models import QuantEntityLevel
+from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
 

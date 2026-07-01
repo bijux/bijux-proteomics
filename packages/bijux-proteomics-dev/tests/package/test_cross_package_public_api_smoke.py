@@ -6,6 +6,7 @@ from __future__ import annotations
 import importlib.util
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 from types import ModuleType
@@ -71,6 +72,23 @@ def _product_source_pythonpath() -> str:
         "packages/bijux-proteomics-dev/tests/package",
     )
     return ":".join(str(REPO_ROOT / root) for root in roots)
+
+
+def _python_executable() -> str:
+    candidate_paths = (
+        Path(sys.executable),
+        Path(getattr(sys, "_base_executable", "")),
+    )
+    for candidate in candidate_paths:
+        if candidate.is_file():
+            return str(candidate)
+    for command_name in ("python3", "python"):
+        resolved = shutil.which(command_name)
+        if resolved:
+            return resolved
+    raise AssertionError(
+        "no runnable python interpreter found for subprocess smoke tests"
+    )
 
 
 def test_cross_package_public_api_smoke_loads_every_root_export_in_order() -> None:
@@ -212,7 +230,7 @@ assert tuple(load.package_name for load in loads) == (
 )
 """
     result = subprocess.run(
-        [sys.executable, "-c", code],
+        [_python_executable(), "-c", code],
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,

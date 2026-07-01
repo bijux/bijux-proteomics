@@ -20,7 +20,7 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
 
     assert "flagship-release-candidate-bundle" in text
     assert (
-        "outsider-auditable workflow families: `dda`, `dia`, `lfq`, `ptm`, `targeted`"
+        "full outsider-readable family packets: `dda`, `dia`, `lfq`, `ptm`, `targeted`"
         in text
     )
     assert "internal-support-only workflow families: `multiplex`" in text

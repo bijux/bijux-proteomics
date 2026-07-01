@@ -29,7 +29,7 @@ from bijux_proteomics.io.raw.mzml_reader import (
     inspect_mzml_decoding_support as _inspect_mzml_decoding_support,
 )
 from bijux_proteomics.io.spectra import SpectrumModel
-from bijux_proteomics.quantification import (
+from bijux_proteomics.quantification.contracts import (
     Ms1FeatureColumnMapping,
     parse_ms1_feature_table,
 )

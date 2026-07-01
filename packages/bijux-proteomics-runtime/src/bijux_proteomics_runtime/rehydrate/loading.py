@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.workflow import ProteomicsStudyResult, load_result_archive
+from bijux_proteomics.workflow import ProteomicsStudyResult
+from bijux_proteomics.workflow.exports import load_result_archive
 
 
 def load_completed_run(run_dir: Path) -> ProteomicsStudyResult:

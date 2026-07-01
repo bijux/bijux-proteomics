@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # Foundation
@@ -14,6 +14,21 @@ what assay consequence is justified, what burden and controls does that impose,
 and what observed outcomes should feed back into later review. If a page here
 describes generic orchestration without naming assay burden or outcome learning,
 it is not yet using the right owner language.
+
+That honesty matters more now because upstream workflow, grounding, and
+recommendation surfaces are stronger than before. Better signal creates sharper
+assay consequence decisions, more explicit control demands, and more queue or
+material burden that has to be named before the repository can claim the next
+step is practical.
+
+## Why This Section Is More Important Now
+
+- it is where stronger upstream science gets translated into actual assay
+  burden rather than optimistic follow-up prose
+- it names the practical limits that keep recommendation surfaces honest when
+  controls, staffing, material, or instrument time become the real bottleneck
+- it makes observed outcomes part of the scientific story instead of letting
+  them disappear after execution
 
 ```mermaid
 flowchart LR
@@ -38,6 +53,15 @@ flowchart LR
   committed
 - burden-aware handoff honesty instead of optimistic downstream wording
 - observed-outcome learning that stays tied to real requested follow-up
+
+## What This Section Now Carries
+
+- assay consequence framing that distinguishes compelling follow-up from costly
+  but weak curiosity
+- queue or material burden that must stay visible before downstream spend is
+  normalized
+- observed outcomes that feed back into later evidence and recommendation
+  review
 
 ## Start With
 
@@ -73,6 +97,27 @@ flowchart LR
 - which control demands, material limits, and burden signals must remain visible
 - how observed outcomes should feed back into later evidence and recommendation
   review
+
+## Reader Questions This Section Can Answer Well
+
+- why a downstream step is still exploratory even when the recommendation page
+  sounds strong
+- which control demands or queue limits keep a family below operational
+  confidence
+- how a requested follow-up should be re-read once the observed assay outcome
+  arrives
+
+## Strongest Lab Proof
+
+- start with
+  [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)
+  when the question is whether a downstream step is truly lab-owned
+- continue to
+  [This Package Does Not Own](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/this-package-does-not-own/)
+  when someone is trying to hide recommendation posture or workflow law inside
+  lab consequence language
+- open refusal and outcome-learning pages once the real question becomes
+  whether to spend, queue, narrow, rerun, or stop
 
 ## First Proof Check
 

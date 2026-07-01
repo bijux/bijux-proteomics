@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Primary quantification CLI commands."""
 
@@ -13,7 +12,20 @@ import click
 from bijux_proteomics.interfaces.python_api.quantification_primary import (
     run_quantify_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    ImputationMethod,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
+)
+from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
+    _imputation_choice,
+    _normalization_choice,
+    _quant_entity_level_choice,
+    _quant_measure_choice,
+    _quant_rollup_choice,
+)
 
 
 @click.command("quantify")

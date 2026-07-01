@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.claims.result_queries import (
+from bijux_proteomics.review.claims.result_query_artifacts import (
     _GraphNodeArtifact,
     _load_result_artifact_context,
     _PtmCardArtifact,

@@ -4,13 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-01
 ---
 
 # Cross-Package Ownership
 
 This matrix answers one question fast: if an artifact, import, or claim crosses
 package boundaries, who owns it and who is allowed to consume it.
+
+That question matters more now because the repository is no longer thin at the
+package edges. Core now carries real biology, chemistry, spectra, mzML,
+quantification, PTM, and benchmark responsibility; runtime carries stronger
+rerun proof; knowledge and intelligence carry visible grounding and downgrade
+logic; lab carries real consequence pressure. Once that product depth exists,
+cross-package ownership has to be readable without maintainers improvising the
+authority chain.
 
 ## Package Matrix
 
@@ -46,6 +54,24 @@ package boundaries, who owns it and who is allowed to consume it.
   owner first and keep the bridge thin.
 - When root docs or release language describe behavior stronger than the owning
   package tests can prove, narrow the wording instead of widening root prose.
+
+## What This Matrix Prevents
+
+- core scientific breadth from silently taking over runtime, knowledge, or lab
+  ownership
+- runtime rerun realism from being mistaken for scientific truth ownership
+- knowledge grounding from drifting into recommendation authority
+- recommendation posture from widening into free consequence claims without lab
+  ownership
+
+## Strongest Reader Route
+
+- start here when one feature, artifact, or sentence seems to belong to more
+  than one package
+- continue to
+  [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  when the dispute becomes end-to-end instead of package-local
+- then open the owning package handbook only after the ownership class is clear
 
 ## First Proof Check
 

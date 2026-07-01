@@ -1,12 +1,54 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Protein coverage and parsimony Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.identification import (
+    ParsimonyVariant,
+    assign_confidence_labels,
+    assign_razor_peptides,
+    build_parsimony_review_report,
+    build_peptide_uniqueness_across_database,
+    build_protein_coverage_map,
+    build_protein_coverage_plot_report,
+    build_protein_coverage_review_report,
+    build_protein_groups,
+    calculate_grouped_fdr,
+    calculate_level_specific_fdr,
+    calculate_picked_protein_fdr,
+    filter_psms_by_fdr,
+    infer_proteins_by_parsimony,
+    parse_psm_tsv,
+    render_parsimony_review_ambiguities_tsv,
+    render_parsimony_review_proteins_tsv,
+    render_parsimony_review_summary_tsv,
+    render_protein_coverage_entries_tsv,
+    render_protein_coverage_peptide_coordinates_tsv,
+    render_protein_coverage_plot_html,
+    render_protein_coverage_plot_positions_tsv,
+    render_protein_coverage_plot_svg,
+    render_protein_coverage_regions_tsv,
+    render_protein_coverage_summary_tsv,
+    render_protein_coverage_uncovered_regions_tsv,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    parse_fasta_document,
+)
+from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
+    _build_decoy_policy,
+    _build_psm_mapping,
+    _filter_review_psms,
+)
 
 
 def run_protein_coverage_command(

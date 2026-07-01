@@ -1,13 +1,27 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """DIA precursor-matrix Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
-from bijux_proteomics.interfaces.support.workflow import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    DiaPrecursorMatrixPolicy,
+    DiaPrecursorQValueFilterTiming,
+    build_diann_precursor_matrix_report,
+    build_spectronaut_precursor_matrix_report,
+    render_dia_precursor_matrix_summary_tsv,
+    render_dia_precursor_metadata_tsv,
+    render_dia_precursor_q_value_matrix_tsv,
+    render_dia_precursor_quantity_matrix_tsv,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
 
 
 def run_diann_precursor_matrix_command(

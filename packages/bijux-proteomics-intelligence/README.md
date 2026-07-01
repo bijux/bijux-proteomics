@@ -19,7 +19,6 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
 
@@ -66,6 +65,17 @@ It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
 `lfq`, and `multiplex` workflows when reviewers need package-owned claims
 instead of presentation-only summaries.
 
+## At a glance
+
+- Use intelligence when reviewers need ranking, readiness, refusal, or
+  recommendation posture without pretending those outputs are scientific truth.
+- Start with `candidates.ranking`, `judgment.paths`, and
+  `posture.evidence`, then open the
+  [intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+  for the full owner map.
+- Route curated evidence memory to knowledge, scientific meaning to core,
+  executable control to runtime, and assay follow-up execution to lab.
+
 ## Why teams pick this package
 
 - transparent ranking and recommendation outputs with traceable decision rationale
@@ -80,6 +90,17 @@ instead of presentation-only summaries.
 - produce explainable shortlists and review-board packets for expert scrutiny
 - summarize proteomics interpretation posture without re-owning raw analysis
 - carry benchmark-backed review claims into release conversations
+
+## 0.3.8 Release Highlights
+
+- Intelligence now ships typed interpretation surfaces for run summaries,
+  differential abundance, PTM review, missingness, outliers, contaminants, and
+  enrichment-driven recommendation posture.
+- The package is now organized around durable owner families for candidates,
+  judgment, posture, interpretation, reviews, and learning, so recommendation
+  boundaries are easier to audit.
+- README and handbook examples now route readers through the currently shipped
+  analytical entrypoints instead of older decision-brief naming.
 
 ## Installation
 
@@ -206,13 +227,13 @@ runtime transport, or lab scheduling.
 Intelligence owns the recommendation sentence inside the shared consequence
 chain, but it does not own the whole story.
 
-- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
   when the question is whether the current recommendation already outruns the
   weakest downstream boundary
-- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
   when the question is which counterfactual, contradiction, or lab burden
   actually changed the recommendation
-- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
   when the honest next action may still be stop, rerun, narrow, or refuse even
   though a recommendation surface exists
 
@@ -304,6 +325,9 @@ chain, but it does not own the whole story.
 
 ## Documentation
 
+- [Decision support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
+- [Workflow consequence maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
+- [What changed the recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)

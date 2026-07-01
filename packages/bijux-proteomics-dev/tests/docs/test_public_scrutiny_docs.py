@@ -39,7 +39,8 @@ def test_public_scrutiny_foundation_pages_exist_and_name_real_surfaces() -> None
     assert "flagship-release-candidate-bundle" in hostile
     assert "whole-repository challenge route" in hostile
     assert "blocked release bars" in why_not_ready
-    assert "Package-boundary stability" in why_not_ready
+    assert "Benchmark asset quality" in why_not_ready
+    assert "Package-boundary stability" not in why_not_ready
     assert "Package-quality gaps" in what_makes_ready
     assert "Docs failures" in what_makes_ready
 

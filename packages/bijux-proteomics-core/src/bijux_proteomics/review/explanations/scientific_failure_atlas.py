@@ -13,7 +13,7 @@ from bijux_proteomics.benchmarks.dia_targeted_pressure import (
     DiaPressureCorpusReport,
     TargetedPressureCorpusReport,
 )
-from bijux_proteomics.benchmarks.flagship_public_packages import (
+from bijux_proteomics.benchmarks.flagship.public_packages import (
     FlagshipPublicBenchmarkPackage,
 )
 from bijux_proteomics.benchmarks.identification_pressure import (

@@ -1,12 +1,53 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """Multiplex matrix and normalization Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    parse_experimental_design_table,
+)
+from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
+    TmtInterferencePolicy,
+    TmtNormalizationMethod,
+    TmtNormalizationPolicy,
+    TmtReporterColumnMapping,
+    TmtSearchResultSourceKind,
+    build_multiplex_metadata_validation_report,
+    build_tmt_interference_report,
+    build_tmt_normalization_report,
+    build_tmt_reporter_feature_bundle,
+    build_tmt_reporter_matrix_report,
+    export_multiplex_channel_assignment_tsv,
+    export_multiplex_duplicate_assignment_tsv,
+    export_multiplex_metadata_summary_tsv,
+    export_multiplex_missing_condition_tsv,
+    export_tmt_channel_distribution_tsv,
+    export_tmt_channel_mapping_tsv,
+    export_tmt_channel_totals_tsv,
+    export_tmt_filtered_interference_tsv,
+    export_tmt_interference_channel_summary_tsv,
+    export_tmt_interference_observation_tsv,
+    export_tmt_interference_summary_tsv,
+    export_tmt_normalization_summary_tsv,
+    export_tmt_normalization_transform_tsv,
+    export_tmt_normalized_peptide_matrix_tsv,
+    export_tmt_normalized_protein_matrix_tsv,
+    export_tmt_peptide_matrix_tsv,
+    export_tmt_protein_matrix_tsv,
+    export_tmt_report_summary_tsv,
+    parse_tmt_reporter_table,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.sequence_support.multiplex_inputs import (
+    _parse_tmt_channel_column_specs,
+)
 
 
 def run_multiplex_validate_metadata_command(

@@ -19,8 +19,8 @@ from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
     ProteinReferenceEntry,
 )
-from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
 

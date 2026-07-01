@@ -3,7 +3,8 @@
 ## Package identity
 
 - Distribution name: `bijux-proteomics`
-- Import root: `bijux_proteomics_alias`
+- Public import root: `bijux_proteomics`
+- Private metadata helper: `bijux_proteomics_alias`
 
 ## Architectural role
 
@@ -18,12 +19,14 @@
 
 ## Module topology
 
-- the package root owns alias forwarding only
-- no extra owner families live below the alias root
+- the package installs the canonical `bijux_proteomics` core namespace
+- the local helper root owns metadata only and must not fork core behavior
+- no extra owner families live below the metadata helper root
 
 ## Canonical tree layout
 
-- Import roots: `bijux_proteomics_alias`
+- Public import roots: `bijux_proteomics`
+- Local metadata helper roots: `bijux_proteomics_alias`
 - Top-level families: none
 - Root modules: none
 
@@ -37,7 +40,8 @@ Canonical product packages must not depend on this alias package.
 ## Downstream expectations
 
 Users should treat this package as a compatibility and packaging convenience,
-not as an independent owner of proteomics behavior.
+not as an independent owner of proteomics behavior. Public Python imports
+should target `bijux_proteomics`, not `bijux_proteomics_alias`.
 
 ## Extension signals
 

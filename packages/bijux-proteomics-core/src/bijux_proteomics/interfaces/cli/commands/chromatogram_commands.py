@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """Chromatogram and DIA trace CLI commands."""
 
@@ -17,7 +16,6 @@ from bijux_proteomics.interfaces.python_api.chromatogram_commands import (
     run_xic_pick_peaks_command,
     run_xic_score_evidence_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("xic-extract")

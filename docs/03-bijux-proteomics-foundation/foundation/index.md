@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # Foundation
@@ -14,6 +14,12 @@ identifiers, schema compatibility, canonical serialization, and cross-package
 invariants. If a page here needs recommendation posture, runtime delivery, or
 lab consequence to justify itself, the page is already pointing at the wrong
 owner.
+
+That narrowness matters more now because the repository carries much deeper
+scientific, runtime, and review surfaces than it did before. The more real
+workflow and evidence depth downstream packages own, the more expensive it
+becomes to let shared identifiers, canonical serialization, deterministic
+hashing, or document meaning drift.
 
 ```mermaid
 flowchart LR
@@ -37,6 +43,15 @@ flowchart LR
 - deterministic serialization and hashing that survive package boundaries
 - migration-safe invariants that downstream owners can consume without rewriting
   primitive meaning
+
+## Why This Section Is Small On Purpose
+
+- foundation exists to settle shared primitive meaning before downstream policy
+  begins
+- deeper scientific packages make cross-package invariants more valuable, not
+  less
+- keeping this section narrow prevents recommendation posture, execution
+  behavior, and lab consequence from leaking into the shared substrate
 
 ## Start With
 
@@ -72,6 +87,19 @@ flowchart LR
 - which invariants every package must share before local owner policy begins
 - when a migration helper is justified versus when a higher package should own
   the change directly
+
+## Strongest Foundation Proof
+
+- start with
+  [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/)
+  for the shortest owner statement
+- continue to
+  [Ownership Boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/)
+  when the real question is whether a proposal crosses into downstream policy
+- open
+  [This Package Does Not Own](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/this-package-does-not-own/)
+  when someone is trying to move recommendation posture, runtime behavior, or
+  lab consequence into shared primitives
 
 ## First Proof Check
 

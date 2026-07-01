@@ -13,11 +13,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._output_tables import write_output_table_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.workflow import build_biological_result_report_bundle
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
+    build_biological_result_report_bundle,
     write_biological_result_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel

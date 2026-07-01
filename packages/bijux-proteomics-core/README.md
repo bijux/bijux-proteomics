@@ -18,7 +18,6 @@
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -48,6 +47,18 @@ Core also owns workflow blueprints and execution requests, but only as
 runtime-agnostic scientific contracts. It does not take over provider binding,
 run orchestration, ranking policy, reference curation, or lab readiness.
 
+## At a glance
+
+- Use core when a change defines proteomics meaning that should remain true
+  before orchestration, curation, recommendation, or lab follow-up is layered
+  on top.
+- Start with the [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md) for the
+  fastest non-developer path, or `bijux_proteomics.interfaces` for curated
+  reader-facing examples.
+- Route provider binding and replay to runtime, cited scientific memory to
+  knowledge, recommendation posture to intelligence, and assay follow-up to
+  lab.
+
 ## Why teams pick this package
 
 - explicit scientific contracts for sequence, chemistry, identification, quantification, PTM, DIA, study, and review surfaces
@@ -61,6 +72,17 @@ run orchestration, ranking policy, reference curation, or lab readiness.
 - model program, target, assay, review, and workflow state with explicit scientific semantics
 - inspect unsupported or lossy scientific inputs without hiding uncertainty
 - build reviewable scientific artifacts that runtime, knowledge, intelligence, and lab can consume
+
+## 0.3.8 Release Highlights
+
+- The public scientific surface now covers FASTA intake, digestion, peptide
+  chemistry, search-result normalization, spectra, mzML ingestion, search
+  adapters, protein inference, label-free quantification, PTM analysis, run
+  QC, and workflow planning.
+- Identification and quantification now publish governed public facades backed
+  by machine-readable owner ledgers instead of one broad mixed export bucket.
+- The shipped demo CLI path and the README examples now point at the current
+  reader-facing workflows instead of older placeholder routes.
 
 ## Installation
 
@@ -109,6 +131,68 @@ Those examples are built from real core functions and show:
 - a digest walkthrough that needs no runtime context
 - an explicit refusal when glycopeptide evidence is incomplete
 - a loss-aware normalization report for external search-engine fields
+
+The interface layer is split on purpose:
+
+- `bijux_proteomics.interfaces` is the curated reader-facing example surface
+- `bijux_proteomics.interfaces.python_api` exposes programmatic command runners
+- `bijux_proteomics.interfaces.cli` owns the interactive CLI entrypoint
+- `bijux_proteomics.interfaces.support` is a compatibility registry of support
+  submodules; internal package code should import owner modules such as
+  `foundation`, `identification`, `interpretation`, `io_and_dia`,
+  `multiplex_targeted`, `ptm_quantification`, `review_sequences_study`, and
+  `workflow` directly
+
+The quantification layer is also split on purpose:
+
+- `bijux_proteomics.quantification` is the reader-facing compatibility facade
+- `bijux_proteomics.quantification.matrix`, `missingness`, `normalization`,
+  `provenance`, `rollup`, `statistics`, and `contracts` are the canonical
+  quantification subfacades over tighter owner modules
+- `bijux_proteomics.quantification.statistics.differential_abundance` is the
+  canonical owner package for differential abundance, grouped into `analysis`,
+  `contrast_statistics`, `design_context`, `observation_vectors`,
+  `rendering`, and `weighting`
+- `bijux_proteomics.quantification.statistics.differential_result_robustness`
+  is the canonical owner package for robustness scoring, grouped into
+  `analysis`, `bootstrap`, `entry_builders`, `models`, and `scoring_policy`
+- `bijux_proteomics.quantification.contracts` is a curated public contract
+  facade, not the preferred internal import target for core source code
+- `bijux_proteomics.quantification.public_api` is the machine-readable ledger
+  for quantification facade ownership, export precedence, and surface budgets
+- internal quantitative code should import owner modules such as `design`,
+  `differential`, `input_models`, `label_based`, `matrix_building`,
+  `matrix_models`, `missingness`, `normalization_imputation`,
+  `protein_rollup`, and `study_qc` directly
+- underscore-prefixed quantitative helpers stay private to their owner modules
+
+The identification layer is split on purpose as well:
+
+- `bijux_proteomics.identification` is the reader-facing compatibility facade
+- `bijux_proteomics.identification.psm`, `peptide`, `protein`, `fdr`,
+  `contracts`, and `adapters` are curated facades over narrower owner modules
+- `bijux_proteomics.identification.public_api` is the machine-readable ledger
+  for export ownership, rationale, and surface budgets
+- `bijux_proteomics.identification.facade_ledger` is the canonical package tree
+  for those ledgers, grouped by durable owner family instead of one giant
+  catalog module
+- internal code should prefer owner modules such as
+  `identification.psm.psm_rescoring`, `identification.fdr.confidence`, and
+  `identification.protein.protein_grouping` instead of reaching through the
+  broad compatibility facades when one bounded concern is enough
+
+The labeled differential workflow surface is split on purpose too:
+
+- `bijux_proteomics.workflow.label_based_differential_analysis` remains the
+  stable reader-facing import path
+- `bijux_proteomics.workflow.pipelines.label_based_differential` is the
+  canonical owner package for the public workflow surface
+- that owner package is grouped by scientific responsibility:
+  `analysis`, `inputs`, `models`, `normalization`, `rendering`, and
+  `statistics`
+- internal workflow code should import the narrow owner modules it needs
+  instead of growing the compatibility facades back into mixed 1,000-line
+  owners
 
 Sequence intake and FASTA operations now live in the same package surface:
 
@@ -595,6 +679,14 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - repository and execution protocols must stay replaceable and runtime-agnostic
 - downstream packages should consume core scientific rules instead of restating them
 
+## Workflow surface layout
+
+- use `bijux_proteomics.workflow` for the stable root import surface
+- use `bijux_proteomics.workflow.reports`, `cards`, `exports`, `demo`, and `pipelines` when you want the owned subfacade instead of the broad root barrel
+- treat `src/bijux_proteomics/workflow/public_api.py` as the source of truth for root and subfacade export ledgers
+- add new workflow exports to the owning subfacade first; only re-export them from the root when the package-level import is worth supporting long term
+- do not grow root-level compatibility wrappers into second owners; they exist to preserve import continuity, not to hide where workflow behavior really lives
+
 ## Choose this package when
 
 - you need canonical proteomics semantics that higher layers should consume rather than reinterpret
@@ -648,7 +740,7 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [`src/bijux_proteomics/sequences/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py) for protease rules, digestion modes, peptide filters, and peptide-to-protein indexing
 - [`src/bijux_proteomics/chemistry/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py) for peptide masses, fragment ions, neutral losses, and modification semantics
 - [`src/bijux_proteomics/identification/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py) for stable PSM parsing, target-decoy evaluation, and peptide/protein evidence rollups
-- [`src/bijux_proteomics/identification/search_adapters.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py) for engine-specific manifests, normalization, conformance, and loss accounting
+- [`src/bijux_proteomics/identification/search_adapters/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters) for engine-specific manifests, normalization, conformance, and loss accounting
 - [`src/bijux_proteomics/io/formats/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/formats/__init__.py) for format detection, mzML parsing, design-table support, and normalized run bundles
 - [`src/bijux_proteomics/io/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py) for mzIdentML, mzTab, mzML-decoding, chromatogram, and boundary-aware ingestion reports
 - [`src/bijux_proteomics/io/spectra/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra/__init__.py) for spectrum models, MGF parsing, fragment annotation, and plot payload export
@@ -677,8 +769,11 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 
 ## Documentation
 
+- [Benchmark assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
 - [Package guide](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)

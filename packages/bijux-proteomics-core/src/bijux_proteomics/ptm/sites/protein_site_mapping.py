@@ -9,7 +9,7 @@ from collections.abc import Mapping
 import csv
 from io import StringIO
 
-from bijux_proteomics.chemistry import (
+from bijux_proteomics.chemistry.modifications import (
     ModificationPosition,
     ModificationRegistryDocument,
     parse_modified_peptide,

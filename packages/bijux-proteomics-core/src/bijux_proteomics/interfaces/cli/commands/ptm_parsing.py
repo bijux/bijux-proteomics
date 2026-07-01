@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
 
 """PTM parsing and mapping CLI commands."""
 
@@ -16,7 +15,6 @@ from bijux_proteomics.interfaces.python_api.ptm_parsing import (
     run_ptm_parse_peptides_command,
     run_ptm_score_localization_command,
 )
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
 
 
 @click.command("parse-peptide")

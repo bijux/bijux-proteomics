@@ -14,13 +14,15 @@ from bijux_proteomics.identification import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
 )
-from bijux_proteomics.identification.search_adapters import (
+from bijux_proteomics.identification.search_adapters.contracts import (
     ScoreOrientation,
     SearchAdapterKind,
     SearchAdapterManifest,
     SearchAdapterNormalizationReport,
     SearchResultFamily,
     SearchResultFamilyPolicy,
+)
+from bijux_proteomics.identification.search_adapters.input_review import (
     build_search_adapter_field_accounting,
 )
 from bijux_proteomics.ptm.review import evaluate_glycopeptide_support_boundary

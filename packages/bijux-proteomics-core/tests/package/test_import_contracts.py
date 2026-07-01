@@ -85,6 +85,52 @@ def test_benchmarks_package_import_contract() -> None:
     assert hasattr(module, "build_core_algorithm_performance_benchmark_report")
 
 
+def test_flagship_benchmark_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.benchmarks.flagship")
+
+    assert hasattr(module, "flagship_asset_root")
+    assert hasattr(module, "build_flagship_dda_public_benchmark_package")
+    assert not hasattr(module, "build_flagship_acceptance_dashboard")
+
+
+def test_flagship_benchmark_support_module_import_contract() -> None:
+    acceptance_assets = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.acceptance_assets"
+    )
+    challenge_assets = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.challenge_assets"
+    )
+    maintenance = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.maintenance"
+    )
+
+    assert acceptance_assets.main is not None
+    assert challenge_assets.main is not None
+    assert maintenance.main is not None
+
+
+def test_flagship_dda_reviewable_package_import_contract() -> None:
+    module = importlib.import_module(
+        "bijux_proteomics.benchmarks.flagship.dda_reviewable_package"
+    )
+
+    assert module.build_dda_reviewable_package is not None
+
+
+def test_generalization_benchmark_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.benchmarks.generalization")
+
+    assert module.build_workflow_generalization_reports is not None
+
+
+def test_generalization_benchmark_support_module_import_contract() -> None:
+    module = importlib.import_module(
+        "bijux_proteomics.benchmarks.generalization.assets"
+    )
+
+    assert module.main is not None
+
+
 def test_core_cli_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interfaces.cli")
 
@@ -213,12 +259,16 @@ def test_identification_subpackage_import_contract() -> None:
     protein = importlib.import_module("bijux_proteomics.identification.protein")
     fdr = importlib.import_module("bijux_proteomics.identification.fdr")
     adapters = importlib.import_module("bijux_proteomics.identification.adapters")
+    search_adapters = importlib.import_module(
+        "bijux_proteomics.identification.search_adapters"
+    )
 
     assert hasattr(psm, "extract_psm_features")
     assert hasattr(peptide, "build_peptide_evidence_report")
     assert hasattr(protein, "build_protein_grouping_report")
     assert hasattr(fdr, "build_psm_target_decoy_fdr_report")
     assert hasattr(adapters, "build_diann_import_report")
+    assert hasattr(search_adapters, "search_adapter_registry")
 
 
 def test_review_subpackage_import_contract() -> None:
@@ -269,6 +319,26 @@ def test_quantification_subpackage_import_contract() -> None:
     assert hasattr(missingness, "build_missingness_classifier_report")
     assert hasattr(statistics, "build_differential_abundance_report")
     assert hasattr(provenance, "build_quant_review_bundle")
+
+
+def test_chemistry_subpackage_import_contract() -> None:
+    contracts = importlib.import_module("bijux_proteomics.chemistry.contracts")
+    mass = importlib.import_module("bijux_proteomics.chemistry.mass")
+    fragments = importlib.import_module("bijux_proteomics.chemistry.fragments")
+    modifications = importlib.import_module("bijux_proteomics.chemistry.modifications")
+    isotopes = importlib.import_module("bijux_proteomics.chemistry.isotopes")
+
+    assert hasattr(contracts, "parse_modified_peptide")
+    assert hasattr(contracts, "calculate_fragment_ions")
+    assert hasattr(mass, "calculate_monoisotopic_peptide_mass")
+    assert hasattr(mass, "calculate_peptide_mz")
+    assert hasattr(fragments, "FragmentIonSeries")
+    assert hasattr(fragments, "build_fragment_ion_review_report")
+    assert hasattr(modifications, "ModificationRegistryDocument")
+    assert hasattr(modifications, "load_modification_registry")
+    assert hasattr(modifications, "canonicalize_modified_peptide")
+    assert hasattr(isotopes, "predict_peptide_isotope_envelope")
+    assert hasattr(isotopes, "build_stable_isotope_labeling_model")
 
 
 def test_lab_package_import_contract() -> None:
@@ -458,7 +528,7 @@ def test_workflow_package_import_contract() -> None:
     assert hasattr(module, "design_assay_from_discovery")
     assert hasattr(module, "compare_studies")
     assert hasattr(module, "build_mechanism_cards")
-    assert hasattr(module, "load_result_archive")
+    assert hasattr(module.exports, "load_result_archive")
     assert hasattr(module, "load_public_benchmark_descriptor")
     assert hasattr(module, "build_public_benchmark_subset")
     assert hasattr(module, "generate_quant_truth_dataset")
@@ -481,6 +551,18 @@ def test_workflow_result_types_import_contract() -> None:
 
 def test_workflow_pipeline_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.workflow.pipelines")
+    advanced = importlib.import_module("bijux_proteomics.workflow.pipelines.advanced")
+    benchmarking = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.benchmarking"
+    )
+    comparative = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.comparative"
+    )
+    engines = importlib.import_module("bijux_proteomics.workflow.pipelines.engines")
+    operations = importlib.import_module(
+        "bijux_proteomics.workflow.pipelines.operations"
+    )
+    synthesis = importlib.import_module("bijux_proteomics.workflow.pipelines.synthesis")
     advanced_tmt = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.advanced_tmt"
     )
@@ -495,6 +577,36 @@ def test_workflow_pipeline_package_import_contract() -> None:
     )
 
     assert module.__name__ == "bijux_proteomics.workflow.pipelines"
+    assert advanced.__name__ == "bijux_proteomics.workflow.pipelines.advanced"
+    assert benchmarking.__name__ == "bijux_proteomics.workflow.pipelines.benchmarking"
+    assert comparative.__name__ == "bijux_proteomics.workflow.pipelines.comparative"
+    assert engines.__name__ == "bijux_proteomics.workflow.pipelines.engines"
+    assert operations.__name__ == "bijux_proteomics.workflow.pipelines.operations"
+    assert synthesis.__name__ == "bijux_proteomics.workflow.pipelines.synthesis"
+    assert hasattr(benchmarking, "run_public_benchmark_descriptor_suite")
+    assert hasattr(benchmarking, "build_trust_bundle")
+    assert hasattr(benchmarking, "run_weak_evidence_benchmark")
+    assert hasattr(comparative, "build_diann_vs_dda_psm_comparison_report")
+    assert hasattr(comparative, "build_dia_differential_analysis_report")
+    assert hasattr(comparative, "build_label_based_differential_analysis_report")
+    assert hasattr(operations, "build_proteomics_run_bundle")
+    assert hasattr(operations, "run_proteomics_workflow")
+    assert hasattr(synthesis, "design_assay_from_discovery")
+    assert hasattr(synthesis, "build_integrated_scientific_report")
+    assert hasattr(synthesis, "compare_studies")
+    assert hasattr(engines, "build_dda_biological_workflow_bundle")
+    assert hasattr(engines, "build_diann_biological_workflow_bundle")
+    assert hasattr(engines, "build_ptm_site_workflow_bundle")
+    assert hasattr(advanced, "build_advanced_workflow_family_contract")
+    assert hasattr(advanced, "run_advanced_diann_workflow")
+    assert hasattr(advanced, "run_advanced_fragpipe_workflow")
+    assert hasattr(advanced, "run_advanced_maxquant_workflow")
+    assert hasattr(advanced, "run_advanced_ptm_workflow")
+    assert hasattr(advanced, "run_targeted_validation_workflow")
+    assert hasattr(advanced, "run_advanced_tmt_workflow")
+    assert hasattr(engines, "build_tmt_label_based_report_bundle")
+    assert hasattr(engines, "build_maxquant_biological_workflow_bundle")
+    assert hasattr(engines, "build_tmt_experiment_workflow_bundle")
     assert hasattr(advanced_tmt, "run_advanced_tmt_workflow")
     assert hasattr(orchestrator, "run_proteomics_workflow")
     assert hasattr(trust_bundle, "build_trust_bundle")
@@ -502,10 +614,21 @@ def test_workflow_pipeline_package_import_contract() -> None:
 
 
 def test_workflow_subpackage_import_contract() -> None:
+    benchmarks = importlib.import_module("bijux_proteomics.workflow.benchmarks")
+    benchmark_datasets = importlib.import_module(
+        "bijux_proteomics.workflow.benchmarks.datasets"
+    )
+    benchmark_fidelity = importlib.import_module(
+        "bijux_proteomics.workflow.benchmarks.fidelity"
+    )
+    benchmark_synthetic = importlib.import_module(
+        "bijux_proteomics.workflow.benchmarks.synthetic"
+    )
     reports = importlib.import_module("bijux_proteomics.workflow.reports")
     cards = importlib.import_module("bijux_proteomics.workflow.cards")
     exports = importlib.import_module("bijux_proteomics.workflow.exports")
     demo = importlib.import_module("bijux_proteomics.workflow.demo")
+    studies = importlib.import_module("bijux_proteomics.workflow.studies")
     weak_evidence = importlib.import_module("bijux_proteomics.workflow.weak_evidence")
     dda = importlib.import_module(
         "bijux_proteomics.workflow.pipelines.dda_biological_workflow"
@@ -514,10 +637,33 @@ def test_workflow_subpackage_import_contract() -> None:
         "bijux_proteomics.workflow.pipelines.label_based_reporting"
     )
 
+    assert benchmarks.__name__ == "bijux_proteomics.workflow.benchmarks"
+    assert hasattr(benchmarks, "load_public_benchmark_descriptor")
+    assert hasattr(benchmarks, "build_public_benchmark_subset")
+    assert hasattr(benchmarks, "generate_quant_truth_dataset")
+    assert (
+        benchmark_datasets.__name__ == "bijux_proteomics.workflow.benchmarks.datasets"
+    )
+    assert hasattr(benchmark_datasets, "load_public_benchmark_descriptor")
+    assert hasattr(benchmark_datasets, "build_public_benchmark_subset")
+    assert (
+        benchmark_fidelity.__name__ == "bijux_proteomics.workflow.benchmarks.fidelity"
+    )
+    assert hasattr(benchmark_fidelity, "build_diann_benchmark_report")
+    assert hasattr(benchmark_fidelity, "build_maxquant_benchmark_report")
+    assert (
+        benchmark_synthetic.__name__ == "bijux_proteomics.workflow.benchmarks.synthetic"
+    )
+    assert hasattr(benchmark_synthetic, "generate_quant_truth_dataset")
+    assert hasattr(benchmark_synthetic, "render_synthetic_quant_truth_tsv")
     assert reports.__name__ == "bijux_proteomics.workflow.reports"
     assert cards.__name__ == "bijux_proteomics.workflow.cards"
+    assert hasattr(cards, "build_mechanism_cards")
     assert exports.__name__ == "bijux_proteomics.workflow.exports"
+    assert hasattr(exports, "export_targeted_matrix_workflow_artifacts")
+    assert hasattr(exports, "export_targeted_assay_qc_workflow_artifacts")
     assert demo.__name__ == "bijux_proteomics.workflow.demo"
+    assert studies.__name__ == "bijux_proteomics.workflow.studies"
 
     assert hasattr(reports, "build_biological_result_report_bundle")
     assert hasattr(reports, "build_biological_result_graph_report")
@@ -531,6 +677,15 @@ def test_workflow_subpackage_import_contract() -> None:
     assert hasattr(demo, "render_scale_demo_summary_tsv")
     assert hasattr(demo, "run_surprising_demo")
     assert hasattr(demo, "build_surprising_demo_interrogation_report")
+    assert hasattr(studies, "build_cohort_stratification_report")
+    assert hasattr(studies, "build_cross_study_effect_comparison_report")
+    assert hasattr(studies, "build_cross_study_meta_analysis_report")
+    assert hasattr(studies, "build_cross_study_pathway_comparison_report")
+    assert hasattr(studies, "build_cross_study_protein_harmonization_report")
+    assert hasattr(studies, "build_cross_species_effect_comparison_report")
+    assert hasattr(studies, "build_public_dataset_comparison_report")
+    assert hasattr(studies, "build_proteomics_study_result")
+    assert hasattr(studies, "ProteomicsStudyKind")
     assert hasattr(weak_evidence, "build_flagship_weak_evidence_benchmark_descriptor")
     assert hasattr(weak_evidence, "run_weak_evidence_benchmark")
     assert hasattr(dda, "build_dda_biological_workflow_bundle")
@@ -551,6 +706,13 @@ def test_review_package_import_contract() -> None:
     assert hasattr(module, "build_biomarker_candidate_ranking_report")
     assert hasattr(module, "build_result_explanation_report_from_artifacts")
     assert hasattr(module, "build_result_query_report_from_artifacts")
+
+
+def test_workflow_root_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.workflow")
+
+    assert hasattr(module, "build_biological_result_report_bundle")
+    assert hasattr(module, "build_ptm_report_bundle")
 
 
 def test_targeted_package_import_contract() -> None:

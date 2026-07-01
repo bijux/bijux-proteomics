@@ -5,54 +5,40 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
 
-_QUANTIFICATION_EXPORT_MODULES = (
-    "bijux_proteomics.quantification.batch_effect",
-    "bijux_proteomics.quantification.censored_differential",
-    "bijux_proteomics.quantification.composition",
-    "bijux_proteomics.quantification.core_matrix",
-    "bijux_proteomics.quantification.contracts",
-    "bijux_proteomics.quantification.design_matrix",
-    "bijux_proteomics.quantification.differential_abundance",
-    "bijux_proteomics.quantification.differential_imputation_dependence",
-    "bijux_proteomics.quantification.differential_result_robustness",
-    "bijux_proteomics.quantification.heatmap_preparation",
-    "bijux_proteomics.quantification.imputation",
-    "bijux_proteomics.quantification.matrix",
-    "bijux_proteomics.quantification.matrix_archive",
-    "bijux_proteomics.quantification.method_agreement",
-    "bijux_proteomics.quantification.model_rollup",
-    "bijux_proteomics.quantification.missingness",
-    "bijux_proteomics.quantification.multi_contrast_consistency",
-    "bijux_proteomics.quantification.normalization",
-    "bijux_proteomics.quantification.peptide_level_differential",
-    "bijux_proteomics.quantification.peptide_intensity_matrix",
-    "bijux_proteomics.quantification.peptide_profile_inconsistency",
-    "bijux_proteomics.quantification.power_estimation",
-    "bijux_proteomics.quantification.protein_intensity_matrix",
-    "bijux_proteomics.quantification.protein_lfq",
-    "bijux_proteomics.quantification.provenance",
-    "bijux_proteomics.quantification.readiness",
-    "bijux_proteomics.quantification.replicate_qc",
-    "bijux_proteomics.quantification.review",
-    "bijux_proteomics.quantification.rollup",
-    "bijux_proteomics.quantification.sample_exploration",
-    "bijux_proteomics.quantification.statistics",
-    "bijux_proteomics.quantification.statistical_backend",
-    "bijux_proteomics.quantification.time_course_differential",
-    "bijux_proteomics.quantification.uncertainty",
-    "bijux_proteomics.quantification.variance_model",
-    "bijux_proteomics.quantification.value_provenance",
+from bijux_proteomics.quantification.public_api import (
+    QUANTIFICATION_ROOT_FACADE_OWNERS,
+    QUANTIFICATION_ROOT_SUBMODULES,
+    build_lazy_export_index,
+    facade_owner_modules,
+    module_directory,
+    resolve_public_export,
+    resolve_public_submodule,
+)
+
+__all__, _QUANTIFICATION_EXPORT_INDEX = build_lazy_export_index(
+    facade_owner_modules(QUANTIFICATION_ROOT_FACADE_OWNERS),
+    collision_policy="prefer_first_owner",
 )
 
 
 def __getattr__(name: str) -> Any:
-    for module_path in _QUANTIFICATION_EXPORT_MODULES:
-        module = import_module(module_path)
-        if hasattr(module, name):
-            value = getattr(module, name)
-            globals()[name] = value
-            return value
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    if name in QUANTIFICATION_ROOT_SUBMODULES:
+        return resolve_public_submodule(
+            __name__,
+            globals(),
+            QUANTIFICATION_ROOT_SUBMODULES,
+            name,
+        )
+    return resolve_public_export(
+        __name__, globals(), _QUANTIFICATION_EXPORT_INDEX, name
+    )
+
+
+def __dir__() -> list[str]:
+    return module_directory(
+        globals(),
+        __all__,
+        submodule_names=tuple(QUANTIFICATION_ROOT_SUBMODULES),
+    )

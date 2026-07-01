@@ -10,7 +10,7 @@ import warnings
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.sequences.core import (
+from bijux_proteomics.sequences.fasta import (
     FastaParseMode,
     NormalizedProteinRecord,
     parse_fasta_document,

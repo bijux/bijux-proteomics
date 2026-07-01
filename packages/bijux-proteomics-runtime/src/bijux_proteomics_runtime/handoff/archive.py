@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.review import (
     BeliefAuditReport,
+    ProteomicsEvidenceGraph,
     build_belief_audit_report_from_artifacts,
 )
 from bijux_proteomics.workflow import (
@@ -19,7 +20,6 @@ from bijux_proteomics.workflow import (
     InteractiveResultPathway,
     InteractiveResultProtein,
     InteractiveResultQcEntry,
-    ProteomicsEvidenceGraph,
     ProteomicsStudyConclusionEntry,
     ProteomicsStudyMatrixSurface,
     ProteomicsStudyResult,

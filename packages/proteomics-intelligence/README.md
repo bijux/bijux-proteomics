@@ -16,11 +16,9 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
-[![proteomics-intelligence](https://img.shields.io/badge/proteomics--intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fproteomics-intelligence)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -41,6 +39,24 @@ It is the install and import alias for bijux-proteomics-intelligence.
 
 Use this package when you want a shorter distribution and import name for the
 recommendation and review layer without creating a second owner.
+
+## Alias at a glance
+
+- Use `proteomics-intelligence` when a shorter name is useful for the
+  recommendation and review surface, but canonical ownership must stay the
+  same.
+- Start with the
+  [canonical intelligence package docs](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+  because this package only forwards into that owner surface.
+- Route recommendation behavior to `bijux-proteomics-intelligence`; keep this
+  package focused on compatibility naming and import forwarding.
+
+## 0.3.8 Release Highlights
+
+- The alias now routes readers to the current intelligence handbook instead of
+  sounding like a second analytical owner.
+- Documentation and release guidance now state the forwarding contract in
+  direct, audit-friendly language.
 
 ## Installation
 
@@ -159,6 +175,8 @@ assert items.entries[0].claim_id == claim.claim_id
 
 ## Documentation
 
+- Release guidance lives in this `README.md`, this package `CHANGELOG.md`, and
+  package `docs/*.md` under the canonical intelligence owner surface.
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical intelligence package docs](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)

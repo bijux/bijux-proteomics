@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-06-30
 ---
 
 # Foundation
@@ -14,6 +14,22 @@ scientific law: workflow contracts, lifecycle transitions, review gates,
 runtime-agnostic request shapes, and benchmark acceptance logic. If a page here
 needs recommendation posture or operator transport to justify itself, the
 boundary is already drifting.
+
+This section now carries far more real scientific weight than an abstract
+workflow charter. Public benchmark evidence, workflow-family trust, and release
+scrutiny all depend on core continuing to state runtime-agnostic workflow
+contracts, benchmark-acceptance bars, and lifecycle transitions in terms that
+remain inspectable outside execution code.
+
+## Why Readers Should Start Here More Often
+
+- core is where the repository proves it has scientific law instead of only
+  opinionated runtime wrappers
+- benchmark trust, family transfer, and package lineage all depend on the
+  contracts named here staying explicit and reviewable
+- the deeper chemistry, sequence, identification, quantification, PTM, DIA,
+  and targeted surfaces only become trustworthy when their workflow contracts
+  and acceptance bars stay visible before downstream interpretation begins
 
 ```mermaid
 flowchart LR
@@ -40,51 +56,42 @@ flowchart LR
 - review-gate and lifecycle truth that stays inspectable outside runtime code
 - scientific contracts that remain distinct from evidence memory and lab burden
 
+## What Makes This Section Scientifically Heavy
+
+- it names the repository's scientific law before downstream judgment begins
+- benchmark-backed workflow families must clear benchmark-acceptance scrutiny
+  here before they earn broader trust language
+- runtime, knowledge, intelligence, and lab all inherit these lifecycle
+  transitions and workflow contracts before they add local owner logic
+
 ## Start With
 
-- Open [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/) for the shortest statement of
-  the package role.
-- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/) when the question is
-  whether a change belongs here or in a neighbor.
-- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
-  when the question is whether a proposal is trying to push evidence,
-  recommendation, or execution delivery back into core.
-- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/) when a proposed change
-  risks broadening the package.
-- Open [Capability Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/capability-map/) when you need the concrete work
-  the package is allowed to do.
-- Open [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
-  when you need the current public package roots and artifact contracts across
-  the flagship workflow families.
-- Open [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/)
-  when you need the copied-source contract, rebuild command, citation manifest,
-  freshness report, and obsolescence audit behind those roots.
-- Open [Benchmark Asset Audit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-asset-audit/)
-  when you need every primary and companion benchmark root re-audited for raw
-  source, checksum, extraction step, derived review path, and owning rebuild
-  command.
-- Open [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/)
-  when the question is whether a workflow family's benchmark review window,
-  copied snapshots, or remote references have slipped far enough to narrow
-  release language.
-- Open the family lineage pages when the dispute is whether one workflow family
-  still holds together across both its primary flagship package and its
-  companion generalization package.
-- Open [Benchmark Licensing and Redistribution](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-licensing-and-redistribution/)
-  when the question is what the repository redistributes as governed evidence
-  versus what remains only a public reference or external-engine context.
-- Open [Benchmark Incompleteness Ledger](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger/)
-  when you need the live blockers, realism limits, non-transfer zones, and
-  failure conditions that still cap benchmark trust.
-- Open [Benchmark Flagship Status](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-flagship-status/)
-  when the question is whether a package root still deserves flagship naming or
-  should be treated only as a companion or internal-support surface.
-- Open [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
-  when you need the blinded holdouts and perturbation roots that deliberately
-  try to break those benchmark claims.
-- Open [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
-  when you need the exact thresholds, dashboard, history ledger, and rationale
-  dossier that decide whether release trust is still earned.
+- Ownership and scope:
+  open [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/),
+  [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/),
+  [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/),
+  and [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/)
+  when the question is whether a scientific workflow concern really belongs in
+  core.
+- Benchmark evidence:
+  open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/),
+  [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/),
+  [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/),
+  and [Benchmark Asset Audit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-asset-audit/)
+  when the question is what public benchmark roots exist and how they were
+  governed into the repository.
+- Workflow trust:
+  open [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/),
+  [Benchmark Incompleteness Ledger](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger/),
+  [Benchmark Flagship Status](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-flagship-status/),
+  and [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
+  when the question is whether benchmark evidence still earns a public
+  workflow sentence.
+- Family transfer:
+  open the family lineage pages plus the
+  [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
+  when the dispute is whether one workflow family survives blinded holdouts,
+  perturbations, and companion-package generalization.
 
 ## Section Pages
 
@@ -121,6 +128,29 @@ flowchart LR
 - which benchmark-acceptance and lifecycle surfaces are still owned here
 - when a proposed change is really evidence policy, runtime delivery, or lab
   consequence and should leave this package
+
+## Reader Questions This Section Can Answer Well
+
+- where does the repository define workflow truth before benchmark prose or
+  recommendation prose starts narrowing it
+- which public benchmark roots actually anchor the current flagship families
+- why a workflow family can look benchmark-rich and still stay bounded by
+  transfer, acceptance, or lifecycle limits
+- which neighboring package is allowed to add judgment, grounding, or
+  consequence only after core has named the scientific contract clearly
+
+## Strongest Core Proof
+
+- start with
+  [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
+  when the question is whether the repository has real public scientific roots
+- continue to
+  [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
+  when the dispute is whether a family still earns benchmark-backed trust
+- open
+  [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
+  when a proposal is trying to turn scientific law into evidence policy,
+  recommendation posture, or operator transport
 
 ## First Proof Check
 

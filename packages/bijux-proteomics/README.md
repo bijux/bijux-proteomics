@@ -16,11 +16,9 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
-[![bijux-proteomics](https://img.shields.io/badge/bijux--proteomics-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
-[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -37,10 +35,30 @@
 
 `bijux-proteomics` is the distribution-name alias for the canonical core owner
 `bijux-proteomics-core`.
-It is the install and command alias for bijux-proteomics-core.
+It is the install and command alias for bijux-proteomics-core, while the
+public Python import surface remains the canonical `bijux_proteomics`
+namespace shipped by core.
 
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.
+
+## Alias at a glance
+
+- Use `bijux-proteomics` when packaging, documentation, or deployment needs
+  the flagship distribution name rather than the canonical owner package name.
+- Start scientific feature discovery from the
+  [canonical core package docs](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  because this package forwards into the core owner surface.
+- Route all new scientific behavior to `bijux-proteomics-core`; keep this
+  package focused on install-name compatibility and publication metadata.
+
+## 0.3.8 Release Highlights
+
+- The flagship distribution name now routes readers directly to the current
+  core scientific surface instead of implying a second owner package.
+- The alias follows the `0.3.8` release line while the canonical
+  `bijux-proteomics-core` package continues to own FASTA, digestion, search,
+  quantification, PTM, QC, and workflow-planning behavior.
 
 ## Installation
 
@@ -67,6 +85,7 @@ assert report.accepted_records[0].canonical_accession == "P11111"
 
 - Distribution name: `bijux-proteomics`
 - Import root: `bijux_proteomics`
+- Private metadata helper: `bijux_proteomics_alias`
 - Canonical owner package: `bijux-proteomics-core`
 - Canonical owner docs: `packages/bijux-proteomics-core/README.md`
 
@@ -144,7 +163,12 @@ assert report.accepted_records[0].canonical_accession == "P11111"
 
 ## Documentation
 
+- Release guidance lives in this `README.md`, this package `CHANGELOG.md`, and
+  package `docs/*.md` under the canonical owner surface.
+- [Product overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
+- [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Execution overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
 - [Canonical core package docs](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [Changelog](CHANGELOG.md)

@@ -1,12 +1,31 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
-# ruff: noqa: F401,F403,F405
-
 """PTM context-annotation Python API entrypoints."""
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.support import *  # noqa: F401,F403,F405
+from bijux_proteomics.interfaces.support.foundation import (
+    Path,
+    click,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
+    PtmLocalizationColumnMapping,
+    PtmSiteContextColumnMapping,
+    build_ptm_site_context_report,
+    build_ptm_site_table,
+    export_ptm_site_context_summary_tsv,
+    export_ptm_site_context_tsv,
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+    parse_ptm_site_context_tsv,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    parse_fasta_document,
+)
 
 
 def run_ptm_annotate_context_command(
