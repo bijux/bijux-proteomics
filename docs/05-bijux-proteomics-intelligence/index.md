@@ -52,6 +52,15 @@ flowchart LR
 - challenge, confidence, regret, and downgrade routes that show where the
   analytical posture narrows before the lab or operator is asked to act
 
+## Concrete Analytical Families
+
+| owner band | visible package substance | why it matters |
+| --- | --- | --- |
+| `candidates` and `claims` | ranking pressure, shortlist logic, recommendation-facing claims | analytical posture starts from explicit competitive pressure |
+| `interpretation` | run summaries, differential-abundance readings, PTM and review synthesis | scientific outputs become typed analytical narratives |
+| `judgment` and `posture` | review-board decisions, readiness, downgrade, regret, refusal | recommendation strength is challengeable as policy |
+| `reviews` and `learning` | benchmark-backed review packets and outcome-aware refinement | the package can improve or narrow because of later evidence |
+
 ## Why This Package Matters More Now
 
 - the repository now has enough benchmark, runtime, and grounding depth that
@@ -102,6 +111,14 @@ flowchart LR
   visible in the shipped analytical artifacts
 - how recommendation language changes when contradiction, comparator pressure,
   or lab burden is reintroduced
+
+## What Changed Since v0.3.7
+
+- analytical judgment is no longer hidden inside one confidence-sounding layer
+- challenge, downgrade, and regret surfaces now make overclaiming easier to
+  detect from public docs
+- the package now looks like a real analytical owner instead of a soft bridge
+  between evidence and lab follow-up
 
 ## Analytical Proof Surfaces
 

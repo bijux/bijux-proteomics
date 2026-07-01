@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Runtime Handbook
@@ -100,6 +100,15 @@ flowchart LR
 - run orchestration, replay, determinism, and state transitions
 - runtime artifacts and execution-lifecycle records
 
+## Concrete Runtime Subsystems
+
+| owner band | visible package substance | why it matters |
+| --- | --- | --- |
+| API and operator entrypoints | CLI, HTTP, and route surfaces | outsiders and operators can start runs from public interfaces |
+| execution control | engine, compiler, evaluation, parallel, resume, rehydrate | runtime proof is structured instead of ad hoc |
+| providers and tools | builtin, local, and remote providers | execution realism is visible and bounded |
+| state and artifacts | runs, checkpoints, handoff, state, artifacts, diff | the product can prove what happened after the run |
+
 ## What Runtime Refuses
 
 - canonical domain and biology semantics
@@ -115,6 +124,15 @@ flowchart LR
   maintainers what counts
 - where rerun strength still fails to authorize stronger scientific or release
   language
+
+## What Changed Since v0.3.7
+
+- runtime is now visibly a public proof owner, not just an internal run
+  surface
+- replay, comparability, refusal, and artifact-stability routes now make
+  rerun honesty auditable
+- the package now shows how execution can be strong and still remain bounded
+  by benchmark, grounding, recommendation, or consequence limits
 
 ## First Proof Check
 

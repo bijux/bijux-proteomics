@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # bijux-proteomics-lab
@@ -60,6 +60,15 @@ cheap or easy to validate.
 - assay planning and experiment-facing workflows
 - outcome capture, promotion, and closed-loop lab decisions
 - lab-facing artifacts that connect recommendations to real execution
+
+## Concrete Lab Families
+
+| owner band | visible package substance | why it matters |
+| --- | --- | --- |
+| planning and design | assay plans, design routes, material and control thinking | recommendations become priced scientific work |
+| readiness and lifecycle | queue discipline, preflight burden, follow-up state | the product can say when not to spend yet |
+| handoffs and benchmarks | downstream packets, rehearsal routes, benchmark-facing consequence work | analytical confidence meets operational reality |
+| outcomes and reconciliation | requested-versus-observed loops and closure state | later scientific language can narrow because of what actually happened |
 
 ## Why This Package Matters More Now
 
@@ -120,6 +129,15 @@ cheap or easy to validate.
   filed away as operational detail
 - why a refusal can be the strongest scientific answer even when a benchmark or
   recommendation route looks promising
+
+## What Changed Since v0.3.7
+
+- the package now presents downstream burden as a real scientific constraint,
+  not as a project-management afterthought
+- observed outcomes and refusals now clearly participate in later trust
+  language
+- lab consequence is now one of the strongest proofs that the repository has
+  become a practical scientific product instead of only a review framework
 
 ## First Proof Check
 

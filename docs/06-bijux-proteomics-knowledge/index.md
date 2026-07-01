@@ -59,6 +59,15 @@ flowchart LR
 - grounding, literature-pressure, and biological-context surfaces that stop the
   repository from sounding more certain than its evidence state earns
 
+## Concrete Knowledge Families
+
+| owner band | visible package substance | why it matters |
+| --- | --- | --- |
+| `memory` and `reviews` | evidence bundles, claims, confidence, contradiction, review state | public belief can be challenged against structured memory |
+| `references` | workflow grounding, literature audits, curated scientific support | release language can be read against explicit citation pressure |
+| biological context owners | pathways, complexes, kinases, drugs, disease, features, coverage, orthologs | scientific meaning stays concrete instead of generic |
+| `contracts` and `identity` | compatibility and entity reconciliation | downstream packages inherit one knowledge-state contract |
+
 ## Why This Package Matters More Now
 
 - public trust language is now challenged by explicit grounding routes instead
@@ -111,6 +120,15 @@ flowchart LR
   claim
 - whether a public workflow sentence has earned trust through explicit evidence
   state rather than tone
+
+## What Changed Since v0.3.7
+
+- biological context is now visible enough to count as real product substance,
+  not implied support material
+- contradiction and grounding routes are now concrete enough to slow an
+  over-optimistic workflow story
+- the package now shows where scientific hesitation comes from instead of only
+  insisting that hesitation exists
 
 ## Evidence Proof Surfaces
 
