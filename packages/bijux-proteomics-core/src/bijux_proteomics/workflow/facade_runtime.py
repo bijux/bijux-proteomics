@@ -35,6 +35,12 @@ def list_owned_public_names(owner_module: str) -> tuple[str, ...]:
     explicit_exports = _extract_explicit_exports(module_tree)
     if explicit_exports is not None:
         return explicit_exports
+    if _is_thin_import_facade(module_tree):
+        imported_names: list[str] = []
+        for node in _module_body_without_docstring(module_tree):
+            if isinstance(node, ast.ImportFrom):
+                imported_names.extend(_public_imported_names(node))
+        return tuple(dict.fromkeys(imported_names))
     if source_path.name == "__init__.py":
         runtime_exports = getattr(import_module(owner_module), "__all__", None)
         if runtime_exports is not None:
@@ -156,6 +162,45 @@ def _public_assigned_names(target: ast.expr) -> list[str]:
     if isinstance(target, ast.Name) and target.id.isupper():
         return [target.id]
     return []
+
+
+def _module_body_without_docstring(module_tree: ast.Module) -> list[ast.stmt]:
+    nodes = list(module_tree.body)
+    if (
+        nodes
+        and isinstance(nodes[0], ast.Expr)
+        and isinstance(nodes[0].value, ast.Constant)
+        and isinstance(nodes[0].value.value, str)
+    ):
+        nodes = nodes[1:]
+    return nodes
+
+
+def _is_thin_import_facade(module_tree: ast.Module) -> bool:
+    nodes = _module_body_without_docstring(module_tree)
+    return bool(nodes) and all(
+        isinstance(node, ast.ImportFrom)
+        and node.module != "__future__"
+        and all(alias.name != "*" for alias in node.names)
+        for node in nodes
+        if not (
+            isinstance(node, ast.ImportFrom)
+            and node.module == "__future__"
+        )
+    )
+
+
+def _public_imported_names(node: ast.ImportFrom) -> list[str]:
+    if node.module == "__future__":
+        return []
+    public_names: list[str] = []
+    for alias in node.names:
+        if alias.name == "*":
+            continue
+        public_name = alias.asname or alias.name
+        if not public_name.startswith("_"):
+            public_names.append(public_name)
+    return public_names
 
 
 __all__ = [
