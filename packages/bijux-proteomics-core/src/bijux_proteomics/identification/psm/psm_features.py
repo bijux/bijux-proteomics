@@ -9,7 +9,7 @@ import csv
 from dataclasses import dataclass
 from io import StringIO
 from math import log
-from typing import Any
+from typing import Any, cast
 
 from pydantic import ConfigDict, Field
 
@@ -295,7 +295,7 @@ def _resolve_protein_refs(
         return ()
     peptide_sequence = (psm.peptide_sequence or psm.peptide or "").upper()
     if not peptide_sequence:
-        return refs
+        return cast(tuple[str, ...], refs)
     validated_refs = tuple(
         protein_ref
         for protein_ref in refs
@@ -319,7 +319,7 @@ def _psm_id(psm: PsmRecord) -> str:
         for key in ("psm_id", "psmid", "hit_id", "spectrum_match_id"):
             value = psm.provenance.original_identifiers.get(key)
             if value:
-                return value
+                return cast(str, value)
         source_file = psm.provenance.source_file
         source_row_numbers = psm.provenance.source_row_number
         if source_file or source_row_numbers:

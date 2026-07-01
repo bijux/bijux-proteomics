@@ -17,7 +17,9 @@ CONTRACTS_FACADE_BUDGET = IdentificationFacadeBudget(
 )
 
 
-def list_identification_contract_api_modules() -> tuple[IdentificationFacadeModule, ...]:
+def list_identification_contract_api_modules() -> tuple[
+    IdentificationFacadeModule, ...
+]:
     """Return the supported identification contract-facade modules."""
 
     return (

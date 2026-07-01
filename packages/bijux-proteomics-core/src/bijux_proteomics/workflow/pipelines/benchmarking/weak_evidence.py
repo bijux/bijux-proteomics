@@ -16,6 +16,11 @@ from bijux_proteomics.lab.qc_benchmarks import (
     QcPromotionBlockReport,
     build_qc_promotion_block_report,
 )
+from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
+    PublicBenchmarkDescriptor,
+    load_public_benchmark_descriptor,
+    public_benchmark_root,
+)
 from bijux_proteomics.workflow.pipelines.advanced.advanced_tmt import (
     AdvancedTmtWorkflowConfig,
     AdvancedTmtWorkflowReport,
@@ -24,11 +29,6 @@ from bijux_proteomics.workflow.pipelines.advanced.advanced_tmt import (
 from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     run_public_benchmark_descriptor,
-)
-from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
-    PublicBenchmarkDescriptor,
-    load_public_benchmark_descriptor,
-    public_benchmark_root,
 )
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,

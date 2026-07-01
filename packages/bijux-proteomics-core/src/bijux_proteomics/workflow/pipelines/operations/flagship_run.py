@@ -28,6 +28,9 @@ from bijux_proteomics.quantification.statistics import (
 )
 from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis import (
+    render_dia_differential_matrix_tsv,
+)
 from bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,
     DdaBiologicalWorkflowExportManifest,
@@ -35,9 +38,6 @@ from bijux_proteomics.workflow.pipelines.engines.dda_biological_workflow import 
     build_dda_biological_workflow_bundle,
     build_label_free_quant_table_from_protein_lfq_report,
     write_dda_biological_workflow_bundle,
-)
-from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis import (
-    render_dia_differential_matrix_tsv,
 )
 from bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,

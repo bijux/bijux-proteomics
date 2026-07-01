@@ -29,6 +29,10 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
 from bijux_proteomics.interfaces.support.workflow import (
     build_diann_benchmark_report,
     build_maxquant_benchmark_report,
@@ -40,10 +44,6 @@ from bijux_proteomics.interfaces.support.workflow import (
     render_maxquant_filtering_comparison_tsv,
     render_maxquant_lfq_comparison_tsv,
     render_maxquant_protein_identity_comparison_tsv,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-    _write_text_output,
 )
 
 

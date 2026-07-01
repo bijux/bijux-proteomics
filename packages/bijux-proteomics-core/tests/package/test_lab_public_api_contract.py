@@ -35,7 +35,9 @@ def test_lab_facade_ledgers_keep_export_names_unambiguous() -> None:
     root_exports, root_owner_map = build_lazy_export_index(
         facade_owner_modules(LAB_ROOT_FACADE_OWNERS)
     )
-    qc_exports, qc_owner_map = build_lazy_export_index(facade_owner_modules(QC_FACADE_OWNERS))
+    qc_exports, qc_owner_map = build_lazy_export_index(
+        facade_owner_modules(QC_FACADE_OWNERS)
+    )
 
     assert len(root_exports) == len(set(root_exports))
     assert len(qc_exports) == len(set(qc_exports))
@@ -44,7 +46,9 @@ def test_lab_facade_ledgers_keep_export_names_unambiguous() -> None:
 
 
 def test_lab_facade_ledgers_preserve_representative_exports() -> None:
-    root_exports, _ = build_lazy_export_index(facade_owner_modules(LAB_ROOT_FACADE_OWNERS))
+    root_exports, _ = build_lazy_export_index(
+        facade_owner_modules(LAB_ROOT_FACADE_OWNERS)
+    )
     qc_exports, _ = build_lazy_export_index(facade_owner_modules(QC_FACADE_OWNERS))
 
     assert "build_lcms_run_qc_report" in root_exports
@@ -54,7 +58,9 @@ def test_lab_facade_ledgers_preserve_representative_exports() -> None:
 
 
 def test_lab_root_runtime_exports_match_governed_owner_ledger() -> None:
-    expected_exports, _ = build_lazy_export_index(facade_owner_modules(LAB_ROOT_FACADE_OWNERS))
+    expected_exports, _ = build_lazy_export_index(
+        facade_owner_modules(LAB_ROOT_FACADE_OWNERS)
+    )
 
     assert tuple(lab.__all__) == expected_exports
 
@@ -68,11 +74,16 @@ def test_lab_root_facade_init_stays_within_budget() -> None:
         / "__init__.py"
     )
 
-    assert sum(1 for _ in init_path.open(encoding="utf-8")) <= LAB_ROOT_FACADE_BUDGET.max_init_lines
+    assert (
+        sum(1 for _ in init_path.open(encoding="utf-8"))
+        <= LAB_ROOT_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_lab_qc_runtime_exports_match_governed_owner_ledger() -> None:
-    expected_exports, _ = build_lazy_export_index(facade_owner_modules(QC_FACADE_OWNERS))
+    expected_exports, _ = build_lazy_export_index(
+        facade_owner_modules(QC_FACADE_OWNERS)
+    )
 
     assert tuple(qc.__all__) == expected_exports
     assert not hasattr(qc, "AcquisitionType")
@@ -88,4 +99,7 @@ def test_lab_qc_facade_init_stays_within_budget() -> None:
         / "__init__.py"
     )
 
-    assert sum(1 for _ in init_path.open(encoding="utf-8")) <= QC_FACADE_BUDGET.max_init_lines
+    assert (
+        sum(1 for _ in init_path.open(encoding="utf-8"))
+        <= QC_FACADE_BUDGET.max_init_lines
+    )

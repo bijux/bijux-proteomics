@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 
+from ..biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
 from .disease_phenotype_tables import (
     _render_disease_phenotype_table_html as _render_html_disease_phenotype_table,
 )
@@ -14,9 +17,7 @@ from .drug_target_tables import (
 from .regulator_tables import (
     _render_regulator_inference_table_html as _render_html_regulator_inference_table,
 )
-from ..biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
-)
+
 
 def _render_regulator_inference_table_html(
     report: BiologicalResultReportBundle,

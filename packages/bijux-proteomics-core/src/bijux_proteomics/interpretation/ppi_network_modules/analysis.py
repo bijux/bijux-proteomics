@@ -13,7 +13,11 @@ from bijux_proteomics.interpretation.protein_set_enrichment import (
     build_protein_set_enrichment_report,
 )
 from bijux_proteomics.interpretation.protein_set_scoring import ProteinSetRecord
+
 from .models import (
+    PpiEdgeColumnMapping,
+    PpiEdgeImportReport,
+    PpiEdgeImportSummary,
     PpiEdgeRecord,
     PpiIsolatedProteinEntry,
     PpiModuleEnrichmentEntry,
@@ -21,6 +25,7 @@ from .models import (
     PpiNetworkModuleReport,
     PpiNetworkModuleSummary,
     PpiSubnetworkEdgeEntry,
+    RejectedPpiEdgeRow,
 )
 
 

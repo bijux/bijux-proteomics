@@ -4,4 +4,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.reports.html import *
+from bijux_proteomics.workflow.reports.html import (
+    _render_biological_result_report_html,
+)
+
+__all__ = ["_render_biological_result_report_html"]

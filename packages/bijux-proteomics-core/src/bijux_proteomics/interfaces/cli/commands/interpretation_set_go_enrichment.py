@@ -13,7 +13,9 @@ from bijux_proteomics.interfaces.python_api.interpretation_set_go_enrichment imp
     run_go_enrichment_command,
     run_protein_set_enrichment_command,
 )
-from bijux_proteomics.interfaces.support.interpretation import ProteinSetEnrichmentMissingBackgroundPolicy
+from bijux_proteomics.interfaces.support.interpretation import (
+    ProteinSetEnrichmentMissingBackgroundPolicy,
+)
 
 
 @click.command("protein-set-enrichment")

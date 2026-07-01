@@ -9,6 +9,9 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
     hashlib,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     DecoyGenerationMode,
     DuplicateAccessionPolicy,
@@ -30,9 +33,6 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     render_records_fasta,
     validate_target_decoy_database,
     write_theoretical_digest_bundle,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 from bijux_proteomics.interfaces.support.sequence_support.digestion_parameters import (
     _resolve_cli_protease_rule,

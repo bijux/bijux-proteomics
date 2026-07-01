@@ -14,9 +14,6 @@ from bijux_proteomics.chemistry.modifications import (
     ParsedModifiedPeptide,
     canonicalize_modified_peptide,
 )
-from bijux_proteomics.io.spectra.spectrum_peak_matching import (
-    build_spectrum_peak_match_report,
-)
 from bijux_proteomics.io.spectra.spectrum_contracts.models import (
     AnnotatedSpectrumBundle,
     SpectrumAnnotation,
@@ -29,6 +26,9 @@ from bijux_proteomics.io.spectra.spectrum_contracts.models import (
     SpectrumModel,
     SpectrumPlotPayload,
     SpectrumPlotPeak,
+)
+from bijux_proteomics.io.spectra.spectrum_peak_matching import (
+    build_spectrum_peak_match_report,
 )
 from bijux_proteomics_foundation import DocumentSchema
 

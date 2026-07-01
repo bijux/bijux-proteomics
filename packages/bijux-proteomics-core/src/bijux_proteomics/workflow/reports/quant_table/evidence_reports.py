@@ -4,26 +4,32 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple
+from pathlib import Path
+from typing import TYPE_CHECKING, NamedTuple
 
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceReport,
     LabelFreeQuantTable,
-)
-from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
-    BiologicalResultSelectionPolicy,
 )
 from bijux_proteomics.workflow.reports.biological_report_protein_evidence import (
     BiologicalProteinEvidenceReports,
     _build_biological_protein_evidence_reports,
 )
-from bijux_proteomics.workflow.reports.quant_table.foundation_reports import (
-    BiologicalQuantTableFoundationReports,
-)
 from bijux_proteomics.workflow.reports.biological_report_regulator_analysis import (
     BiologicalRegulatorAnalysisReports,
     _build_biological_regulator_analysis_reports,
 )
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
+    BiologicalResultSelectionPolicy,
+)
+from bijux_proteomics.workflow.reports.quant_table.foundation_reports import (
+    BiologicalQuantTableFoundationReports,
+)
+
+if TYPE_CHECKING:
+    from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
 
 
 class BiologicalQuantTableEvidenceReports(NamedTuple):
@@ -36,14 +42,14 @@ class BiologicalQuantTableEvidenceReports(NamedTuple):
 def _build_biological_quant_table_evidence_reports(
     *,
     normalized_table: LabelFreeQuantTable,
-    differential_report: object,
-    design_entries: tuple[object, ...],
+    differential_report: DifferentialAbundanceReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
     active_selection_policy: BiologicalResultSelectionPolicy,
     foundation_reports: BiologicalQuantTableFoundationReports,
-    regulator_evidence_tsv_path: object | None,
-    regulator_site_signal_tsv_path: object | None,
+    regulator_evidence_tsv_path: Path | None,
+    regulator_site_signal_tsv_path: Path | None,
     ptm_evidence_card_report: PtmEvidenceCardReport | None,
-    lab_run_qc_feedback_report: object | None,
+    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None,
 ) -> BiologicalQuantTableEvidenceReports:
     regulator_reports = _build_biological_regulator_analysis_reports(
         regulator_evidence_tsv_path=regulator_evidence_tsv_path,

@@ -8,7 +8,6 @@ from __future__ import annotations
 import csv
 from io import StringIO
 from pathlib import Path
-from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -443,7 +442,7 @@ def _build_ptm_evidence_aware_ranking_report(
         )
         for card in evidence_cards.cards
     }
-    abundance_scores = normalize_linear_range(abundance_by_site)
+    abundance_scores = normalize_linear_range(dict(abundance_by_site.items()))
     candidates: list[EvidenceAwareRankingCandidate] = []
     for card in evidence_cards.cards:
         abundance_value = abundance_by_site[card.site_key]
@@ -696,10 +695,7 @@ def render_ptm_report_evidence_aware_ranking_tsv(report: PtmReportBundle) -> str
 
     if report.evidence_aware_ranking_report is None:
         raise ValueError("ptm report bundle does not include evidence-aware ranking")
-    return cast(
-        str,
-        render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report),
-    )
+    return render_evidence_aware_ranking_tsv(report.evidence_aware_ranking_report)
 
 
 def write_ptm_report_bundle(

@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from html import escape
 
+from ..biological_report_artifact_path_contracts import (
+    BiologicalResultReportArtifactPaths,
+)
 from .activity_artifact_inventory import (
     _build_biological_activity_artifact_sections,
 )
@@ -17,9 +20,6 @@ from .scientific_artifact_inventory import (
 )
 from .visual_artifact_inventory import (
     _build_biological_visual_artifact_sections,
-)
-from ..biological_report_artifact_path_contracts import (
-    BiologicalResultReportArtifactPaths,
 )
 
 

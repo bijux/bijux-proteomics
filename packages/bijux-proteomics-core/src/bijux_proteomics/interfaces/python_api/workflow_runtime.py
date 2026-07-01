@@ -16,6 +16,15 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     build_workflow_runtime_validation_report,
     parse_experimental_design_table,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
+    _build_volcano_review_policy,
+)
+from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
+    _validate_proteomics_run_inputs,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
 )
@@ -25,15 +34,6 @@ from bijux_proteomics.interfaces.support.workflow import (
     build_proteomics_run_bundle,
     render_proteomics_run_summary_tsv,
     write_proteomics_run_bundle,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-)
-from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
-    _build_volcano_review_policy,
-)
-from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
-    _validate_proteomics_run_inputs,
 )
 
 
@@ -93,6 +93,10 @@ def run_proteomics_run_command(
         metadata_report = parse_experimental_design_table(metadata_path)
         if metadata_report.rejected_rows:
             raise click.ClickException("metadata table contains rejected rows")
+        if report_path is None:
+            raise click.ClickException(
+                "proteomics run requires --report-path for the selected engine"
+            )
         report = build_proteomics_run_bundle(
             engine=resolved_engine,
             metadata_entries=tuple(metadata_report.accepted_entries),

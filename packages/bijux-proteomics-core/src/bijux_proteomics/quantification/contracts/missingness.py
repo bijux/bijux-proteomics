@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pydantic import ConfigDict, Field
 
@@ -211,7 +211,7 @@ def summarize_missing_values(
         summarize_missing_values as _implementation,
     )
 
-    return _implementation(table, policy=policy)
+    return cast(MissingValueSummaryReport, _implementation(table, policy=policy))
 
 
 def build_missing_data_mechanism_report(
@@ -223,7 +223,7 @@ def build_missing_data_mechanism_report(
         build_missing_data_mechanism_report as _implementation,
     )
 
-    return _implementation(table, design_entries)
+    return cast(MissingDataMechanismReport, _implementation(table, design_entries))
 
 
 def build_missingness_classifier_report(
@@ -238,9 +238,12 @@ def build_missingness_classifier_report(
         build_missingness_classifier_report as _implementation,
     )
 
-    return _implementation(
-        table,
-        design_entries=design_entries,
-        policy=policy,
-        bin_count=bin_count,
+    return cast(
+        MissingnessClassifierReport,
+        _implementation(
+            table,
+            design_entries=design_entries,
+            policy=policy,
+            bin_count=bin_count,
+        ),
     )

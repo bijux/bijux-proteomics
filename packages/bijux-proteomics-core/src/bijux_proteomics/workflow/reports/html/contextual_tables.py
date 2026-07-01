@@ -5,20 +5,32 @@
 
 from __future__ import annotations
 
+from ..biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
 from .activity_tables import (
     _render_compartment_biology_table_html as _render_html_compartment_biology_table,
+)
+from .activity_tables import (
     _render_complex_activity_table_html as _render_html_complex_activity_table,
+)
+from .activity_tables import (
     _render_pathway_activity_table_html as _render_html_pathway_activity_table,
 )
 from .interpretation_tables import (
     _render_cohort_stratification_table_html as _render_html_cohort_stratification_table,
-    _render_disease_phenotype_table_html as _render_html_disease_phenotype_table,
-    _render_drug_target_table_html as _render_html_drug_target_table,
-    _render_regulator_inference_table_html as _render_html_regulator_inference_table,
-    _render_tissue_cell_type_context_table_html as _render_html_tissue_context_table,
 )
-from ..biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
+from .interpretation_tables import (
+    _render_disease_phenotype_table_html as _render_html_disease_phenotype_table,
+)
+from .interpretation_tables import (
+    _render_drug_target_table_html as _render_html_drug_target_table,
+)
+from .interpretation_tables import (
+    _render_regulator_inference_table_html as _render_html_regulator_inference_table,
+)
+from .interpretation_tables import (
+    _render_tissue_cell_type_context_table_html as _render_html_tissue_context_table,
 )
 
 

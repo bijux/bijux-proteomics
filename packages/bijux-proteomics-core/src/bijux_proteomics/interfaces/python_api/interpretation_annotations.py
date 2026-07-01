@@ -30,12 +30,12 @@ from bijux_proteomics.interfaces.support.interpretation import (
     render_unmapped_biological_context_tsv,
     render_unmapped_protein_annotation_tsv,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     parse_fasta_document,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 
 

@@ -12,17 +12,6 @@ from bijux_proteomics.interfaces.support.identification import (
     ParsimonyVariant,
     SearchAdapterKind,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
-    Ms1FeatureColumnMapping,
-    NormalizationMethod,
-    QuantRollupMethod,
-)
-from bijux_proteomics.interfaces.support.workflow import (
-    BiologicalResultSelectionPolicy,
-    DdaWorkflowConfig,
-    LabelFreeWorkflowConfig,
-    WorkflowMode,
-)
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
@@ -34,6 +23,17 @@ from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
 )
 from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    Ms1FeatureColumnMapping,
+    NormalizationMethod,
+    QuantRollupMethod,
+)
+from bijux_proteomics.interfaces.support.workflow import (
+    BiologicalResultSelectionPolicy,
+    DdaWorkflowConfig,
+    LabelFreeWorkflowConfig,
+    WorkflowMode,
 )
 from bijux_proteomics.workflow.pipelines.dda_biological_workflow import (
     DdaBiologicalWorkflowBundle,

@@ -124,7 +124,9 @@ def test_generalization_benchmark_package_import_contract() -> None:
 
 
 def test_generalization_benchmark_support_module_import_contract() -> None:
-    module = importlib.import_module("bijux_proteomics.benchmarks.generalization.assets")
+    module = importlib.import_module(
+        "bijux_proteomics.benchmarks.generalization.assets"
+    )
 
     assert module.main is not None
 

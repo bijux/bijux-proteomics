@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics import benchmarks, sequences, workflow
+from bijux_proteomics import benchmarks, sequences
 from bijux_proteomics.identification import confidence as identification_confidence
 from bijux_proteomics.identification import contracts as identification_contracts
 from bijux_proteomics.quantification import contracts as quantification_contracts

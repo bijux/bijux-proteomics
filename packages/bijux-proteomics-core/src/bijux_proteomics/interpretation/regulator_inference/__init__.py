@@ -11,8 +11,8 @@ from bijux_proteomics.interpretation.public_api import (
     InterpretationFacadeOwner,
     build_lazy_export_index,
     facade_owner_modules,
-    resolve_public_export,
     module_directory,
+    resolve_public_export,
 )
 
 _REGULATOR_INFERENCE_FACADE_OWNERS: tuple[InterpretationFacadeOwner, ...] = (

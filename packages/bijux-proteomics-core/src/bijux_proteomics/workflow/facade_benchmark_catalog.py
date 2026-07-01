@@ -10,7 +10,6 @@ from bijux_proteomics.workflow.facade_catalog import (
     copy_facade_owners,
 )
 
-
 BENCHMARK_SYNTHETIC_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.benchmarks.synthetic.synthetic_quant_truth",

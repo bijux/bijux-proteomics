@@ -15,7 +15,9 @@ from bijux_proteomics.review.belief.evidence_aware_ranking import (
 from bijux_proteomics.study import (
     ExperimentConfidenceReport,
 )
-from bijux_proteomics.workflow.cards.protein_evidence_cards import ProteinEvidenceCardReport
+from bijux_proteomics.workflow.cards.protein_evidence_cards import (
+    ProteinEvidenceCardReport,
+)
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCardReport,
 )

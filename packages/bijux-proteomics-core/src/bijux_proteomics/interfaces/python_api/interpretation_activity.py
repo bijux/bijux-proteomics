@@ -41,6 +41,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -54,9 +57,6 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     NormalizedProteinRecord,
     parse_fasta_document,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 
 

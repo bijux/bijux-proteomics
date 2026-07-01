@@ -17,13 +17,13 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     render_precursor_mass_error_observations_tsv,
     render_precursor_mass_error_summary_tsv,
 )
-from bijux_proteomics.interfaces.support.review_sequences_study import (
-    build_peptide_detectability_report,
-    render_peptide_detectability_tsv,
-)
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    build_peptide_detectability_report,
+    render_peptide_detectability_tsv,
 )
 from bijux_proteomics.interfaces.support.sequence_support.digestion_parameters import (
     _resolve_cli_protease_rule,

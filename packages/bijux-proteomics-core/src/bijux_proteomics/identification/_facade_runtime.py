@@ -18,7 +18,9 @@ def resolve_facade_export(
 
     owner_module = export_owner_map.get(name)
     if owner_module is None:
-        raise AttributeError(f"module {module_globals['__name__']!r} has no attribute {name!r}")
+        raise AttributeError(
+            f"module {module_globals['__name__']!r} has no attribute {name!r}"
+        )
     module = import_module(owner_module)
     value = getattr(module, name)
     module_globals[name] = value

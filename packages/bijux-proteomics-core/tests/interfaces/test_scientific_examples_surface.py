@@ -3,13 +3,14 @@
 
 from __future__ import annotations
 
+import pytest
+
 import bijux_proteomics.interfaces as interface_examples
 from bijux_proteomics.interfaces.examples import (
     build_glycopeptide_refusal_example,
     build_loss_aware_search_normalization_example,
     build_sequence_digest_example,
 )
-import pytest
 
 
 def test_sequence_digest_example_stays_runtime_free_and_scientific() -> None:
@@ -51,7 +52,10 @@ def test_interfaces_package_root_exports_curated_example_surface() -> None:
         "build_loss_aware_search_normalization_example",
         "build_sequence_digest_example",
     )
-    assert interface_examples.build_sequence_digest_example is build_sequence_digest_example
+    assert (
+        interface_examples.build_sequence_digest_example
+        is build_sequence_digest_example
+    )
     assert (
         interface_examples.build_glycopeptide_refusal_example
         is build_glycopeptide_refusal_example
@@ -64,4 +68,4 @@ def test_interfaces_package_root_exports_curated_example_surface() -> None:
 
 def test_interfaces_package_root_rejects_unknown_exports() -> None:
     with pytest.raises(AttributeError):
-        getattr(interface_examples, "missing_example")
+        object.__getattribute__(interface_examples, "missing_example")

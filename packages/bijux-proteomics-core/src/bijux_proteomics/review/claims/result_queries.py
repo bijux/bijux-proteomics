@@ -8,14 +8,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.review.claims.result_query_artifacts import (
-    _ProteinCardArtifact,
-    _QcRunArtifact,
-    _ResultArtifactContext,
     _find_protein_card,
     _find_ptm_card,
     _load_result_artifact_context,
     _node_ids_for_entity,
     _protein_card_graph_node_ids,
+    _ProteinCardArtifact,
+    _QcRunArtifact,
+    _ResultArtifactContext,
     _sample_to_failed_qc_runs,
 )
 from bijux_proteomics.review.claims.result_query_models import (

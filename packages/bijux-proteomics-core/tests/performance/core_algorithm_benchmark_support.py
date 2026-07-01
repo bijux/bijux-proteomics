@@ -3,13 +3,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 import gc
 import hashlib
 import json
 from pathlib import Path
 import time
-from typing import Callable, TypeVar, cast
+from typing import TypeVar, cast
 
 from bijux_proteomics.benchmarks import (
     CoreAlgorithmPerformanceBenchmarkInput,
@@ -92,7 +93,7 @@ def benchmark_digest_runtime() -> CoreAlgorithmPerformanceBenchmarkReport:
             missed_cleavages=1,
             min_length=7,
             max_length=30,
-        )
+        ),
     )
     assert len(digested) > case.generated_unit_count * 5
     return _build_report(case, observed_seconds=observed_seconds)
@@ -107,8 +108,7 @@ def benchmark_peptide_index_runtime() -> CoreAlgorithmPerformanceBenchmarkReport
         peptides_per_protein=18,
     )
     observed_seconds, report = _measure_runtime_against_case(
-        case,
-        lambda: build_peptide_uniqueness_index(records, missed_cleavages=1)
+        case, lambda: build_peptide_uniqueness_index(records, missed_cleavages=1)
     )
     assert report.summary.entry_count > case.generated_unit_count * 5
     return _build_report(case, observed_seconds=observed_seconds)
@@ -120,8 +120,7 @@ def benchmark_psm_fdr_runtime() -> CoreAlgorithmPerformanceBenchmarkReport:
     case = CORE_ALGORITHM_BENCHMARK_CASES["fdr"]
     records = _build_generated_psm_records(psm_count=case.generated_unit_count)
     observed_seconds, report = _measure_runtime_against_case(
-        case,
-        lambda: build_psm_target_decoy_fdr_report(records, threshold=0.01)
+        case, lambda: build_psm_target_decoy_fdr_report(records, threshold=0.01)
     )
     assert report.summary.total_psm_count == case.generated_unit_count
     return _build_report(case, observed_seconds=observed_seconds)
@@ -137,8 +136,7 @@ def benchmark_matrix_rollup_runtime() -> CoreAlgorithmPerformanceBenchmarkReport
         sample_count=16,
     )
     observed_seconds, report = _measure_runtime_against_case(
-        case,
-        lambda: build_protein_lfq_report_from_peptides(peptide_matrix)
+        case, lambda: build_protein_lfq_report_from_peptides(peptide_matrix)
     )
     assert report.summary.protein_row_count == case.generated_unit_count
     return _build_report(case, observed_seconds=observed_seconds)
@@ -160,7 +158,7 @@ def benchmark_enrichment_runtime() -> CoreAlgorithmPerformanceBenchmarkReport:
             foreground,
             background,
             pathway_records,
-        )
+        ),
     )
     assert len(pathway_records) == case.generated_unit_count
     assert report.summary.evaluated_entry_count > 0
@@ -178,6 +176,7 @@ def benchmark_graph_query_runtime(
         protein_node_count=5_000,
     )
     graph = load_lazy_proteomics_evidence_graph(nodes_path, edges_path)
+
     def _query_workload() -> None:
         for query_index in range(case.generated_unit_count):
             query_protein_evidence_summary(
@@ -240,9 +239,7 @@ def _measure_runtime_against_case(
     """Measure hot-path runtime and retry once when one noisy sample breaches budget."""
 
     observed_seconds, value = _measure_runtime(operation)
-    threshold_seconds = (
-        case.baseline_seconds * case.regression_threshold_ratio
-    )
+    threshold_seconds = case.baseline_seconds * case.regression_threshold_ratio
     if observed_seconds <= threshold_seconds:
         return observed_seconds, value
 

@@ -9,6 +9,15 @@ from bijux_proteomics.interpretation import (
     BiologicalForegroundBackgroundModel,
     RegulatorInferenceReport,
 )
+from bijux_proteomics.review.belief.evidence_aware_ranking import (
+    EvidenceAwareRankingReport,
+)
+from bijux_proteomics.review.claims.biological_claim_validation import (
+    BiologicalClaimValidationReport,
+)
+from bijux_proteomics.review.claims.biological_hypotheses import (
+    BiologicalHypothesisReport,
+)
 from bijux_proteomics.study import ExperimentConfidenceReport
 from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
     ProteinMechanismCardReport,
@@ -28,15 +37,6 @@ from bijux_proteomics.workflow.reports.biological_report_mechanistic_confidence 
 )
 from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
-)
-from bijux_proteomics.review.belief.evidence_aware_ranking import (
-    EvidenceAwareRankingReport,
-)
-from bijux_proteomics.review.claims.biological_claim_validation import (
-    BiologicalClaimValidationReport,
-)
-from bijux_proteomics.review.claims.biological_hypotheses import (
-    BiologicalHypothesisReport,
 )
 
 

@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.domain.confidence import ConfidenceTier
+from bijux_proteomics.domain.confidence import (
+    ConfidenceTier as PathwayActivityConfidenceStatus,
+)
 
-PathwayActivityConfidenceStatus = ConfidenceTier
-
+from .analysis import (
+    build_pathway_activity_report,
+)
 from .models import (
     PathwayActivityPolicy,
     PathwayActivityReport,
@@ -18,9 +21,6 @@ from .models import (
     PathwayMemberContributionEntry,
     PathwaySampleScoreEntry,
     UnresolvedPathwayActivityMemberEntry,
-)
-from .analysis import (
-    build_pathway_activity_report,
 )
 from .rendering import (
     render_pathway_activity_condition_comparison_tsv,

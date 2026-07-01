@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
-from .biological_candidates import _build_biomarker_candidates_from_biological_report_dir
+from .biological_candidates import (
+    _build_biomarker_candidates_from_biological_report_dir,
+)
 from .panel_candidate_inputs import _load_biomarker_candidate_inputs
 from .ptm_candidates import _build_biomarker_candidates_from_ptm_report_dir
 

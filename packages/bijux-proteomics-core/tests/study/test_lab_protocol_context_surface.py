@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 from bijux_proteomics.lab.qc import QcThresholdPolicy
 from bijux_proteomics.study import (
@@ -59,12 +59,12 @@ def _threshold(
     for rule in policy.rules:
         if rule.metric_key == metric_key:
             if field_name == "lower_warn":
-                return rule.lower_warn
+                return cast(float | None, rule.lower_warn)
             if field_name == "lower_fail":
-                return rule.lower_fail
+                return cast(float | None, rule.lower_fail)
             if field_name == "upper_warn":
-                return rule.upper_warn
-            return rule.upper_fail
+                return cast(float | None, rule.upper_warn)
+            return cast(float | None, rule.upper_fail)
     raise AssertionError(f"missing QC rule for {metric_key}")
 
 

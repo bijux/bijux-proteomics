@@ -7,44 +7,84 @@ from __future__ import annotations
 from pathlib import Path
 from typing import NamedTuple
 
-from bijux_proteomics.review.explanations.volcano_plots import VolcanoReviewPolicy
+from bijux_proteomics.interpretation import (
+    PathwayActivityReport,
+    PathwayEnrichmentReport,
+    RegulatorInferenceReport,
+)
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceReport,
+    LabelFreeQuantTable,
+)
+from bijux_proteomics.quantification.provenance import (
+    HeatmapPreparationReport,
+    SampleExplorationReport,
+)
+from bijux_proteomics.review.belief.evidence_aware_ranking import (
+    EvidenceAwareRankingReport,
+)
+from bijux_proteomics.review.claims.biological_claim_validation import (
+    BiologicalClaimValidationReport,
+)
+from bijux_proteomics.review.claims.biological_hypotheses import (
+    BiologicalHypothesisReport,
+)
+from bijux_proteomics.review.explanations.volcano_plots import (
+    VolcanoReviewPolicy,
+    VolcanoReviewReport,
+)
 from bijux_proteomics.study import (
+    ExperimentConfidenceReport,
+    ExperimentDesign,
     LcmsRunQcReport,
     QcRunAssessmentReport,
+)
+from bijux_proteomics.workflow.cards.protein_evidence_cards import (
+    ProteinEvidenceCardReport,
+)
+from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
+    ProteinMechanismCardReport,
 )
 from bijux_proteomics.workflow.reports.biological_report_experiment_review import (
     _build_biological_experiment_review_reports,
 )
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
+    BiologicalResultSelectionPolicy,
+)
 from bijux_proteomics.workflow.reports.quant_table.interpretation_reports import (
     _build_biological_quant_table_interpretation_reports,
+)
+from bijux_proteomics.workflow.studies.cohort_stratification import (
+    CohortStratificationReport,
 )
 
 
 class BiologicalQuantTableReviewReports(NamedTuple):
     """Review and interpretation reports derived from supporting analyses."""
 
-    volcano_review: object
-    heatmap_report: object
-    sample_exploration_report: object
-    cohort_stratification_report: object | None
-    experiment_confidence_report: object
-    evidence_aware_ranking_report: object | None
-    claim_validation_report: object
-    biological_hypothesis_report: object
+    volcano_review: VolcanoReviewReport
+    heatmap_report: HeatmapPreparationReport
+    sample_exploration_report: SampleExplorationReport
+    cohort_stratification_report: CohortStratificationReport | None
+    experiment_confidence_report: ExperimentConfidenceReport
+    evidence_aware_ranking_report: EvidenceAwareRankingReport | None
+    claim_validation_report: BiologicalClaimValidationReport
+    biological_hypothesis_report: BiologicalHypothesisReport
 
 
 def _build_biological_quant_table_review_reports(
     *,
-    normalized_table: object,
-    differential_report: object,
-    experiment_design: object,
-    design_entries: tuple[object, ...],
-    active_selection_policy: object,
-    protein_cards: object,
-    protein_mechanism_cards: object,
-    pathway_activity_report: object | None,
-    pathway_enrichment_report: object | None,
-    regulator_inference_report: object | None,
+    normalized_table: LabelFreeQuantTable,
+    differential_report: DifferentialAbundanceReport,
+    experiment_design: ExperimentDesign,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    active_selection_policy: BiologicalResultSelectionPolicy,
+    protein_cards: ProteinEvidenceCardReport,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    pathway_activity_report: PathwayActivityReport | None,
+    pathway_enrichment_report: PathwayEnrichmentReport | None,
+    regulator_inference_report: RegulatorInferenceReport | None,
     resolved_condition_a: str,
     resolved_condition_b: str,
     protocol_context_tsv_path: Path | None,

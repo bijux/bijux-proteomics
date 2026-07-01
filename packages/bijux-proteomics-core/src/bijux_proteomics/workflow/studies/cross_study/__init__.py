@@ -4,4 +4,3 @@
 """Cross-study workflow analysis surfaces grouped by shared study-comparison scope."""
 
 from __future__ import annotations
-

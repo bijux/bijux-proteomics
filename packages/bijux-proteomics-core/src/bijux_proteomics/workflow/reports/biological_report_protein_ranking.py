@@ -52,7 +52,7 @@ def _build_biological_protein_ranking_candidates(
         )
         for card in protein_cards.cards
     }
-    abundance_scores = normalize_linear_range(abundance_by_entity)
+    abundance_scores = normalize_linear_range(dict(abundance_by_entity.items()))
 
     candidates: list[EvidenceAwareRankingCandidate] = []
     for protein_card in protein_cards.cards:
@@ -72,9 +72,7 @@ def _build_biological_protein_ranking_candidates(
         support_score = _build_protein_support_score(mechanism_card)
         annotation_score = _build_protein_annotation_score(protein_card)
         confidence_score = _build_protein_confidence_score(mechanism_card)
-        reproducibility_score = _build_protein_reproducibility_score(
-            differential_entry
-        )
+        reproducibility_score = _build_protein_reproducibility_score(differential_entry)
         qc_score = max(
             0.0,
             experiment_confidence_report.summary.overall_score

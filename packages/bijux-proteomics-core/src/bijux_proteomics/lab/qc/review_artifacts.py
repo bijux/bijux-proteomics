@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from bijux_proteomics.lab.qc.models import (
     InstrumentBatchQcReport,
+    LcmsRunQcReport,
     ProteomicsPerformanceOperation,
     ProteomicsPerformanceSnapshot,
     QcBatchAssessmentReport,
@@ -17,7 +18,6 @@ from bijux_proteomics.lab.qc.models import (
     QcRunBundleSummary,
     QcThresholdPolicy,
 )
-from bijux_proteomics.lab.qc.models import LcmsRunQcReport
 from bijux_proteomics.lab.qc.support import (
     build_document_schema,
     format_metric_value,

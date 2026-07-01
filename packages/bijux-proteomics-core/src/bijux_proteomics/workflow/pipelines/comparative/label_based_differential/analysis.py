@@ -29,7 +29,9 @@ from bijux_proteomics.quantification.contracts.input_models import (
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
 )
-from bijux_proteomics.quantification.differential_abundance import apply_benjamini_hochberg
+from bijux_proteomics.quantification.differential_abundance import (
+    apply_benjamini_hochberg,
+)
 from bijux_proteomics.study import (
     ExperimentDesign,
     ExperimentDesignAnalysisFamily,

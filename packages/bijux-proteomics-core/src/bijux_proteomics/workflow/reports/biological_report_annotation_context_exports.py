@@ -36,10 +36,7 @@ def _write_biological_annotation_context_exports(
     report: BiologicalContextualReportBundle,
     output_dir: Path,
 ) -> BiologicalAnnotationContextExportNames:
-    if (
-        report.context_import_report is None
-        or report.context_mapping_report is None
-    ):
+    if report.context_import_report is None or report.context_mapping_report is None:
         return BiologicalAnnotationContextExportNames(
             summary_name=None,
             mapping_name=None,

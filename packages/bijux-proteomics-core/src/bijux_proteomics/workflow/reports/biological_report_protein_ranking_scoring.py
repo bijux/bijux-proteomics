@@ -27,10 +27,13 @@ if TYPE_CHECKING:
 def _build_protein_support_score(mechanism_card: ProteinMechanismCard) -> float:
     return min(
         1.0,
-        (0.7 * score_support_count(
-            mechanism_card.peptide_support.unique_peptide_count,
-            saturation=4,
-        ))
+        (
+            0.7
+            * score_support_count(
+                mechanism_card.peptide_support.unique_peptide_count,
+                saturation=4,
+            )
+        )
         + (
             0.3
             * score_support_count(
@@ -44,9 +47,7 @@ def _build_protein_support_score(mechanism_card: ProteinMechanismCard) -> float:
 def _build_protein_annotation_score(protein_card: ProteinEvidenceCard) -> float:
     return min(
         1.0,
-        (
-            0.45 if protein_card.annotation.annotation_status.value != "unmapped" else 0.0
-        )
+        (0.45 if protein_card.annotation.annotation_status.value != "unmapped" else 0.0)
         + (0.15 if protein_card.functional_regions else 0.0)
         + (0.15 if protein_card.pathways else 0.0)
         + (0.15 if protein_card.ptm_sites else 0.0)

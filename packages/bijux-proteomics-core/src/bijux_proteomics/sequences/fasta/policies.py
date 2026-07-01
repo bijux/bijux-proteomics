@@ -11,12 +11,12 @@ from bijux_proteomics.sequences.fasta.models import (
     _DECOY_PREFIXES,
     _ENSEMBL_ACCESSION_RE,
     _REFSEQ_ACCESSION_RE,
+    _UNIPROT_ACCESSION_RE,
     FastaParseMode,
     ResiduePolicyEntry,
     ResiduePolicyState,
     SequenceResiduePolicy,
     UniProtAccession,
-    _UNIPROT_ACCESSION_RE,
 )
 
 _SEQUENCE_POLICY_BY_MODE: dict[FastaParseMode, SequenceResiduePolicy] = {

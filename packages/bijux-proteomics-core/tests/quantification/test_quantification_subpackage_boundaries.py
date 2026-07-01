@@ -83,14 +83,20 @@ def test_quantification_subpackages_export_representative_owner_surfaces() -> No
 
 
 def test_quantification_matrix_and_rollup_ledgers_match_runtime_exports() -> None:
-    expected_matrix, _ = build_lazy_export_index(facade_owner_modules(MATRIX_FACADE_OWNERS))
-    expected_rollup, _ = build_lazy_export_index(facade_owner_modules(ROLLUP_FACADE_OWNERS))
+    expected_matrix, _ = build_lazy_export_index(
+        facade_owner_modules(MATRIX_FACADE_OWNERS)
+    )
+    expected_rollup, _ = build_lazy_export_index(
+        facade_owner_modules(ROLLUP_FACADE_OWNERS)
+    )
 
     assert tuple(matrix.__all__) == expected_matrix
     assert tuple(rollup.__all__) == expected_rollup
 
 
-def test_quantification_normalization_and_missingness_ledgers_match_runtime_exports() -> None:
+def test_quantification_normalization_and_missingness_ledgers_match_runtime_exports() -> (
+    None
+):
     expected_missingness, _ = build_lazy_export_index(
         facade_owner_modules(MISSINGNESS_FACADE_OWNERS)
     )
@@ -102,7 +108,9 @@ def test_quantification_normalization_and_missingness_ledgers_match_runtime_expo
     assert tuple(normalization.__all__) == expected_normalization
 
 
-def test_quantification_provenance_and_statistics_ledgers_match_runtime_exports() -> None:
+def test_quantification_provenance_and_statistics_ledgers_match_runtime_exports() -> (
+    None
+):
     expected_provenance, _ = build_lazy_export_index(
         facade_owner_modules(PROVENANCE_FACADE_OWNERS)
     )

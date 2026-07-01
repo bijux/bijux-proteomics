@@ -11,7 +11,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdge,
     ProteomicsEvidenceEdgeKind,
     ProteomicsEvidenceGraph,
@@ -160,7 +160,7 @@ def render_evidence_graph_final_results_tsv(
 ) -> str:
     """Render graph-backed final result rows as TSV."""
 
-    rows = [
+    rows: list[dict[str, object]] = [
         {
             "claim_node_id": entry.claim_node_id,
             "claim_node_ref": entry.claim_node_ref,

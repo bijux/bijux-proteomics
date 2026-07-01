@@ -13,7 +13,9 @@ from bijux_proteomics.interfaces.python_api.dia_precursor_matrices import (
     run_diann_precursor_matrix_command,
     run_spectronaut_precursor_matrix_command,
 )
-from bijux_proteomics.interfaces.support.io_and_dia import DiaPrecursorQValueFilterTiming
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    DiaPrecursorQValueFilterTiming,
+)
 
 
 @click.command("diann-precursor-matrix")

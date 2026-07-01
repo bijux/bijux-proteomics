@@ -7,6 +7,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from bijux_proteomics.interpretation.protein_set_scoring.models import (
+    ProteinSetRecord,
+    ProteinSetScoreConfidenceStatus,
+    ProteinSetScoringPolicy,
+    ProteinSetScoringReport,
+    ProteinSetScoringSummary,
+)
 from bijux_proteomics.interpretation.protein_set_scoring.score_calculation import (
     build_condition_comparisons,
     build_condition_scores,
@@ -14,13 +21,6 @@ from bijux_proteomics.interpretation.protein_set_scoring.score_calculation impor
 )
 from bijux_proteomics.quantification.contracts.input_models import QuantEntityLevel
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
-from bijux_proteomics.interpretation.protein_set_scoring.models import (
-    ProteinSetScoreConfidenceStatus,
-    ProteinSetRecord,
-    ProteinSetScoringPolicy,
-    ProteinSetScoringReport,
-    ProteinSetScoringSummary,
-)
 
 if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -91,6 +91,8 @@ def build_protein_set_scoring_report(
             "protein set scoring standardizes normalized protein abundances across samples, averages observed member signal per sample, preserves member coverage explicitly, and marks sparse member support as low confidence"
         ),
     )
+
+
 __all__ = [
     "build_protein_set_scoring_report",
 ]

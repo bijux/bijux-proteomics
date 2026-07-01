@@ -10,7 +10,6 @@ from bijux_proteomics.workflow.facade_catalog import (
     copy_facade_owners,
 )
 
-
 CARD_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module="bijux_proteomics.workflow.cards.cross_study_evidence_cards",

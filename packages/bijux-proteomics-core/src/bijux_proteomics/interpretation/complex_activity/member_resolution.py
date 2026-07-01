@@ -10,12 +10,12 @@ import math
 
 import numpy as np
 
+from bijux_proteomics.interpretation.complex_activity.models import (
+    UnresolvedComplexActivityMemberEntry,
+)
 from bijux_proteomics.interpretation.complex_enrichment import (
     ComplexMemberKind,
     ComplexMembershipRecord,
-)
-from bijux_proteomics.interpretation.complex_activity.models import (
-    UnresolvedComplexActivityMemberEntry,
 )
 from bijux_proteomics.interpretation.protein_annotation_mapping import (
     ProteinAnnotationRecord,
@@ -24,8 +24,8 @@ from bijux_proteomics.quantification.contracts.matrix_building import (
     _matrix_value_index,
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
-from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 
 ComplexMemberSpec = tuple[ComplexMemberKind, str, tuple[str, ...]]
 

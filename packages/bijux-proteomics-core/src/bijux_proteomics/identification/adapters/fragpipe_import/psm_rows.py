@@ -96,9 +96,7 @@ def build_fragpipe_psm_rows(
                 peptide=record.peptide,
                 canonical_peptide=record.canonical_peptide,
                 modified_peptide=modified_peptide,
-                canonical_modified_peptide=canonical_modified_peptide(
-                    modified_peptide
-                ),
+                canonical_modified_peptide=canonical_modified_peptide(modified_peptide),
                 charge=record.charge,
                 hyperscore=record.score,
                 q_value=record.q_value,

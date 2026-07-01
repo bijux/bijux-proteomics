@@ -15,6 +15,17 @@ import re
 from statistics import median
 
 from bijux_proteomics.sequences.fasta.models import (
+    _AMBIGUOUS_RESIDUES,
+    _CANONICAL_RESIDUES,
+    _DECOY_PREFIXES,
+    _ENSEMBL_ACCESSION_RE,
+    _ENSEMBL_DESCRIPTION_RE,
+    _ENSEMBL_GENE_SYMBOL_RE,
+    _GENE_FIELD_RE,
+    _ORGANISM_FIELD_RE,
+    _REFSEQ_ACCESSION_RE,
+    _UNIPROT_ACCESSION_RE,
+    _UNSUPPORTED_RESIDUES,
     DecoyGenerationManifest,
     DecoyGenerationMode,
     DecoyGenerationReport,
@@ -38,18 +49,6 @@ from bijux_proteomics.sequences.fasta.models import (
     SequenceValidationResult,
     TargetDecoyValidationReport,
     UniProtAccession,
-    _AMBIGUOUS_RESIDUES,
-    _CANONICAL_RESIDUES,
-    _DECOY_PREFIXES,
-    _ENSEMBL_ACCESSION_RE,
-    _ENSEMBL_DESCRIPTION_RE,
-    _ENSEMBL_GENE_SYMBOL_RE,
-    _GENE_FIELD_RE,
-    _ORGANISM_FIELD_RE,
-    _REFSEQ_ACCESSION_RE,
-    _SEQUENCE_RE,
-    _UNIPROT_ACCESSION_RE,
-    _UNSUPPORTED_RESIDUES,
 )
 from bijux_proteomics.sequences.fasta.policies import (
     build_sequence_residue_policy,

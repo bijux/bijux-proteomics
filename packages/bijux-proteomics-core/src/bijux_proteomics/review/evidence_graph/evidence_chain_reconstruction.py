@@ -12,7 +12,7 @@ from io import StringIO
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.evidence_graph import (
+from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceEdge,
     ProteomicsEvidenceEdgeKind,
     ProteomicsEvidenceGraph,
@@ -171,7 +171,7 @@ def reconstruct_pathway_evidence_chain(
 def render_evidence_chain_tsv(report: EvidenceChainReport) -> str:
     """Render one reconstructed evidence chain as TSV."""
 
-    rows = []
+    rows: list[dict[str, object]] = []
     source_row_map = {item.source_row_ref: item for item in report.source_rows}
     for edge in report.chain_edges:
         source_row = source_row_map.get(edge.source_row_ref)

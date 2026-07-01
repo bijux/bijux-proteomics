@@ -9,6 +9,10 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
 )
 from bijux_proteomics.interfaces.support.identification import parse_psm_tsv
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     PeptideMatrixGroupingMode,
@@ -31,10 +35,6 @@ from bijux_proteomics.interfaces.support.ptm_quantification.quantification impor
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
     render_protein_peptide_contribution_tsv,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-    _write_text_output,
 )
 from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
     _build_psm_mapping,

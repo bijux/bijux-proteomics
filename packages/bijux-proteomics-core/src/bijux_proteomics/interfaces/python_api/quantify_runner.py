@@ -12,6 +12,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     DifferentialAbundanceTestType,
     ImputationMethod,
@@ -62,9 +65,6 @@ from bijux_proteomics.interfaces.support.ptm_quantification.quantification impor
     parse_ms1_feature_table,
     parse_msstats_result_table,
     summarize_missing_values,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 from bijux_proteomics.interfaces.support.timecourse_support.timepoint_order import (
     _parse_timepoint_order_file,

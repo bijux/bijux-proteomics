@@ -6,10 +6,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.lab.protocol_consistency import ProtocolConsistencyReport
-from bijux_proteomics.lab.protocol_consistency import build_protocol_consistency_report
-from bijux_proteomics.lab.protocol_context import LabProtocolContextEntry
+from bijux_proteomics.lab.protocol_consistency import (
+    ProtocolConsistencyReport,
+    build_protocol_consistency_report,
+)
 from bijux_proteomics.lab.protocol_context import (
+    LabProtocolContextEntry,
     build_lab_protocol_interpretation_profile,
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,

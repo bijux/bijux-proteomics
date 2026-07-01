@@ -81,14 +81,16 @@ def _add_biological_result_graph_protein_claims(
             reason=(
                 f"protein differential result for {entity_id} compares "
                 f"{differential_entry.condition_a} vs {differential_entry.condition_b}"
-                ),
+            ),
         )
 
         _add_biological_result_graph_peptide_support(
             builder,
             protein_node_id=protein.node_id,
             entity_id=entity_id,
-            entity_member_peptides=quant_table.entity_member_peptides.get(entity_id, ()),
+            entity_member_peptides=quant_table.entity_member_peptides.get(
+                entity_id, ()
+            ),
             peptide_membership_counts=peptide_membership_counts,
         )
         _add_biological_result_graph_quant_support(

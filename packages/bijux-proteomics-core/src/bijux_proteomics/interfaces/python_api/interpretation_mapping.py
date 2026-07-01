@@ -36,6 +36,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -44,9 +47,6 @@ from bijux_proteomics.interfaces.support.ptm_quantification.quantification impor
     build_label_free_intensity_table,
     normalize_label_free_table,
     parse_ms1_feature_table,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 
 

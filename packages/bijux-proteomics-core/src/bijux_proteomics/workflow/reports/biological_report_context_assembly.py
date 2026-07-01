@@ -115,8 +115,6 @@ def _build_biological_context_reports(
         context_mapping_report=annotation_context_reports.context_mapping_report,
         tissue_cell_type_context_report=sample_context_report,
         drug_target_report=molecular_context_reports.drug_target_report,
-        disease_phenotype_report=(
-            molecular_context_reports.disease_phenotype_report
-        ),
+        disease_phenotype_report=(molecular_context_reports.disease_phenotype_report),
         compartment_biology_report=compartment_biology_report,
     )

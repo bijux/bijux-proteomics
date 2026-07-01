@@ -10,10 +10,10 @@ from bijux_proteomics.workflow.facade_root_catalog import (
 )
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
-    resolve_public_export,
-    resolve_public_submodule,
     module_directory,
     ordered_facade_owners,
+    resolve_public_export,
+    resolve_public_submodule,
 )
 
 __all__, _WORKFLOW_EXPORT_INDEX = build_lazy_export_index(

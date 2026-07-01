@@ -8,20 +8,20 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, NamedTuple
 
-from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
-    BiologicalReportSectionConfidenceEntry,
-    BiologicalReportSectionConfidenceLabel,
-)
 from bijux_proteomics.workflow.reports.biological_report_section_confidence import (
     _build_biological_report_section_confidence_entries,
     _count_section_confidence_labels,
+)
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
+    BiologicalReportSectionConfidenceEntry,
+    BiologicalReportSectionConfidenceLabel,
 )
 
 if TYPE_CHECKING:
     from bijux_proteomics.interpretation import (
         BiologicalForegroundBackgroundModel,
-        ComplexActivityReport,
         CompartmentBiologyReport,
+        ComplexActivityReport,
         DiseasePhenotypeInterpretationReport,
         DrugTargetInterpretationReport,
         PathwayActivityReport,
@@ -37,13 +37,13 @@ if TYPE_CHECKING:
     from bijux_proteomics.review.claims.biological_hypotheses import (
         BiologicalHypothesisReport,
     )
+    from bijux_proteomics.study import ExperimentConfidenceReport
     from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
         ProteinMechanismCardReport,
     )
     from bijux_proteomics.workflow.studies.cohort_stratification import (
         CohortStratificationReport,
     )
-    from bijux_proteomics.study import ExperimentConfidenceReport
 
 
 class BiologicalReportBundleConfidenceState(NamedTuple):

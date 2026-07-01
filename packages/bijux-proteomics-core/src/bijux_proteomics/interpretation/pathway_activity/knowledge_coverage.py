@@ -5,10 +5,12 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interpretation.pathway_activity.models import PathwayActivityPolicy
+from bijux_proteomics.interpretation.pathway_activity.models import (
+    PathwayActivityPolicy,
+)
 from bijux_proteomics.interpretation.pathway_enrichment import PathwayMembershipRecord
-
 from bijux_proteomics_knowledge.pathways.members import (
+    PathwayCoverageConfidenceEntry,
     PathwayCoveragePolicy,
     resolve_pathway_members,
 )
@@ -19,7 +21,7 @@ def pathway_coverage_by_id(
     pathway_records: tuple[PathwayMembershipRecord, ...],
     *,
     policy: PathwayActivityPolicy,
-) -> dict[str, object]:
+) -> dict[str, PathwayCoverageConfidenceEntry]:
     """Resolve pathway knowledge coverage entries keyed by pathway identifier."""
 
     coverage_report = resolve_pathway_members(
@@ -29,6 +31,4 @@ def pathway_coverage_by_id(
             minimum_coverage_fraction=policy.minimum_knowledge_coverage_fraction
         ),
     )
-    return {
-        entry.pathway_id: entry for entry in coverage_report.confidence_entries
-    }
+    return {entry.pathway_id: entry for entry in coverage_report.confidence_entries}

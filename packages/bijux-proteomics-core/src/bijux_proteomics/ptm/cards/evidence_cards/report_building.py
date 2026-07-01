@@ -16,7 +16,6 @@ from bijux_proteomics.ptm.cards.evidence_cards.models import (
     PtmEvidenceCardClaim,
     PtmEvidenceCardClaimKind,
     PtmEvidenceCardDifferentialResult,
-    PtmEvidenceCardMechanismClassification,
     PtmEvidenceCardMotifEvidence,
     PtmEvidenceCardPolicy,
     PtmEvidenceCardProteinCorrection,
@@ -41,9 +40,14 @@ from bijux_proteomics.ptm.differential_analysis import (
     PtmDifferentialAnalysisReport,
     PtmSiteDifferentialEntry,
 )
-from bijux_proteomics.ptm.mechanism_classification import PtmMechanismClassificationReport
+from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
+from bijux_proteomics.ptm.mechanism_classification import (
+    PtmMechanismClassificationReport,
+)
 from bijux_proteomics.ptm.motif_analysis import PtmPhosphositeMotifEnrichmentReport
-from bijux_proteomics.ptm.ortholog_site_conservation import PtmOrthologConservationReport
+from bijux_proteomics.ptm.ortholog_site_conservation import (
+    PtmOrthologConservationReport,
+)
 from bijux_proteomics.ptm.regulator_enrichment import (
     PtmRegulatorEnrichmentEntry,
     PtmRegulatorEnrichmentReport,
@@ -60,7 +64,6 @@ from bijux_proteomics.sequences.protein_region_context_models import (
 from bijux_proteomics.sequences.protein_region_context_workflows import (
     build_protein_site_region_context_report,
 )
-from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
 
 _SOURCE_ROW_LINEAGE_TOKENS = (
     "source_row_refs",

@@ -7,11 +7,11 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
-from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
-    BiologicalReportSectionConfidenceLabel,
-)
 from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _select_significant_entity_ids,
+)
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
+    BiologicalReportSectionConfidenceLabel,
 )
 from bijux_proteomics.workflow.reports.biological_report_summary_contracts import (
     BiologicalResultReportSummary,
@@ -118,7 +118,9 @@ def _build_biological_result_report_summary(
             BiologicalReportSectionConfidenceLabel.INVALID
         ],
         context_entry_count=(
-            0 if context_mapping_report is None else len(context_mapping_report.mapped_entries)
+            0
+            if context_mapping_report is None
+            else len(context_mapping_report.mapped_entries)
         ),
         context_unmapped_count=(
             0
@@ -126,7 +128,9 @@ def _build_biological_result_report_summary(
             else len(context_mapping_report.unmapped_entries)
         ),
         context_term_count=(
-            0 if context_mapping_report is None else len(context_mapping_report.term_entries)
+            0
+            if context_mapping_report is None
+            else len(context_mapping_report.term_entries)
         ),
         go_enriched_term_count=(
             0

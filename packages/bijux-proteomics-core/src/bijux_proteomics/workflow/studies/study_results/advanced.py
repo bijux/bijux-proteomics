@@ -24,15 +24,15 @@ from bijux_proteomics.workflow.studies.study_results.label_free import (
     build_proteomics_study_result_from_diann_workflow_bundle,
     build_proteomics_study_result_from_maxquant_workflow_bundle,
 )
-from bijux_proteomics.workflow.studies.study_results.modification import (
-    build_proteomics_study_result_from_ptm_workflow_bundle,
-)
 from bijux_proteomics.workflow.studies.study_results.models import (
     ProteomicsStudyCardKind,
     ProteomicsStudyCardSurface,
     ProteomicsStudyQcKind,
     ProteomicsStudyQcSurface,
     ProteomicsStudyResult,
+)
+from bijux_proteomics.workflow.studies.study_results.modification import (
+    build_proteomics_study_result_from_ptm_workflow_bundle,
 )
 from bijux_proteomics.workflow.studies.study_results.multiplex import (
     build_proteomics_study_result_from_tmt_workflow_bundle,

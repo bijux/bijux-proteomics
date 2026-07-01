@@ -44,16 +44,16 @@ from bijux_proteomics.interfaces.support.multiplex_targeted.targeted import (
     render_targeted_matrix_target_tsv,
     render_targeted_result_observation_tsv,
 )
-from bijux_proteomics.interfaces.support.workflow import (
-    TargetedWorkflowConfig,
-    TargetedWorkflowStage,
-)
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
 )
 from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
+)
+from bijux_proteomics.interfaces.support.workflow import (
+    TargetedWorkflowConfig,
+    TargetedWorkflowStage,
 )
 from bijux_proteomics.targeted.assay_qc import TargetedAssayQcReport
 from bijux_proteomics.targeted.result_import import TargetedResultImportReport

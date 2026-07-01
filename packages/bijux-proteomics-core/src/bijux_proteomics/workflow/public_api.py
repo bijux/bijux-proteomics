@@ -65,14 +65,6 @@ from bijux_proteomics.workflow.facade_pipeline_catalog import (
     WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
     WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS,
 )
-from bijux_proteomics.workflow.facade_runtime import (
-    build_lazy_export_index,
-    list_owned_public_names,
-    resolve_public_export,
-    resolve_public_submodule,
-    module_directory,
-    ordered_facade_owners,
-)
 from bijux_proteomics.workflow.facade_report_catalog import (
     REPORT_FACADE_OWNERS,
     WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS,
@@ -84,6 +76,14 @@ from bijux_proteomics.workflow.facade_root_catalog import (
     WORKFLOW_ROOT_OWNERS,
     WORKFLOW_ROOT_SHARED_OWNERS,
     WORKFLOW_ROOT_SUBMODULES,
+)
+from bijux_proteomics.workflow.facade_runtime import (
+    build_lazy_export_index,
+    list_owned_public_names,
+    module_directory,
+    ordered_facade_owners,
+    resolve_public_export,
+    resolve_public_submodule,
 )
 from bijux_proteomics.workflow.facade_study_catalog import (
     STUDY_FACADE_OWNERS,

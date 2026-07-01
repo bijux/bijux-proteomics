@@ -65,7 +65,9 @@ def test_benchmark_root_keeps_only_shared_facade_owner() -> None:
 def test_benchmark_subpackages_export_representative_owner_surfaces() -> None:
     datasets = importlib.import_module("bijux_proteomics.workflow.benchmarks.datasets")
     fidelity = importlib.import_module("bijux_proteomics.workflow.benchmarks.fidelity")
-    synthetic = importlib.import_module("bijux_proteomics.workflow.benchmarks.synthetic")
+    synthetic = importlib.import_module(
+        "bijux_proteomics.workflow.benchmarks.synthetic"
+    )
 
     assert hasattr(datasets, "PublicBenchmarkDescriptor")
     assert hasattr(datasets, "load_public_benchmark_descriptor")

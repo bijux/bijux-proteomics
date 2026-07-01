@@ -41,15 +41,15 @@ from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceGraph,
     ProteomicsEvidenceNodeKind,
 )
+from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
+    EvidenceGraphConfidenceTier,
+)
 from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
     EvidenceGraphFinalResultEntry,
     EvidenceGraphFinalResultReport,
     FinalClaimEvidenceTier,
     build_evidence_graph_final_result_table,
     render_evidence_graph_final_results_tsv,
-)
-from bijux_proteomics.review.evidence_graph.evidence_graph_confidence import (
-    EvidenceGraphConfidenceTier,
 )
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,

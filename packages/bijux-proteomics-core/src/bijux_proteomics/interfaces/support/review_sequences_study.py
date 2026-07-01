@@ -88,11 +88,25 @@ from bijux_proteomics.review.explanations.volcano_plots import (
 from bijux_proteomics.sequences.contaminant_database import (
     append_contaminant_database,
 )
+from bijux_proteomics.sequences.digestion import (
+    PeptideDigestionMode,
+    ProteaseRule,
+    build_digest_manifest,
+    digest_protein_records,
+    export_peptide_protein_table_tsv,
+    export_peptides_fasta,
+    export_peptides_jsonl,
+    export_peptides_parquet,
+    export_peptides_tsv,
+    peptide_export_fingerprint,
+    resolve_protease_rule,
+)
 from bijux_proteomics.sequences.fasta import (
     DecoyGenerationMode,
     DuplicateAccessionPolicy,
     FastaParseMode,
     FastaParseReport,
+    NormalizedProteinRecord,
     build_decoy_generation_manifest,
     build_decoy_generation_report,
     build_fasta_provenance_manifest,
@@ -105,7 +119,6 @@ from bijux_proteomics.sequences.fasta import (
     sequence_checksum,
     validate_target_decoy_database,
 )
-from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
 from bijux_proteomics.sequences.fasta_profile import (
     FastaDatabaseProfile,
     build_fasta_database_profile,
@@ -125,28 +138,15 @@ from bijux_proteomics.sequences.peptide_detectability import (
 from bijux_proteomics.sequences.peptide_properties import (
     build_peptide_property_report,
 )
+from bijux_proteomics.sequences.peptide_uniqueness_audit import (
+    build_peptide_database_lookup_report,
+)
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
     PeptideUniquenessClass,
 )
 from bijux_proteomics.sequences.theoretical_digest import (
     build_theoretical_digest_bundle,
     write_theoretical_digest_bundle,
-)
-from bijux_proteomics.sequences.digestion import (
-    PeptideDigestionMode,
-    ProteaseRule,
-    build_digest_manifest,
-    digest_protein_records,
-    export_peptide_protein_table_tsv,
-    export_peptides_fasta,
-    export_peptides_jsonl,
-    export_peptides_parquet,
-    export_peptides_tsv,
-    peptide_export_fingerprint,
-    resolve_protease_rule,
-)
-from bijux_proteomics.sequences.peptide_uniqueness_audit import (
-    build_peptide_database_lookup_report,
 )
 from bijux_proteomics.study.experiment_feasibility import (
     build_experiment_feasibility_report,

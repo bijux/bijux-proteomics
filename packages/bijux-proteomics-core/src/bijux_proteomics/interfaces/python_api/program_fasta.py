@@ -12,6 +12,9 @@ from bijux_proteomics.interfaces.support.foundation import (
     json,
     program_summary,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     DuplicateAccessionPolicy,
     FastaParseMode,
@@ -24,9 +27,6 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     parse_fasta_document,
     render_records_fasta,
     sequence_checksum,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 from bijux_proteomics.interfaces.support.sequence_support.fasta_inputs import (
     _emit_fasta_profile,

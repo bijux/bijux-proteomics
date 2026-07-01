@@ -81,7 +81,8 @@ def test_internal_modules_import_workflow_owner_modules_directly() -> None:
 def test_internal_modules_import_workflow_study_owner_modules_directly() -> None:
     violations = _collect_direct_import_violations(
         _WORKFLOW_WRAPPER_MODULES,
-        ignored_paths=_WORKFLOW_ROOT_WRAPPERS | {_WORKFLOW_INIT, _WORKFLOW_STUDIES_INIT},
+        ignored_paths=_WORKFLOW_ROOT_WRAPPERS
+        | {_WORKFLOW_INIT, _WORKFLOW_STUDIES_INIT},
         owner_description="the workflow.studies owner module",
     )
 

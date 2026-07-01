@@ -49,9 +49,9 @@ from bijux_proteomics.chemistry.contracts.models import (
     VariableModificationEnumerationReport,
 )
 from bijux_proteomics.chemistry.contracts.modified_peptides import (
+    build_modification_localization_advisory,
     build_modified_peptide,
     build_modified_peptide_export_record,
-    build_modification_localization_advisory,
     canonicalize_modified_peptide,
     enumerate_variable_modifications,
     export_modified_peptides_jsonl,

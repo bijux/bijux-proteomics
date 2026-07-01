@@ -113,6 +113,7 @@ from .quantification import (
     QuantMeasureKind,
     QuantRollupMethod,
     TimeCourseTestingPolicy,
+    apply_benjamini_hochberg,
     build_batch_effect_estimator_report,
     build_differential_abundance_report,
     build_heatmap_preparation_report,
@@ -192,7 +193,6 @@ from .quantification import (
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
     render_protein_peptide_contribution_tsv,
-    apply_benjamini_hochberg,
     summarize_missing_values,
 )
 

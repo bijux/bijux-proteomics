@@ -8,7 +8,9 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
-from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    parse_experimental_design_table,
+)
 from bijux_proteomics.interfaces.support.multiplex_targeted.targeted import (
     BiomarkerStabilityPolicy,
     PanelRedundancyPolicy,

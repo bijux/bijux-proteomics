@@ -189,7 +189,9 @@ def module_directory(
 def _module_source_path(owner_module: str) -> Path:
     spec = find_spec(owner_module)
     if spec is None or spec.origin is None:
-        raise ValueError(f"sequence facade owner module is not discoverable: {owner_module}")
+        raise ValueError(
+            f"sequence facade owner module is not discoverable: {owner_module}"
+        )
     return Path(spec.origin)
 
 

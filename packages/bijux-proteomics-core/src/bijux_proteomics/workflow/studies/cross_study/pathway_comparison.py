@@ -863,7 +863,10 @@ def _activity_status_note(
     tested_study_count: int,
     direction_count: int,
 ) -> tuple[CrossStudyPathwayComparisonStatus, str]:
-    if alignment_status is CrossStudyPathwayContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS:
+    if (
+        alignment_status
+        is CrossStudyPathwayContrastAlignmentStatus.HETEROGENEOUS_CONTRASTS
+    ):
         return (
             CrossStudyPathwayComparisonStatus.HETEROGENEOUS_CONTRASTS,
             "studies compared different condition pairs, so pathway activity deltas were not merged into shared or opposite signals",
@@ -913,6 +916,7 @@ def _safe_fraction(numerator: int, denominator: int) -> float | None:
     if denominator <= 0:
         return None
     return round(numerator / denominator, 6)
+
 
 __all__ = [
     "CrossStudyPathwayComparisonEntry",

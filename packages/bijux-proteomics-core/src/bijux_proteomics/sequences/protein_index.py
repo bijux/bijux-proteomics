@@ -10,11 +10,6 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.sequences.fasta import (
-    FastaParseMode,
-    NormalizedProteinRecord,
-    parse_fasta_document,
-)
 from bijux_proteomics.sequences.digestion import (
     DigestedPeptide,
     DigestPolicy,
@@ -23,6 +18,11 @@ from bijux_proteomics.sequences.digestion import (
     build_digest_policy,
     digest_protein_records,
     get_protease_rule,
+)
+from bijux_proteomics.sequences.fasta import (
+    FastaParseMode,
+    NormalizedProteinRecord,
+    parse_fasta_document,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_text
 

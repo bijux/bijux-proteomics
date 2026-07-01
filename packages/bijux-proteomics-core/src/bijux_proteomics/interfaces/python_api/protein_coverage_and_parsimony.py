@@ -36,13 +36,13 @@ from bijux_proteomics.interfaces.support.identification import (
     render_protein_coverage_summary_tsv,
     render_protein_coverage_uncovered_regions_tsv,
 )
-from bijux_proteomics.interfaces.support.review_sequences_study import (
-    FastaParseMode,
-    parse_fasta_document,
-)
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
     _write_text_output,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    FastaParseMode,
+    parse_fasta_document,
 )
 from bijux_proteomics.interfaces.support.sequence_support.input_resolution import (
     _build_decoy_policy,

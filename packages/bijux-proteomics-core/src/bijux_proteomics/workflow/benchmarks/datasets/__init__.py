@@ -9,9 +9,9 @@ from bijux_proteomics.workflow.facade_benchmark_catalog import (
 )
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
-    resolve_public_export,
     module_directory,
     ordered_facade_owners,
+    resolve_public_export,
 )
 
 __all__, _BENCHMARK_DATASET_EXPORT_INDEX = build_lazy_export_index(
@@ -20,7 +20,9 @@ __all__, _BENCHMARK_DATASET_EXPORT_INDEX = build_lazy_export_index(
 
 
 def __getattr__(name: str) -> Any:
-    return resolve_public_export(__name__, globals(), _BENCHMARK_DATASET_EXPORT_INDEX, name)
+    return resolve_public_export(
+        __name__, globals(), _BENCHMARK_DATASET_EXPORT_INDEX, name
+    )
 
 
 def __dir__() -> list[str]:

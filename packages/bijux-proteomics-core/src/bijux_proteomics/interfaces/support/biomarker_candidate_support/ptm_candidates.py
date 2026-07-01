@@ -17,7 +17,10 @@ from ..review_sequences_study import (
     BiomarkerCandidateKind,
     BiomarkerCandidateRankingInput,
 )
-from ..targeted_selection_io.field_parsing import _parse_cli_bool, _split_semicolon_field
+from ..targeted_selection_io.field_parsing import (
+    _parse_cli_bool,
+    _split_semicolon_field,
+)
 from ..targeted_selection_io.report_artifacts import _require_report_artifact
 from .candidate_scoring import (
     _score_annotation_labels,

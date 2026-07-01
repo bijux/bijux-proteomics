@@ -64,7 +64,9 @@ def test_quantification_root_compatibility_ledger_prefers_contract_exports() -> 
     )
 
 
-def test_quantification_root_runtime_exports_match_governed_compatibility_ledger() -> None:
+def test_quantification_root_runtime_exports_match_governed_compatibility_ledger() -> (
+    None
+):
     expected_exports, _ = build_lazy_export_index(
         facade_owner_modules(QUANTIFICATION_ROOT_FACADE_OWNERS),
         collision_policy="prefer_first_owner",
@@ -75,7 +77,9 @@ def test_quantification_root_runtime_exports_match_governed_compatibility_ledger
     assert all(hasattr(quantification, name) for name in QUANTIFICATION_ROOT_SUBMODULES)
 
 
-def test_quantification_root_runtime_prefers_contract_surface_for_colliding_exports() -> None:
+def test_quantification_root_runtime_prefers_contract_surface_for_colliding_exports() -> (
+    None
+):
     assert (
         quantification.build_quant_design_matrix_report
         is contracts.build_quant_design_matrix_report

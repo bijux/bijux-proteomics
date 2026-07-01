@@ -13,8 +13,8 @@ from bijux_proteomics.interpretation import (
     PathwayEnrichmentReport,
     ProteinAnnotationMappingReport,
 )
-from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     LabelFreeQuantTable,

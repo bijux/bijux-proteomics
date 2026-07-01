@@ -806,7 +806,9 @@ def test_workflow_package_exports_discovery_to_assay_surface() -> None:
     )
     assert (
         "final_status"
-        in workflow.pipelines.synthesis.render_discovery_to_assay_validation_candidate_cards_tsv(report)
+        in workflow.pipelines.synthesis.render_discovery_to_assay_validation_candidate_cards_tsv(
+            report
+        )
     )
 
 

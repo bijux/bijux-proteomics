@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from html import escape
 
-from .support import (
-    _format_optional_float,
-)
 from ..biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
+)
+from .support import (
+    _format_optional_float,
 )
 
 

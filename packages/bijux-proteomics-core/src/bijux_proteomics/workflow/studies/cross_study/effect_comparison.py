@@ -14,15 +14,6 @@ from bijux_proteomics.interpretation import OrthologRecord
 from bijux_proteomics.quantification.contracts.differential import (
     DifferentialResultRobustnessQcStatus,
 )
-from bijux_proteomics.workflow.studies.cross_study.protein_harmonization import (
-    CrossStudyProteinHarmonizationReport,
-    CrossStudyProteinHarmonizedEntry,
-    CrossStudyProteinObservation,
-    CrossStudyProteinObservationSourceKind,
-    CrossStudyProteinStudyInput,
-    UnsupportedCrossStudyProteinStudy,
-    build_cross_study_protein_harmonization_report_from_observations,
-)
 from bijux_proteomics.workflow.studies.cross_study.effect_rendering import (
     export_cross_study_conflicting_hit_tsv,
     export_cross_study_effect_comparison_tsv,
@@ -34,6 +25,15 @@ from bijux_proteomics.workflow.studies.cross_study.effect_rendering import (
     render_cross_study_effect_detail_tsv,
     render_cross_study_replicated_hit_tsv,
     render_cross_study_study_specific_hit_tsv,
+)
+from bijux_proteomics.workflow.studies.cross_study.protein_harmonization import (
+    CrossStudyProteinHarmonizationReport,
+    CrossStudyProteinHarmonizedEntry,
+    CrossStudyProteinObservation,
+    CrossStudyProteinObservationSourceKind,
+    CrossStudyProteinStudyInput,
+    UnsupportedCrossStudyProteinStudy,
+    build_cross_study_protein_harmonization_report_from_observations,
 )
 from bijux_proteomics.workflow.studies.study_results import ProteomicsStudyKind
 from bijux_proteomics_foundation import JsonModel
@@ -434,6 +434,7 @@ def build_cross_study_effect_comparison_report_from_observations(
             "preserving conflicting and study-specific outcomes explicitly"
         ),
     )
+
 
 def _extract_study_effect_observations(
     study: CrossStudyProteinStudyInput,
@@ -910,6 +911,7 @@ def _median_robustness_score(
         if entry.robustness_score is not None
     ]
     return None if not scores else float(median(scores))
+
 
 __all__ = [
     "CrossStudyEffectComparisonStatus",

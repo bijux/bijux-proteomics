@@ -15,7 +15,6 @@ from bijux_proteomics.workflow.studies.study_results.design import (
     _design_from_tmt_workflow,
 )
 from bijux_proteomics.workflow.studies.study_results.models import (
-    ProteomicsStudyCardSurface,
     ProteomicsStudyKind,
     ProteomicsStudyMatrixKind,
     ProteomicsStudyMatrixSurface,

@@ -65,7 +65,7 @@ def _summarize_missing_values_pure(
 
     entries: list[MissingValueSummaryEntry] = []
     for sample_id in table.sample_ids:
-        counts = {kind: 0 for kind in MissingValueKind}
+        counts = dict.fromkeys(MissingValueKind, 0)
         for entity_id in included_entity_ids:
             kind = apply_missing_value_summary_policy(
                 lookup[(entity_id, sample_id)].missing_value_kind,

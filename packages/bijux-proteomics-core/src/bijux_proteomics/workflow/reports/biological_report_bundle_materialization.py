@@ -23,7 +23,6 @@ from bijux_proteomics.workflow.reports.biological_report_summary_contracts impor
     BiologicalResultReportSummary,
 )
 
-
 _BIOLOGICAL_RESULT_REPORT_BUNDLE_NOTE = (
     "biological reporting assembles governed protein differential analysis, "
     "protein evidence cards, annotation mapping, optional user-supplied "

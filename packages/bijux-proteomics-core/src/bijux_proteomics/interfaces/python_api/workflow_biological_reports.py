@@ -14,14 +14,6 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     DiaProteinRollupMethod,
     DiaSharedPeptidePolicy,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
-    NormalizationMethod,
-)
-from bijux_proteomics.interfaces.support.workflow import (
-    BiologicalResultSelectionPolicy,
-    DiannWorkflowConfig,
-    MaxquantWorkflowConfig,
-)
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
@@ -33,6 +25,14 @@ from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
 )
 from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
+)
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
+from bijux_proteomics.interfaces.support.workflow import (
+    BiologicalResultSelectionPolicy,
+    DiannWorkflowConfig,
+    MaxquantWorkflowConfig,
 )
 from bijux_proteomics.workflow.pipelines.diann_biological_workflow import (
     DiannBiologicalWorkflowBundle,

@@ -20,18 +20,32 @@ from bijux_proteomics.quantification.contracts import (
 from bijux_proteomics.study import ExperimentDesign
 from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _resolve_contrast as _resolve_report_contrast,
+)
+from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _select_heatmap_entity_ids as _select_report_heatmap_entity_ids,
+)
+from bijux_proteomics.workflow.reports.biological_report_contrast_selection import (
     _select_significant_entity_ids as _select_report_significant_entity_ids,
 )
 from bijux_proteomics.workflow.reports.biological_report_filtering_policies import (
     _build_biological_background_filtering_policy as _build_report_background_filtering_policy,
+)
+from bijux_proteomics.workflow.reports.biological_report_filtering_policies import (
     _build_biological_foreground_filtering_policy as _build_report_foreground_filtering_policy,
 )
 from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_background_reference_entries as _build_report_background_reference_entries,
+)
+from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_differential_reference_entries as _build_report_differential_reference_entries,
+)
+from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_foreground_reference_entries as _build_report_foreground_reference_entries,
+)
+from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_protein_reference_entries as _build_report_protein_reference_entries,
+)
+from bijux_proteomics.workflow.reports.biological_report_reference_entries import (
     _build_protein_reference_entries_from_biological_set as _build_report_biological_set_reference_entries,
 )
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (

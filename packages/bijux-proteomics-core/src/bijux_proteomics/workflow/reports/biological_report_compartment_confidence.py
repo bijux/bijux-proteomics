@@ -8,13 +8,13 @@ from __future__ import annotations
 from bijux_proteomics.interpretation.compartment_biology import (
     CompartmentBiologyReport,
 )
+from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
+    _build_biological_report_section_confidence_entry,
+)
 from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,
-)
-from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
-    _build_biological_report_section_confidence_entry,
 )
 
 

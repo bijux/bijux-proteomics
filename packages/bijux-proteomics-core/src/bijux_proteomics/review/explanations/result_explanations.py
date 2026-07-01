@@ -8,6 +8,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
+from bijux_proteomics.review.claims.result_query_artifacts import (
+    _find_protein_card,
+    _find_ptm_card,
+    _node_ids_for_entity,
+    _protein_card_graph_node_ids,
+    _sample_to_failed_qc_runs,
+)
 from bijux_proteomics.review.explanations.result_explanation_artifacts import (
     _find_failed_qc_run,
     _find_pathway_comparison,
@@ -16,10 +23,9 @@ from bijux_proteomics.review.explanations.result_explanation_artifacts import (
     _pathway_unresolved_members,
     _rejected_claim_graph_node_ids,
     _rejected_claim_signal_summary,
+    _RejectedClaimArtifact,
     _ResultExplanationArtifactContext,
     _top_pathway_members,
-    _PathwayComparisonArtifact,
-    _RejectedClaimArtifact,
 )
 from bijux_proteomics.review.explanations.result_explanation_models import (
     ResultExplanation,
@@ -36,14 +42,6 @@ from bijux_proteomics.review.explanations.result_explanation_rendering import (
     render_result_explanation_summary_tsv,
     render_result_explanation_tsv,
 )
-from bijux_proteomics.review.claims.result_query_artifacts import (
-    _find_protein_card,
-    _find_ptm_card,
-    _node_ids_for_entity,
-    _protein_card_graph_node_ids,
-    _sample_to_failed_qc_runs,
-)
-from bijux_proteomics_foundation import JsonModel
 
 
 def build_result_explanation_report_from_artifacts(

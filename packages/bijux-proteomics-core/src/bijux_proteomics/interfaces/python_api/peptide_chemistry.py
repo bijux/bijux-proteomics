@@ -21,15 +21,15 @@ from bijux_proteomics.interfaces.support.foundation import (
     render_fragment_ion_report_tsv,
     render_isotope_envelopes_tsv,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     PeptideDigestionMode,
     build_peptide_database_lookup_report,
     build_peptide_property_report,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-    _write_text_output,
 )
 from bijux_proteomics.interfaces.support.sequence_support.digestion_parameters import (
     _resolve_cli_protease_rule,

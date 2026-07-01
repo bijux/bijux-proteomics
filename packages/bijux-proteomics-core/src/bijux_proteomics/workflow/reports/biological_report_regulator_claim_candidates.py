@@ -27,7 +27,9 @@ def _build_biological_regulator_claim_candidates(
             "mixed": BiologicalClaimDirection.MIXED,
             "unsupported": BiologicalClaimDirection.UNRESOLVED,
         }[entry.direction.value]
-        noun = "Kinase" if entry.evidence_type.value == "kinase_substrate" else "Regulator"
+        noun = (
+            "Kinase" if entry.evidence_type.value == "kinase_substrate" else "Regulator"
+        )
         verb = (
             "active"
             if direction is BiologicalClaimDirection.UP

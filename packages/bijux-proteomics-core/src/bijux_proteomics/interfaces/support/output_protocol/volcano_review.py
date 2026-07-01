@@ -42,4 +42,3 @@ def _export_volcano_review_assets(
         export_volcano_review_svg(review_report, svg_out)
     if html_out is not None:
         export_volcano_review_html(review_report, html_out)
-

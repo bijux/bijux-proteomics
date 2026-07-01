@@ -16,9 +16,9 @@ from bijux_proteomics.targeted.assay_qc import (
     build_targeted_assay_qc_report,
 )
 from bijux_proteomics.targeted.biomarker_stability.matching import (
-    _ImportedTargetDescriptor,
     _build_imported_target_descriptors,
     _compute_assay_agreement_score,
+    _ImportedTargetDescriptor,
     _match_assay_target_ids,
 )
 from bijux_proteomics.targeted.biomarker_stability.models import (
@@ -280,7 +280,9 @@ def _build_candidate_entry(
             sample_type_stability_score=subgroup_assessment.sample_type_stability_score,
             reliable_sample_count=signal_assessment.reliable_sample_count,
             total_sample_count=len(total_sample_ids),
-            condition_count_with_signal=len(signal_assessment.condition_values_with_signal),
+            condition_count_with_signal=len(
+                signal_assessment.condition_values_with_signal
+            ),
             total_condition_count=len(total_condition_values),
             assay_entry_count=len(assays),
             matched_target_count=len(signal_assessment.matched_target_ids),
@@ -375,9 +377,12 @@ def _collect_assay_values_by_sample(
                 qc_entry = qc_by_target_sample.get((target_id, sample_id))
                 if qc_entry is None or not _positive_intensity(qc_entry):
                     continue
+                passing_total_intensity = qc_entry.passing_total_intensity
+                if passing_total_intensity is None:
+                    continue
                 assay_values_by_sample.setdefault(sample_id, {})[
                     assay.assay_entry_id
-                ] = math.log2(qc_entry.passing_total_intensity)
+                ] = math.log2(passing_total_intensity)
                 if qc_entry.reliable:
                     reliable_sample_ids.add(sample_id)
     return assay_values_by_sample, reliable_sample_ids, matched_target_ids
@@ -404,7 +409,10 @@ def _signal_instability_reasons(
         < policy.minimum_reliable_sample_fraction
     ):
         reasons.append(BiomarkerStabilityReasonCode.LOW_RELIABLE_SAMPLE_FRACTION)
-    if len(signal_assessment.condition_values_with_signal) <= 1 and total_condition_values:
+    if (
+        len(signal_assessment.condition_values_with_signal) <= 1
+        and total_condition_values
+    ):
         reasons.append(BiomarkerStabilityReasonCode.SINGLE_CONDITION_SIGNAL_ONLY)
     if signal_assessment.assay_agreement_score < 1.0:
         reasons.append(BiomarkerStabilityReasonCode.ASSAY_DISAGREEMENT)

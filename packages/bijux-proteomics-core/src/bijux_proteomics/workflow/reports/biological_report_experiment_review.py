@@ -26,11 +26,11 @@ from bijux_proteomics.workflow.cards.protein_evidence_cards import (
 from bijux_proteomics.workflow.reports.biological_report_experiment_confidence_assembly import (
     _build_biological_experiment_confidence_report,
 )
-from bijux_proteomics.workflow.reports.biological_report_experiment_review_contracts import (
-    BiologicalExperimentReviewReports,
-)
 from bijux_proteomics.workflow.reports.biological_report_experiment_diagnostics import (
     _build_biological_experiment_diagnostics_reports,
+)
+from bijux_proteomics.workflow.reports.biological_report_experiment_review_contracts import (
+    BiologicalExperimentReviewReports,
 )
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
@@ -77,9 +77,7 @@ def _build_biological_experiment_review_reports(
         volcano_review=diagnostics_reports.volcano_review,
         heatmap_report=diagnostics_reports.heatmap_report,
         sample_exploration_report=diagnostics_reports.sample_exploration_report,
-        cohort_stratification_report=(
-            diagnostics_reports.cohort_stratification_report
-        ),
+        cohort_stratification_report=(diagnostics_reports.cohort_stratification_report),
         experiment_confidence_report=experiment_confidence_report,
     )
 

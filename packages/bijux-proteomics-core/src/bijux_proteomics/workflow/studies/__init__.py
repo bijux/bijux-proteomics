@@ -6,9 +6,9 @@ from typing import Any
 
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
-    resolve_public_export,
     module_directory,
     ordered_facade_owners,
+    resolve_public_export,
 )
 from bijux_proteomics.workflow.facade_study_catalog import (
     STUDY_FACADE_OWNERS,

@@ -277,7 +277,8 @@ def _build_run_status_reasons(
                 code="depletion_inefficiency",
                 status=QcStatus.CAUTION,
                 source=QcStatusReasonSource.LAB,
-                message="depletion markers remained visible: " + ", ".join(depletion_hits),
+                message="depletion markers remained visible: "
+                + ", ".join(depletion_hits),
             )
         )
 

@@ -48,9 +48,7 @@ def flatten_facade_exports(
     """Return the flattened export names for a facade module tuple."""
 
     return tuple(
-        export_name
-        for module in modules
-        for export_name in module.export_names
+        export_name for module in modules for export_name in module.export_names
     )
 
 

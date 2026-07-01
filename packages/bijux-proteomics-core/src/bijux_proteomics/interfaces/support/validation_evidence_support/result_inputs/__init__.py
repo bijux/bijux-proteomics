@@ -11,7 +11,6 @@ from .result_entries import (
     _load_validation_evidence_results,
 )
 
-
 __all__ = [
     "_load_targeted_validation_panel_assays",
     "_load_validation_evidence_result_assays",

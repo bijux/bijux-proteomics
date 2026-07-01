@@ -5,6 +5,9 @@
 from __future__ import annotations
 
 from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics.interfaces.support.contrast_resolution import (
+    _resolve_cli_contrast,
+)
 from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
@@ -25,7 +28,12 @@ from bijux_proteomics.interfaces.support.interpretation import (
     render_rejected_biological_context_tsv,
     render_rejected_pathway_membership_tsv,
 )
-from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    parse_experimental_design_table,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.compartment_biology import (
     CompartmentBiologyPolicy,
     build_compartment_biology_report,
@@ -54,10 +62,6 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     NormalizedProteinRecord,
     parse_fasta_document,
 )
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-)
-from bijux_proteomics.interfaces.support.contrast_resolution import _resolve_cli_contrast
 
 
 def run_compartment_biology_command(

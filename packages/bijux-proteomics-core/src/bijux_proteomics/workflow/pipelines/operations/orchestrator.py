@@ -62,6 +62,12 @@ from bijux_proteomics.targeted import (
     build_targeted_matrix_report,
     build_transition_table_result_import_report,
 )
+from bijux_proteomics.workflow.exports.targeted_review_workflow import (
+    TargetedAssayQcWorkflowExportManifest,
+    TargetedMatrixWorkflowExportManifest,
+    export_targeted_assay_qc_workflow_artifacts,
+    export_targeted_matrix_workflow_artifacts,
+)
 from bijux_proteomics.workflow.pipelines.advanced_targeted import (
     AdvancedTargetedWorkflowManifest,
     TargetedValidationWorkflowConfig,
@@ -80,12 +86,6 @@ from bijux_proteomics.workflow.pipelines.engines.diann_biological_workflow impor
     DiannBiologicalWorkflowExportManifest,
     build_diann_biological_workflow_bundle,
     write_diann_biological_workflow_bundle,
-)
-from bijux_proteomics.workflow.pipelines.label_based_reporting import (
-    LabelBasedReportBundle,
-    LabelBasedReportExportManifest,
-    build_silac_label_based_report_bundle,
-    write_label_based_report_bundle,
 )
 from bijux_proteomics.workflow.pipelines.engines.maxquant_biological_workflow import (
     MaxquantBiologicalWorkflowBundle,
@@ -106,6 +106,12 @@ from bijux_proteomics.workflow.pipelines.engines.tmt_experiment_workflow import 
     build_tmt_experiment_workflow_bundle,
     write_tmt_experiment_workflow_bundle,
 )
+from bijux_proteomics.workflow.pipelines.label_based_reporting import (
+    LabelBasedReportBundle,
+    LabelBasedReportExportManifest,
+    build_silac_label_based_report_bundle,
+    write_label_based_report_bundle,
+)
 from bijux_proteomics.workflow.reports.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
@@ -122,12 +128,6 @@ from bijux_proteomics.workflow.result_types import (
 )
 from bijux_proteomics.workflow.result_types import (
     WorkflowResult as StandardWorkflowResult,
-)
-from bijux_proteomics.workflow.exports.targeted_review_workflow import (
-    TargetedAssayQcWorkflowExportManifest,
-    TargetedMatrixWorkflowExportManifest,
-    export_targeted_assay_qc_workflow_artifacts,
-    export_targeted_matrix_workflow_artifacts,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -887,7 +887,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
                 "targeted validation workflow requires case and control conditions"
             )
         experiment_design = _load_design(config.design_tsv_path)
-        report = run_targeted_validation_workflow(
+        validation_report = run_targeted_validation_workflow(
             TargetedValidationWorkflowConfig(
                 result_tsv_path=config.input_tsv_path,
                 design_tsv_path=config.design_tsv_path,
@@ -918,22 +918,22 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
             }
         return WorkflowResult(
             mode=config.mode,
-            report=report,
-            source_report=report.import_report,
-            manifest=report.manifest,
+            report=validation_report,
+            source_report=validation_report.import_report,
+            manifest=validation_report.manifest,
             design_row_count=len(experiment_design.entries),
             artifacts=_workflow_artifact_map(
                 validation_outputs,
-                report.manifest,
-                report=report,
+                validation_report.manifest,
+                report=validation_report,
             ),
             warnings=_workflow_warnings(
-                source_report=report.import_report,
-                report=report,
+                source_report=validation_report.import_report,
+                report=validation_report,
             ),
             rejected_evidence=_workflow_rejected_evidence(
-                source_report=report.import_report,
-                report=report,
+                source_report=validation_report.import_report,
+                report=validation_report,
             ),
             outputs=validation_outputs,
             note=(
@@ -946,7 +946,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         experiment_design = _load_design(config.design_tsv_path)
         design_entries = experiment_design.entries
         design_row_count = len(experiment_design.entries)
-    report = build_targeted_assay_qc_report(
+    assay_qc_report = build_targeted_assay_qc_report(
         import_report,
         design_entries,
     )
@@ -957,7 +957,7 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         assay_qc_manifest = export_targeted_assay_qc_workflow_artifacts(
             import_report,
             matrix_report,
-            report,
+            assay_qc_report,
             config.output_dir,
         )
         manifest_path = config.output_dir / "targeted_assay_qc_workflow_manifest.json"
@@ -969,15 +969,18 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
         }
     return WorkflowResult(
         mode=config.mode,
-        report=report,
+        report=assay_qc_report,
         source_report=import_report,
         manifest=assay_qc_manifest,
         design_row_count=design_row_count,
         artifacts=_workflow_artifact_map(assay_qc_outputs, assay_qc_manifest),
-        warnings=_workflow_warnings(source_report=import_report, report=report),
+        warnings=_workflow_warnings(
+            source_report=import_report,
+            report=assay_qc_report,
+        ),
         rejected_evidence=_workflow_rejected_evidence(
             source_report=import_report,
-            report=report,
+            report=assay_qc_report,
         ),
         outputs=assay_qc_outputs,
         note=(

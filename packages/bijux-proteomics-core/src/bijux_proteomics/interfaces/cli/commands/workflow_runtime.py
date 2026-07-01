@@ -20,12 +20,12 @@ from bijux_proteomics.interfaces.support.io_and_dia import WorkflowSchedulerKind
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     NormalizationMethod,
 )
-from bijux_proteomics.interfaces.support.workflow import ProteomicsRunEngine
 from bijux_proteomics.interfaces.support.sequence_support.cli_choices import (
     _normalization_choice,
     _search_adapter_choice,
     _workflow_scheduler_choice,
 )
+from bijux_proteomics.interfaces.support.workflow import ProteomicsRunEngine
 
 
 @click.command("bundle-run")

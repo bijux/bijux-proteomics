@@ -18,8 +18,6 @@ from bijux_proteomics.io.raw.mgf_streaming import (
 from bijux_proteomics.io.raw.mgf_streaming import (
     parse_mgf as _parse_mgf,
 )
-from bijux_proteomics_foundation import DocumentSchema
-
 from bijux_proteomics.io.spectra.spectrum_contracts.models import (
     MgfParseReport,
     SpectrumCollectionSummary,
@@ -30,6 +28,7 @@ from bijux_proteomics.io.spectra.spectrum_contracts.models import (
     SpectrumProvenanceManifest,
     SpectrumSummaryTableReport,
 )
+from bijux_proteomics_foundation import DocumentSchema
 
 
 def _scan_number_from_text(value: str | None) -> int | None:

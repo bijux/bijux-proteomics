@@ -11,19 +11,19 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from bijux_proteomics.interpretation.protein_set_scoring.models import (
+    ProteinSetConditionComparisonEntry,
+    ProteinSetConditionScoreEntry,
+    ProteinSetRecord,
+    ProteinSetSampleScoreEntry,
+    ProteinSetScoreConfidenceStatus,
+    UnresolvedProteinSetMemberEntry,
+)
 from bijux_proteomics.quantification.contracts.matrix_building import (
     _condition_lookup,
     _matrix_value_index,
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
-from bijux_proteomics.interpretation.protein_set_scoring.models import (
-    ProteinSetConditionComparisonEntry,
-    ProteinSetConditionScoreEntry,
-    ProteinSetScoreConfidenceStatus,
-    ProteinSetRecord,
-    ProteinSetSampleScoreEntry,
-    UnresolvedProteinSetMemberEntry,
-)
 
 if TYPE_CHECKING:
     from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -35,7 +35,9 @@ def build_sample_scores_and_unresolved_members(
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
     minimum_observed_member_count: int,
-) -> tuple[tuple[ProteinSetSampleScoreEntry, ...], tuple[UnresolvedProteinSetMemberEntry, ...]]:
+) -> tuple[
+    tuple[ProteinSetSampleScoreEntry, ...], tuple[UnresolvedProteinSetMemberEntry, ...]
+]:
     """Build sample-level scores and unresolved members for one protein-set collection."""
 
     sample_ids = table.sample_ids

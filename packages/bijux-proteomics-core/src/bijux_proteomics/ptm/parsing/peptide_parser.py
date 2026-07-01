@@ -11,13 +11,13 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.chemistry.contracts import AppliedModification
 from bijux_proteomics.chemistry.modifications import (
     ModificationPosition,
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
     parse_modified_peptide,
 )
-from bijux_proteomics.chemistry.contracts import AppliedModification
 from bijux_proteomics_foundation import JsonModel
 
 

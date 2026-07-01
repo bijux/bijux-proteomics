@@ -12,8 +12,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_cross_study_card_id
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
     CrossStudyProteinEffectComparisonEntry,

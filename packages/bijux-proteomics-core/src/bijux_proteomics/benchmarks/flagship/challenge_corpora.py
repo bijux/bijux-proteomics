@@ -31,15 +31,15 @@ from bijux_proteomics.ptm.benchmarks import (
     build_ptm_lab_targeting_rubric_report,
     build_ptm_localization_confidence_benchmark_report,
 )
-from bijux_proteomics.quantification.contracts import (
-    build_label_free_intensity_table,
-    parse_ms1_feature_table,
-)
 from bijux_proteomics.quantification.benchmarks import (
     MultiplexRatioExpectation,
     build_effect_size_stability_benchmark_report,
     build_multiplex_artifact_pressure_benchmark_report,
     build_quant_missingness_robustness_report,
+)
+from bijux_proteomics.quantification.contracts import (
+    build_label_free_intensity_table,
+    parse_ms1_feature_table,
 )
 from bijux_proteomics.quantification.contracts.input_models import (
     LabelBasedChannelRole,

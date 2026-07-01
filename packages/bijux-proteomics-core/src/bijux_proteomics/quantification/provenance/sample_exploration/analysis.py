@@ -94,7 +94,7 @@ def build_sample_exploration_report(
         note=(
             "sample exploration assembles pca, explained variance, pairwise correlations, pairwise distances, average-linkage clustering, and metric-labeled outlier review over one governed quantification table"
         ),
-)
+    )
 
 
 __all__ = [

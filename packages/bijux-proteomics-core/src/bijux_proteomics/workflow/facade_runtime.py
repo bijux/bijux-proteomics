@@ -6,22 +6,18 @@
 from __future__ import annotations
 
 import ast
+from collections.abc import Sequence
 from importlib import import_module
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any
 
-
-class WorkflowFacadeOwnerLike(Protocol):
-    """Structural contract for facade owner records consumed by runtime helpers."""
-
-    owner_module: str
-    excluded_exports: tuple[str, ...]
+from bijux_proteomics.workflow.facade_catalog import WorkflowFacadeOwner
 
 
 def ordered_facade_owners(
-    owners: tuple[WorkflowFacadeOwnerLike, ...],
-) -> tuple[WorkflowFacadeOwnerLike, ...]:
+    owners: Sequence[WorkflowFacadeOwner],
+) -> Sequence[WorkflowFacadeOwner]:
     """Return facade owners in their declared stable governance order."""
 
     return owners
@@ -49,7 +45,7 @@ def list_owned_public_names(owner_module: str) -> tuple[str, ...]:
 
 
 def build_lazy_export_index(
-    owners: tuple[WorkflowFacadeOwnerLike, ...],
+    owners: Sequence[WorkflowFacadeOwner],
 ) -> tuple[tuple[str, ...], dict[str, tuple[str, str]]]:
     """Build one ordered export ledger and import target map for a facade."""
 
@@ -183,10 +179,7 @@ def _is_thin_import_facade(module_tree: ast.Module) -> bool:
         and node.module != "__future__"
         and all(alias.name != "*" for alias in node.names)
         for node in nodes
-        if not (
-            isinstance(node, ast.ImportFrom)
-            and node.module == "__future__"
-        )
+        if not (isinstance(node, ast.ImportFrom) and node.module == "__future__")
     )
 
 

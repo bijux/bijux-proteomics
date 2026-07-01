@@ -33,12 +33,12 @@ from bijux_proteomics.interfaces.support.interpretation import (
     render_rejected_complex_membership_tsv,
     render_rejected_pathway_membership_tsv,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     parse_fasta_document,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 
 

@@ -13,19 +13,19 @@ from bijux_proteomics.interpretation import (
 from bijux_proteomics.interpretation.compartment_biology import (
     CompartmentBiologyReport,
 )
+from bijux_proteomics.workflow.reports.biological_report_compartment_confidence import (
+    _build_compartment_entry,
+)
 from bijux_proteomics.workflow.reports.biological_report_molecular_context_confidence import (
     _build_disease_phenotype_entry,
     _build_drug_target_entry,
 )
-from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
-    BiologicalReportSectionConfidenceEntry,
-)
-from bijux_proteomics.workflow.reports.biological_report_compartment_confidence import (
-    _build_compartment_entry,
-)
 from bijux_proteomics.workflow.reports.biological_report_sample_context_confidence import (
     _build_cohort_entry,
     _build_tissue_context_entry,
+)
+from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
+    BiologicalReportSectionConfidenceEntry,
 )
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,

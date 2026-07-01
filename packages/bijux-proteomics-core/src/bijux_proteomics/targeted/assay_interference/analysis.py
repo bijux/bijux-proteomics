@@ -7,20 +7,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bijux_proteomics.chemistry.fragments import (
-    FragmentIonSeries,
-)
 from bijux_proteomics.io import SpectralLibraryEntry
-from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
-from bijux_proteomics.sequences.peptide_uniqueness_index import (
-    PeptideUniquenessClass,
-)
 from bijux_proteomics.sequences.digestion import (
     DigestedPeptide,
     PeptideDigestionMode,
     ProteaseRule,
     digest_protein_records,
     get_protease_rule,
+)
+from bijux_proteomics.sequences.fasta import NormalizedProteinRecord
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    PeptideUniquenessClass,
 )
 from bijux_proteomics.targeted.assay_interference.models import (
     TargetedAssayInterferenceAssayEntry,
@@ -398,7 +395,9 @@ def _build_assay_entry(
         precursor_charge=assay_entry.precursor_charge,
         precursor_mz=assay_entry.precursor_mz,
         selected_transition_count=len(transition_rows),
-        exported_transition_count=exportable_transition_count if panel_export_allowed else 0,
+        exported_transition_count=exportable_transition_count
+        if panel_export_allowed
+        else 0,
         shared_peptide_penalty=shared_penalty,
         panel_overlap_transition_count=statistics.panel_overlap_total,
         background_overlap_peptide_count=statistics.background_overlap_total,

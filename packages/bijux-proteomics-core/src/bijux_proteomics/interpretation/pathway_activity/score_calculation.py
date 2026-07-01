@@ -22,6 +22,7 @@ from bijux_proteomics.interpretation.pathway_activity.models import (
     UnresolvedPathwayActivityMemberEntry,
 )
 from bijux_proteomics.interpretation.pathway_enrichment import PathwayMembershipRecord
+from bijux_proteomics_knowledge.pathways.members import PathwayCoverageConfidenceEntry
 
 
 def build_sample_scores_and_member_contributions(
@@ -35,7 +36,7 @@ def build_sample_scores_and_member_contributions(
     gene_to_proteins: dict[str, tuple[str, ...]],
     minimum_observed_member_count: int,
     minimum_knowledge_coverage_fraction: float,
-    coverage_by_pathway_id: dict[str, object],
+    coverage_by_pathway_id: dict[str, PathwayCoverageConfidenceEntry],
 ) -> tuple[
     list[PathwaySampleScoreEntry],
     list[PathwayMemberContributionEntry],

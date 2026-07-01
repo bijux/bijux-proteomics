@@ -325,7 +325,9 @@ def average_linkage_distance(
     return float(np.mean(distances)) if distances else 0.0
 
 
-def cluster_member_key(sample_ids: tuple[str, ...], member_indexes: Sequence[int]) -> str:
+def cluster_member_key(
+    sample_ids: tuple[str, ...], member_indexes: Sequence[int]
+) -> str:
     """Build a deterministic cluster identity key from owned sample ordering."""
 
     return ";".join(sample_ids[index] for index in member_indexes)

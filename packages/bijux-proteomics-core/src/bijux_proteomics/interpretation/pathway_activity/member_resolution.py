@@ -24,8 +24,8 @@ from bijux_proteomics.quantification.contracts.matrix_building import (
     _matrix_value_index,
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
-from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 
 PathwayMemberSpec = tuple[PathwayMemberKind, str, tuple[str, ...]]
 

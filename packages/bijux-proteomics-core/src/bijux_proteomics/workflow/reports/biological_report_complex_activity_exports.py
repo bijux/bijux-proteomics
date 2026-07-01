@@ -55,9 +55,7 @@ def _write_biological_complex_activity_exports(
     activity_matrix_name = "biological_complex_activity_matrix.tsv"
     activity_sample_name = "biological_complex_activity_samples.tsv"
     activity_condition_name = "biological_complex_activity_conditions.tsv"
-    activity_comparison_name = (
-        "biological_complex_activity_condition_comparisons.tsv"
-    )
+    activity_comparison_name = "biological_complex_activity_condition_comparisons.tsv"
     activity_member_name = "biological_complex_activity_members.tsv"
     activity_unresolved_name = "biological_complex_activity_unresolved.tsv"
     write_output_table_tsv(

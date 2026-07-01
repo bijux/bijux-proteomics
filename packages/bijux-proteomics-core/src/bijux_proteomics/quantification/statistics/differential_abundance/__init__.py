@@ -22,6 +22,7 @@ from bijux_proteomics.quantification.statistics.differential_abundance.rendering
     render_differential_broken_pairs_tsv,
     render_multi_condition_differential_abundance_tsv,
 )
+
 _collect_condition_values = collect_condition_values
 _collect_condition_values_vectorized = collect_condition_values_vectorized
 

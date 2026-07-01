@@ -12,6 +12,9 @@ from bijux_proteomics.interfaces.support.io_and_dia import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
     HeatmapMissingValuePolicy,
     HeatmapPreparationPolicy,
@@ -40,9 +43,6 @@ from bijux_proteomics.interfaces.support.ptm_quantification.quantification impor
     export_sample_pca_variance_tsv,
     normalize_label_free_table,
     parse_ms1_feature_table,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 
 

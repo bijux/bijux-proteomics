@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-import sys
-
 from bijux_proteomics.chemistry.contracts import (
     AppliedModification,
     ModificationLocalizationAdvisory,
@@ -87,8 +85,6 @@ from bijux_proteomics.chemistry.open_search_unknown_mod import (
     UnknownModificationHypothesis,
     build_open_search_unknown_mod_report,
 )
-
-sys.modules["bijux_proteomics.chemistry"].modification_registry = modification_registry
 
 __all__ = [
     "AppliedModification",

@@ -13,9 +13,9 @@ from bijux_proteomics.quantification.contracts.matrix_building import (
 )
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.quantification.contracts.missingness import (
-    MissingValueSummaryPolicy,
     MissingnessEntitySummaryEntry,
     MissingnessEntitySummaryReport,
+    MissingValueSummaryPolicy,
 )
 from bijux_proteomics.quantification.matrix import (
     build_dense_label_free_quant_table_view,

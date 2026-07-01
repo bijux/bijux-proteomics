@@ -101,10 +101,7 @@ def test_no_other_owner_defines_incompatible_generic_confidence_tiers() -> None:
 
 def test_biological_report_summary_uses_shared_experiment_confidence_tier() -> None:
     source_text = (
-        SOURCE_ROOT
-        / "workflow"
-        / "reports"
-        / "biological_report_summary_contracts.py"
+        SOURCE_ROOT / "workflow" / "reports" / "biological_report_summary_contracts.py"
     ).read_text(encoding="utf-8")
 
     assert "experiment_confidence_tier: ConfidenceTier" in source_text

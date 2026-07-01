@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import NormalizationMethod
@@ -15,6 +16,9 @@ from bijux_proteomics.study import LcmsRunQcReport, QcRunAssessmentReport
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
 )
+
+if TYPE_CHECKING:
+    from bijux_proteomics_lab.handoffs.qc_feedback import LabRunQcFeedbackReport
 
 
 @dataclass(frozen=True)
@@ -39,7 +43,7 @@ class BiologicalReportQuantTableBuildOptions:
     condition_b: str | None = None
     selection_policy: BiologicalResultSelectionPolicy | None = None
     volcano_policy: VolcanoReviewPolicy | None = None
-    lab_run_qc_feedback_report: object | None = None
+    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None = None
     run_qc_reports: tuple[LcmsRunQcReport, ...] = ()
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = ()
 
@@ -64,7 +68,7 @@ def _build_biological_report_quant_table_build_options(
     condition_b: str | None = None,
     selection_policy: BiologicalResultSelectionPolicy | None = None,
     volcano_policy: VolcanoReviewPolicy | None = None,
-    lab_run_qc_feedback_report: object | None = None,
+    lab_run_qc_feedback_report: LabRunQcFeedbackReport | None = None,
     run_qc_reports: tuple[LcmsRunQcReport, ...] = (),
     run_qc_assessments: tuple[QcRunAssessmentReport, ...] = (),
 ) -> BiologicalReportQuantTableBuildOptions:

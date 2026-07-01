@@ -23,9 +23,7 @@ _UNIPROT_ACCESSION_RE = re.compile(
 _REFSEQ_ACCESSION_RE = re.compile(
     r"^(?P<accession>(?:NP|XP|YP|WP|AP|ZP)_[0-9]+(?:\.[0-9]+)?)$"
 )
-_ENSEMBL_ACCESSION_RE = re.compile(
-    r"^(?P<accession>ENS[A-Z]*P[0-9]{6,})(?:\.[0-9]+)?$"
-)
+_ENSEMBL_ACCESSION_RE = re.compile(r"^(?P<accession>ENS[A-Z]*P[0-9]{6,})(?:\.[0-9]+)?$")
 _GENE_FIELD_RE = re.compile(r"\bGN=(?P<gene>[A-Za-z0-9_.-]+)")
 _ORGANISM_FIELD_RE = re.compile(r"\bOS=(?P<organism>.+?)(?=\s(?:OX|GN|PE|SV)=|$)")
 _ENSEMBL_GENE_SYMBOL_RE = re.compile(r"\bgene_symbol:(?P<gene>[A-Za-z0-9_.-]+)")

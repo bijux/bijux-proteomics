@@ -358,7 +358,9 @@ def test_indexed_large_result_archive_queries_stay_below_latency_threshold(
             for index in range(2500)
         ),
     )
-    artifact_index = workflow.exports.index_workflow_artifact_manifest(manifest=manifest)
+    artifact_index = workflow.exports.index_workflow_artifact_manifest(
+        manifest=manifest
+    )
     artifact_lookup_start = time.perf_counter()
     for offset in range(0, 2000, 2):
         assert (

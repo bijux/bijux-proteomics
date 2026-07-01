@@ -14,13 +14,13 @@ from bijux_proteomics.chemistry.amino_acid_mass import (
 from bijux_proteomics.chemistry.contracts.models import (
     AppliedModification,
     IsotopeEnvelopeStatus,
+    IsotopePeak,
     MassType,
     ModificationPosition,
     ModificationRegistryDocument,
     ParsedModifiedPeptide,
     PeptideChargeState,
     PeptideIsotopeEnvelope,
-    IsotopePeak,
     StaticModification,
 )
 from bijux_proteomics.chemistry.contracts.modified_peptides import (

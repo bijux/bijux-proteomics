@@ -29,6 +29,12 @@ from bijux_proteomics.lab.qc.models import (
     QcQuantSummary,
     QcRetentionTimeSummary,
 )
+from bijux_proteomics.lab.qc.support import (
+    build_document_schema,
+    fraction,
+    quantile,
+    resolve_run_id,
+)
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
@@ -40,12 +46,6 @@ from bijux_proteomics.sequences.digestion import (
 )
 from bijux_proteomics.sequences.digestion import (
     count_missed_cleavages as count_sequence_missed_cleavages,
-)
-from bijux_proteomics.lab.qc.support import (
-    build_document_schema,
-    fraction,
-    quantile,
-    resolve_run_id,
 )
 
 
@@ -114,6 +114,7 @@ def _build_quant_summary(
         else median(observed_values),
         normalization_method=table.normalization_method.value,
     )
+
 
 def _is_contaminant_reference(reference: str, policy: QcContaminantPolicy) -> bool:
     normalized = reference.strip().upper()
@@ -365,9 +366,7 @@ def build_lcms_run_qc_report(
         QcDigestionSpecificityEntry(
             specificity=specificity,
             count=specificity_counts.get(specificity, 0),
-            fraction=fraction(
-                specificity_counts.get(specificity, 0), len(psm_records)
-            ),
+            fraction=fraction(specificity_counts.get(specificity, 0), len(psm_records)),
         )
         for specificity in (
             QcDigestionSpecificity.ENZYMATIC,

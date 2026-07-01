@@ -16,6 +16,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics._atomic_files import atomic_write_text
 from bijux_proteomics._output_tables import write_output_table_tsv
+from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
+    list_public_benchmark_descriptor_paths,
+    load_public_benchmark_descriptor,
+    public_benchmark_root,
+)
 from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
     PublicBenchmarkRunReport,
     PublicBenchmarkSuiteReport,
@@ -30,11 +35,6 @@ from bijux_proteomics.workflow.pipelines.benchmarking.weak_evidence import (
     render_weak_evidence_benchmark_criteria_tsv,
     render_weak_evidence_benchmark_summary_tsv,
     run_weak_evidence_benchmark,
-)
-from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
-    list_public_benchmark_descriptor_paths,
-    load_public_benchmark_descriptor,
-    public_benchmark_root,
 )
 from bijux_proteomics_foundation import JsonModel
 

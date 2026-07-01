@@ -22,9 +22,9 @@ from bijux_proteomics.identification.public_api import (
     PEPTIDE_FACADE_BUDGET,
     PROTEIN_FACADE_BUDGET,
     PSM_FACADE_BUDGET,
+    flatten_facade_exports,
     list_identification_adapter_api_modules,
     list_identification_contract_api_modules,
-    flatten_facade_exports,
     list_identification_fdr_api_modules,
     list_identification_peptide_api_modules,
     list_identification_protein_api_modules,
@@ -45,9 +45,12 @@ def test_psm_facade_exports_match_governed_public_api() -> None:
     assert tuple(psm.__all__) == expected
     assert hasattr(psm, "extract_psm_features")
     assert hasattr(psm, "fit_target_decoy_logistic_model")
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/psm/__init__.py"
-    ) <= PSM_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/identification/psm/__init__.py"
+        )
+        <= PSM_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_peptide_facade_exports_match_governed_public_api() -> None:
@@ -56,9 +59,12 @@ def test_peptide_facade_exports_match_governed_public_api() -> None:
     assert tuple(peptide.__all__) == expected
     assert hasattr(peptide, "build_peptide_evidence_report")
     assert hasattr(peptide, "build_peptide_cross_run_reproducibility_report")
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/peptide/__init__.py"
-    ) <= PEPTIDE_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/identification/peptide/__init__.py"
+        )
+        <= PEPTIDE_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_protein_facade_exports_match_governed_public_api() -> None:
@@ -68,9 +74,12 @@ def test_protein_facade_exports_match_governed_public_api() -> None:
     assert hasattr(protein, "ParsimonyReviewReport")
     assert hasattr(protein, "build_protein_grouping_report")
     assert hasattr(protein, "build_protein_parsimony_report")
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein/__init__.py"
-    ) <= PROTEIN_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/identification/protein/__init__.py"
+        )
+        <= PROTEIN_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_fdr_facade_exports_match_governed_public_api() -> None:
@@ -79,9 +88,12 @@ def test_fdr_facade_exports_match_governed_public_api() -> None:
     assert tuple(fdr.__all__) == expected
     assert hasattr(fdr, "build_psm_target_decoy_fdr_report")
     assert hasattr(fdr, "build_confidence_threshold_sensitivity_bundle")
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/fdr/__init__.py"
-    ) <= FDR_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/identification/fdr/__init__.py"
+        )
+        <= FDR_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_contract_facade_exports_match_governed_public_api() -> None:
@@ -90,9 +102,12 @@ def test_contract_facade_exports_match_governed_public_api() -> None:
     assert tuple(contracts.__all__) == expected
     assert hasattr(contracts, "PsmRecord")
     assert hasattr(contracts, "build_fdr_audit_trail")
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contracts/__init__.py"
-    ) <= CONTRACTS_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contracts/__init__.py"
+        )
+        <= CONTRACTS_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_adapter_facade_exports_match_governed_public_api() -> None:
@@ -101,9 +116,12 @@ def test_adapter_facade_exports_match_governed_public_api() -> None:
     assert tuple(adapters.__all__) == expected
     assert hasattr(adapters, "build_diann_import_report")
     assert hasattr(adapters, "build_search_adapter_information_loss_report")
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/identification/adapters/__init__.py"
-    ) <= ADAPTERS_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/identification/adapters/__init__.py"
+        )
+        <= ADAPTERS_FACADE_BUDGET.max_init_lines
+    )
 
 
 def test_identification_root_facade_keeps_governed_exports_and_submodules() -> None:

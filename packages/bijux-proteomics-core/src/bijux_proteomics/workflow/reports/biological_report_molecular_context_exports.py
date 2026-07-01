@@ -86,9 +86,7 @@ def _write_biological_disease_phenotype_exports(
     )
     write_output_table_tsv(
         output_dir / term_name,
-        render_disease_phenotype_interpretation_tsv(
-            report.disease_phenotype_report
-        ),
+        render_disease_phenotype_interpretation_tsv(report.disease_phenotype_report),
     )
     write_output_table_tsv(
         output_dir / unknown_name,

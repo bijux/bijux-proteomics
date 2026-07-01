@@ -33,6 +33,9 @@ def test_domain_facade_exports_match_governed_public_api() -> None:
 
 
 def test_domain_facade_init_stays_within_budget() -> None:
-    assert _non_empty_line_count(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/domain/__init__.py"
-    ) <= DOMAIN_FACADE_BUDGET.max_init_lines
+    assert (
+        _non_empty_line_count(
+            "packages/bijux-proteomics-core/src/bijux_proteomics/domain/__init__.py"
+        )
+        <= DOMAIN_FACADE_BUDGET.max_init_lines
+    )

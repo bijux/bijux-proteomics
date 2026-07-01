@@ -51,6 +51,10 @@ from bijux_proteomics.targeted import (
 from bijux_proteomics.workflow.exports.artifact_layout import (
     synchronize_workflow_artifact_layout,
 )
+from bijux_proteomics.workflow.exports.targeted_review_workflow import (
+    TargetedAssayQcWorkflowExportManifest,
+    export_targeted_assay_qc_workflow_artifacts,
+)
 from bijux_proteomics.workflow.pipelines.advanced.advanced_workflow_family import (
     AdvancedWorkflowFamilyArtifactContract,
     AdvancedWorkflowFamilyContract,
@@ -64,10 +68,6 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entry,
     build_result_warning,
     render_result_rejected_evidence_tsv,
-)
-from bijux_proteomics.workflow.exports.targeted_review_workflow import (
-    TargetedAssayQcWorkflowExportManifest,
-    export_targeted_assay_qc_workflow_artifacts,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -683,11 +683,15 @@ def _build_evidence_cards(
     for entry in validation_report.assay_evidence:
         assay_evidence_by_candidate.setdefault(entry.candidate_id, []).append(entry)
     target_qc_by_target: dict[str, list[TargetedTargetQcEntry]] = {}
-    for entry in assay_qc_report.target_qc:
-        target_qc_by_target.setdefault(entry.target_id, []).append(entry)
+    for target_qc_entry in assay_qc_report.target_qc:
+        target_qc_by_target.setdefault(target_qc_entry.target_id, []).append(
+            target_qc_entry
+        )
     transition_qc_by_target: dict[str, list[TargetedTransitionQcEntry]] = {}
-    for entry in assay_qc_report.transition_qc:
-        transition_qc_by_target.setdefault(entry.target_id, []).append(entry)
+    for transition_qc_entry in assay_qc_report.transition_qc:
+        transition_qc_by_target.setdefault(transition_qc_entry.target_id, []).append(
+            transition_qc_entry
+        )
 
     cards: list[AdvancedTargetedEvidenceCardEntry] = []
     for validation_entry in validation_report.entries:

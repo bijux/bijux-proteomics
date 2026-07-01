@@ -215,7 +215,9 @@ def resolve_public_export(
     return value
 
 
-def module_directory(package_globals: dict[str, Any], public_names: tuple[str, ...]) -> list[str]:
+def module_directory(
+    package_globals: dict[str, Any], public_names: tuple[str, ...]
+) -> list[str]:
     """Return a stable directory view for one governed lab facade."""
 
     return sorted(set(package_globals) | set(public_names))

@@ -8,7 +8,9 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
-from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    parse_experimental_design_table,
+)
 from bijux_proteomics.interfaces.support.multiplex_targeted.isotope_labeling import (
     SilacColumnMapping,
     SilacLabel,
@@ -37,19 +39,6 @@ from bijux_proteomics.interfaces.support.multiplex_targeted.multiplex import (
     build_tmt_reporter_feature_bundle,
     parse_tmt_reporter_table,
 )
-from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
-    NormalizationMethod,
-)
-from bijux_proteomics.interfaces.support.review_sequences_study import build_label_based_volcano_review
-from bijux_proteomics.interfaces.support.workflow import (
-    SilacWorkflowConfig,
-    build_label_based_differential_volcano_plot,
-    build_silac_differential_analysis_report,
-    export_label_based_differential_matrix_tsv,
-    export_label_based_differential_results_tsv,
-    export_label_based_differential_volcano_plot_tsv,
-    export_label_based_normalization_balance_plot_tsv,
-)
 from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
     _emit_json,
 )
@@ -60,9 +49,24 @@ from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
 from bijux_proteomics.interfaces.support.output_protocol.workflow_execution import (
     _run_orchestrated_workflow,
 )
+from bijux_proteomics.interfaces.support.ptm_quantification.quantification import (
+    NormalizationMethod,
+)
+from bijux_proteomics.interfaces.support.review_sequences_study import (
+    build_label_based_volcano_review,
+)
 from bijux_proteomics.interfaces.support.sequence_support.multiplex_inputs import (
     _parse_silac_label_spec,
     _parse_tmt_channel_column_specs,
+)
+from bijux_proteomics.interfaces.support.workflow import (
+    SilacWorkflowConfig,
+    build_label_based_differential_volcano_plot,
+    build_silac_differential_analysis_report,
+    export_label_based_differential_matrix_tsv,
+    export_label_based_differential_results_tsv,
+    export_label_based_differential_volcano_plot_tsv,
+    export_label_based_normalization_balance_plot_tsv,
 )
 from bijux_proteomics.workflow.pipelines.label_based_reporting import (
     LabelBasedReportBundle,

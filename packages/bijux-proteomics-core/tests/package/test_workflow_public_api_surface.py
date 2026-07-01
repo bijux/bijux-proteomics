@@ -7,23 +7,23 @@ from bijux_proteomics import workflow
 from bijux_proteomics.workflow import (
     benchmarks,
     cards,
+    cross_study_protein_harmonization,
     demo,
     exports,
     pipelines,
+    public_benchmark_descriptors,
     reports,
     studies,
 )
-from bijux_proteomics.workflow import cross_study_protein_harmonization
-from bijux_proteomics.workflow import public_benchmark_descriptors
 from bijux_proteomics.workflow.public_api import (
     ADVANCED_PIPELINE_FACADE_OWNERS,
-    BENCHMARKING_PIPELINE_FACADE_OWNERS,
-    BENCHMARKING_PIPELINE_OWNER_MODULES,
     BENCHMARK_DATASET_FACADE_OWNERS,
     BENCHMARK_FACADE_OWNERS,
     BENCHMARK_FIDELITY_FACADE_OWNERS,
-    BENCHMARK_SYNTHETIC_FACADE_OWNERS,
     BENCHMARK_SUBMODULES,
+    BENCHMARK_SYNTHETIC_FACADE_OWNERS,
+    BENCHMARKING_PIPELINE_FACADE_OWNERS,
+    BENCHMARKING_PIPELINE_OWNER_MODULES,
     CARD_FACADE_OWNERS,
     COMPARATIVE_PIPELINE_FACADE_OWNERS,
     COMPARATIVE_PIPELINE_OWNER_MODULES,
@@ -34,7 +34,6 @@ from bijux_proteomics.workflow.public_api import (
     OPERATIONS_PIPELINE_OWNER_MODULES,
     PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES,
     PIPELINE_ROOT_OWNERS,
-    PIPELINE_FACADE_OWNERS,
     PIPELINE_SUBMODULES,
     REPORT_FACADE_OWNERS,
     STUDY_FACADE_OWNERS,
@@ -42,35 +41,35 @@ from bijux_proteomics.workflow.public_api import (
     SYNTHESIS_PIPELINE_OWNER_MODULES,
     WORKFLOW_ROOT_ADVANCED_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_ADVANCED_PIPELINE_OWNERS,
+    WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS,
     WORKFLOW_ROOT_BENCHMARK_PIPELINE_OWNERS,
     WORKFLOW_ROOT_BENCHMARK_PIPELINE_REPORT_EXPORTS,
     WORKFLOW_ROOT_CARD_HELPER_EXPORTS,
     WORKFLOW_ROOT_CARD_OWNERS,
-    WORKFLOW_ROOT_COMPATIBILITY_OWNERS,
     WORKFLOW_ROOT_COMPARATIVE_PIPELINE_OWNERS,
     WORKFLOW_ROOT_COMPARATIVE_PIPELINE_REPORT_EXPORTS,
+    WORKFLOW_ROOT_COMPATIBILITY_OWNERS,
     WORKFLOW_ROOT_DEMO_HELPER_EXPORTS,
     WORKFLOW_ROOT_DEMO_OWNERS,
-    WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS,
-    WORKFLOW_ROOT_EXPORT_OPERATIONS,
-    WORKFLOW_ROOT_ADVANCED_PIPELINE_VALIDATION_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_ENGINE_PIPELINE_OWNERS,
+    WORKFLOW_ROOT_ENGINE_PIPELINE_RENDER_EXPORTS,
     WORKFLOW_ROOT_EXPORT_HELPER_EXPORTS,
+    WORKFLOW_ROOT_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_EXPORT_OWNERS,
     WORKFLOW_ROOT_FLAGSHIP_PIPELINE_EXPORT_OPERATIONS,
     WORKFLOW_ROOT_FLAGSHIP_PIPELINE_HELPER_EXPORTS,
     WORKFLOW_ROOT_FLAGSHIP_PIPELINE_OWNERS,
     WORKFLOW_ROOT_OWNERS,
     WORKFLOW_ROOT_PIPELINE_OWNERS,
-    WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
     WORKFLOW_ROOT_REPORT_EXPORT_OPERATIONS,
+    WORKFLOW_ROOT_REPORT_HELPER_EXPORTS,
     WORKFLOW_ROOT_REPORT_OWNERS,
     WORKFLOW_ROOT_SHARED_OWNERS,
+    WORKFLOW_ROOT_STUDY_OWNERS,
     WORKFLOW_ROOT_STUDY_PIPELINE_OWNERS,
     WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS,
-    WORKFLOW_ROOT_STUDY_OWNERS,
     WORKFLOW_ROOT_STUDY_SERIALIZATION_EXPORTS,
     WORKFLOW_ROOT_SUBMODULES,
     build_lazy_export_index,
@@ -92,7 +91,7 @@ def test_workflow_root_public_api_matches_governed_owner_ledger() -> None:
 def test_workflow_root_owner_ledger_is_composed_from_shared_and_subpackage_ledgers() -> (
     None
 ):
-    assert WORKFLOW_ROOT_OWNERS == (
+    assert (
         *WORKFLOW_ROOT_SHARED_OWNERS,
         *WORKFLOW_ROOT_COMPATIBILITY_OWNERS,
         *WORKFLOW_ROOT_REPORT_OWNERS,
@@ -102,7 +101,7 @@ def test_workflow_root_owner_ledger_is_composed_from_shared_and_subpackage_ledge
         *WORKFLOW_ROOT_CARD_OWNERS,
         *BENCHMARK_FACADE_OWNERS,
         *WORKFLOW_ROOT_DEMO_OWNERS,
-    )
+    ) == WORKFLOW_ROOT_OWNERS
 
 
 def test_workflow_root_pipeline_owners_exclude_demo_surfaces() -> None:
@@ -173,8 +172,7 @@ def test_workflow_root_pipeline_owners_expose_engine_export_operations() -> None
 
 def test_workflow_root_pipeline_owners_expose_study_pipeline_reports() -> None:
     assert all(
-        hasattr(workflow, name)
-        for name in WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS
+        hasattr(workflow, name) for name in WORKFLOW_ROOT_STUDY_PIPELINE_REPORT_EXPORTS
     )
     assert all(
         hasattr(pipelines.synthesis, name)
@@ -386,7 +384,7 @@ def test_workflow_owner_subfacades_match_governed_owner_ledgers() -> None:
 
 
 def test_workflow_pipeline_root_prefers_benchmarking_subfacade() -> None:
-    assert PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES == {
+    assert {
         *(owner.owner_module for owner in ADVANCED_PIPELINE_FACADE_OWNERS),
         *BENCHMARKING_PIPELINE_OWNER_MODULES,
         *COMPARATIVE_PIPELINE_OWNER_MODULES,
@@ -394,17 +392,19 @@ def test_workflow_pipeline_root_prefers_benchmarking_subfacade() -> None:
         *(owner.owner_module for owner in ENGINE_PIPELINE_FACADE_OWNERS),
         *OPERATIONS_PIPELINE_OWNER_MODULES,
         *SYNTHESIS_PIPELINE_OWNER_MODULES,
-    }
+    } == PIPELINE_ROOT_CANONICAL_SUBFACADE_OWNER_MODULES
     expected_pipeline_benchmarking, _ = build_lazy_export_index(
         ordered_facade_owners(BENCHMARKING_PIPELINE_FACADE_OWNERS)
     )
 
-    assert tuple(
-        name for name in expected_pipeline_benchmarking if hasattr(pipelines, name)
-    ) == ()
+    assert (
+        tuple(
+            name for name in expected_pipeline_benchmarking if hasattr(pipelines, name)
+        )
+        == ()
+    )
     assert all(
-        hasattr(pipelines.benchmarking, name)
-        for name in expected_pipeline_benchmarking
+        hasattr(pipelines.benchmarking, name) for name in expected_pipeline_benchmarking
     )
 
 
@@ -413,9 +413,10 @@ def test_workflow_pipeline_root_prefers_synthesis_subfacade() -> None:
         ordered_facade_owners(SYNTHESIS_PIPELINE_FACADE_OWNERS)
     )
 
-    assert tuple(
-        name for name in expected_pipeline_synthesis if hasattr(pipelines, name)
-    ) == ()
+    assert (
+        tuple(name for name in expected_pipeline_synthesis if hasattr(pipelines, name))
+        == ()
+    )
     assert all(
         hasattr(pipelines.synthesis, name) for name in expected_pipeline_synthesis
     )
@@ -426,12 +427,11 @@ def test_workflow_pipeline_root_prefers_advanced_subfacade() -> None:
         ordered_facade_owners(ADVANCED_PIPELINE_FACADE_OWNERS)
     )
 
-    assert tuple(
-        name for name in expected_pipeline_advanced if hasattr(pipelines, name)
-    ) == ()
-    assert all(
-        hasattr(pipelines.advanced, name) for name in expected_pipeline_advanced
+    assert (
+        tuple(name for name in expected_pipeline_advanced if hasattr(pipelines, name))
+        == ()
     )
+    assert all(hasattr(pipelines.advanced, name) for name in expected_pipeline_advanced)
 
 
 def test_workflow_pipeline_root_prefers_operations_subfacade() -> None:
@@ -440,11 +440,14 @@ def test_workflow_pipeline_root_prefers_operations_subfacade() -> None:
     )
     approved_root_exports = {"write_proteomics_run_bundle"}
 
-    assert tuple(
-        name
-        for name in expected_pipeline_operations
-        if hasattr(pipelines, name) and name not in approved_root_exports
-    ) == ()
+    assert (
+        tuple(
+            name
+            for name in expected_pipeline_operations
+            if hasattr(pipelines, name) and name not in approved_root_exports
+        )
+        == ()
+    )
     assert all(
         hasattr(pipelines.operations, name) for name in expected_pipeline_operations
     )
@@ -455,9 +458,10 @@ def test_workflow_pipeline_root_prefers_engine_subfacade() -> None:
         ordered_facade_owners(ENGINE_PIPELINE_FACADE_OWNERS)
     )
 
-    assert tuple(
-        name for name in expected_pipeline_engines if hasattr(pipelines, name)
-    ) == ()
+    assert (
+        tuple(name for name in expected_pipeline_engines if hasattr(pipelines, name))
+        == ()
+    )
     assert all(hasattr(pipelines.engines, name) for name in expected_pipeline_engines)
 
 
@@ -466,9 +470,12 @@ def test_workflow_pipeline_root_prefers_comparative_subfacade() -> None:
         ordered_facade_owners(COMPARATIVE_PIPELINE_FACADE_OWNERS)
     )
 
-    assert tuple(
-        name for name in expected_pipeline_comparative if hasattr(pipelines, name)
-    ) == ()
+    assert (
+        tuple(
+            name for name in expected_pipeline_comparative if hasattr(pipelines, name)
+        )
+        == ()
+    )
     assert all(
         hasattr(pipelines.comparative, name) for name in expected_pipeline_comparative
     )
@@ -479,9 +486,9 @@ def test_workflow_pipeline_root_prefers_demo_package() -> None:
         ordered_facade_owners(DEMO_FACADE_OWNERS)
     )
 
-    assert tuple(
-        name for name in expected_pipeline_demo if hasattr(pipelines, name)
-    ) == ()
+    assert (
+        tuple(name for name in expected_pipeline_demo if hasattr(pipelines, name)) == ()
+    )
     assert all(hasattr(demo, name) for name in expected_pipeline_demo)
 
 

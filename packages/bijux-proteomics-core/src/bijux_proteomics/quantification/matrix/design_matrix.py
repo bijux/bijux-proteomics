@@ -27,7 +27,9 @@ from bijux_proteomics.quantification.contracts.design import (
     QuantDesignModelCoefficientEntry,
     QuantDesignModelFitReport,
 )
-from bijux_proteomics.quantification.contracts.matrix_building import _matrix_value_index
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    _matrix_value_index,
+)
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.study.sample_run_identity import (
     SampleRunAnalysisPolicy,

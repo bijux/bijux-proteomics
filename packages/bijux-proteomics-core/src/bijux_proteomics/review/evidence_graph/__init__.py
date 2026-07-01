@@ -5,6 +5,16 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.review.evidence_graph.evidence_chain_reconstruction import (
+    EvidenceChainClaimKind,
+    EvidenceChainNodeStep,
+    EvidenceChainReport,
+    EvidenceChainSourceRow,
+    reconstruct_pathway_evidence_chain,
+    reconstruct_protein_evidence_chain,
+    reconstruct_ptm_site_evidence_chain,
+    render_evidence_chain_tsv,
+)
 from bijux_proteomics.review.evidence_graph.evidence_graph import (
     ProteomicsEvidenceContextRef,
     ProteomicsEvidenceEdge,
@@ -82,16 +92,6 @@ from bijux_proteomics.review.evidence_graph.evidence_graph_run_diff import (
 from bijux_proteomics.review.evidence_graph.lazy_evidence_graph import (
     LazyProteomicsEvidenceGraph,
     load_lazy_proteomics_evidence_graph,
-)
-from bijux_proteomics.review.evidence_graph.evidence_chain_reconstruction import (
-    EvidenceChainClaimKind,
-    EvidenceChainNodeStep,
-    EvidenceChainReport,
-    EvidenceChainSourceRow,
-    reconstruct_pathway_evidence_chain,
-    reconstruct_protein_evidence_chain,
-    reconstruct_ptm_site_evidence_chain,
-    render_evidence_chain_tsv,
 )
 
 __all__ = [

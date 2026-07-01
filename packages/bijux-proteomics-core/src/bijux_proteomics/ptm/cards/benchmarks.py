@@ -10,6 +10,18 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.ptm.cards.proteoforms import (
+    ProteoformEvidenceLevel,
+    ProteoformPtmAssignment,
+    build_proteoform_identity,
+)
+from bijux_proteomics.ptm.cards.review import (
+    build_acetyl_specific_review_fixture_report,
+    build_phospho_specific_review_fixture_report,
+    build_ptm_site_localization_evidence_graph,
+    build_ubiquitin_remnant_workflow_report,
+    evaluate_glycopeptide_support_boundary,
+)
 from bijux_proteomics.ptm.contracts import (
     PtmEvidenceRecord,
     PtmOccupancyUncertainty,
@@ -26,18 +38,6 @@ from bijux_proteomics.ptm.quant.occupancy_estimation import (
 from bijux_proteomics.ptm.regulation.motif_analysis import (
     PtmMotifBackgroundMode,
     build_ptm_motif_enrichment_background_provenance_report,
-)
-from bijux_proteomics.ptm.cards.proteoforms import (
-    ProteoformEvidenceLevel,
-    ProteoformPtmAssignment,
-    build_proteoform_identity,
-)
-from bijux_proteomics.ptm.cards.review import (
-    build_acetyl_specific_review_fixture_report,
-    build_phospho_specific_review_fixture_report,
-    build_ptm_site_localization_evidence_graph,
-    build_ubiquitin_remnant_workflow_report,
-    evaluate_glycopeptide_support_boundary,
 )
 from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel

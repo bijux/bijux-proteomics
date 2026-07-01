@@ -67,9 +67,7 @@ def build_complex_activity_report(
     sample_batches = {entry.sample_id: entry.batch for entry in design_entries}
     complex_groups = group_complex_records(complex_records)
     protein_scores = standardized_protein_ref_values(table)
-    available_protein_refs = {
-        protein_ref for protein_ref in protein_refs_in_table(table)
-    }
+    available_protein_refs = set(protein_refs_in_table(table))
     gene_annotations = protein_gene_annotations(
         fasta_records=fasta_records,
         custom_annotations=custom_annotations,

@@ -141,7 +141,9 @@ def build_differential_abundance_report(
         if entry.condition in {condition_a, condition_b}
     )
     biological_contrast_design_entries = tuple(
-        entry for entry in design_entries if entry.condition in {condition_a, condition_b}
+        entry
+        for entry in design_entries
+        if entry.condition in {condition_a, condition_b}
     )
 
     active_paired_policy: PairedDifferentialPolicy | None = None
@@ -231,8 +233,7 @@ def build_differential_abundance_report(
             paired_policy=active_paired_policy,
         )
         if (
-            active_paired_policy.broken_pair_disposition
-            is BrokenPairDisposition.BLOCK
+            active_paired_policy.broken_pair_disposition is BrokenPairDisposition.BLOCK
             and broken_pairs
         ):
             raise ValueError(

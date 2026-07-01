@@ -6,13 +6,13 @@
 from __future__ import annotations
 
 from bijux_proteomics.interpretation import TissueCellTypeContextReport
+from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
+    _build_biological_report_section_confidence_entry,
+)
 from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,
-)
-from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
-    _build_biological_report_section_confidence_entry,
 )
 from bijux_proteomics.workflow.studies.cohort_stratification import (
     CohortStratificationReport,

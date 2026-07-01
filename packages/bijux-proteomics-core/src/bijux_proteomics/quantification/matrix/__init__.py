@@ -11,8 +11,8 @@ from bijux_proteomics.quantification.public_api import (
     MATRIX_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
-    resolve_public_export,
     module_directory,
+    resolve_public_export,
 )
 
 __all__, _MATRIX_EXPORT_INDEX = build_lazy_export_index(

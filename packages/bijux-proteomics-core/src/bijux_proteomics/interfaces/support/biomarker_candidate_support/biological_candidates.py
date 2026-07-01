@@ -177,7 +177,11 @@ def _build_biomarker_candidates_from_biological_report_dir(
                     effect_score=_score_effect_size(
                         differential_entry["log2_fold_change"]
                     ),
-                    robustness_score=differential_entry["robustness_score"],
+                    robustness_score=(
+                        differential_entry["robustness_score"]
+                        if differential_entry["robustness_score"] is not None
+                        else 0.55
+                    ),
                     detectability_score=detectability_score,
                     specificity_score=specificity_score,
                     annotation_score=annotation_score,

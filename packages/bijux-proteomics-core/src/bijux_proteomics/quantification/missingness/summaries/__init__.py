@@ -21,7 +21,6 @@ from bijux_proteomics.quantification.missingness.summaries.sample_summary import
     summarize_missing_values,
 )
 
-
 __all__ = [
     "_build_missingness_condition_summary_report_pure",
     "_build_missingness_condition_summary_report_vectorized",

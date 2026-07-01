@@ -14,8 +14,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.fasta import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
 

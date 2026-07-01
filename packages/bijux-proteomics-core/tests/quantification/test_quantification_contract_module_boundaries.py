@@ -159,7 +159,9 @@ def test_quantification_contract_facade_matches_governed_owner_ledger() -> None:
 
 
 def test_quantification_contract_facade_init_stays_within_budget() -> None:
-    init_lines = sum(1 for _line in (_CONTRACT_ROOT / "__init__.py").open(encoding="utf-8"))
+    init_lines = sum(
+        1 for _line in (_CONTRACT_ROOT / "__init__.py").open(encoding="utf-8")
+    )
 
     assert init_lines <= CONTRACTS_FACADE_BUDGET.max_init_lines
 

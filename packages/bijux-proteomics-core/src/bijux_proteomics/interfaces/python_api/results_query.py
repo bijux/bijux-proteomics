@@ -8,6 +8,10 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
 from bijux_proteomics.interfaces.support.workflow import (
     build_interactive_result_bundle_from_artifacts,
     build_interactive_result_comparison_from_artifacts,
@@ -27,10 +31,6 @@ from bijux_proteomics.interfaces.support.workflow import (
     render_result_search_hit_tsv,
     render_result_search_summary_tsv,
     search_result_index,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-    _write_text_output,
 )
 from bijux_proteomics.workflow.demo.scale_demo import ScaleDemoReport
 from bijux_proteomics.workflow.demo.surprising_demo import SurprisingDemoReport

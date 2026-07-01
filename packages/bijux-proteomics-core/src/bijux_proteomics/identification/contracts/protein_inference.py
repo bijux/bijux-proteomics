@@ -14,7 +14,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
@@ -277,7 +277,7 @@ def compare_parsimony_variants(
         variant=primary_variant,
         review_variants=variants,
     )
-    return report.variant_comparison
+    return cast(ParsimonyVariantComparisonReport, report.variant_comparison)
 
 
 __all__ = [

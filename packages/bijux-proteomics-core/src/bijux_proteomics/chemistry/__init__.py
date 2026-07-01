@@ -11,8 +11,8 @@ from bijux_proteomics.chemistry.public_api import (
     CHEMISTRY_ROOT_FACADE_OWNERS,
     build_lazy_export_index,
     facade_owner_modules,
-    resolve_public_export,
     module_directory,
+    resolve_public_export,
 )
 
 __all__, _CHEMISTRY_EXPORT_INDEX = build_lazy_export_index(

@@ -21,7 +21,6 @@ from bijux_proteomics.workflow.reports.biological_report_regulator_exports impor
     _write_biological_optional_regulator_exports,
 )
 
-
 __all__ = [
     "BiologicalClaimExportNames",
     "BiologicalHypothesisExportNames",

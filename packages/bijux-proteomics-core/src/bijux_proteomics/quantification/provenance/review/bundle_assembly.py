@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceTestType,
@@ -150,7 +152,7 @@ def _build_peptide_tables(
     *,
     aggregation_method: QuantRollupMethod,
     normalization_method: NormalizationMethod,
-):
+) -> tuple[Any, Any, Any]:
     peptide_table = build_label_free_intensity_table(
         records,
         entity_level=QuantEntityLevel.PEPTIDE,
@@ -169,12 +171,12 @@ def _build_peptide_tables(
 
 
 def _build_missingness_context(
-    normalized_table,
+    normalized_table: Any,
     *,
     imputation_method: ImputationMethod,
     measured_design_entries: tuple[ExperimentalDesignEntry, ...],
     conditions: tuple[str, ...],
-):
+) -> tuple[Any, Any, Any | None, Any, Any, Any, Any]:
     imputed_table = impute_label_free_table(
         normalized_table,
         method=imputation_method,
@@ -217,13 +219,13 @@ def _build_missingness_context(
 
 
 def _build_primary_differential_report(
-    imputed_table,
+    imputed_table: Any,
     *,
     measured_design_entries: tuple[ExperimentalDesignEntry, ...],
     conditions: tuple[str, ...],
     pairing_field: str | None,
     timepoint_field: str | None,
-):
+) -> Any | None:
     if len(conditions) != 2:
         return None
     try:
@@ -253,13 +255,13 @@ def _build_primary_differential_report(
 
 
 def _build_time_course_review(
-    imputed_table,
+    imputed_table: Any,
     *,
     measured_design_entries: tuple[ExperimentalDesignEntry, ...],
     timepoint_field: str | None,
     pairing_field: str | None,
     covariate_fields: tuple[str, ...],
-):
+) -> Any | None:
     if timepoint_field is None:
         return None
     return build_time_course_differential_report(
@@ -275,12 +277,12 @@ def _build_time_course_review(
 
 
 def _build_multi_condition_review(
-    imputed_table,
+    imputed_table: Any,
     *,
     measured_design_entries: tuple[ExperimentalDesignEntry, ...],
     conditions: tuple[str, ...],
-    design_matrix_report,
-):
+    design_matrix_report: Any,
+) -> Any | None:
     if len(conditions) <= 2:
         return None
     try:
@@ -297,12 +299,12 @@ def _build_multi_condition_review(
 
 
 def _build_effect_size_review(
-    imputed_table,
+    imputed_table: Any,
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...],
     conditions: tuple[str, ...],
     timepoint_field: str | None,
-):
+) -> Any | None:
     if len(conditions) != 2:
         return None
     try:
@@ -324,23 +326,23 @@ def _build_effect_size_review(
 def _build_backend_support(
     records: tuple[Ms1FeatureRecord, ...],
     *,
-    peptide_table,
-    imputed_table,
+    peptide_table: Any,
+    imputed_table: Any,
     measured_design_entries: tuple[ExperimentalDesignEntry, ...],
     covariate_fields: tuple[str, ...],
     pairing_field: str | None,
     timepoint_field: str | None,
-    design_matrix_report,
-    normalization_comparison,
-    imputation_report,
-    imputation_sensitivity,
-    missingness_entity_summary,
-    missingness_condition_summary,
-    missingness_intensity_dependence,
-    differential_report,
-    multi_condition_differential_report,
-    time_course_differential_report,
-):
+    design_matrix_report: Any,
+    normalization_comparison: Any,
+    imputation_report: Any,
+    imputation_sensitivity: Any | None,
+    missingness_entity_summary: Any,
+    missingness_condition_summary: Any,
+    missingness_intensity_dependence: Any,
+    differential_report: Any | None,
+    multi_condition_differential_report: Any | None,
+    time_course_differential_report: Any | None,
+) -> tuple[Any, Any, Any, Any, Any]:
     from bijux_proteomics.quantification.statistics.statistical_backend import (
         build_limma_compatible_quant_package,
         build_msstats_compatible_input_report,
@@ -400,12 +402,12 @@ def _build_backend_support(
 
 def _build_review_caveats(
     *,
-    multi_condition_differential_report,
-    multi_contrast_consistency_report,
-    qc_report,
-    decision_readiness,
-    effect_size_da_report,
-):
+    multi_condition_differential_report: Any | None,
+    multi_contrast_consistency_report: Any | None,
+    qc_report: Any,
+    decision_readiness: Any,
+    effect_size_da_report: Any | None,
+) -> tuple[str, ...]:
     caveats: list[str] = []
     if effect_size_da_report is None and multi_condition_differential_report is None:
         caveats.append(

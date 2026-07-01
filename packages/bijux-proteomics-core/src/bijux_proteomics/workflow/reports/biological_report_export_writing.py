@@ -11,6 +11,9 @@ from bijux_proteomics.workflow.reports.biological_report_activity_exports import
     BiologicalActivityExportNames,
     write_biological_activity_exports,
 )
+from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
 from bijux_proteomics.workflow.reports.biological_report_contextual_exports import (
     BiologicalContextualExportNames,
     write_biological_contextual_exports,
@@ -18,9 +21,6 @@ from bijux_proteomics.workflow.reports.biological_report_contextual_exports impo
 from bijux_proteomics.workflow.reports.biological_report_enrichment_exports import (
     BiologicalEnrichmentExportNames,
     write_biological_enrichment_exports,
-)
-from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
 )
 from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
     BiologicalScientificExportNames,

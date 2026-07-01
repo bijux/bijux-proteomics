@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics.identification.contracts import (
     TargetDecoyContaminantClass,
     TargetDecoyLabel,
@@ -25,14 +27,17 @@ from bijux_proteomics.targeted import (
 
 
 def _protein_records() -> tuple[NormalizedProteinRecord, ...]:
-    return parse_fasta_document(
-        ">sp|P00001|KIN1 GN=KIN1\n"
-        "PEPTIDERAAASHALEDKAAAMMMWNQK\n"
-        ">sp|P00002|KIN2 GN=KIN2\n"
-        "KTARGETVKAAALIGHTR\n"
-        ">sp|O00003|OFF1 GN=OFF1\n"
-        "KAAASHALEDK\n"
-    ).accepted_records
+    return cast(
+        tuple[NormalizedProteinRecord, ...],
+        parse_fasta_document(
+            ">sp|P00001|KIN1 GN=KIN1\n"
+            "PEPTIDERAAASHALEDKAAAMMMWNQK\n"
+            ">sp|P00002|KIN2 GN=KIN2\n"
+            "KTARGETVKAAALIGHTR\n"
+            ">sp|O00003|OFF1 GN=OFF1\n"
+            "KAAASHALEDK\n"
+        ).accepted_records,
+    )
 
 
 def _observed_entries() -> tuple[PeptideEvidenceEntry, ...]:

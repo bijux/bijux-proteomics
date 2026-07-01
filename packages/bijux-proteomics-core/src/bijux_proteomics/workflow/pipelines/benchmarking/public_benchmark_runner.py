@@ -26,6 +26,16 @@ from bijux_proteomics.targeted import (
     TargetedValidationDiscoveryClaimInput,
     TargetedValidationPanelAssayInput,
 )
+from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
+    PublicBenchmarkDescriptor,
+    PublicBenchmarkExpectedBiologicalSignal,
+    PublicBenchmarkExpectedSignalDirection,
+    PublicBenchmarkExpectedSignalSubjectKind,
+    PublicBenchmarkKnownLimitation,
+    PublicBenchmarkSearchEngine,
+    list_public_benchmark_descriptor_paths,
+    load_public_benchmark_descriptor,
+)
 from bijux_proteomics.workflow.pipelines.operations.orchestrator import (
     DdaWorkflowConfig,
     DiannWorkflowConfig,
@@ -39,16 +49,6 @@ from bijux_proteomics.workflow.pipelines.operations.orchestrator import (
     WorkflowMode,
     WorkflowResult,
     run_proteomics_workflow,
-)
-from bijux_proteomics.workflow.benchmarks.datasets.public_benchmark_descriptors import (
-    PublicBenchmarkDescriptor,
-    PublicBenchmarkExpectedBiologicalSignal,
-    PublicBenchmarkExpectedSignalDirection,
-    PublicBenchmarkExpectedSignalSubjectKind,
-    PublicBenchmarkKnownLimitation,
-    PublicBenchmarkSearchEngine,
-    list_public_benchmark_descriptor_paths,
-    load_public_benchmark_descriptor,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -1134,11 +1134,14 @@ def _direction_from_effect_size(value: float | None) -> str | None:
     if value < 0:
         return PublicBenchmarkExpectedSignalDirection.DOWN.value
     return "flat"
+
+
 __all__ = [
     "PublicBenchmarkRunReport",
     "PublicBenchmarkExpectedSignalAssessment",
     "PublicBenchmarkExpectedSignalAssessmentStatus",
-    "PublicBenchmarkFailure", "PublicBenchmarkFailureKind",
+    "PublicBenchmarkFailure",
+    "PublicBenchmarkFailureKind",
     "PublicBenchmarkRunStatus",
     "PublicBenchmarkSuiteReport",
     "load_public_benchmark_descriptor",

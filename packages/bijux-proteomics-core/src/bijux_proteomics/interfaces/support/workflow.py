@@ -78,6 +78,17 @@ from bijux_proteomics.workflow.exports.result_search_index import (
     render_result_search_summary_tsv,
     search_result_index,
 )
+from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
+    render_public_benchmark_suite_failures_tsv,
+    render_public_benchmark_suite_signal_assessments_tsv,
+    render_public_benchmark_suite_summary_tsv,
+    run_public_benchmark_descriptor,
+    run_public_benchmark_descriptor_suite,
+)
+from bijux_proteomics.workflow.pipelines.benchmarking.trust_bundle import (
+    build_public_benchmark_trust_bundle,
+    render_trust_bundle_run_summary_tsv,
+)
 from bijux_proteomics.workflow.pipelines.comparative.dia_dda_comparison import (
     build_diann_vs_dda_psm_comparison_report,
     render_dia_dda_comparison_summary_tsv,
@@ -99,6 +110,15 @@ from bijux_proteomics.workflow.pipelines.comparative.dia_differential_analysis i
     export_dia_differential_volcano_plot_tsv,
     export_dia_normalization_balance_plot_tsv,
 )
+from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import (
+    build_label_based_differential_volcano_plot,
+    build_silac_differential_analysis_report,
+    build_tmt_differential_analysis_report,
+    export_label_based_differential_matrix_tsv,
+    export_label_based_differential_results_tsv,
+    export_label_based_differential_volcano_plot_tsv,
+    export_label_based_normalization_balance_plot_tsv,
+)
 from bijux_proteomics.workflow.pipelines.flagship_run import (
     ProteomicsRunEngine,
     build_proteomics_run_bundle,
@@ -109,38 +129,6 @@ from bijux_proteomics.workflow.pipelines.integrated_scientific_report import (
     build_integrated_scientific_report,
     render_integrated_scientific_report_sentences_tsv,
     render_integrated_scientific_report_summary_tsv,
-)
-from bijux_proteomics.workflow.pipelines.comparative.label_based_differential import (
-    build_label_based_differential_volcano_plot,
-    build_silac_differential_analysis_report,
-    build_tmt_differential_analysis_report,
-    export_label_based_differential_matrix_tsv,
-    export_label_based_differential_results_tsv,
-    export_label_based_differential_volcano_plot_tsv,
-    export_label_based_normalization_balance_plot_tsv,
-)
-from bijux_proteomics.workflow.pipelines.benchmarking.public_benchmark_runner import (
-    render_public_benchmark_suite_failures_tsv,
-    render_public_benchmark_suite_signal_assessments_tsv,
-    render_public_benchmark_suite_summary_tsv,
-    run_public_benchmark_descriptor,
-    run_public_benchmark_descriptor_suite,
-)
-from bijux_proteomics.workflow.pipelines.benchmarking.trust_bundle import (
-    build_public_benchmark_trust_bundle,
-    render_trust_bundle_run_summary_tsv,
-)
-from bijux_proteomics.workflow.reports.biological_reporting import (
-    BiologicalResultSelectionPolicy,
-)
-from bijux_proteomics.workflow.studies.public_dataset_comparison import (
-    build_public_dataset_comparison_report,
-    render_public_dataset_combined_summary_tsv,
-    render_public_dataset_dataset_summary_tsv,
-    render_public_dataset_effect_comparison_tsv,
-    render_public_dataset_failure_tsv,
-    render_public_dataset_meta_analysis_tsv,
-    render_public_dataset_pathway_comparison_tsv,
 )
 from bijux_proteomics.workflow.pipelines.orchestrator import (
     DdaWorkflowConfig,
@@ -158,6 +146,18 @@ from bijux_proteomics.workflow.pipelines.orchestrator import (
 )
 from bijux_proteomics.workflow.pipelines.orchestrator import (
     run_proteomics_workflow as _orchestrator_run_proteomics_workflow,
+)
+from bijux_proteomics.workflow.reports.biological_reporting import (
+    BiologicalResultSelectionPolicy,
+)
+from bijux_proteomics.workflow.studies.public_dataset_comparison import (
+    build_public_dataset_comparison_report,
+    render_public_dataset_combined_summary_tsv,
+    render_public_dataset_dataset_summary_tsv,
+    render_public_dataset_effect_comparison_tsv,
+    render_public_dataset_failure_tsv,
+    render_public_dataset_meta_analysis_tsv,
+    render_public_dataset_pathway_comparison_tsv,
 )
 
 

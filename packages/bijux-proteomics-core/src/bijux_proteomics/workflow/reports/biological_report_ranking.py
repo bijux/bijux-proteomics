@@ -52,6 +52,7 @@ def _build_biological_pathway_ranking_candidates(
         experiment_confidence_report=experiment_confidence_report,
     )
 
+
 __all__ = [
     "_build_biological_pathway_ranking_candidates",
     "_build_biological_protein_ranking_candidates",

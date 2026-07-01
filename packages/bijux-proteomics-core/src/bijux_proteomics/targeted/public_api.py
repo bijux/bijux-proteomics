@@ -49,22 +49,40 @@ TARGETED_FACADE_BUDGET = TargetedFacadeBudget(
 )
 
 TARGETED_FACADE_OWNERS = (
-    _owner("bijux_proteomics.targeted.assay_interference", "assay interference review ownership"),
+    _owner(
+        "bijux_proteomics.targeted.assay_interference",
+        "assay interference review ownership",
+    ),
     _owner("bijux_proteomics.targeted.assay_qc", "assay QC ownership"),
-    _owner("bijux_proteomics.targeted.biomarker_stability", "biomarker stability ownership"),
+    _owner(
+        "bijux_proteomics.targeted.biomarker_stability", "biomarker stability ownership"
+    ),
     _owner("bijux_proteomics.targeted.carryover", "carryover review ownership"),
     _owner(
         "bijux_proteomics.targeted.discovery_peptide_selection",
         "discovery-to-targeted peptide selection ownership",
     ),
-    _owner("bijux_proteomics.targeted.fragment_ratios", "fragment ratio drift ownership"),
+    _owner(
+        "bijux_proteomics.targeted.fragment_ratios", "fragment ratio drift ownership"
+    ),
     _owner("bijux_proteomics.targeted.panel_design", "targeted panel design ownership"),
     _owner("bijux_proteomics.targeted.panel_redundancy", "panel redundancy ownership"),
-    _owner("bijux_proteomics.targeted.result_import", "targeted result import ownership"),
-    _owner("bijux_proteomics.targeted.result_validation", "targeted result validation ownership"),
+    _owner(
+        "bijux_proteomics.targeted.result_import", "targeted result import ownership"
+    ),
+    _owner(
+        "bijux_proteomics.targeted.result_validation",
+        "targeted result validation ownership",
+    ),
     _owner("bijux_proteomics.targeted.target_matrix", "target matrix ownership"),
-    _owner("bijux_proteomics.targeted.transition_coelution", "transition coelution ownership"),
-    _owner("bijux_proteomics.targeted.transition_selection", "transition selection ownership"),
+    _owner(
+        "bijux_proteomics.targeted.transition_coelution",
+        "transition coelution ownership",
+    ),
+    _owner(
+        "bijux_proteomics.targeted.transition_selection",
+        "transition selection ownership",
+    ),
     _owner(
         "bijux_proteomics.targeted.validation_evidence_cards",
         "validation evidence card ownership",
@@ -149,7 +167,9 @@ def module_directory(
 def _module_source_path(owner_module: str) -> Path:
     spec = find_spec(owner_module)
     if spec is None or spec.origin is None:
-        raise ValueError(f"targeted facade owner module is not discoverable: {owner_module}")
+        raise ValueError(
+            f"targeted facade owner module is not discoverable: {owner_module}"
+        )
     return Path(spec.origin)
 
 

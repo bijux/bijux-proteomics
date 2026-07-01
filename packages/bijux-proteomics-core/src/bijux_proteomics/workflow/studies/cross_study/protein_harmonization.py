@@ -11,19 +11,19 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.interpretation.ortholog_mapping import OrthologRecord
+from bijux_proteomics.ptm.cards.evidence_cards import PtmEvidenceCard
 from bijux_proteomics.workflow.studies.cross_study.protein_harmonization_matching import (
-    _GroupMetadata,
     _build_exact_accession_groups,
     _build_gene_symbol_candidates,
     _build_group_metadata,
     _build_harmonized_components,
     _component_sort_key,
     _group_candidate_indices,
+    _GroupMetadata,
     _observation_sort_key,
     _OrthologResolution,
     _resolve_unique_ortholog_links,
 )
-from bijux_proteomics.ptm.cards.evidence_cards import PtmEvidenceCard
 from bijux_proteomics.workflow.studies.cross_study.protein_harmonization_rendering import (
     export_cross_study_protein_harmonization_tsv,
     export_cross_study_protein_unresolved_tsv,
@@ -688,7 +688,9 @@ def _build_harmonization_summary(
         supported_study_count=len({entry.study_id for entry in observations}),
         unsupported_study_count=len(unsupported_studies),
         observation_count=len(observations),
-        harmonized_group_count=len({entry.harmonized_id for entry in harmonized_entries}),
+        harmonized_group_count=len(
+            {entry.harmonized_id for entry in harmonized_entries}
+        ),
         harmonized_membership_count=len(harmonized_entries),
         unresolved_entry_count=len(unresolved_entries),
         exact_accession_group_count=exact_accession_group_count,

@@ -14,6 +14,14 @@ from bijux_proteomics.interpretation import (
     OrthologRecord,
     PathwayEnrichmentCorrectionPolicy,
 )
+from bijux_proteomics.workflow.result_types import (
+    BiologyResult,
+    RejectedEvidenceEntry,
+    ResultWarningEntry,
+    artifact_name_map,
+    build_rejected_evidence_entry,
+    build_result_warning,
+)
 from bijux_proteomics.workflow.studies.cross_study_effect_comparison import (
     CrossStudyEffectComparisonStatus,
     CrossStudyProteinEffectComparisonEntry,
@@ -38,14 +46,6 @@ from bijux_proteomics.workflow.studies.cross_study_protein_harmonization import 
     build_cross_study_protein_harmonization_report,
     render_cross_study_protein_harmonization_tsv,
     render_cross_study_protein_unresolved_tsv,
-)
-from bijux_proteomics.workflow.result_types import (
-    BiologyResult,
-    RejectedEvidenceEntry,
-    ResultWarningEntry,
-    artifact_name_map,
-    build_rejected_evidence_entry,
-    build_result_warning,
 )
 from bijux_proteomics_foundation import JsonModel
 

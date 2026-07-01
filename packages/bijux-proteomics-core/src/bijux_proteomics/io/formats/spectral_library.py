@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 import io
 from pathlib import Path
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -893,10 +894,13 @@ def _score_library_search_matches(
     )
     if not (has_target and has_decoy):
         return records
-    return apply_q_values(
-        records,
-        score_orientation="higher_better",
-        tie_handling="score_group",
+    return cast(
+        tuple[PsmRecord, ...],
+        apply_q_values(
+            records,
+            score_orientation="higher_better",
+            tie_handling="score_group",
+        ),
     )
 
 

@@ -10,7 +10,6 @@ from .selected_peptides import _load_selected_targeted_peptides
 from .selected_transitions import _load_selected_targeted_transitions
 from .targets import _load_targeted_selection_targets
 
-
 __all__ = [
     "_load_peptide_evidence_entries",
     "_load_selected_targeted_peptides",

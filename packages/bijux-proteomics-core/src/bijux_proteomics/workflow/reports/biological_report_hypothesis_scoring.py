@@ -11,6 +11,7 @@ from bijux_proteomics.interpretation.pathway_activity import (
 )
 from bijux_proteomics.review.claims.biological_claim_validation import (
     BiologicalClaimCandidate,
+    BiologicalClaimValidationEntry,
 )
 from bijux_proteomics.review.evidence_graph.evidence_graph_downgrades import (
     FinalClaimEvidenceTier,
@@ -21,7 +22,7 @@ from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
 
 
 def _protein_hypothesis_base_confidence(
-    claim: BiologicalClaimCandidate,
+    claim: BiologicalClaimCandidate | BiologicalClaimValidationEntry,
     *,
     card: ProteinMechanismCard | None,
 ) -> float:
@@ -34,7 +35,7 @@ def _protein_hypothesis_base_confidence(
 
 
 def _pathway_hypothesis_base_confidence(
-    claim: BiologicalClaimCandidate,
+    claim: BiologicalClaimCandidate | BiologicalClaimValidationEntry,
     *,
     comparison: PathwayConditionComparisonEntry | None,
 ) -> float:
@@ -46,7 +47,7 @@ def _pathway_hypothesis_base_confidence(
 
 
 def _regulator_hypothesis_base_confidence(
-    claim: BiologicalClaimCandidate,
+    claim: BiologicalClaimCandidate | BiologicalClaimValidationEntry,
     *,
     regulator_score: float | None,
 ) -> float:

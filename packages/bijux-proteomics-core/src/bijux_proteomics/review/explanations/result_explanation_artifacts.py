@@ -17,7 +17,6 @@ from bijux_proteomics.review.claims.result_query_artifacts import (
     _QcRunArtifact,
     _read_tsv_rows,
     _ResultArtifactContext,
-    _sample_to_failed_qc_runs,
     _split_multi,
 )
 
@@ -117,7 +116,8 @@ def _load_result_explanation_artifact_context(
     pathway_comparison_path = (
         None
         if biological_report_dir is None
-        else biological_report_dir / "biological_pathway_activity_condition_comparisons.tsv"
+        else biological_report_dir
+        / "biological_pathway_activity_condition_comparisons.tsv"
     )
     pathway_member_path = (
         None
@@ -174,9 +174,9 @@ def _load_pathway_comparisons(path: Path) -> tuple[_PathwayComparisonArtifact, .
         _PathwayComparisonArtifact(
             comparison_row_id=f"{row['pathway_id']}:{row['condition_a']}:{row['condition_b']}",
             pathway_id=row["pathway_id"],
-            pathway_name=_empty_to_none(row.get("pathway_name")),
-            source_name=_empty_to_none(row.get("source_name")),
-            source_accession=_empty_to_none(row.get("source_accession")),
+            pathway_name=_empty_to_none(row.get("pathway_name", "")),
+            source_name=_empty_to_none(row.get("source_name", "")),
+            source_accession=_empty_to_none(row.get("source_accession", "")),
             condition_a=row["condition_a"],
             condition_b=row["condition_b"],
             condition_a_confidence_status=row["condition_a_confidence_status"],
@@ -241,17 +241,17 @@ def _load_rejected_claims(path: Path) -> tuple[_RejectedClaimArtifact, ...]:
             effect_size=_parse_optional_float(row.get("effect_size", "")),
             robustness_score=_parse_optional_float(row.get("robustness_score", "")),
             imputation_dependent=_parse_bool(row.get("imputation_dependent", "")),
-            evidence_tier=_empty_to_none(row.get("evidence_tier")),
-            confidence_tier=_empty_to_none(row.get("confidence_tier")),
+            evidence_tier=_empty_to_none(row.get("evidence_tier", "")),
+            confidence_tier=_empty_to_none(row.get("confidence_tier", "")),
             pathway_confidence_status=_empty_to_none(
-                row.get("pathway_confidence_status")
+                row.get("pathway_confidence_status", "")
             ),
             pathway_delta=_parse_optional_float(row.get("pathway_delta", "")),
             regulator_evidence_type=_empty_to_none(
-                row.get("regulator_evidence_type")
+                row.get("regulator_evidence_type", "")
             ),
             regulator_signal_surface=_empty_to_none(
-                row.get("regulator_signal_surface")
+                row.get("regulator_signal_surface", "")
             ),
             regulator_score=_parse_optional_float(row.get("regulator_score", "")),
             reason_codes=_split_multi(row.get("reason_codes", "")),
@@ -334,7 +334,9 @@ def _pathway_unresolved_members(
     pathway_id: str,
 ) -> tuple[_PathwayUnresolvedMemberArtifact, ...]:
     return tuple(
-        member for member in pathway_unresolved_members if member.pathway_id == pathway_id
+        member
+        for member in pathway_unresolved_members
+        if member.pathway_id == pathway_id
     )
 
 
@@ -370,6 +372,7 @@ def _find_rejected_claim(
     if by_label:
         return by_label[0]
     return None
+
 
 def _rejected_claim_graph_node_ids(
     claim: _RejectedClaimArtifact,

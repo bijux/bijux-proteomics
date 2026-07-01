@@ -41,7 +41,7 @@ def _build_biological_pathway_ranking_candidates(
         entry.pathway_id: _build_biological_pathway_abundance(entry, member_metrics)
         for entry in pathway_enrichment_report.entries
     }
-    abundance_scores = normalize_linear_range(pathway_abundance)
+    abundance_scores = normalize_linear_range(dict(pathway_abundance.items()))
 
     candidates: list[EvidenceAwareRankingCandidate] = []
     for entry in pathway_enrichment_report.entries:

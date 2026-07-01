@@ -26,7 +26,9 @@ from bijux_proteomics.quantification.contracts.differential import (
     TimeCourseTestingPolicy,
     _student_t_two_sided_p_value,
 )
-from bijux_proteomics.quantification.contracts.matrix_building import _matrix_value_index
+from bijux_proteomics.quantification.contracts.matrix_building import (
+    _matrix_value_index,
+)
 from bijux_proteomics.quantification.contracts.matrix_models import LabelFreeQuantTable
 from bijux_proteomics.quantification.matrix.design_matrix import (
     _build_categorical_columns,

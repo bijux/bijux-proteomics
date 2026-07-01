@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-from __future__ import annotations
-
 """Study-owned QC compatibility surface backed by the laboratory QC facade."""
+
+from __future__ import annotations
 
 from bijux_proteomics.lab.qc import (
     InstrumentBatchQcReport,

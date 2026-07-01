@@ -22,17 +22,19 @@ from bijux_proteomics.workflow.reports.biological_report_ranking_exports import 
 from bijux_proteomics.workflow.reports.biological_report_regulator_exports import (
     _write_biological_optional_regulator_exports,
 )
-from bijux_proteomics.workflow.reports.biological_report_scientific_required_exports import (
-    _write_biological_required_scientific_exports,
-)
 from bijux_proteomics.workflow.reports.biological_report_scientific_export_contracts import (
     BiologicalScientificExportNames,
 )
 from bijux_proteomics.workflow.reports.biological_report_scientific_export_name_building import (
     _build_biological_scientific_export_names,
 )
+from bijux_proteomics.workflow.reports.biological_report_scientific_required_exports import (
+    _write_biological_required_scientific_exports,
+)
 from bijux_proteomics.workflow.reports.biological_report_scientific_summary_tables import (
     render_biological_report_section_confidence_tsv as _render_section_confidence_tsv,
+)
+from bijux_proteomics.workflow.reports.biological_report_scientific_summary_tables import (
     render_biological_result_report_summary_tsv as _render_report_summary_tsv,
 )
 

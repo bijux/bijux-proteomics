@@ -11,11 +11,7 @@ WORKFLOW_ROOT = (
 )
 REPORTS_ROOT = WORKFLOW_ROOT / "reports"
 BIOLOGICAL_REPORT_MODULES = tuple(
-    sorted(
-        path
-        for path in REPORTS_ROOT.rglob("*.py")
-        if path.name != "__init__.py"
-    )
+    sorted(path for path in REPORTS_ROOT.rglob("*.py") if path.name != "__init__.py")
 )
 BIOLOGICAL_REPORT_LINE_LIMIT = 1000
 MODULE_SURFACES: dict[str, tuple[str, ...]] = {
@@ -46,9 +42,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalScientificReportBundle",
         "BiologicalVisualReportBundle",
     ),
-    "biological_report_summary_contracts.py": (
-        "BiologicalResultReportSummary",
-    ),
+    "biological_report_summary_contracts.py": ("BiologicalResultReportSummary",),
     "biological_report_artifact_path_contracts.py": (
         "BiologicalResultReportArtifactPaths",
     ),
@@ -66,9 +60,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_BIOLOGICAL_RESULT_REPORT_BUNDLE_NOTE",
         "_materialize_biological_result_report_bundle",
     ),
-    "biological_report_export_contracts.py": (
-        "BiologicalResultReportExportManifest",
-    ),
+    "biological_report_export_contracts.py": ("BiologicalResultReportExportManifest",),
     "biological_report_export_manifest_building.py": (
         "_build_biological_result_report_export_manifest",
     ),
@@ -113,9 +105,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_build_cohort_entry",
         "_build_tissue_context_entry",
     ),
-    "biological_report_compartment_confidence.py": (
-        "_build_compartment_entry",
-    ),
+    "biological_report_compartment_confidence.py": ("_build_compartment_entry",),
     "biological_report_activity_confidence.py": (
         "_build_activity_section_confidence_entries",
     ),
@@ -151,9 +141,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalResultGraphRunContext",
         "_add_biological_result_graph_run_context",
     ),
-    "graph/protein_claims.py": (
-        "_add_biological_result_graph_protein_claims",
-    ),
+    "graph/protein_claims.py": ("_add_biological_result_graph_protein_claims",),
     "graph/claim_policy.py": (
         "_claim_confidence",
         "_claim_state",
@@ -161,9 +149,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_protein_trust_class",
         "_quant_trust_class",
     ),
-    "graph/peptide_support.py": (
-        "_add_biological_result_graph_peptide_support",
-    ),
+    "graph/peptide_support.py": ("_add_biological_result_graph_peptide_support",),
     "graph/quant_support.py": (
         "_add_biological_result_graph_quant_support",
         "_group_quant_values_by_entity",
@@ -179,9 +165,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
     "biological_report_claim_validation_reports.py": (
         "_build_biological_claim_validation_report",
     ),
-    "biological_report_hypothesis_reports.py": (
-        "_build_biological_hypothesis_report",
-    ),
+    "biological_report_hypothesis_reports.py": ("_build_biological_hypothesis_report",),
     "biological_report_experiment_confidence.py": (
         "_build_experiment_confidence_entry",
     ),
@@ -293,9 +277,7 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "BiologicalQuantTableInterpretationReports",
         "_build_biological_quant_table_interpretation_reports",
     ),
-    "biological_report_bundle_summary.py": (
-        "_build_biological_result_report_summary",
-    ),
+    "biological_report_bundle_summary.py": ("_build_biological_result_report_summary",),
     "biological_report_protein_claim_candidates.py": (
         "_build_biological_protein_claim_candidates",
     ),
@@ -419,15 +401,11 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "render_biological_report_section_confidence_tsv",
         "render_biological_result_report_summary_tsv",
     ),
-    "biological_report_visual_export_contracts.py": (
-        "BiologicalVisualExportNames",
-    ),
+    "biological_report_visual_export_contracts.py": ("BiologicalVisualExportNames",),
     "biological_report_visual_export_naming.py": (
         "_build_biological_visual_export_names",
     ),
-    "biological_report_visual_exports.py": (
-        "write_biological_visual_exports",
-    ),
+    "biological_report_visual_exports.py": ("write_biological_visual_exports",),
     "biological_report_contextual_exports.py": (
         "BiologicalContextualExportNames",
         "write_biological_contextual_exports",
@@ -531,15 +509,9 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_drug_target_table_html",
         "_render_disease_phenotype_table_html",
     ),
-    "html/regulator_tables.py": (
-        "_render_regulator_inference_table_html",
-    ),
-    "html/drug_target_tables.py": (
-        "_render_drug_target_table_html",
-    ),
-    "html/disease_phenotype_tables.py": (
-        "_render_disease_phenotype_table_html",
-    ),
+    "html/regulator_tables.py": ("_render_regulator_inference_table_html",),
+    "html/drug_target_tables.py": ("_render_drug_target_table_html",),
+    "html/disease_phenotype_tables.py": ("_render_disease_phenotype_table_html",),
     "html/sample_context_tables.py": (
         "_render_tissue_cell_type_context_table_html",
         "_render_cohort_stratification_table_html",
@@ -549,24 +521,14 @@ MODULE_SURFACES: dict[str, tuple[str, ...]] = {
         "_render_pathway_activity_table_html",
         "_render_complex_activity_table_html",
     ),
-    "html/compartment_tables.py": (
-        "_render_compartment_biology_table_html",
-    ),
-    "html/pathway_activity_tables.py": (
-        "_render_pathway_activity_table_html",
-    ),
-    "html/complex_activity_tables.py": (
-        "_render_complex_activity_table_html",
-    ),
+    "html/compartment_tables.py": ("_render_compartment_biology_table_html",),
+    "html/pathway_activity_tables.py": ("_render_pathway_activity_table_html",),
+    "html/complex_activity_tables.py": ("_render_complex_activity_table_html",),
     "html/artifact_inventory.py": (
         "_render_biological_report_artifact_inventory_html",
     ),
-    "html/report_summary.py": (
-        "_render_biological_report_summary_html",
-    ),
-    "html/report_sections.py": (
-        "_render_biological_report_section_blocks_html",
-    ),
+    "html/report_summary.py": ("_render_biological_report_summary_html",),
+    "html/report_sections.py": ("_render_biological_report_section_blocks_html",),
     "html/page.py": ("_render_biological_result_report_html",),
     "biological_report_export_writing.py": (
         "BiologicalResultReportExportNames",
@@ -663,9 +625,9 @@ def test_biological_reporting_facade_delegates_to_split_owners() -> None:
         "render_biological_report_section_confidence_tsv",
         "render_biological_result_report_summary_tsv",
     }
-    assert import_map[
-        "bijux_proteomics.review.explanations.volcano_plots"
-    ] >= {"VolcanoReviewPolicy"}
+    assert import_map["bijux_proteomics.review.explanations.volcano_plots"] >= {
+        "VolcanoReviewPolicy"
+    }
     assert exported_names >= {
         "BiologicalReportSectionConfidenceEntry",
         "BiologicalReportSectionConfidenceLabel",
@@ -704,9 +666,7 @@ def test_biological_report_assembly_forwards_ms1_input_ownership() -> None:
         == "build_biological_result_report_bundle_from_ms1_feature_input"
     )
     forwarded_keywords = {
-        keyword.arg
-        for keyword in delegated_call.keywords
-        if keyword.arg is not None
+        keyword.arg for keyword in delegated_call.keywords if keyword.arg is not None
     }
 
     assert forwarded_keywords >= {
@@ -877,9 +837,7 @@ def test_biological_report_assembly_forwards_quant_table_input_ownership() -> No
         and node.value.func.id == "build_from_quant_table_owned"
     )
     forwarded_keywords = {
-        keyword.arg
-        for keyword in delegated_call.keywords
-        if keyword.arg is not None
+        keyword.arg for keyword in delegated_call.keywords if keyword.arg is not None
     }
 
     assert forwarded_keywords >= {

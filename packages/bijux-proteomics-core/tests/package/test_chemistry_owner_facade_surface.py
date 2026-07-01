@@ -19,11 +19,13 @@ def test_internal_modules_import_chemistry_owner_modules_directly() -> None:
             continue
         module = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(module):
-            if isinstance(node, ast.ImportFrom):
-                if node.module == "bijux_proteomics.chemistry":
-                    violations.append(
-                        f"{path.relative_to(_PYTHON_ROOT)} imports the chemistry root facade instead of an owner module"
-                    )
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module == "bijux_proteomics.chemistry"
+            ):
+                violations.append(
+                    f"{path.relative_to(_PYTHON_ROOT)} imports the chemistry root facade instead of an owner module"
+                )
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     if alias.name == "bijux_proteomics.chemistry":

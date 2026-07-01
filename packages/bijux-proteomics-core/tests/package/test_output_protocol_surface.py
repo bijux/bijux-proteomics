@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import click
 import pytest
 
 import bijux_proteomics._atomic_files as atomic_files
@@ -16,7 +17,7 @@ def test_emit_json_writes_sorted_json_document(
 ) -> None:
     output_path = tmp_path / "artifact.json"
     echoed: list[str] = []
-    monkeypatch.setattr(artifact_output.click, "echo", echoed.append)
+    monkeypatch.setattr(click, "echo", echoed.append)
 
     artifact_output._emit_json({"b": 2, "a": 1}, out_path=output_path)
 

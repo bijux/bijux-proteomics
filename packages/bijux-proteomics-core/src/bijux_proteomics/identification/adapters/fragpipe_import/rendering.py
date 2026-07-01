@@ -133,7 +133,9 @@ def render_fragpipe_canonical_psm_tsv(
 
 def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
     """Render reviewer-facing FragPipe PSM rows as TSV."""
-    ordered_rows = sort_rows_by_fields(rows, "spectrum_id", "charge", "canonical_peptide")
+    ordered_rows = sort_rows_by_fields(
+        rows, "spectrum_id", "charge", "canonical_peptide"
+    )
     lines = [
         "\t".join(
             (

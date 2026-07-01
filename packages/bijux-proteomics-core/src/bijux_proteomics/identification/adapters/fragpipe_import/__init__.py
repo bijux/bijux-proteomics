@@ -28,7 +28,6 @@ from bijux_proteomics.identification.adapters.fragpipe_import.rendering import (
     render_fragpipe_summary_tsv,
 )
 
-
 __all__ = [
     "FragpipeCanonicalPsmEntry",
     "FragpipeImportReport",

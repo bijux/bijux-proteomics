@@ -14,13 +14,13 @@ from bijux_proteomics.review.claims.biological_claim_validation import (
 from bijux_proteomics.review.claims.biological_hypotheses import (
     BiologicalHypothesisReport,
 )
+from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
+    _build_biological_report_section_confidence_entry,
+)
 from bijux_proteomics.workflow.reports.biological_report_section_metadata import (
     BiologicalReportSectionConfidenceEntry,
     BiologicalReportSectionConfidenceLabel,
     BiologicalReportSectionKey,
-)
-from bijux_proteomics.workflow.reports.biological_report_section_confidence_entry_building import (
-    _build_biological_report_section_confidence_entry,
 )
 
 
@@ -61,20 +61,20 @@ def _build_claim_validation_entry(
     support_fraction = supported_count / candidate_count
     if supported_count == 0:
         label = BiologicalReportSectionConfidenceLabel.INVALID
-        rationale = (
-            "all candidate biological claims were rejected by directional or evidence checks"
-        )
+        rationale = "all candidate biological claims were rejected by directional or evidence checks"
     elif support_fraction >= 0.75 and report.summary.rejected_claim_count == 0:
         label = BiologicalReportSectionConfidenceLabel.HIGH
-        rationale = "most candidate biological claims remained supported and none were rejected"
+        rationale = (
+            "most candidate biological claims remained supported and none were rejected"
+        )
     elif support_fraction >= 0.4:
         label = BiologicalReportSectionConfidenceLabel.MODERATE
-        rationale = (
-            "supported biological claims remain after validation, but a material fraction were rejected"
-        )
+        rationale = "supported biological claims remain after validation, but a material fraction were rejected"
     else:
         label = BiologicalReportSectionConfidenceLabel.WEAK
-        rationale = "validated biological claims are sparse relative to the candidate claim set"
+        rationale = (
+            "validated biological claims are sparse relative to the candidate claim set"
+        )
     return _build_biological_report_section_confidence_entry(
         BiologicalReportSectionKey.VALIDATED_BIOLOGICAL_CLAIMS,
         label,

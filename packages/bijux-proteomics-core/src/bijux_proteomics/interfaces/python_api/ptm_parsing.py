@@ -10,6 +10,9 @@ from bijux_proteomics.interfaces.support.foundation import (
     click,
     json,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmPeptideColumnMapping,
@@ -39,9 +42,6 @@ from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
 from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     parse_fasta_document,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
 )
 
 

@@ -78,4 +78,3 @@ def _validate_proteomics_run_inputs(
         raise click.ClickException(
             "fragpipe runs do not accept --config-path in the flagship command"
         )
-

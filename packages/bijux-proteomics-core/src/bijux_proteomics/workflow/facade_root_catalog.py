@@ -12,10 +12,11 @@ from bijux_proteomics.workflow.facade_benchmark_catalog import (
 from bijux_proteomics.workflow.facade_card_catalog import WORKFLOW_ROOT_CARD_OWNERS
 from bijux_proteomics.workflow.facade_catalog import WorkflowFacadeOwner
 from bijux_proteomics.workflow.facade_export_catalog import WORKFLOW_ROOT_EXPORT_OWNERS
-from bijux_proteomics.workflow.facade_pipeline_catalog import WORKFLOW_ROOT_PIPELINE_OWNERS
+from bijux_proteomics.workflow.facade_pipeline_catalog import (
+    WORKFLOW_ROOT_PIPELINE_OWNERS,
+)
 from bijux_proteomics.workflow.facade_report_catalog import WORKFLOW_ROOT_REPORT_OWNERS
 from bijux_proteomics.workflow.facade_study_catalog import WORKFLOW_ROOT_STUDY_OWNERS
-
 
 WORKFLOW_ROOT_SUBMODULES = {
     "benchmarks": "bijux_proteomics.workflow.benchmarks",

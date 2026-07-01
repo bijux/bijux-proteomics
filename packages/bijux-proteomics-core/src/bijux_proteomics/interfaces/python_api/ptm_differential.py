@@ -9,7 +9,16 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
-from bijux_proteomics.interfaces.support.io_and_dia import parse_experimental_design_table
+from bijux_proteomics.interfaces.support.io_and_dia import (
+    parse_experimental_design_table,
+)
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+)
+from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
+    _build_volcano_review_policy,
+    _export_volcano_review_assets,
+)
 from bijux_proteomics.interfaces.support.ptm_quantification.ptm import (
     PtmLocalizationColumnMapping,
     PtmProteinCorrectionMode,
@@ -37,13 +46,6 @@ from bijux_proteomics.interfaces.support.review_sequences_study import (
     FastaParseMode,
     build_ptm_volcano_review,
     parse_fasta_document,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-)
-from bijux_proteomics.interfaces.support.output_protocol.volcano_review import (
-    _build_volcano_review_policy,
-    _export_volcano_review_assets,
 )
 
 

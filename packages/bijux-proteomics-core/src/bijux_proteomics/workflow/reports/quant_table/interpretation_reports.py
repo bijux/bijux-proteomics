@@ -6,6 +6,27 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
+from bijux_proteomics.interpretation import (
+    PathwayActivityReport,
+    PathwayEnrichmentReport,
+    RegulatorInferenceReport,
+)
+from bijux_proteomics.quantification.contracts import DifferentialAbundanceReport
+from bijux_proteomics.review.belief.evidence_aware_ranking import (
+    EvidenceAwareRankingReport,
+)
+from bijux_proteomics.review.claims.biological_claim_validation import (
+    BiologicalClaimValidationReport,
+)
+from bijux_proteomics.review.claims.biological_hypotheses import (
+    BiologicalHypothesisReport,
+)
+from bijux_proteomics.workflow.cards.protein_evidence_cards import (
+    ProteinEvidenceCardReport,
+)
+from bijux_proteomics.workflow.cards.protein_mechanism_cards import (
+    ProteinMechanismCardReport,
+)
 from bijux_proteomics.workflow.reports.biological_report_claims import (
     _build_biological_claim_validation_report,
     _build_biological_evidence_aware_ranking_report,
@@ -14,25 +35,28 @@ from bijux_proteomics.workflow.reports.biological_report_claims import (
 from bijux_proteomics.workflow.reports.biological_report_experiment_review_contracts import (
     BiologicalExperimentReviewReports,
 )
+from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
+    BiologicalResultSelectionPolicy,
+)
 
 
 class BiologicalQuantTableInterpretationReports(NamedTuple):
     """Interpretation reports layered over experiment review outputs."""
 
-    evidence_aware_ranking_report: object | None
-    claim_validation_report: object
-    biological_hypothesis_report: object
+    evidence_aware_ranking_report: EvidenceAwareRankingReport | None
+    claim_validation_report: BiologicalClaimValidationReport
+    biological_hypothesis_report: BiologicalHypothesisReport
 
 
 def _build_biological_quant_table_interpretation_reports(
     *,
-    differential_report: object,
-    active_selection_policy: object,
-    protein_cards: object,
-    protein_mechanism_cards: object,
-    pathway_activity_report: object | None,
-    pathway_enrichment_report: object | None,
-    regulator_inference_report: object | None,
+    differential_report: DifferentialAbundanceReport,
+    active_selection_policy: BiologicalResultSelectionPolicy,
+    protein_cards: ProteinEvidenceCardReport,
+    protein_mechanism_cards: ProteinMechanismCardReport,
+    pathway_activity_report: PathwayActivityReport | None,
+    pathway_enrichment_report: PathwayEnrichmentReport | None,
+    regulator_inference_report: RegulatorInferenceReport | None,
     experiment_review_reports: BiologicalExperimentReviewReports,
 ) -> BiologicalQuantTableInterpretationReports:
     experiment_confidence_report = (

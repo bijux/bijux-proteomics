@@ -12,8 +12,8 @@ from io import StringIO
 from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.domain.confidence import ConfidenceTier
-from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_mechanism_card_id
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.interpretation.complex_activity import (
     ComplexActivityConfidenceStatus,
 )

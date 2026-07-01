@@ -4,6 +4,12 @@
 
 from __future__ import annotations
 
+from ..biological_report_bundle_contracts import (
+    BiologicalResultReportBundle,
+)
+from ..biological_report_section_metadata import (
+    BiologicalReportSectionKey,
+)
 from .contextual_tables import (
     _render_cohort_stratification_table_html,
     _render_compartment_biology_table_html,
@@ -25,12 +31,6 @@ from .scientific_tables import (
 from .support import (
     _render_biological_report_section_confidence_table_html,
     _render_section_heading_html,
-)
-from ..biological_report_bundle_contracts import (
-    BiologicalResultReportBundle,
-)
-from ..biological_report_section_metadata import (
-    BiologicalReportSectionKey,
 )
 
 

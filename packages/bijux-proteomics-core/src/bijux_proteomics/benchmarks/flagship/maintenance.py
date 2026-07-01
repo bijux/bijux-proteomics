@@ -8,12 +8,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from bijux_proteomics.benchmarks.flagship.dda_reviewable_package import (
-    build_dda_reviewable_package,
-)
 from bijux_proteomics.benchmarks.flagship.asset_roots import (
     build_flagship_asset_root_contract,
     write_flagship_asset_support_files,
+)
+from bijux_proteomics.benchmarks.flagship.dda_reviewable_package import (
+    build_dda_reviewable_package,
 )
 from bijux_proteomics.benchmarks.flagship.public_packages import (
     build_flagship_public_package_artifact_inventories,

@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-
 WORKFLOW_ROOT_OWNER_FILES = frozenset(
     {
         "__init__.py",
@@ -154,9 +153,7 @@ WORKFLOW_ROOT_PIPELINE_WRAPPER_TARGETS = {
     "dda_biological_workflow.py": (
         "bijux_proteomics.workflow.pipelines.dda_biological_workflow"
     ),
-    "dia_dda_comparison.py": (
-        "bijux_proteomics.workflow.pipelines.dia_dda_comparison"
-    ),
+    "dia_dda_comparison.py": ("bijux_proteomics.workflow.pipelines.dia_dda_comparison"),
     "dia_differential_analysis.py": (
         "bijux_proteomics.workflow.pipelines.dia_differential_analysis"
     ),

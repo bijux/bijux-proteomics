@@ -18,8 +18,8 @@ from bijux_proteomics.sequences.protein_identity_resolution import (
 from bijux_proteomics.sequences.protein_region_context_models import (
     ProteinFunctionalRegionEvidence,
     ProteinFunctionalRegionKind,
-    ProteinPeptideRegionReference,
     ProteinPeptideRegionContextReport,
+    ProteinPeptideRegionReference,
     ProteinRegionContextRecord,
 )
 from bijux_proteomics.sequences.protein_region_context_workflows import (

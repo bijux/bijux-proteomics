@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+from collections import Counter
 
 from bijux_proteomics.domain.semantic_ids import build_protein_card_id
 from bijux_proteomics.interpretation import (
@@ -16,7 +16,6 @@ from bijux_proteomics.interpretation import (
 )
 from bijux_proteomics.ptm import PtmEvidenceCardReport
 from bijux_proteomics.quantification.contracts import (
-    DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
 )
@@ -38,8 +37,14 @@ from bijux_proteomics.sequences.protein_region_context_models import (
 from bijux_proteomics.sequences.proteogenomic_peptide_support import (
     ProteogenomicVariantPeptideRecord,
 )
-from bijux_proteomics.workflow.reports.biological_result_graph import (
-    BiologicalResultGraphReport,
+from bijux_proteomics.workflow.cards.protein_evidence.annotation_context import (
+    build_annotation_payload,
+    group_annotations_by_entity,
+    group_context_entries_by_protein,
+    group_pathway_entries_by_member,
+    select_context_entries,
+    select_pathway_entries,
+    select_representative_protein_ref,
 )
 from bijux_proteomics.workflow.cards.protein_evidence.models import (
     ProteinEvidenceCard,
@@ -59,12 +64,6 @@ from bijux_proteomics.workflow.cards.protein_evidence.models import (
     ProteinEvidenceCardWarningCode,
     _PreparedProteinCard,
 )
-from bijux_proteomics.workflow.cards.protein_evidence.rendering import (
-    export_protein_evidence_card_summary_tsv,
-    export_protein_evidence_card_tsv,
-    render_protein_evidence_card_summary_tsv,
-    render_protein_evidence_card_tsv,
-)
 from bijux_proteomics.workflow.cards.protein_evidence.quantitative_evidence import (
     build_coverage_by_protein,
     build_differential_payload,
@@ -73,14 +72,11 @@ from bijux_proteomics.workflow.cards.protein_evidence.quantitative_evidence impo
     entry_is_significant,
     group_values_by_entity,
 )
-from bijux_proteomics.workflow.cards.protein_evidence.annotation_context import (
-    build_annotation_payload,
-    group_annotations_by_entity,
-    group_context_entries_by_protein,
-    group_pathway_entries_by_member,
-    select_context_entries,
-    select_pathway_entries,
-    select_representative_protein_ref,
+from bijux_proteomics.workflow.cards.protein_evidence.rendering import (
+    export_protein_evidence_card_summary_tsv,
+    export_protein_evidence_card_tsv,
+    render_protein_evidence_card_summary_tsv,
+    render_protein_evidence_card_tsv,
 )
 from bijux_proteomics.workflow.cards.protein_evidence.sequence_support import (
     build_identity_entries_by_entity,
@@ -90,6 +86,9 @@ from bijux_proteomics.workflow.cards.protein_evidence.sequence_support import (
     group_ptm_sites_by_protein,
     select_functional_regions,
     select_ptm_sites,
+)
+from bijux_proteomics.workflow.reports.biological_result_graph import (
+    BiologicalResultGraphReport,
 )
 
 
@@ -332,6 +331,7 @@ def build_protein_evidence_card_report(
             "final-protein summaries"
         ),
     )
+
 
 def _graph_evidence_tier(
     evidence_tier: FinalClaimEvidenceTier,

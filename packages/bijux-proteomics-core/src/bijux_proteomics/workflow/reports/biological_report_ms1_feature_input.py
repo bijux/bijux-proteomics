@@ -25,12 +25,12 @@ from bijux_proteomics.study import (
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalResultReportBundle,
 )
+from bijux_proteomics.workflow.reports.biological_report_ms1_feature_quant_table import (
+    _build_biological_quant_table_from_ms1_feature_input,
+)
 from bijux_proteomics.workflow.reports.biological_report_selection_policy import (
     BiologicalResultSelectionPolicy,
     _resolve_biological_result_selection_policy,
-)
-from bijux_proteomics.workflow.reports.biological_report_ms1_feature_quant_table import (
-    _build_biological_quant_table_from_ms1_feature_input,
 )
 
 

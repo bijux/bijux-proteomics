@@ -13,8 +13,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.domain.semantic_ids import build_raw_signal_card_id
+from bijux_proteomics.domain.source_row_lineage import SourceRowLineage
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     parse_psm_tsv,

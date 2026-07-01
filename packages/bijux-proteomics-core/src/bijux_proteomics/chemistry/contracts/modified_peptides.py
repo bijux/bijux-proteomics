@@ -11,6 +11,7 @@ import re
 
 from bijux_proteomics.chemistry.amino_acid_mass import _CANONICAL_RESIDUES
 from bijux_proteomics.chemistry.contracts.models import (
+    _RESIDUE_TOKEN_RE,
     AppliedModification,
     IsotopicLabelingPolicy,
     ModificationLocalizationAdvisory,
@@ -28,7 +29,6 @@ from bijux_proteomics.chemistry.contracts.models import (
     VariableModification,
     VariableModificationEnumerationEntry,
     VariableModificationEnumerationReport,
-    _RESIDUE_TOKEN_RE,
 )
 from bijux_proteomics.chemistry.contracts.registry_access import (
     get_modification,
@@ -1049,7 +1049,6 @@ def _render_modification_site(modification: AppliedModification) -> str:
     if modification.site is ModificationPosition.PROTEIN_N_TERM:
         return "protein_n_term"
     return "protein_c_term"
-
 
 
 __all__ = [

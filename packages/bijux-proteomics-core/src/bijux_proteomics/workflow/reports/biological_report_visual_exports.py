@@ -31,11 +31,11 @@ from bijux_proteomics.workflow.cards.sample_evidence_cards import (
 from bijux_proteomics.workflow.reports.biological_report_bundle_contracts import (
     BiologicalVisualReportBundle,
 )
-from bijux_proteomics.workflow.reports.biological_report_visual_export_naming import (
-    _build_biological_visual_export_names,
-)
 from bijux_proteomics.workflow.reports.biological_report_visual_export_contracts import (
     BiologicalVisualExportNames,
+)
+from bijux_proteomics.workflow.reports.biological_report_visual_export_naming import (
+    _build_biological_visual_export_names,
 )
 
 

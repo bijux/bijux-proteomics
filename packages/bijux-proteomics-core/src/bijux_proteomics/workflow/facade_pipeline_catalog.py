@@ -12,7 +12,6 @@ from bijux_proteomics.workflow.facade_catalog import (
     select_facade_owners,
 )
 
-
 ADVANCED_PIPELINE_FACADE_OWNERS = (
     WorkflowFacadeOwner(
         owner_module=(

@@ -14,6 +14,10 @@ from bijux_proteomics.interfaces.support.foundation import (
     Path,
     click,
 )
+from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
+    _emit_json,
+    _write_text_output,
+)
 from bijux_proteomics.interfaces.support.workflow import (
     ScaleDemoConfig,
     SurprisingDemoConfig,
@@ -54,10 +58,6 @@ from bijux_proteomics.interfaces.support.workflow import (
     run_public_benchmark_descriptor_suite,
     run_scale_demo,
     run_surprising_demo,
-)
-from bijux_proteomics.interfaces.support.output_protocol.artifact_output import (
-    _emit_json,
-    _write_text_output,
 )
 
 
@@ -244,7 +244,7 @@ def run_surprising_demo_query_command(
                 SurprisingDemoQueryRequest(
                     query_id="demo-query",
                     query_kind=SurprisingDemoQueryKind(query_kind),
-                    subject_id=subject_id,
+                    subject_id=_required_demo_query_subject_id(subject_id),
                 ),
             )
         )
@@ -263,6 +263,12 @@ def run_surprising_demo_query_command(
             render_surprising_demo_interrogation_answers_tsv(report),
         )
     _emit_json(report, out_path=out_path)
+
+
+def _required_demo_query_subject_id(subject_id: str | None) -> str:
+    if subject_id is None:
+        raise ValueError("surprising demo query requires a subject identifier")
+    return subject_id
 
 
 def run_surprising_demo_report_command(

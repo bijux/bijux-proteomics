@@ -22,6 +22,8 @@ from bijux_proteomics.targeted.assay_qc.models import (
 )
 from bijux_proteomics.targeted.assay_qc.support import (
     coefficient_of_variation as compute_coefficient_of_variation,
+)
+from bijux_proteomics.targeted.assay_qc.support import (
     fragment_ratio_matrix,
     missing_target_coelution_entry,
     missing_transition_coelution_entry,

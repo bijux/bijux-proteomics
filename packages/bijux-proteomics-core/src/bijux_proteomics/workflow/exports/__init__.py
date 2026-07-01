@@ -9,9 +9,9 @@ from bijux_proteomics.workflow.facade_export_catalog import (
 )
 from bijux_proteomics.workflow.facade_runtime import (
     build_lazy_export_index,
-    resolve_public_export,
     module_directory,
     ordered_facade_owners,
+    resolve_public_export,
 )
 
 __all__, _EXPORT_INDEX = build_lazy_export_index(
