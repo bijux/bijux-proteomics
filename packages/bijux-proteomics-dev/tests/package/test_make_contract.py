@@ -40,8 +40,13 @@ def test_make_setup_routes_shared_hook_variables_through_dev_package() -> None:
 
     assert "PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT ?=" in env_make
     assert "bijux_proteomics_dev/workspace/artifact_layout.py" in env_make
-    assert "PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)" in env_make
-    assert "ROOT_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)" in env_make
+    assert (
+        "PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)"
+        in env_make
+    )
+    assert (
+        "ROOT_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)" in env_make
+    )
     assert '"$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)" package' in package_make
     assert '"$(PYTHON)" "$(ROOT_ARTIFACT_ALIAS_SCRIPT)" root' in repository_root_make
 
@@ -51,6 +56,14 @@ def test_package_make_installs_dependencies_through_venv_python() -> None:
         encoding="utf-8"
     )
 
-    assert '--python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_BOOTSTRAP_PACKAGES)' in package_make
-    assert '--python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_PYTHON_PACKAGES)' in package_make
-    assert '--python "$(VENV_PYTHON)" --editable "$(PACKAGE_INSTALL_SPEC)"' in package_make
+    assert (
+        '--python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_BOOTSTRAP_PACKAGES)'
+        in package_make
+    )
+    assert (
+        '--python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_PYTHON_PACKAGES)'
+        in package_make
+    )
+    assert (
+        '--python "$(VENV_PYTHON)" --editable "$(PACKAGE_INSTALL_SPEC)"' in package_make
+    )
