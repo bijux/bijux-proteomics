@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import argparse
-import shutil
 from pathlib import Path
-
+import shutil
 
 ROOT_ARTIFACT_DIRECTORIES = (
     Path("artifacts/root"),
@@ -20,7 +19,7 @@ PACKAGE_ARTIFACT_DIRECTORY_TEMPLATES = (
     Path("artifacts/{package}/hypothesis"),
     Path("artifacts/{package}/benchmarks"),
 )
-ROOT_SPILLOVER_PATHS = (".tox", ".hypothesis", ".benchmarks")
+ROOT_SPILLOVER_PATHS = (Path(".tox"), Path(".hypothesis"), Path(".benchmarks"))
 PACKAGE_SPILLOVER_PATHS = ("artifacts", ".venv", ".hypothesis", ".benchmarks")
 
 

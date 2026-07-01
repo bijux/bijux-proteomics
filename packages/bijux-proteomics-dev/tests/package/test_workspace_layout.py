@@ -60,7 +60,9 @@ def _python_executable() -> str:
         resolved = shutil.which(command_name)
         if resolved:
             return resolved
-    raise AssertionError("no runnable python interpreter found for artifact layout tests")
+    raise AssertionError(
+        "no runnable python interpreter found for artifact layout tests"
+    )
 
 
 def _tool_env() -> dict[str, str]:
@@ -111,10 +113,10 @@ def test_setup_prepares_canonical_artifact_directories(tmp_path: Path) -> None:
     for package_name in sorted(cast(list[str], workspace["packages"])):
         package_root = packages_dir / package_name
         for suffix in PACKAGE_ARTIFACT_DIRECTORIES:
-            relative_path = Path("artifacts") / package_name
+            package_relative_path = Path("artifacts") / package_name
             if suffix:
-                relative_path /= suffix
-            assert (repo_root / relative_path).is_dir()
+                package_relative_path /= suffix
+            assert (repo_root / package_relative_path).is_dir()
         assert not (package_root / "artifacts").exists()
         assert not (package_root / ".venv").exists()
         assert not (package_root / ".hypothesis").exists()
@@ -177,7 +179,15 @@ def test_artifact_layout_paths_are_ignored_by_git() -> None:
 
 def test_artifact_layout_paths_stay_untracked_by_git() -> None:
     result = subprocess.run(
-        ["git", "-C", str(REPO_ROOT), "ls-files", "-z", "--", *_artifact_layout_paths()],
+        [
+            "git",
+            "-C",
+            str(REPO_ROOT),
+            "ls-files",
+            "-z",
+            "--",
+            *_artifact_layout_paths(),
+        ],
         check=True,
         capture_output=True,
     )

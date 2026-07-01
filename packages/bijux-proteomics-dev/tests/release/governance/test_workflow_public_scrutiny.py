@@ -95,10 +95,7 @@ def test_workflow_public_scrutiny_ignores_unready_review_grade_family(
 
     issues = validate_workflow_public_scrutiny(REPO_ROOT)
 
-    assert not any(
-        issue.code.startswith("external-review-kit-")
-        for issue in issues
-    )
+    assert not any(issue.code.startswith("external-review-kit-") for issue in issues)
 
 
 def test_workflow_public_scrutiny_blocks_banned_release_language(

@@ -86,7 +86,9 @@ def _python_executable() -> str:
         resolved = shutil.which(command_name)
         if resolved:
             return resolved
-    raise AssertionError("no runnable python interpreter found for subprocess smoke tests")
+    raise AssertionError(
+        "no runnable python interpreter found for subprocess smoke tests"
+    )
 
 
 def test_cross_package_public_api_smoke_loads_every_root_export_in_order() -> None:

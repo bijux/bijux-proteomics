@@ -255,7 +255,11 @@ def _render_outcome_learning_loops() -> str:
         ]
     )
     for entry in loops:
-        lesson = entry.learning_points[0] if entry.learning_points else "no shipped learning point yet"
+        lesson = (
+            entry.learning_points[0]
+            if entry.learning_points
+            else "no shipped learning point yet"
+        )
         lines.append(
             f"| `{entry.workflow_family.value}` | `{entry.initial_strength.value}` | "
             f"`{entry.revised_strength.value}` | "

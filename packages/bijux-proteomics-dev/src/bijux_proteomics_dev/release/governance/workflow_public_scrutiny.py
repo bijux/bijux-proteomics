@@ -12,12 +12,12 @@ from bijux_proteomics_dev.release.governance.public_artifact_governance import (
 from bijux_proteomics_dev.release.governance.public_language import (
     validate_public_language,
 )
+from bijux_proteomics_intelligence.reviews.external_review_kits import (
+    build_workflow_external_review_kit_family,
+)
 from bijux_proteomics_intelligence.reviews.workflow_authority import (
     WorkflowAuthorityKind,
     build_workflow_authority_matrix,
-)
-from bijux_proteomics_intelligence.reviews.external_review_kits import (
-    build_workflow_external_review_kit_family,
 )
 
 __all__ = [
@@ -72,7 +72,9 @@ def validate_workflow_public_scrutiny(
 
     issues: list[WorkflowPublicScrutinyIssue] = []
     kit_family = build_workflow_external_review_kit_family()
-    outsider_auditable_workflow_families = _earned_outsider_auditable_workflow_families()
+    outsider_auditable_workflow_families = (
+        _earned_outsider_auditable_workflow_families()
+    )
     for issue in validate_public_artifact_governance():
         issues.append(WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail))
     for kit in kit_family.kits:

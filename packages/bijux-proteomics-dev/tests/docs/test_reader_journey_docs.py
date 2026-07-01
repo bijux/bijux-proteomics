@@ -64,7 +64,9 @@ def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> 
         "docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md"
     )
     decision_support = _read("docs/01-bijux-proteomics/foundation/decision-support.md")
-    lab_consequence = _read("docs/07-bijux-proteomics-lab/foundation/lab-consequence.md")
+    lab_consequence = _read(
+        "docs/07-bijux-proteomics-lab/foundation/lab-consequence.md"
+    )
 
     assert "Workflow Claim Grounding" in scientist
     assert "Workflow Recommendation Confidence" in scientist

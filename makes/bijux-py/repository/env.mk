@@ -19,7 +19,7 @@ PROJECT_ARTIFACTS_DIR ?= $(abspath $(ARTIFACTS_ROOT)/$(PROJECT_SLUG))
 PYTHON ?= $(shell command -v python3.11 || command -v python3)
 UV ?= uv
 VENV ?= $(abspath $(PROJECT_ARTIFACTS_DIR)/venv)
-VENV_PYTHON ?= $(VENV)/bin/python
+VENV_PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(if $(wildcard $(VENV)/bin/python3.11),$(VENV)/bin/python3.11,$(VENV)/bin/python3))
 ACT ?= $(VENV)/bin
 SELF_MAKE ?= $(if $(PACKAGE_PROFILE_MAKEFILE),$(MAKE) -f "$(PACKAGE_PROFILE_MAKEFILE)",$(MAKE))
 override RM := rm -rf
@@ -38,9 +38,9 @@ COMMON_API_TEMP_CLEAN_PATHS := spec.json openapitools.json node_modules site
 COMMON_ARTIFACT_CLEAN_PATHS := artifacts "$(PROJECT_ARTIFACTS_DIR)"
 COMMON_CONFIG_CACHE_CLEAN_PATHS := "$(CONFIG_DIR)/.ruff_cache"
 
-# Package roots materialize local alias links that point into the repository
-# artifact tree. Preserve the alias links and clean the canonical artifact
-# location instead of deleting the aliases themselves.
+# Package runs materialize repository-owned artifact directories under the
+# canonical artifact tree. Keep cleaning scoped to the canonical artifact
+# location instead of recreating package-root spillover paths.
 COMMON_PYTHON_CLEAN_PATHS := $(filter-out .venv .hypothesis .benchmarks,$(COMMON_PYTHON_CLEAN_PATHS))
 PROJECT_ARTIFACT_PRESERVE_DIRS ?= venv hypothesis benchmarks
 PROJECT_ARTIFACT_CHILD_CLEAN_PATHS := $(shell if [ -d "$(PROJECT_ARTIFACTS_DIR)" ]; then find "$(PROJECT_ARTIFACTS_DIR)" -mindepth 1 -maxdepth 1 $(foreach dir,$(PROJECT_ARTIFACT_PRESERVE_DIRS),! -name "$(dir)") -print; fi)

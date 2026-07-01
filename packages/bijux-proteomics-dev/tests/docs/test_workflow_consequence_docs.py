@@ -37,7 +37,9 @@ def test_workflow_consequence_maps_doc_covers_all_families_and_decision_grade_li
 def test_what_changed_the_recommendation_doc_names_counterfactual_and_outcome_drivers() -> (
     None
 ):
-    text = _read("docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md")
+    text = _read(
+        "docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md"
+    )
 
     assert "# What Changed The Recommendation" in text
     assert "without comparator evidence" in text
