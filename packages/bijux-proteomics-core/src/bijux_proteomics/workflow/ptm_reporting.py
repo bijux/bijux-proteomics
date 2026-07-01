@@ -5,6 +5,4 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.ptm.cards.reporting import build_ptm_report_bundle
-
-__all__ = ["build_ptm_report_bundle"]
+from bijux_proteomics.ptm.reporting import build_ptm_report_bundle

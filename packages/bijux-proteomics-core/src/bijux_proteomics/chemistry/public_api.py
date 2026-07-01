@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from importlib import import_module
 from importlib.util import find_spec
 from pathlib import Path
+import sys
 from typing import Any, Literal
 
 FacadeCollisionPolicy = Literal["error", "prefer_first_owner"]
@@ -178,6 +179,27 @@ def resolve_public_export(
     return value
 
 
+def bind_submodule_shadow_exports(
+    package_name: str,
+    package_globals: dict[str, Any],
+    export_index: dict[str, tuple[str, str]],
+) -> None:
+    """Pre-bind exports whose names collide with chemistry submodule names."""
+
+    for export_name, (owner_module, owner_export) in export_index.items():
+        if export_name != owner_module.rsplit(".", maxsplit=1)[-1]:
+            continue
+        package_globals[export_name] = getattr(import_module(owner_module), owner_export)
+
+
+def rebind_package_export(package_name: str, export_name: str, value: Any) -> None:
+    """Restore one facade export on the package after submodule imports."""
+
+    package = sys.modules.get(package_name)
+    if package is not None:
+        setattr(package, export_name, value)
+
+
 def module_directory(
     package_globals: dict[str, Any], public_names: tuple[str, ...]
 ) -> list[str]:
@@ -246,9 +268,11 @@ __all__ = [
     "ChemistryFacadeBudget",
     "ChemistryFacadeOwner",
     "FacadeCollisionPolicy",
+    "bind_submodule_shadow_exports",
     "build_lazy_export_index",
     "facade_owner_modules",
     "list_owned_public_names",
+    "rebind_package_export",
     "resolve_public_export",
     "module_directory",
 ]

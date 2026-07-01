@@ -13,8 +13,18 @@ from bijux_proteomics.chemistry.contracts import (
     ModificationPosition,
     ModificationRegistryDocument,
 )
-from bijux_proteomics.chemistry.modification_registry import resolve_modification
+from bijux_proteomics.chemistry.modification_registry import (
+    modification_registry as _modification_registry_root_export,
+    resolve_modification,
+)
+from bijux_proteomics.chemistry.public_api import rebind_package_export
 from bijux_proteomics_foundation import JsonModel
+
+rebind_package_export(
+    "bijux_proteomics.chemistry",
+    "modification_registry",
+    _modification_registry_root_export,
+)
 
 
 class ModificationResolutionSource(StrEnum):

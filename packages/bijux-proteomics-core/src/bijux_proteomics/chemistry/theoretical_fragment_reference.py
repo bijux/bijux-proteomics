@@ -21,7 +21,14 @@ from bijux_proteomics.chemistry.contracts.modified_peptides import (
 from bijux_proteomics.chemistry.modification_registry import (
     modification_registry,
 )
+from bijux_proteomics.chemistry.public_api import rebind_package_export
 from bijux_proteomics_foundation import JsonModel
+
+rebind_package_export(
+    "bijux_proteomics.chemistry",
+    "modification_registry",
+    modification_registry,
+)
 
 
 class TheoreticalFragmentReferenceIon(JsonModel):

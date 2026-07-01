@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.domain.confidence import (
-    ConfidenceTier as PathwayActivityConfidenceStatus,
-)
+from bijux_proteomics.domain.confidence import ConfidenceTier
+
+PathwayActivityConfidenceStatus = ConfidenceTier
 
 from .analysis import (
     build_pathway_activity_report,

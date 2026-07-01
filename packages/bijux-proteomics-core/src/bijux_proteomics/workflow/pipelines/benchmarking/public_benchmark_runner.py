@@ -137,9 +137,7 @@ class PublicBenchmarkRunReport(JsonModel):
     known_limitations: tuple[PublicBenchmarkKnownLimitation, ...] = Field(
         default_factory=tuple
     )
-    expected_signal_assessments: tuple[PublicBenchmarkExpectedSignalAssessment, ...] = (
-        Field(default_factory=tuple)
-    )
+    expected_signal_assessments: tuple[PublicBenchmarkExpectedSignalAssessment, ...] = Field(default_factory=tuple)
     failures: tuple[PublicBenchmarkFailure, ...] = Field(default_factory=tuple)
     verified_counts: dict[str, int] = Field(default_factory=dict)
     workflow_result: WorkflowResult | None = None

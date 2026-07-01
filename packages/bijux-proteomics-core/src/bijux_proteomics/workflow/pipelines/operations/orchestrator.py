@@ -126,9 +126,7 @@ from bijux_proteomics.workflow.result_types import (
     build_rejected_evidence_entries_from_issue_rows,
     build_result_warning,
 )
-from bijux_proteomics.workflow.result_types import (
-    WorkflowResult as StandardWorkflowResult,
-)
+from bijux_proteomics.workflow.result_types import WorkflowResult as StandardWorkflowResult
 from bijux_proteomics_foundation import JsonModel
 
 
