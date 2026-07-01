@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Package Overview
@@ -31,14 +31,14 @@ biological lookup surfaces that downstream packages use to keep claims honest.
 
 ## Concrete Knowledge Families
 
-- `memory` for evidence bundles, claims, normalization, integrity, and
-  reconciliation state
-- `references` for workflow grounding, literature audits, and curated
-  scientific support routes
-- biological lookup owners such as `pathways`, `complexes`, `kinases`,
-  `drugs`, `disease`, `features`, `identity`, `orthologs`, and `coverage`
-- `reviews` and `contracts` for package-owned review seams and compatibility
-  expectations
+| owner surface | current substance | why it matters |
+| --- | --- | --- |
+| `memory` | evidence bundles, claims, normalization, integrity, and reconciliation state | the repository can preserve hesitation and conflict instead of flattening them |
+| `references` | workflow grounding, literature audits, and curated scientific support routes | public workflow language can be challenged against explicit reading pressure |
+| `pathways`, `complexes`, `kinases` | mechanistic and regulatory biological context | analytical claims can be tied to real systems biology instead of generic labels |
+| `drugs`, `disease`, `features`, `coverage` | therapeutic, disease, feature, and evidence-coverage context | downstream recommendation and lab burden can see what is missing or clinically relevant |
+| `identity`, `orthologs` | entity reconciliation and cross-species context | claims stay stable across datasets and biological mappings |
+| `reviews` and `contracts` | package-owned review seams and compatibility expectations | downstream packages cannot quietly rewrite knowledge-state semantics |
 
 ## Why This Package Exists Separately
 
@@ -56,6 +56,8 @@ biological lookup surfaces that downstream packages use to keep claims honest.
 - provide repositories and review seams for knowledge state
 - resolve grounded biological context that later recommendation and lab routes
   should not improvise independently
+- keep literature pressure, context gaps, and identity reconciliation visible
+  after benchmark packets have already looked strong
 
 ## What Readers Commonly Underestimate
 
@@ -65,6 +67,17 @@ biological lookup surfaces that downstream packages use to keep claims honest.
   context-thin before intelligence gets to sound confident about it
 - this package now carries concrete biology rather than just generic evidence
   bookkeeping
+
+## What A Serious Reader Can Verify
+
+- whether a workflow claim is grounded by explicit references or only by
+  repository tone
+- whether contradiction has been preserved as structured state or silently
+  collapsed into one confidence score
+- whether biological context is broad enough to support the current sentence in
+  pathways, complexes, kinases, disease, drug targets, and ortholog space
+- whether downstream packages are inheriting evidence state or improvising it
+  locally
 
 ## What It Refuses
 
@@ -96,4 +109,6 @@ biological lookup surfaces that downstream packages use to keep claims honest.
 
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge`
 - `packages/bijux-proteomics-knowledge/tests`
+- grounding, contradiction, and biological-context artifacts once a claim
+  narrows to one surface
 - neighboring handbook branches once a change crosses the local role

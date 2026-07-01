@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-01
 ---
 
 # Package Overview
@@ -32,14 +32,15 @@ Those families now expose real public surfaces instead of one vague
 
 ## Concrete Analytical Families
 
-- `candidates` for ranking, shortlist pressure, and falsifier-aware selection
-- `interpretation` for typed run summaries, differential abundance, PTM, and
-  workflow-review reading
-- `judgment` for review-board decision paths and recommendation shaping
-- `posture` for evidence readiness, downgrade pressure, and refusal posture
-- `reviews` for benchmark-backed analytical review packets
-- `learning` for refinement loops that respond to observed follow-up and review
-  outcomes
+| owner surface | current substance | why it matters |
+| --- | --- | --- |
+| `candidates` | ranking, shortlist pressure, and falsifier-aware selection | recommendation starts from explicit competitive pressure instead of soft preference |
+| `claims` | recommendation-facing claim shaping and policy-bearing summaries | public analytical language stays inspectable |
+| `interpretation` | typed run summaries, differential-abundance reading, PTM interpretation, and workflow-review synthesis | biological outputs become bounded analytical narratives |
+| `judgment` | review-board decision paths, escalation rules, and disposition logic | a recommendation can be challenged as policy, not mistaken for truth |
+| `posture` | evidence readiness, downgrade pressure, regret, and refusal posture | overconfidence becomes a first-class artifact |
+| `reviews` | benchmark-backed analytical review packets | outsiders can inspect where recommendation language came from |
+| `learning` | refinement loops based on review and observed follow-up | the package can change because of outcomes instead of only argumentation |
 
 ## Why This Package Exists Separately
 
@@ -53,10 +54,12 @@ Those families now expose real public surfaces instead of one vague
 ## What It Owns
 
 - score and rank candidates
-- evaluate scenarios and loops
+- evaluate scenarios, review-board paths, and challenge loops
 - render explanations and reports for decisions
-- publish bounded recommendation posture and review surfaces without claiming
-  scientific truth
+- publish bounded recommendation posture, downgrade evidence, and review
+  surfaces without claiming scientific truth
+- preserve analytical regret and refusal state when the next sentence should be
+  weaker rather than smoother
 
 ## What Readers Commonly Underestimate
 
@@ -66,6 +69,17 @@ Those families now expose real public surfaces instead of one vague
   recommendation authority can now be challenged with its own artifacts
 - this package is where benchmark evidence turns into bounded policy language,
   not where benchmark evidence becomes truth
+
+## What A Serious Reader Can Verify
+
+- whether the current recommendation survived candidate pressure or only one
+  plausible route was examined
+- whether the repository shipped confidence-sounding language without a visible
+  downgrade or regret surface
+- whether interpretation and judgment were kept separate from grounded
+  evidence, contradiction, and lab consequence
+- whether follow-up learning loops can actually narrow the next
+  recommendation instead of merely annotating the old one
 
 ## What It Refuses
 
@@ -95,4 +109,6 @@ Those families now expose real public surfaces instead of one vague
 
 - `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
 - `packages/bijux-proteomics-intelligence/tests`
+- confidence, challenge, and review artifacts once a claim narrows to one
+  decision surface
 - neighboring handbook branches once a change crosses the local role

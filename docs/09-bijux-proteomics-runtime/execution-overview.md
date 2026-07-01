@@ -49,6 +49,25 @@ convenient demo:
 - runtime evidence now fits visibly into the larger chain from benchmark root
   to grounded interpretation to downstream consequence
 
+## Concrete Runtime Proof Surfaces
+
+| runtime surface | current substance | why outsiders should care |
+| --- | --- | --- |
+| API and entrypoints | CLI, HTTP, and package-driven operator routes | reruns do not require private maintainer entrypoints |
+| execution engine | orchestrated execution, replay, and evaluation control | the run path is inspectable instead of ad hoc |
+| providers | builtin, local, and remote provider layers | execution realism is bounded explicitly |
+| artifacts and checkpoints | run bundles, checkpoints, and stability classes | rerun claims can be checked after the run |
+| state, resume, and rehydrate | persistent execution state and reopening routes | operators can prove what was resumed or rebuilt |
+| diff and comparability surfaces | run comparison and replay challenges | "same result" becomes a tested question instead of a verbal claim |
+
+## What A Successful Rerun Should Prove
+
+- which public package pair was actually reopened
+- which run mode was used and why that mode is still the strongest honest lane
+- which artifacts, checkpoints, and verification records were emitted
+- which replay or invalidation challenge the lane still survives
+- which stronger sentence still remains blocked even after the rerun works
+
 ## Start Here
 
 - Open [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
@@ -85,6 +104,17 @@ convenient demo:
 - Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   when the question becomes whether grounded contradiction or consequence
   burden still narrows the sentence after runtime proof looks strong.
+
+## Common Misreads This Page Should Stop
+
+- a raw-executable lane is stronger than an import-only lane, but neither lane
+  automatically widens scientific trust on its own
+- a stable run bundle is necessary for outsider review, but it is not the same
+  thing as broader biological truth
+- a successful local rerun does not erase benchmark incompleteness,
+  grounding pressure, or downstream assay burden
+- runtime refusal is part of runtime honesty, not a sign that the package has
+  become weaker or less useful
 
 ## Boundary
 
