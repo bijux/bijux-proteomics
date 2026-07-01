@@ -189,7 +189,9 @@ def bind_submodule_shadow_exports(
     for export_name, (owner_module, owner_export) in export_index.items():
         if export_name != owner_module.rsplit(".", maxsplit=1)[-1]:
             continue
-        package_globals[export_name] = getattr(import_module(owner_module), owner_export)
+        package_globals[export_name] = getattr(
+            import_module(owner_module), owner_export
+        )
 
 
 def rebind_package_export(package_name: str, export_name: str, value: Any) -> None:

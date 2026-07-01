@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from bijux_proteomics.domain.confidence import ConfidenceTier
 
-PathwayActivityConfidenceStatus = ConfidenceTier
-
 from .analysis import (
     build_pathway_activity_report,
 )
@@ -31,6 +29,8 @@ from .rendering import (
     render_pathway_activity_unresolved_member_tsv,
     render_pathway_member_contribution_tsv,
 )
+
+PathwayActivityConfidenceStatus = ConfidenceTier
 
 __all__ = [
     "PathwayActivityConfidenceStatus",
