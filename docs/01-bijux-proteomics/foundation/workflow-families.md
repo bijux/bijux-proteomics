@@ -22,19 +22,21 @@ collapsed into one bounded family call.
   today for that family
 - `primary run mode` tells you whether the strongest current route is
   `raw_executable` or still `import_only`
+- `scientific center of gravity` tells you what kind of scientific burden is
+  most visible in the family
 - `benchmark coverage` tells you where a serious reviewer should start
 - `current blockers` tells you why stronger language is still blocked
 
 ## Family Comparison
 
-| family | trust status | primary run mode | benchmark coverage | current blockers |
-| --- | --- | --- | --- | --- |
-| `dda` | outsider-auditable, bounded | `import_only` | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) | in-repo live-engine parity still remains weaker than the reviewed downstream path |
-| `dia` | outsider-auditable, bounded | `raw_executable` | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) | library incompleteness and downstream absent-peptide consequence still narrow the broader sentence |
-| `lfq` | review-grade, bounded | `raw_executable` | [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/) | missingness, normalization pressure, and external-review-kit limits still block outsider-auditable release language |
-| `multiplex` | internal support only | `raw_executable` | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) | the current stress package still collapses outsider-facing trust |
-| `ptm` | outsider-auditable, bounded | `raw_executable` | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) | localization evidence is stronger than downstream consequence confidence |
-| `targeted` | outsider-auditable, bounded | `raw_executable` | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) | calibration, interference, and assay-burden pressure still block broader certainty |
+| family | trust status | primary run mode | scientific center of gravity | benchmark coverage | current blockers |
+| --- | --- | --- | --- | --- | --- |
+| `dda` | outsider-auditable, bounded | `import_only` | reviewed downstream replay and identification-facing evidence | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) | in-repo live-engine parity still remains weaker than the reviewed downstream path |
+| `dia` | outsider-auditable, bounded | `raw_executable` | library-aware DIA evidence, replay, and reviewable runtime proof | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) | library incompleteness and downstream absent-peptide consequence still narrow the broader sentence |
+| `lfq` | review-grade, bounded | `raw_executable` | normalization, missingness, and cohort-sensitive quantification review | [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/) | missingness, normalization pressure, and external-review-kit limits still block outsider-auditable release language |
+| `multiplex` | internal support only | `raw_executable` | runtime substance exists, but public trust still fails under stress | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) | the current stress package still collapses outsider-facing trust |
+| `ptm` | outsider-auditable, bounded | `raw_executable` | PTM localization, site review, and consequence-sensitive follow-up | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) | localization evidence is stronger than downstream consequence confidence |
+| `targeted` | outsider-auditable, bounded | `raw_executable` | targeted panels, calibration, interference review, and validation planning | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) | calibration, interference, and assay-burden pressure still block broader certainty |
 
 ## Why The Families Are Substantively Stronger Now
 
@@ -59,6 +61,15 @@ More real substance makes overclaiming easier if the limiter is not named.
 - a reproducible rerun lane does not erase grounding or consequence weakness
 - a strong recommendation packet does not erase assay-burden pressure
 - one strong family packet does not authorize broader repository-wide language
+
+## How To Challenge A Family Sentence
+
+- start at the lineage page to inspect what evidence roots are actually public
+- open runtime execution pages to confirm the current run mode is real
+- open grounding and recommendation pages to see whether the sentence narrows
+  after contradiction or challenge
+- end at lab consequence when the real limiter is downstream burden rather than
+  analytical elegance
 
 ## Best Next Questions
 

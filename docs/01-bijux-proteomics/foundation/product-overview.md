@@ -30,26 +30,14 @@ only then ask whether downstream assay burden is worth accepting.
 
 ## What Is Real Today
 
-- `bijux-proteomics-foundation` owns the shared document, identifier,
-  compatibility, and canonical serialization kernel that keeps persisted
-  scientific state reproducible across the suite.
-- `bijux-proteomics-core` now owns a materially broader scientific surface:
-  sequence parsing and digestion, chemistry and modifications, mzML and
-  spectra ingestion, identification and protein inference, label-free
-  quantification, PTM review, DIA support, benchmark assets, and workflow
-  contracts.
-- `bijux-proteomics-runtime` owns live execution, replay, import-backed
-  reruns, preflight checks, artifact integrity, and operator-facing runtime
-  bundles rather than leaving rerunability to maintainer narration.
-- `bijux-proteomics-knowledge` owns cited references, claim grounding,
-  contradiction-aware evidence memory, and biological lookup surfaces such as
-  pathways, complexes, kinase substrates, drug targets, disease terms, and
-  orthologs.
-- `bijux-proteomics-intelligence` owns ranking, readiness, falsifier-aware
-  review, interpretation summaries, and recommendation posture that stays
-  explicit about downgrade and refusal.
-- `bijux-proteomics-lab` owns assay planning, readiness, handoff honesty,
-  refusal boundaries, and requested-versus-observed outcome reconciliation.
+| owner | what is materially real now | why it changes how readers should judge the repository |
+| --- | --- | --- |
+| `bijux-proteomics-foundation` | shared document, identifier, compatibility, outcome, and canonical-serialization kernel | persisted scientific state can survive cross-package review and release change |
+| `bijux-proteomics-core` | sequence parsing and digestion, chemistry and modifications, mzML and spectra ingestion, identification, quantification, PTM review, DIA support, benchmark assets, and workflow contracts | the repository now has real biological and analytical depth at its scientific center |
+| `bijux-proteomics-runtime` | live execution, replay, import-backed reruns, raw-executable lanes, preflight checks, artifact integrity, and operator-facing rerun bundles | public workflow evidence can be reopened without maintainer storytelling |
+| `bijux-proteomics-knowledge` | cited references, claim grounding, contradiction-aware evidence memory, and biological context such as pathways, complexes, kinases, drugs, disease, and orthologs | repository language can be challenged by explicit scientific memory instead of tone |
+| `bijux-proteomics-intelligence` | ranking, falsifier-aware review, interpretation summaries, confidence, regret, challenge routes, and recommendation posture | analytical judgment is now inspectable rather than hidden inside summaries |
+| `bijux-proteomics-lab` | assay planning, readiness, handoff honesty, refusal boundaries, and requested-versus-observed outcome reconciliation | downstream follow-up burden is visible enough to narrow the public story honestly |
 
 ## What The Repository Can Now Defend
 
@@ -64,6 +52,17 @@ only then ask whether downstream assay burden is worth accepting.
   refusal legible enough that public language can be challenged instead of
   merely asserted
 
+## What Changed Since v0.3.7
+
+- the core package moved from "workflow contract owner" to a visibly broader
+  scientific owner with deep biology, chemistry, spectra, and review surfaces
+- runtime moved from "can run things" to "can prove and bound reruns
+  publicly"
+- knowledge and intelligence moved from abstract support roles to concrete
+  grounding and policy owners
+- lab moved from a soft handoff idea to a visible consequence, refusal, and
+  outcome owner
+
 ## What A Serious Reader Can Verify Quickly
 
 - that the current workflow-family language is carried by open benchmark
@@ -74,6 +73,13 @@ only then ask whether downstream assay burden is worth accepting.
   of leaving disagreement and downstream burden implied
 - that the product story crosses biology, chemistry, execution, grounding,
   judgment, and consequence in one visible route
+
+## What This Product Still Refuses To Pretend
+
+- that broader module count alone creates broader scientific authority
+- that a raw-executable lane settles the grounding or recommendation question
+- that a grounded recommendation automatically deserves downstream assay spend
+- that one strong workflow family upgrades the whole repository
 
 ## Start Here
 
@@ -112,17 +118,6 @@ only then ask whether downstream assay burden is worth accepting.
   understate what changed since `v0.3.7`
 - if this page ever sounds stronger than the claim-limit, readiness, and
   consequence pages, the repository-level wording is wrong
-
-## Why This Is Not Just Governance
-
-- the repository now exposes concrete sequence, spectra, mzML, DIA, PTM,
-  quantification, grounding, and recommendation surfaces that can be reviewed
-  independently
-- public scrutiny pages now exist because the product is strong enough to be
-  challenged at the benchmark, runtime, and consequence layers, not because
-  documentation needed more ceremony
-- release discipline still matters, but it now sits on top of a materially
-  stronger scientific product instead of standing in for one
 
 ## Current Credible Families
 

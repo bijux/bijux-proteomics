@@ -55,6 +55,16 @@ conflicts such as:
 - a successful rerun lane that still does not authorize stronger scientific or
   release language
 
+## Question-To-Owner Route
+
+| reader question | first owner | why |
+| --- | --- | --- |
+| is the public sentence grounded at all | `knowledge` | grounding and contradiction live there |
+| is the sentence analytically too strong | `intelligence` | recommendation posture and regret live there |
+| is the sentence too expensive or fragile to act on | `lab` | downstream burden and refusal live there |
+| is the sentence blocked because the run itself is not strong enough | `runtime` | rerun realism and artifact proof live there |
+| is the sentence blocked because the evidence root is too thin | `core` | benchmark and flagship contract depth live there |
+
 ## Start Here
 
 - Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
@@ -80,6 +90,22 @@ conflicts such as:
 - Which public artifact should a hostile reviewer open first?
 - Which stronger sentence would be dishonest today even if one upstream layer
   looks impressive?
+
+## What Changed Since v0.3.7
+
+- decision support now crosses richer benchmark, runtime, grounding,
+  recommendation, and lab surfaces instead of leaning on one or two trust pages
+- contradiction, downgrade, regret, refusal, and requested-versus-observed
+  outcome loops are now explicit enough to act as real release-language brakes
+- the repository can now show why a sentence is limited, not merely state that
+  it is limited
+
+## Reader Discipline
+
+- do not let a strong benchmark packet outrun a weak grounding surface
+- do not let a grounded sentence outrun a visible downgrade or regret surface
+- do not let a strong recommendation outrun explicit assay burden
+- do not let a feasible assay outrun weak scientific grounding
 
 ## What This Route Refuses
 

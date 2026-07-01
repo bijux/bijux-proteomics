@@ -62,9 +62,22 @@ This site should let a serious reader answer four questions quickly:
 
 - what scientific workflow families the repository can defend today
 - which package owns each part of that defense
-- where benchmark, runtime, grounding, recommendation, and lab consequence
+- where benchmark, runtime, grounding, recommendation, and assay-burden limits
   still cap the wording
 - which page should be opened next without maintainer narration
+
+## What The Repository Actually Contains Now
+
+The repository is no longer best summarized as a set of governance rules around
+smaller utilities. The current public product contains:
+
+- benchmark-backed workflow-family evidence packets
+- deep core biology and chemistry surfaces across sequence, spectra, mzML,
+  identification, quantification, DIA, PTM, and targeted review
+- public runtime rerun, replay, verification, and refusal routes
+- grounded claim and contradiction surfaces with real biological context
+- explicit recommendation-confidence, challenge, regret, and downgrade routes
+- assay-planning, readiness, refusal, and outcome-learning consequence routes
 
 ## Current Credible Workflow Families
 
@@ -120,6 +133,19 @@ product:
 4. [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
 5. [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
 
+## Fast Verification Routes
+
+- if the question is "is there real scientific depth here?", start with
+  [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+- if the question is "can an outsider reopen the evidence?", start with
+  [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
+- if the question is "why should this sentence be believed?", start with
+  [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+- if the question is "how strong may the recommendation sound?", start with
+  [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
+- if the question is "is the next assay worth the burden?", start with
+  [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
+
 If the question is already owner-specific, jump directly to:
 
 - evidence root:
@@ -161,6 +187,13 @@ The docs now need to represent a deeper product:
   downgrade, overconfidence, and regret
 - a real lab-consequence owner that keeps follow-up burden, refusal, and
   requested-versus-observed learning public
+
+## Reader Rule
+
+If a page makes the repository sound like it has only governance polish, that
+page is incomplete. If a page makes the repository sound broader than its
+current benchmark, runtime, grounding, recommendation, or consequence owner can
+defend, that page is dishonest.
 
 ## Boundary
 
