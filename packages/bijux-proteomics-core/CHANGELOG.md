@@ -8,7 +8,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
   the next quantification or `quantify`-facing change must be recorded here
   before release.
 
-## 0.3.8 - 2026-06-30
+## 0.3.8 - 2026-07-01
 
 ### Added
 

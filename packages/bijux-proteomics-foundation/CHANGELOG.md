@@ -4,7 +4,7 @@ All notable changes for `bijux-proteomics-foundation` are recorded here.
 
 ## Unreleased
 
-## 0.3.8 - 2026-06-30
+## 0.3.8 - 2026-07-01
 
 ### Added
 
