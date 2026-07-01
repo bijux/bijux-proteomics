@@ -40,6 +40,16 @@ claim.
 - recommendation posture still narrows when grounded contradiction or
   downstream assay burden becomes explicit
 
+## Which Layer Currently Carries The Brake
+
+| layer | what is already strong | why it still does not widen the sentence alone |
+| --- | --- | --- |
+| `core` | broader biology, chemistry, spectra, mzML, PTM, DIA, and quantification depth | stronger scientific machinery still needs transfer, runtime, and downstream proof |
+| `runtime` | replay, rerun kits, artifact stability, refusal, comparability | reproducible runs do not settle scientific truth or assay worth |
+| `knowledge` | grounding, contradiction, citation pressure, biological context | grounded sentences can still be analytically overconfident or too costly to act on |
+| `intelligence` | challenge, downgrade, regret, recommendation posture | stronger analytical policy cannot outrun weaker benchmark, grounding, or consequence layers |
+| `lab` | control demand, readiness, refusal, outcome reconciliation | practical follow-up can still be too narrow to justify broader public release language |
+
 ## Why The Limits Sit In Different Layers
 
 The current ceiling is not caused by one kind of weakness only:
@@ -75,6 +85,19 @@ not less.
   complexity
 - stronger lab-confidence language than the current follow-up burden supports
 
+## What Would Need To Improve Before Language Widens
+
+- stronger family-specific transfer packets where benchmark depth is currently
+  narrower than the release sentence
+- runtime proof that survives more realism pressure where `import_only` or
+  bounded `raw_executable` lanes still cap trust
+- grounding routes that keep contradiction and citation pressure visible when
+  workflow packets look operationally strong
+- recommendation artifacts that survive challenge without leaning on weak lab
+  consequence
+- downstream evidence that follow-up burden and requested-versus-observed
+  outcomes justify stronger public claims
+
 ## Documentation Rule
 
 If any README, changelog, trust page, or package handbook sounds stronger than
@@ -98,6 +121,12 @@ Use this page to identify which layer is actually blocking wider language:
   for runtime-lane limits
 - [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   for grounding, recommendation, and consequence limits
+
+## Reader Rule
+
+When a workflow-family page, README, release note, or package handbook sounds
+materially stronger than the weakest layer named here, the stronger page is
+the problem until proof changes first.
 
 ## Boundary
 

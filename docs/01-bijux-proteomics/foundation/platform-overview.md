@@ -68,6 +68,17 @@ This page should give the shortest honest explanation of the package chain. Read
 
 `bijux-proteomics-runtime` governs execution, replay, and operator-facing runtime behavior while `agentic-proteins` remains the compatibility bridge.
 
+## Concrete Product Through-Line
+
+| stage | owner | current repository substance |
+| --- | --- | --- |
+| shared meaning | `foundation` | identifiers, canonical payloads, compatibility profiles, deterministic hashing, outcome-safe shared records |
+| scientific law | `core` | sequences, chemistry, spectra, mzML, identification, quantification, PTM, DIA, workflow contracts, benchmark assets |
+| evidence truth | `knowledge` | grounding, contradiction, literature pressure, pathways, complexes, kinases, disease, drug-target, and ortholog context |
+| recommendation posture | `intelligence` | ranking, challenge routes, confidence, regret, downgrade, and interpretation summaries |
+| downstream consequence | `lab` | planning, readiness, handoffs, refusal, requested-versus-observed outcome loops |
+| execution proof | `runtime` | raw-executable and import-backed reruns, replay, artifacts, comparability, operator entrypoints |
+
 ## What Each Hop Must Refuse
 
 - foundation must not improvise workflow truth, recommendation posture, or lab
@@ -106,6 +117,19 @@ A package boundary is justified only when it reduces one concrete review risk.
 Here that means reviewers can ask whether a change altered shared meaning,
 durable contracts, evidence truth, scoring policy, lab decisions, or execution
 without guessing which layer silently owns the decision.
+
+## What Changed Since v0.3.7
+
+- the split now maps onto real owned substance, not primarily future-facing
+  architecture
+- the core scientific layer became visibly deeper, so later packages can be
+  read as real truth, judgment, and consequence owners instead of abstraction
+  layers
+- runtime and lab now make execution burden and downstream burden inspectable
+  enough that the platform can be challenged from both ends
+- knowledge and intelligence now expose grounded hesitation and analytical
+  overreach as public owner surfaces rather than as maintainers' private review
+  context
 
 ## What This Platform Can Now Explain Honestly
 

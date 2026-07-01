@@ -40,6 +40,17 @@ flagship language.
 - family-specific lineage pages that explain why each current family sentence
   survives or narrows
 
+## Benchmark Asset Classes
+
+| asset class | what it gives reviewers | why it matters |
+| --- | --- | --- |
+| flagship public packages | primary outsider-readable evidence roots | the public sentence starts from real shipped materials |
+| companion pressure packages | harder or narrowing comparison routes | one convenient benchmark cannot carry the whole release story |
+| source identity and citation manifests | provenance and scientific role | reviewers can see what was packaged and why |
+| rebuild and generated-boundary instructions | reproducibility discipline | benchmark packets stay inspectable rather than archival curiosities |
+| freshness and incompleteness ledgers | evidence quality limits | weak or aging packets narrow public language at the evidence root |
+| licensing and redistribution review | allowed public use | readers can trust that the benchmark surface is shippable, not only informative |
+
 ## Family Coverage
 
 | family | benchmark strength today | key benchmark limiter | lineage page |
@@ -71,6 +82,15 @@ has become a first-order product question:
 - do incompleteness and transfer limits appear at the evidence root instead of
   being postponed into later recommendation prose
 - does the lineage page explain why the family sentence narrows where it does
+
+## What Changed Since v0.3.7
+
+- benchmark surfaces are now one of the clearest public proofs that the
+  repository contains more than governance
+- family-specific lineage, freshness, incompleteness, and licensing pages now
+  make benchmark quality part of the public release argument
+- paired flagship and pressure packages now keep stronger workflow families
+  honest by forcing easier and harder evidence roots to coexist
 
 ## Best Next Routes
 

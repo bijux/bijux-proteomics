@@ -57,6 +57,16 @@ flowchart LR
   PTM, DIA, and review surfaces that downstream packages consume rather than
   recreate
 
+## Concrete Scientific Families
+
+| owner band | visible package substance | why it matters to readers |
+| --- | --- | --- |
+| sequence and study | `domain`, `sequences`, `study` | sample, sequence, and design semantics are normalized before downstream interpretation |
+| chemistry | `chemistry`, `isotope_labeling`, `proteoforms` | mass, fragments, isotopes, and modifications are first-class scientific owners |
+| proteomics I/O | `io`, `identification`, `interfaces` | spectra, mzML, search normalization, and reviewable ingestion stop being hidden support glue |
+| quantitative and review surfaces | `quantification`, `review`, `ptm`, `targeted`, `dia`, `lab/qc` | analytical and assay-facing outputs start from durable scientific contracts |
+| benchmark and workflow law | `benchmarks`, `workflow`, `interpretation` | public workflow-family claims now have explicit evidence and contract roots |
+
 ## Why This Package Feels Heavier Now
 
 - benchmark-backed public workflow evidence starts here instead of being
@@ -104,6 +114,16 @@ flowchart LR
   downstream packages are allowed to reason over them
 - whether a benchmark package reflects a real review surface or only a shallow
   export of convenience
+
+## What A Skeptical Reader Should Verify
+
+- whether a claimed scientific family is backed by typed owner surfaces rather
+  than by report prose alone
+- whether chemistry, spectra, search, quantification, PTM, and targeted
+  analysis are truly package-owned instead of being spread through demos and
+  runtime wrappers
+- whether benchmark packages point back to real scientific law inside core
+  instead of acting as decorative fixtures
 
 ## What It Refuses
 

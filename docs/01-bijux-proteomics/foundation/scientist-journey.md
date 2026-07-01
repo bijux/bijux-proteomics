@@ -28,6 +28,17 @@ one owner.
 | 5 | how strong may the recommendation sound after pressure and challenge | `bijux-proteomics-intelligence` | [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/) |
 | 6 | does downstream burden still narrow the sentence | `bijux-proteomics-lab` | [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/) |
 
+## Family-Specific Starting Hints
+
+| family | strongest first technical question | best first proof surface |
+| --- | --- | --- |
+| `dda` | is the bounded trust sentence carried more by benchmark review than by live in-repo execution | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) |
+| `dia` | does the public rerun lane stay strong once library incompleteness is put back in view | [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/) |
+| `lfq` | how much of the current ceiling is driven by missingness, normalization, and cohort transfer pressure | [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/) |
+| `multiplex` | which public stress packet currently collapses outsider-facing trust | [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/) |
+| `ptm` | whether localization evidence now outruns downstream follow-up confidence | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) |
+| `targeted` | whether calibration and interference pressure already narrows the public sentence | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) |
+
 ## What A Good Scientist Read Should Learn
 
 - whether the current family sentence is actually benchmark-backed and rerun-backed
@@ -35,6 +46,16 @@ one owner.
 - whether recommendation posture is still weaker than the benchmark packet
   first suggests
 - whether downstream assay burden still blocks a stronger biological sentence
+
+## What Changed Since v0.3.7
+
+- this route can now cross much stronger core biology and chemistry depth
+  instead of leaning mainly on benchmark narration
+- runtime proof is now rich enough that the scientist has to ask what kind of
+  rerun lane exists, not only whether any run exists
+- grounding, challenge, regret, refusal, and observed-outcome routes are now
+  explicit enough that the scientist can watch one family sentence weaken for
+  honest reasons rather than infer that weakening from tone
 
 ## Worked Starting Point
 
@@ -66,6 +87,12 @@ to infer the chain from separate package pages.
 - treating runtime reproducibility as if it were scientific truth
 - treating grounded support as if assay burden were already settled
 - treating one strong owner page as if it settled the whole family chain
+
+## Practical Reader Rule
+
+If one owner page already shows the sentence should narrow, stop there. A
+longer repository walk should never be used to rescue a claim that one direct
+owner surface has already weakened.
 
 ## Boundary
 
