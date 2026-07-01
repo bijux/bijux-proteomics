@@ -150,22 +150,21 @@ include $(ROOT_MAKE_DIR)/bijux-py/ci/sbom.mk
 include $(ROOT_MAKE_DIR)/bijux-py/api.mk
 include $(ROOT_MAKE_DIR)/publish.mk
 
-PACKAGE_ARTIFACT_LAYOUT_PYTHONPATH ?= $(MONOREPO_ROOT)/packages/bijux-proteomics-dev/src$(if $(PYTHONPATH),:$(PYTHONPATH))
+PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(ROOT_MAKE_DIR)/bijux-py/repository/artifact_aliases.py
 
-setup: ## Prepare package artifact directories
-	@PYTHONPATH="$(PACKAGE_ARTIFACT_LAYOUT_PYTHONPATH)" \
-	"$(PYTHON)" -m bijux_proteomics_dev.workspace.artifact_layout package --repo-root "$(MONOREPO_ROOT)" --package-dir "$(PROJECT_DIR)"
+setup: ## Materialize package artifact alias links
+	@"$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)" package --repo-root "$(MONOREPO_ROOT)" --package-dir "$(PROJECT_DIR)"
 .PHONY: setup
 
 ifeq ($(PACKAGE_DEFINE_VENV),1)
-$(VENV_PYTHON): | setup
+$(VENV): | setup
 	@echo "$(PACKAGE_VENV_CREATE_MESSAGE)"
 	@$(UV) venv --python "$(PYTHON)" "$(VENV)"
 endif
 
 ifeq ($(PACKAGE_DEFINE_INSTALL),1)
 ifneq ($(strip $(PACKAGE_INSTALL_STAMP)),)
-$(PACKAGE_INSTALL_STAMP): $(VENV_PYTHON)
+$(PACKAGE_INSTALL_STAMP): $(VENV)
 	@echo "$(PACKAGE_INSTALL_MESSAGE)"
 	@mkdir -p "$(PROJECT_ARTIFACTS_DIR)"
 	@if [ -n "$(strip $(PACKAGE_INSTALL_BOOTSTRAP_PACKAGES))" ]; then \
@@ -190,7 +189,7 @@ $(PACKAGE_INSTALL_STAMP): $(VENV_PYTHON)
 
 install: $(PACKAGE_INSTALL_STAMP)
 else
-install: $(VENV_PYTHON)
+install: $(VENV)
 	@echo "$(PACKAGE_INSTALL_MESSAGE)"
 	@if [ -n "$(strip $(PACKAGE_INSTALL_BOOTSTRAP_PACKAGES))" ]; then \
 	  if ! $(UV) pip install --python "$(VENV_PYTHON)" --upgrade $(PACKAGE_INSTALL_BOOTSTRAP_PACKAGES); then \
@@ -271,7 +270,6 @@ ifeq ($(PACKAGE_KIND),workspace-python)
 .PHONY: ensure-venv nlenv clean-venv
 
 ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
-ensure-venv: $(VENV_PYTHON) ## Ensure venv exists and deps are installed
 	@set -e; \
 	echo "→ Ensuring dependencies in $(VENV) ..."; \
 	mkdir -p "$(PROJECT_ARTIFACTS_DIR)"; \

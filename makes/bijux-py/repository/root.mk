@@ -17,8 +17,7 @@ ROOT_DOCS_DEV_ADDR ?= 127.0.0.1:8000
 UV_SYNC ?= UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --group dev --python "$(PYTHON)"
 ROOT_DEV_PYTHONPATH ?=
 ROOT_CHECK_STAMP_SYNC_MESSAGE ?= @true
-ROOT_ARTIFACT_LAYOUT_MODULE ?= bijux_proteomics_dev.workspace.artifact_layout
-ROOT_ARTIFACT_LAYOUT_PYTHONPATH ?= $(CURDIR)/packages/bijux-proteomics-dev/src$(if $(PYTHONPATH),:$(PYTHONPATH))
+ROOT_ARTIFACT_ALIAS_SCRIPT ?= $(ROOT_MAKEFILE_DIR)/bijux-py/repository/artifact_aliases.py
 ROOT_SETUP_PACKAGES_DIR ?= $(CURDIR)/packages
 
 ifneq ($(strip $(ROOT_DEV_PYTHONPATH)),)
@@ -43,9 +42,8 @@ ROOT_FORBIDDEN_ARTIFACTS := $(filter-out \
 	"$(CURDIR)/.benchmarks", \
 	$(ROOT_FORBIDDEN_ARTIFACTS))
 
-setup: ## Prepare repository and package artifact directories
-	@PYTHONPATH="$(ROOT_ARTIFACT_LAYOUT_PYTHONPATH)" \
-	"$(PYTHON)" -m bijux_proteomics_dev.workspace.artifact_layout root --repo-root "$(CURDIR)" --packages-dir "$(ROOT_SETUP_PACKAGES_DIR)"
+setup: ## Materialize repository and package artifact alias links
+	@"$(PYTHON)" "$(ROOT_ARTIFACT_ALIAS_SCRIPT)" root --repo-root "$(CURDIR)" --packages-dir "$(ROOT_SETUP_PACKAGES_DIR)"
 
 $(ROOT_CHECK_STAMP): pyproject.toml uv.lock | setup
 	@mkdir -p "$(ROOT_ARTIFACTS_DIR)"
