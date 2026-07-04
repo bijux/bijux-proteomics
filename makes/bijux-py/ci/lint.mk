@@ -1,7 +1,7 @@
 VENV_PYTHON ?= python3
 RUFF        ?= $(VENV_PYTHON) -m ruff
 MYPY        ?= $(VENV_PYTHON) -m mypy
-CODESPELL   ?= $(VENV_PYTHON) -m codespell
+CODESPELL   ?= $(if $(ACT),$(ACT)/codespell,codespell)
 PYDOCSTYLE  ?= $(VENV_PYTHON) -m pydocstyle
 RADON       ?= $(VENV_PYTHON) -m radon
 
@@ -59,7 +59,7 @@ MYPY_EXTENDED_TARGETS_ABS := $(foreach target,$(MYPY_EXTENDED_TARGETS),$(if $(fi
 fmt: fmt-artifacts
 	@echo "✔ Formatting completed (logs in '$(FMT_LOG)')"
 
-fmt-artifacts: | $(VENV)
+fmt-artifacts: | $(VENV_PYTHON)
 	@mkdir -p "$(LINT_ARTIFACTS_DIR)" "$(RUFF_CACHE_DIR)"
 	@$(LINT_PYCACHE_ENV) $(RUFF) format --config "$(RUFF_CONFIG)" --cache-dir "$(RUFF_CACHE_DIR)" $(FMT_DIRS) 2>&1 | tee "$(FMT_LOG)"; test $${PIPESTATUS[0]} -eq 0
 	@if [ "$(FMT_RUN_RUFF_CHECK_FIX)" = "1" ]; then \
@@ -69,7 +69,7 @@ fmt-artifacts: | $(VENV)
 lint: lint-artifacts
 	@echo "✔ Linting completed (logs in '$(LINT_ARTIFACTS_DIR)')"
 
-lint-artifacts: | $(VENV)
+lint-artifacts: | $(VENV_PYTHON)
 	@mkdir -p "$(LINT_ARTIFACTS_DIR)" "$(RUFF_CACHE_DIR)" "$(MYPY_CACHE_DIR)"
 	$(call run_make_targets,$(LINT_PRE_TARGETS),$(LINT_SELF_MAKE))
 	@{ \
