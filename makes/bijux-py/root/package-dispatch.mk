@@ -3,16 +3,6 @@ ROOT_SHARED_CHECK_OVERRIDES := \
 	VENV_PYTHON="$(abspath $(ROOT_CHECK_PYTHON))" \
 	PYTHON="$(abspath $(ROOT_CHECK_PYTHON))" \
 	ACT="$(abspath $(ROOT_CHECK_VENV))/bin"
-ROOT_SHARED_CHECK_ENV_CLEAR := env \
-	-u VENV \
-	-u VENV_PYTHON \
-	-u PYTHON \
-	-u ACT \
-	-u RUFF \
-	-u MYPY \
-	-u CODESPELL \
-	-u PYDOCSTYLE \
-	-u RADON
 
 define ROOT_PACKAGE_CONTEXT_OVERRIDES
 MONOREPO_ROOT="$(abspath $(MONOREPO_ROOT))" \
@@ -50,14 +40,14 @@ define run_root_package_target
 	  fi; \
 	  echo "==> $$package: $(1)"; \
 	  if [ "$(3)" = "1" ]; then \
-	    if ! $(ROOT_SHARED_CHECK_ENV_CLEAR) $(MAKE) -C "packages/$$package" -f "$$profile_path" \
+	    if ! $(MAKE) -C "packages/$$package" -f "$$profile_path" \
 	      PROJECT_SLUG="$$package" \
 	      $(call ROOT_PACKAGE_CONTEXT_OVERRIDES,$$package) \
 	      $(ROOT_SHARED_CHECK_OVERRIDES) \
 	      $(1); then \
 	      failures="$$failures $$package"; \
 	    fi; \
-	  elif ! $(ROOT_SHARED_CHECK_ENV_CLEAR) $(MAKE) -C "packages/$$package" -f "$$profile_path" \
+	  elif ! $(MAKE) -C "packages/$$package" -f "$$profile_path" \
 	    PROJECT_SLUG="$$package" \
 	    $(call ROOT_PACKAGE_CONTEXT_OVERRIDES,$$package) \
 	    $(1); then \
