@@ -55,7 +55,7 @@ bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
 
 [project.optional-dependencies]
 parquet = [
-  "pyarrow>=16,<25",
+  "pyarrow>=16,<26",
 ]
 test = [
   "pytest>=8.4.1,<10.0",
