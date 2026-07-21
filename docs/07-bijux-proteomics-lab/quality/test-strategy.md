@@ -4,45 +4,55 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Test Strategy
+# Test strategy
 
-A useful test strategy names what evidence is needed and why shallow coverage is not enough.
+Lab testing proves every transition and every refusal in the path from evidence
+need to follow-up. A successful planning or handoff scenario does not establish
+readiness, physical execution, QC acceptance, or evidence promotion.
 
-For `bijux-proteomics-lab`, the test story should show how planning intent, outcome capture, and durable records stay aligned under real operator pressure.
+## Evidence layers
 
-## Strategy Model
+| Layer | Contract under test | Representative suite |
+| --- | --- | --- |
+| design | endpoints, contrasts, controls, replication, blocking, protocols, dependencies, and acceptance | `tests/design/` |
+| planning | assay construction, priorities, queue, batching, scheduling, stable order, and deferred work | `tests/planning/` |
+| readiness | resources, capacity, staffing, budget, risk, provenance, controls, conditional and blocked outcomes | `tests/readiness/` |
+| handoff | authority, custody, instructions, artifact identity, target mapping, loss, rejection, and round trip | `tests/handoffs/` |
+| observation | plan linkage, values, missingness, deviations, failure class, and immutable record | `tests/outcomes/` |
+| QC and reliability | acceptance rules, controls, dispersion, reproducibility, partial and failed results | outcome and benchmark tests |
+| reconciliation | requested/observed delta, rerun, redesign, hold, promotion, and history | `tests/reconciliation/` |
+| package boundary | Foundation primitives, Core signatures, Knowledge grounding, Intelligence feedback, Runtime output | `tests/package/` |
+
+## Transition proof
 
 ```mermaid
-flowchart TB
-    workflow["planning and outcome workflow"]
-    promotion["promotion and prerequisite tests"]
-    records["repository and serialization proof"]
-    operators["operator-facing scenarios"]
-    release["release confidence"]
-
-    workflow --> promotion
-    promotion --> records
-    records --> operators
-    operators --> release
+flowchart TD
+    C["changed Lab contract"] --> P["valid transition"]
+    C --> B["blocked or refused transition"]
+    P --> S["serialization and identity"]
+    B --> S
+    S --> D["downstream artifact interpretation"]
+    D --> H["history remains reconstructable"]
 ```
 
-This page should show why lab tests are not generic workflow checks. They are there to prove that durable records and operator decisions still tell the same story after change.
+Run the focused lifecycle family first, then the complete package suite for
+public models, handoffs, persistence, or cross-package changes:
 
-## Review Rules
+```bash
+uv run --project packages/bijux-proteomics-lab \
+  pytest -q packages/bijux-proteomics-lab/tests
+```
 
-- favor planning, promotion, repository, and serialization proof over generic coverage claims
-- cover dependency and prerequisite cases that operators actually hit
-- treat persisted lab records as first-class quality surfaces
+## Required operational pressure
 
-## First Proof Check
+Include missing controls, exhausted material, unavailable instrument, capacity
+conflict, incompatible batch, absent authority, target-system rejection,
+partial observation, deviation, failed QC, irreproducibility, biological
+non-support, inconclusive outcome, and promotion refusal.
 
-- `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
-
-## Design Pressure
-
-The easy mistake is to validate successful execution while leaving promotion history, prerequisite handling, or record meaning underexplained.
+Tests stop at the package boundary: they can validate a handoff and a returned
+observation contract, but they cannot prove physical instrument execution
+unless independent external evidence is supplied and linked.
