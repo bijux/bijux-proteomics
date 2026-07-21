@@ -55,6 +55,24 @@ briefings that downstream packages can consume without re-curating locally.
 - Route execution to runtime, recommendation posture to intelligence, assay
   follow-up to lab, and changes to scientific meaning back to core.
 
+## Evidence memory flow
+
+```mermaid
+flowchart LR
+    observation["observation or reference"] --> provenance["source and context"]
+    provenance --> claim["typed evidence claim"]
+    claim --> graph["evidence and contradiction graph"]
+    graph --> resolution["resolution history"]
+    resolution --> briefing["grounded workflow briefing"]
+
+    contradiction["contradicting evidence"] --> graph
+    gap["missing support"] --> briefing
+```
+
+Knowledge preserves why a claim is supported, contradicted, stale, or
+unresolved. It does not rank candidates or convert evidence availability into a
+recommendation; those decisions belong to Intelligence.
+
 ## Why teams pick this package
 
 - explicit evidence and claim memory with provenance, trust, and freshness semantics
@@ -68,17 +86,6 @@ briefings that downstream packages can consume without re-curating locally.
 - retrieve grounded workflow caveats, benchmark claims, and ontology mappings
 - explain why a scientific conclusion changed over time without losing provenance
 - surface unresolved knowledge gaps before downstream packages rank, schedule, or execute work
-
-## 0.3.8 Release Highlights
-
-- Knowledge now exposes cited references, benchmark manifests, curated corpora,
-  scientific rules, workflow briefing packets, comparator dossiers, and
-  machine-readable release-gate registries as first-class public surfaces.
-- Public resolution and lookup APIs now cover protein identity, feature
-  overlap, pathway membership, complex membership, kinase substrates, drug
-  targets, disease terms, knowledge coverage, and cross-species orthologs.
-- The package is now grouped by durable `memory`, `references`, `reviews`, and
-  `contracts` owners so provenance and trust semantics are easier to defend.
 
 ## Installation
 

@@ -77,6 +77,27 @@ instead of presentation-only summaries.
 - Route curated evidence memory to knowledge, scientific meaning to core,
   executable control to runtime, and assay follow-up execution to lab.
 
+## Recommendation flow
+
+```mermaid
+flowchart LR
+    evidence["grounded evidence and contradictions"]
+    candidates["candidate set"]
+    policy["explicit ranking policy"]
+    challenge["sensitivity, falsifiers, regret"]
+    posture{"recommendation posture"}
+    advance["advance with reasons"]
+    downgrade["downgrade or refuse"]
+
+    evidence --> candidates --> policy --> challenge --> posture
+    posture -->|supported| advance
+    posture -->|insufficient or unstable| downgrade
+```
+
+The output is a policy decision with traceable reasons, not a new scientific
+fact. Intelligence must preserve uncertainty and contradiction inherited from
+Knowledge and must not promise laboratory feasibility on Lab's behalf.
+
 ## Why teams pick this package
 
 - transparent ranking and recommendation outputs with traceable decision rationale
@@ -91,17 +112,6 @@ instead of presentation-only summaries.
 - produce explainable shortlists and review-board packets for expert scrutiny
 - summarize proteomics interpretation posture without re-owning raw analysis
 - carry benchmark-backed review claims into release conversations
-
-## 0.3.8 Release Highlights
-
-- Intelligence now ships typed interpretation surfaces for run summaries,
-  differential abundance, PTM review, missingness, outliers, contaminants, and
-  enrichment-driven recommendation posture.
-- The package is now organized around durable owner families for candidates,
-  judgment, posture, interpretation, reviews, and learning, so recommendation
-  boundaries are easier to audit.
-- README and handbook examples now route readers through the currently shipped
-  analytical entrypoints instead of older decision-brief naming.
 
 ## Installation
 
