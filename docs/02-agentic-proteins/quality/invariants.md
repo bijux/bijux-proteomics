@@ -4,43 +4,53 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Invariants
 
-Invariants are the claims that must remain true for the package to stay worth trusting.
+`agentic-proteins` is trustworthy only while it preserves established callers
+without creating an independent owner for Runtime behavior. These invariants
+apply to imports, transports, orchestration aliases, providers, state, and
+artifacts.
 
-For `agentic-proteins`, the invariants are mostly about keeping legacy compatibility narrow, inspectable, and pointed at canonical runtime behavior.
+## Compatibility invariants
 
-## Invariant Model
+| Invariant | Observable violation | Protecting evidence |
+| --- | --- | --- |
+| canonical ownership | a bridge module defines new run, state, tool, provider, or artifact policy | forwarding contracts and import-boundary tests |
+| top-level identity | a promised export is copied or wrapped when object identity is part of compatibility | Runtime forwarding identity tests |
+| behavioral parity | identical supported requests produce unexplained state, artifact, error, or transport differences | bridge-to-Runtime comparison tests |
+| failure fidelity | Runtime refusal, failure, warning, or unavailable-provider state becomes fallback success | negative CLI, HTTP, provider, and run tests |
+| artifact fidelity | bridge output drops provenance, terminal state, warnings, or stable identifiers | artifact-first and run-invariant tests |
+| optional isolation | importing the base package activates or requires optional local or remote providers | provider isolation and disabled-dependency tests |
+| migration visibility | a legacy path lacks a named canonical destination or measurable removal condition | bridge contract and retirement-budget tests |
+| no new dependency direction | Runtime or another canonical package begins depending on the bridge | package import-boundary tests |
 
 ```mermaid
-flowchart TB
-    legacy["legacy public paths"]
-    mapping["paths map to intended runtime behavior"]
-    scope["bridge does not become feature birth-place"]
-    retirement["compatibility state stays inspectable for retirement"]
-
-    legacy --> mapping
-    mapping --> scope
-    scope --> retirement
+flowchart LR
+    L["legacy caller"] --> B["compatibility boundary"]
+    B --> R["Runtime owner"]
+    R --> O["state, artifact, or transport result"]
+    O --> P["parity evidence"]
+    B -. must not own .-> N["new Runtime policy"]
 ```
 
-This page should make it obvious that the bridge is trustworthy only while it stays thin and inspectable. If new strategy starts here, the invariant has already broken.
+## Interpretation
 
-## Review Rules
+Identity and behavioral parity are different guarantees. Identity is relevant
+for forwarded Python objects. Behavioral parity is relevant for CLI, HTTP,
+provider, execution, and serialization paths. Neither guarantee establishes
+scientific validity of the returned result.
 
-- legacy public paths must still map to the intended canonical runtime behavior
-- the bridge must not become the place where new strategic features are born
-- compatibility state and artifacts must stay inspectable enough to justify retirement later
+Historical breadth is not itself an invariant. Agents, tools, providers,
+execution, orchestration, and transport paths may be narrowed when caller and
+retirement evidence permits. The invariant is that narrowing is deliberate and
+that remaining callers retain the declared contract.
 
-## First Proof Check
+## When an invariant fails
 
-- `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
-- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
-
-## Design Pressure
-
-The easy mistake is to protect compatibility while quietly letting the bridge become the place where new product behavior begins.
+Treat divergence as a compatibility defect or an ownership defect. Record the
+exact path, Runtime comparison, affected caller, and retained output. Do not
+normalize the difference away in the bridge or document it as a second valid
+policy without changing canonical ownership.
