@@ -4,46 +4,49 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Known Limitations
+# Known limitations
 
-Known limitations matter because honest boundaries are part of quality, not an admission of failure.
+Knowledge can preserve evidence and disagreement more faithfully than an
+unstructured summary. It cannot guarantee complete literature coverage,
+perfect biological identity resolution, source availability, or a final answer
+to every contradiction.
 
-For `bijux-proteomics-knowledge`, limitations are mostly about uncertainty: the package can preserve disagreement and review state, but it cannot automatically resolve them into simple truth.
+## Evidence limits
 
-## Limitation Model
+| Limitation | Consequence | Responsible interpretation |
+| --- | --- | --- |
+| external databases and literature change on independent schedules | retained evidence can become stale without becoming structurally invalid | publish source version or retrieval date and freshness status |
+| licensing and redistribution differ by source | a reference can be reviewable without its full upstream content being bundled | follow the source link and license record; do not infer local custody |
+| protein, gene, isoform, ortholog, pathway, disease, drug, and complex identifiers are context-dependent | normalization can merge or split biologically distinct entities | retain namespace, species, isoform, mapping method, and ambiguity |
+| source coverage is selective | absence from the graph is not evidence of biological absence | state the registries, corpora, and queries searched |
+| several records may share one underlying experiment or database | record count can exaggerate independent support | inspect lineage before treating evidence as corroboration |
+| contradiction can reflect context, method, population, or time | automated reconciliation may not yield one defensible truth | preserve competing contexts and use unresolved or hold dispositions |
+| confidence depends on declared policy and inputs | it is not automatically a calibrated probability | report the scale and update rule with the value |
+| retained fixtures prove deterministic handling of checked records | they do not prove that remote retrieval still succeeds or returns unchanged content | distinguish fixture replay from live-source verification |
+
+## Knowledge boundary
 
 ```mermaid
-flowchart TB
-    evidence["imperfect evidence enters the package"]
-    knowledge["claims, confidence, and review state"]
-    consumers["downstream systems interpret stored meaning"]
-    discipline["review discipline keeps truth honest"]
-    limit["knowledge cannot remove all ambiguity by itself"]
-
-    evidence --> knowledge
-    knowledge --> consumers
-    knowledge --> discipline
-    consumers --> limit
-    discipline --> limit
+flowchart LR
+    W["world and external sources"] --> S["selected source snapshot"]
+    S --> K["Knowledge records and graph"]
+    K --> R["review disposition"]
+    R --> D["downstream decision"]
+    W -. incomplete coverage .-> K
+    R -. advisory evidence state .-> D
 ```
 
-This page should remind readers that persistence is not resolution. The package can make ambiguity inspectable, but it cannot guarantee that every consumer reads that ambiguity carefully.
+The package can state what its selected sources support, contradict, or leave
+uncertain at a named revision. It cannot claim exhaustiveness unless the search
+space and retrieval result make that claim testable.
 
-## Review Rules
+## Report a grounded gap
 
-- the package cannot resolve all evidence ambiguity automatically
-- canonical meaning still depends on careful downstream consumption
-- persisted knowledge is only as trustworthy as the review discipline behind it
-
-## First Proof Check
-
-- `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
-
-## Design Pressure
-
-The easy failure is to mistake well-structured stored state for settled truth when the real condition is still uncertainty plus review discipline.
+Name the missing source class, unresolved identifier, stale retrieval, shared
+lineage, or contradiction context. “No evidence found” must include where and
+how the search was performed. “Reviewed” must include the evidence revision and
+disposition. Downstream recommendations remain bounded by these gaps even when
+their own policy is deterministic.

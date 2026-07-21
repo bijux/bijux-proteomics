@@ -4,48 +4,56 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Definition of Done
+# Definition of done
 
-Done means the package is easier to trust after the change, not just that the diff merged.
+A Knowledge change is complete when evidence identity, provenance, support,
+contradiction, uncertainty, revision, and review disposition remain
+reconstructable. A cleaner stored shape is not an improvement if it hides why a
+claim is believed or disputed.
 
-For `bijux-proteomics-knowledge`, done means evidence, contradiction, and confidence remain inspectable enough that downstream consumers are not forced to infer hidden truth.
+## Completion by evidence surface
 
-## Completion Model
+| Changed surface | Required evidence | Blocking loss |
+| --- | --- | --- |
+| reference or registry entry | source, version or retrieval date, license posture, identifier, and duplicate handling | source custody cannot be reconstructed |
+| biological identifier or mapping | exact, ambiguous, absent, obsolete, and cross-species cases | ambiguity is coerced into one identity |
+| claim or evidence record | immutable identity, provenance, context, confidence meaning, and round trip | normalized text replaces the original source record |
+| evidence graph | valid endpoints, support and contradiction edges, orphan prevention, and serialization | a claim survives after its evidence edge disappears |
+| reconciliation rule | complete competing context, hold and unresolved cases, audit trace, and deterministic policy | conflict is resolved by order or silent overwrite |
+| review state | reviewer, evidence revision, disposition, rationale, and history | later review rewrites the earlier state |
+| decision brief or bundle | fixed memory revision, complete relevant evidence, deterministic assembly, and consumer boundary | downstream receives a conclusion without its adverse evidence |
+| benchmark or literature grounding | citations, source scope, contradiction, freshness, and claim linkage | citation count substitutes for support quality |
+
+## Evidence custody loop
 
 ```mermaid
-flowchart TB
-    change["change lands in claims, evidence, confidence, or review"]
-    meaning{"knowledge meaning still reviewable?"}
-    proof{"contradiction and confidence proof updated?"}
-    downstream{"stable interpretation path still visible?"}
-    done["change is done"]
-
-    change --> meaning
-    meaning -->|yes| proof
-    meaning -->|no| block1["not done"]
-    proof -->|yes| downstream
-    proof -->|no| block2["not done"]
-    downstream -->|yes| done
-    downstream -->|no| block3["not done"]
+flowchart LR
+    S["source record"] --> N["normalized evidence with provenance"]
+    N --> G["support and contradiction graph"]
+    G --> R["review at fixed revision"]
+    R --> B["bounded brief or bundle"]
+    B --> A{"history and uncertainty intact?"}
+    A -->|yes| D["complete"]
+    A -->|no| X["blocked"]
 ```
 
-This page exists to keep storage edits from hiding semantic drift. The package is only done when a reviewer can still explain what is known, what conflicts, and what remains uncertain.
+Use focused tests under `tests/references`, `tests/memory`, `tests/reviews`, and
+the relevant biological namespace. Run package grounding and serialization
+guards whenever a changed record crosses into Core, Intelligence, or Lab.
 
-## Review Rules
+## Completion record
 
-- knowledge outputs remain at least as reviewable as before
-- tests and docs still reveal contradiction and confidence behavior clearly
-- downstream consumers receive a stable interpretation path
+Preserve source identity, retrieval or version context, license posture,
+normalization steps, evidence and claim identifiers, graph revision, review
+disposition, unresolved contradictions, and exact checks. State whether source
+retrieval was repeated or only checked against retained fixtures.
 
-## First Proof Check
+## Not complete
 
-- `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
-
-## Design Pressure
-
-The failure pattern here is false neatness: a change makes the stored shape simpler while making disagreement, uncertainty, or review posture harder to see.
+The work remains incomplete when a missing source is replaced with placeholder
+evidence, duplicate citations appear as independent corroboration, confidence
+changes without a named policy, or a downstream-friendly summary drops the
+contradiction that limited the original claim.
