@@ -83,6 +83,27 @@ and [freshness review](benchmark-freshness-review.md) check provenance and age.
 Missing, restricted, or weak material remains visible in the
 [incompleteness ledger](benchmark-incompleteness-ledger.md).
 
+## Audit the benchmark root
+
+Start with the question the claim depends on, then open the corresponding
+evidence surface:
+
+| Review question | Canonical evidence |
+| --- | --- |
+| can an outsider find every primary and companion source? | [Benchmark Asset Audit](benchmark-asset-audit.md) |
+| may the checked material be redistributed and reused? | [Benchmark Licensing and Redistribution](benchmark-licensing-and-redistribution.md) |
+| which missing assets or transfer zones narrow the claim? | [Benchmark Incompleteness Ledger](benchmark-incompleteness-ledger.md) |
+| is the checked corpus current relative to its source? | [Benchmark Freshness Review](benchmark-freshness-review.md) |
+| what posture does the complete governed evidence support? | [Benchmark Flagship Status](benchmark-flagship-status.md) |
+| which measurable conditions determine acceptance? | [Flagship Acceptance Bars](flagship-acceptance-bars.md) |
+
+Family lineage is the bridge between those repository-wide controls and a
+specific scientific claim: [DDA Benchmark Lineage](dda-benchmark-lineage.md),
+[DIA Benchmark Lineage](dia-benchmark-lineage.md), [LFQ Benchmark Lineage](lfq-benchmark-lineage.md),
+[Multiplex Benchmark Lineage](multiplex-benchmark-lineage.md), [PTM Benchmark Lineage](ptm-benchmark-lineage.md),
+and [Targeted Benchmark Lineage](targeted-benchmark-lineage.md). A family is
+not strengthened by evidence recorded only in another family.
+
 ## Workflow-family evidence
 
 Each family has its own lineage because validation cannot be inherited merely
