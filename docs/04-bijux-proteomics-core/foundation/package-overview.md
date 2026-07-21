@@ -1,107 +1,103 @@
 ---
-title: Package Overview
+title: Scientific Package Map
 audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Package Overview
+# Scientific package map
 
-`bijux-proteomics-core` owns the durable scientific contracts that the rest of
-the repository depends on: program, target, assay, and review entities;
-lifecycle transitions; review gates; normalized proteomics I/O seams; and
-benchmark-acceptance surfaces. The package is only healthy when those
-scientific rules remain runtime-agnostic and distinct from evidence memory,
-recommendation posture, and assay consequence.
+The core source tree is grouped by scientific responsibility. Domain modules
+own models and algorithms; interface modules assemble those capabilities into
+CLI operations and portable artifacts; workflow modules connect validated
+steps without moving their scientific ownership.
 
-This package is materially broader now than older overview pages implied. It is
-not only a workflow-contract layer. It owns a substantial scientific surface
-across sequence handling, chemistry, spectra and mzML intake, identification,
-quantification, PTM review, DIA support, benchmark assets, review artifacts,
-and workflow planning.
+## From molecules to evidence
 
-## Why This Package Feels Bigger Now
+### Sequences and experimental context
 
-- chemistry, mass calculation, modification, fragment, and isotope work now
-  sit in the same product story as workflow contracts and benchmark review
-  surfaces
-- benchmark packages, lineage roots, challenge corpora, and acceptance bars
-  are part of core scientific law rather than downstream decoration
-- readers can now inspect more of the real scientific machinery directly
-  instead of inferring it from runtime, reports, or recommendation summaries
+`sequences` handles FASTA records, validation, decoys, contaminants, digestion,
+peptide indexing, and sequence-derived properties. `study` models sample sheets,
+design factors, contrasts, feasibility, power, and repair suggestions. `domain`
+holds program, target, assay, lifecycle, review, constraint, and semantic-ID
+contracts used across workflows.
 
-## Concrete Scientific Families
+### Chemistry and signal
 
-- sequence and study contracts under `domain`, `sequences`, and `study`
-- chemistry, isotopes, modifications, fragments, and mass calculations under
-  `chemistry`
-- normalized proteomics I/O for formats, spectra, raw-source adapters, and
-  chromatography under `io`
-- identification and reviewable search normalization under `identification`
-- label-free quantification, missingness, normalization, provenance, and
-  statistical surfaces under `quantification`
-- PTM, proteoform, targeted, DIA, and interpretation surfaces that stay
-  package-owned instead of being hidden in notebooks or report glue
-- benchmark package ownership and flagship workflow contracts under
-  `benchmarks` and `workflow`
+`chemistry` owns amino-acid masses, modified-peptide parsing and resolution,
+fragment-ion contracts, isotope envelopes, adduct annotation, isotope labeling,
+and theoretical references. `io` owns supported file and table boundaries,
+including spectra, mzML, chromatography, raw-source lineage, normalized run
+bundles, and format conversion.
 
-## Why That Depth Matters
+These layers preserve the difference between a theoretical chemical value, an
+instrument observation, and an imported search-engine assertion.
 
-- runtime can execute and replay workflows without redefining scientific truth
-- knowledge can ground claims against richer, typed upstream evidence
-- intelligence can rank or downgrade based on explicit scientific artifacts
-  instead of presentation-only summaries
-- lab can inherit assay-facing consequence from stable review and workflow
-  contracts rather than reverse-engineering ad hoc outputs
+### Identification and protein inference
 
-## What It Owns
+`identification` normalizes search results from Comet, DIA-NN, FragPipe,
+MaxQuant, OpenMS, Sage, and Spectronaut. It owns PSM contracts, score and FDR
+review, calibration, contaminant audit, peptide evidence, protein grouping,
+parsimony, ambiguity, and inference benchmarks. Adapter-specific information
+loss is recorded instead of silently coerced into a richer canonical model.
 
-- define program, target, assay, and review entities
-- encode lifecycle transitions, benchmark-acceptance bars, gate truth, and
-  runtime-agnostic workflow contracts
-- publish benchmark and scientific contract surfaces to downstream packages
+### Quantification and specialized analysis
 
-## What Readers Commonly Underestimate
+`quantification` covers peptide and protein matrices, LFQ, normalization,
+missingness, differential analysis, uncertainty, reproducibility, and
+provenance. `dia` adds precursor/protein matrices, library coverage, run QC,
+and transition QC. `ptm`, `proteoforms`, `multiplex`, `isotope_labeling`, and
+`targeted` own their specialized evidence and review semantics.
 
-- this package owns the repository's cleanest chemistry and assay semantics,
-  not only its workflow grammar
-- this package decides which benchmark evidence roots are structured enough to
-  become public flagship surfaces
-- this package is where biological and analytical packages inherit durable
-  reviewable inputs instead of inventing them ad hoc
+### Interpretation and review
 
-## What It Refuses
+`interpretation` connects governed quantitative results to contrasts,
+pathways, biological context, contaminants, PTMs, and structures. `review`
+produces result manifests, evidence cards, explanations, search and query
+surfaces, interactive bundles, biological reports, and trust material.
+`lab` contains scientific QC and validation-planning contracts that precede the
+operational assay ownership of `bijux-proteomics-lab`.
 
-- shared schema primitives that belong in foundation
-- evidence memory, contradiction handling, or recommendation posture
-- operator-facing runtime execution, replay, or assay-consequence ownership
+### Benchmarks and workflows
 
-## Strongest First Checks
+`benchmarks` owns corpora, public case studies, challenge assets, generalization
+reports, performance evidence, and flagship acceptance. `workflow` defines
+runtime-agnostic requests, validation, scientific gates, report assembly, and
+family-specific routes. The workflow layer composes domain owners; it must not
+become an alternative location for their algorithms.
 
-- open the public package roots and benchmark catalog when you need the
-  shortest proof that the package owns real sequence, chemistry, review, and
-  workflow surfaces
-- open the benchmark asset handbook when the question is whether a workflow
-  claim starts from enough public evidence
-- open runtime, knowledge, intelligence, or lab only after the core scientific
-  contract is clear enough to execute or judge honestly
+## Artifact progression
 
-## Best Reader Route
+```mermaid
+flowchart TD
+    raw["raw or exported input"]
+    normalized["normalized scientific contract"]
+    reviewed["reviewed evidence with QC"]
+    workflow["workflow request and acceptance criteria"]
+    bundle["benchmark asset bundle"]
+    raw --> normalized --> reviewed --> workflow --> bundle
+```
 
-- start here when the question is whether `bijux-proteomics` has real
-  scientific depth or only governance around smaller utilities
-- continue to [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
-  when you need the paired public evidence roots that make the contracts
-  inspectable
-- continue to [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-  when you need freshness, lineage, licensing, incompleteness, and acceptance
-  context
+Every progression should retain source lineage, declared normalization,
+thresholds, reason codes, and failure state. A downstream summary is not a
+replacement for the normalized or reviewed artifact that supports it.
 
-## First Proof Check
+## Extension rules
 
-- `packages/bijux-proteomics-core/src/bijux_proteomics`
-- `packages/bijux-proteomics-core/tests`
-- benchmark package manifests, asset roots, and acceptance-facing evidence
-- neighboring handbook branches once a change crosses the local role
+- Add a new file adapter under the scientific format or identification owner,
+  and make information loss explicit.
+- Add a new algorithm beside the domain contract it implements, not inside a
+  CLI handler or report renderer.
+- Add a workflow only after its input, output, failure, and acceptance
+  contracts are stable.
+- Add a public benchmark only with provenance, licensing, freshness, challenge
+  coverage, and family-specific acceptance evidence.
+- Keep execution providers, checkpoints, and replay in runtime; keep evidence
+  reconciliation and recommendation policy in their owning packages.
+
+For executable entry points, continue with the
+[API and CLI surface](../interfaces/api-surface.md). For the evidence boundary,
+use [benchmark assets](benchmark-assets.md) and
+[flagship acceptance bars](flagship-acceptance-bars.md).

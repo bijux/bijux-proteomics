@@ -1,24 +1,88 @@
 ---
-title: API Surface
+title: Python API and CLI Surface
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# API Surface
+# Python API and CLI surface
 
-An API surface is only real when the package actually owns the network-facing contract, not when docs are trying to look complete.
+Core exposes a curated Python root, domain-specific Python modules, and the
+`bijux-proteomics` CLI. It does not own an HTTP application; network execution
+belongs to `bijux-proteomics-runtime`.
 
-## Package Surface
+## Curated root API
 
-- this package is primarily consumed through Python contracts rather than a standalone HTTP API
-- service APIs should be built by runtime or other operator-facing packages on top of core meanings
-- if a network shape appears here, it should still read like a contract export rather than a service product
+```python
+from bijux_proteomics import (
+    DigestPolicy,
+    build_fdr_audit_trail,
+    build_normalized_run_bundle,
+    parse_experimental_design_table,
+    parse_fasta_document,
+)
+```
 
-## First Proof Check
+| Export | Purpose |
+| --- | --- |
+| `DigestPolicy` | declare enzyme, cleavage, missed-cleavage, and peptide filtering behavior |
+| `parse_fasta_document` | parse FASTA content into validated sequence records |
+| `parse_experimental_design_table` | normalize study and sample design input |
+| `build_normalized_run_bundle` | combine normalized run inputs into a portable contract |
+| `build_fdr_audit_trail` | retain the decisions behind false-discovery review |
 
-- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py`
-- `src/bijux_proteomics/interfaces/cli/app.py` and `interfaces/cli/__main__.py`
-- `packages/bijux-proteomics-core/tests`
+Root imports are lazy and intentionally narrow. Use documented domain modules
+for specialized work rather than expecting the package root to mirror the
+entire scientific surface.
+
+## Domain APIs
+
+Stable capability families are available beneath:
+
+- `bijux_proteomics.sequences`, `.chemistry`, `.io`, and `.study` for intake
+  and normalization;
+- `.identification`, `.quantification`, `.dia`, `.ptm`, `.targeted`,
+  `.multiplex`, and `.proteoforms` for analysis;
+- `.interpretation` and `.review` for governed review artifacts;
+- `.benchmarks` and `.workflow` for evidence packages and workflow contracts;
+- `.domain` for program, target, assay, lifecycle, and review entities.
+
+Prefer a package's documented facade or `public_api` module when present.
+Underscore-prefixed modules and symbols are implementation details even if a
+compatibility bridge temporarily imports them.
+
+## CLI design
+
+The CLI uses explicit commands for independently reviewable operations. Use
+`--help` at both levels:
+
+```bash
+bijux-proteomics --help
+bijux-proteomics digest --help
+```
+
+Command families include:
+
+| Family | Representative commands |
+| --- | --- |
+| FASTA and digestion | `fasta-parse`, `fasta-stats`, `fasta-decoy`, `digest`, `theoretical-digest` |
+| spectra and chromatography | `spectrum-parse`, `spectrum-annotate`, `mzml-inspect`, `xic-extract`, `xic-score-evidence` |
+| identification | `comet-import`, `fragpipe-import`, `maxquant-import`, `sage-import`, `fdr`, `infer-proteins` |
+| quantification and DIA | `quantify`, `protein-lfq`, `protein-matrix`, `diann-precursor-matrix`, `diann-run-qc` |
+| PTM and targeted | `ptm`, `targeted-panel-builder`, `targeted-transition-selection`, `targeted-result-validator` |
+| review and benchmarks | `biological-report`, `validation-evidence-cards`, `public-benchmark-runner`, `build-trust-bundle` |
+| workflow | `workflow-plan`, `workflow-validate`, `run` |
+
+## Output contract
+
+Commands distinguish operator messages from scientific artifacts. Portable
+results include input lineage, normalized parameters, thresholds, reason codes,
+and schema information appropriate to the operation. A non-success must remain
+visible as validation failure, processing failure, or scientific refusal; an
+empty table is not a generic substitute.
+
+Use [data contracts](data-contracts.md) for object semantics,
+[artifact contracts](artifact-contracts.md) for persisted outputs, and
+[CLI surface](cli-surface.md) for command-level operational details.
