@@ -4,74 +4,117 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Architecture
+# Compatibility bridge architecture
 
-`agentic-proteins` architecture is the map of a shrinking compatibility
-bridge. The point of this section is not to admire the old structure. The point
-is to show exactly how legacy entrypoints are kept alive while canonical
-ownership already lives elsewhere.
+`agentic-proteins` preserves historical Python, command-line, and HTTP entry
+routes while canonical execution lives in `bijux-proteomics-runtime`. It is a
+compatibility distribution, not an alternate runtime. Its architecture is
+therefore judged by faithful forwarding, visible ownership, and safe removal.
 
 ```mermaid
 flowchart LR
-    legacy["legacy callers<br/>imports, CLI, API"]
-    interfaces["compatibility entrypoints<br/>interfaces"]
-    bridge["bridge families<br/>agents, execution, providers, tools"]
-    state["bridge state seams<br/>state, artifacts, outputs"]
-    canonical["canonical packages<br/>runtime and lower layers"]
-
-    legacy --> interfaces
-    interfaces --> bridge
-    bridge --> state
-    bridge --> canonical
-    state --> canonical
+    C["legacy caller"] --> E["agentic-proteins entrypoint"]
+    E --> B["narrow compatibility bridge"]
+    B --> R["bijux-proteomics-runtime"]
+    B --> P["bijux-proteomics review surface"]
+    R --> X["canonical execution result"]
+    P --> X
+    X --> C
 ```
 
-## What This Diagram Is Saying
+The bridge may preserve a name, import location, call signature, patch seam, or
+transport entrypoint. It may not create a second implementation of the
+behavior behind that surface.
 
-- readers should be able to separate preserved entrypoints from canonical
-  ownership in a few seconds
-- the bridge still has real structure, but that structure exists to forward,
-  constrain, and expose migration proof rather than reclaim authority
-- if a module starts to look like the only place behavior can live, the package
-  is drifting back into permanence
+## Ownership map
 
-## Start With
+| Legacy family | Preserved surface | Canonical owner |
+| --- | --- | --- |
+| `interfaces.cli` | command invocation | Runtime API CLI |
+| `interfaces.http` | application, middleware, routes, schemas | Runtime API |
+| `agents` | agent contracts, planning, analysis, verification | Runtime execution agents |
+| `execution` and `orchestration` | compilation, evaluation, runs, telemetry | Runtime execution and runs |
+| `providers` | capability, selection, local and remote providers | Runtime providers |
+| `state` | request, context, lifecycle, snapshots, workspace | Runtime runs, state, and support |
+| `tools` | tool contracts, catalog, heuristic tools | Runtime execution tools |
+| `interfaces.structure_reports` | structure review rendering | Core review surface |
 
-- open [Execution Model](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/execution-model/)
-  when you need to follow a legacy import, CLI call, or API request until it
-  reaches canonical runtime ownership
-- open [Integration Seams](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/integration-seams/)
-  when a change risks moving real authority back into the compatibility layer
-- open [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/)
-  when you already know the question and need the owning files quickly
+The exact module-to-owner mapping is governed by the
+[compatibility inventory](../../09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md)
+and the [canonical migration guide](../../09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md).
+Those generated records take precedence over family-level summaries when a
+single module has a more specific owner.
 
-## Reading Lenses
+## Module dispositions
 
-- [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/)
-  for the named bridge families: interfaces, agents, execution, providers,
-  state, and tools
-- [Dependency Direction](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/dependency-direction/)
-  for the rule that dependencies should keep pointing toward canonical packages,
-  not away from them
-- [State and Persistence](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/state-and-persistence/)
-  and [Error Model](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/error-model/)
-  for the surfaces most likely to trap accidental permanence
-- [Architecture Risks](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/architecture-risks/)
-  for the failure modes that matter more than stylistic purity
+Every compatibility module has one permitted disposition:
 
-## Fast Proof Points
+- **wrapper** — forwards an existing surface to a declared canonical owner;
+- **dead** — contains no live behavior and remains only until caller absence is
+  demonstrated and the namespace can be removed.
 
-- `src/agentic_proteins/interfaces/` for preserved CLI, HTTP, and
-  structure-report entrypoints
-- `src/agentic_proteins/agents/`, `execution/`, and `tools/` for the bridge
-  families most exposed to accidental shadow-ownership drift
-- `src/agentic_proteins/providers/` and `state/` for adapter selection and
-  compatibility state that still survive for migration review
+`canonical` and `duplicate` are forbidden dispositions. Either would mean the
+compatibility package had regained product authority. The governed inventory
+currently classifies 112 modules as wrappers and five as dead, with no
+canonical or duplicate modules and no bridge-to-bridge import hops.
 
-## Boundary Test
+```mermaid
+stateDiagram-v2
+    [*] --> Wrapper: preserved caller exists
+    Wrapper --> Wrapper: forwarding remains equivalent
+    Wrapper --> Dead: callers migrate
+    Dead --> Removed: caller absence is proven
+    Wrapper --> Blocked: duplicate or canonical behavior appears
+    Dead --> Blocked: live behavior appears
+```
 
-If a reviewer cannot point to the forwarding seam and the canonical owner in the
-same explanation, the architecture is still hiding the real system.
+## One-way dependencies
+
+Dependencies point from legacy names toward current owners. Canonical packages
+never import the bridge to obtain product behavior. A bridge may adapt an old
+signature to a current signature only when the transformation is explicit,
+covered by equivalence tests, and leaves policy with the canonical owner.
+
+[Dependency direction](dependency-direction.md) defines the import rule;
+[integration seams](integration-seams.md) identifies allowable adapters.
+
+## Preserved equivalence
+
+Compatibility is broader than import success. Depending on the surface, the
+bridge must preserve:
+
+- importability and exported symbol identity;
+- argument defaults, accepted values, and failure behavior;
+- CLI command names, exit status, standard streams, and artifact locations;
+- HTTP methods, paths, status codes, schemas, and error envelopes;
+- configuration precedence and environment interpretation;
+- serialization, state transitions, replay behavior, and observable side
+  effects.
+
+An intentional difference is a migration event, not a hidden implementation
+detail. It needs a declared replacement, release communication, and evidence
+that callers can move safely.
+
+## State and failure boundaries
+
+The bridge does not own a parallel persistence model. Legacy state types route
+to Runtime state or run contracts, and persisted artifacts remain governed by
+their canonical schemas. Likewise, the bridge preserves canonical refusals and
+failures instead of converting them into legacy-shaped success.
+
+[State and persistence](state-and-persistence.md) covers durable compatibility;
+[error model](error-model.md) covers exception and refusal equivalence.
+
+## Removal architecture
+
+Removal starts with evidence, not deletion. A dead module can disappear only
+after repository consumers, published entrypoints, documentation, migration
+ledgers, and supported external contracts no longer require it. Wrapper removal
+also requires a canonical replacement and an announced compatibility boundary.
+
+[Architecture risks](architecture-risks.md) covers shadow ownership, silent
+translation, stale ledgers, and premature removal. [Module map](module-map.md)
+provides the source-level routes through the bridge.
