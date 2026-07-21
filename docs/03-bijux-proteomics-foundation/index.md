@@ -21,17 +21,19 @@ python -m pip install bijux-proteomics-foundation
 ## Contract layers
 
 ```mermaid
-flowchart TD
-    identity["identity\ntyped stable identifiers"]
-    serialization["serialization\ncanonical JSON · hashes · schemas"]
-    compatibility["compatibility\nversions · assessments · migrations"]
-    outcomes["outcomes\nresult · failure · refusal"]
-    support["support\nprovenance · state · charter"]
-    consumers["core · runtime · knowledge · intelligence · lab"]
-    identity --> serialization --> compatibility
-    outcomes --> consumers
-    support --> consumers
-    compatibility --> consumers
+flowchart LR
+    producer["product package"] --> identity["typed identity"]
+    producer --> model["strict JSON model"]
+    identity --> document["document schema"]
+    model --> document
+    document --> canonical["canonical JSON"]
+    canonical --> digest["stable digest"]
+    document --> compatibility["version assessment"]
+    compatibility --> migration["declared migration"]
+    document --> outcome["result · failure · refusal"]
+    digest --> consumer["portable consumer artifact"]
+    migration --> consumer
+    outcome --> consumer
 ```
 
 ## Public kernel
@@ -79,12 +81,29 @@ migrations handle renamed Python surfaces independently from document-schema
 migrations. This distinction prevents package renames from being confused with
 scientific data evolution.
 
+| Situation | Foundation response | Consumer obligation |
+| --- | --- | --- |
+| schema is directly readable | validate under the declared version | preserve schema and content identity |
+| a migration path is registered | transform in the declared direction, then validate | retain lineage and migration evidence |
+| version is unknown | return an explicit incompatibility | do not coerce or guess |
+| import path moved | use the import-migration contract | keep document evolution separate |
+| supported value cannot canonicalize | fail at serialization | define an explicit representation before persistence |
+
 ## Typed outcomes
 
 Foundation distinguishes successful results, operational failures, refusals,
 and missing optional dependencies. Consumers can therefore preserve the reason
 work did not produce a value instead of collapsing every condition into an
 exception or empty payload.
+
+```mermaid
+flowchart TD
+    C["contract call"] --> D{"disposition"}
+    D -->|produced| V["typed value and metadata"]
+    D -->|refused| R["policy reason and unmet condition"]
+    D -->|failed| F["structured error envelope"]
+    D -->|dependency absent| O["optional-dependency outcome"]
+```
 
 ## Boundaries
 
@@ -105,7 +124,12 @@ specific proteomics workflow.
 | report why no value exists | typed failure or refusal | `None`, an empty collection, or a swallowed exception |
 | handle an unavailable extra | optional-dependency outcome | unconditional heavyweight imports |
 
-Continue with [package overview](foundation/package-overview.md),
-[public imports](interfaces/public-imports.md),
-[data contracts](interfaces/data-contracts.md), or
-[compatibility commitments](interfaces/compatibility-commitments.md).
+Contract definitions and examples are organized by concern:
+
+- [package overview](foundation/package-overview.md) for ownership and scope;
+- [public imports](interfaces/public-imports.md) for stable and specialized
+  Python routes;
+- [data contracts](interfaces/data-contracts.md) for model and identifier
+  semantics;
+- [compatibility commitments](interfaces/compatibility-commitments.md) for
+  version assessment and migration guarantees.

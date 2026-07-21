@@ -39,6 +39,21 @@ require every analysis to traverse the entire diagram: FASTA operations,
 spectrum review, search-result normalization, quantification, and targeted
 assay review can be used as independent workflows.
 
+Two paths accompany every supported workflow. The computation path produces a
+scientific result; the evidence path records whether that result is credible
+under the declared inputs, policies, perturbations, and comparison burden.
+
+```mermaid
+flowchart LR
+    I["typed input"] --> C["scientific computation"]
+    C --> R["result and diagnostics"]
+    I --> P["active policy"]
+    P --> R
+    R --> Q["quality and ambiguity"]
+    Q --> B["benchmark acceptance"]
+    B --> H["bounded claim"]
+```
+
 ## A result is more than a value
 
 Core artifacts retain the context needed to challenge a scientific result:
@@ -98,10 +113,11 @@ operators. HTTP execution belongs to `bijux-proteomics-runtime`.
 
 Core ships benchmark assets and acceptance logic, but capability breadth is not
 equivalent to uniform validation. DDA, DIA, PTM, and targeted families have
-outsider-auditable routes. LFQ is review-grade with explicit limits. Multiplex
-remains an internal support surface. Start with the
+outsider-auditable classifications. DDA, DIA, LFQ, PTM, and targeted also have
+full outsider-readable packets, but packet completeness does not promote LFQ
+beyond review-grade bounded. Multiplex remains internal support only. The
 [public benchmark catalog](foundation/flagship-public-benchmark-catalog.md)
-and follow the family-specific lineage before making a scientific claim.
+links each family to its lineage, comparisons, and limitations.
 
 ```mermaid
 flowchart LR
@@ -137,6 +153,13 @@ sequenceDiagram
 A completed run proves that the resolved plan reached a terminal operational
 state. Core’s scientific acceptance logic determines whether the outputs meet
 the workflow contract.
+
+| Core sends | Runtime adds | Core evaluates on return |
+| --- | --- | --- |
+| validated request | resolved configuration and provider | artifact schema and scientific completeness |
+| input identities and digests | execution state and checkpoints | input/output lineage |
+| acceptance policy | logs, diagnostics, and refusal | thresholds, QC, ambiguity, and known limits |
+| expected artifact contract | artifact ledger and hashes | family-specific acceptance result |
 
 ## Documentation map
 

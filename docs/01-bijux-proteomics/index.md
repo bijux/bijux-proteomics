@@ -14,8 +14,9 @@ packages own distinct parts of an auditable workflow, one compatibility
 package preserves historical execution surfaces, and one development package
 owns repository-wide verification.
 
-This handbook describes the boundaries that matter when work crosses packages.
-Package handbooks document the local Python APIs and workflows.
+The repository is designed so a result can cross process and package boundaries
+without losing who produced it, what assumptions were active, why it was
+accepted, or which later evidence changed its interpretation.
 
 ## System map
 
@@ -31,10 +32,11 @@ flowchart LR
     L -. outcomes .-> K
 ```
 
-The arrows show the product narrative, not every permitted Python import.
-Several packages consume narrow contracts from later stages to assemble
-cross-package review artifacts. The governed dependency directions are listed
-in [cross-package ownership](foundation/cross-package-ownership.md).
+The arrows show evidence movement, not a Python import graph. Foundation
+contracts are consumed across the chain; feedback from Lab appends evidence in
+Knowledge without mutating the historical recommendation. Governed dependency
+directions are listed in
+[cross-package ownership](foundation/cross-package-ownership.md).
 
 ## Product handoffs
 
@@ -51,6 +53,21 @@ These artifacts preserve different kinds of truth. Execution success cannot
 stand in for scientific validity; evidence support cannot stand in for a
 decision policy; and a recommendation cannot stand in for an observed lab
 outcome.
+
+## Boundary-crossing contract
+
+Every durable handoff carries four separable identities:
+
+| Identity | Answers | Failure if absent |
+| --- | --- | --- |
+| subject | which sample, protein, peptide, claim, candidate, assay, or batch? | records cannot be joined safely |
+| content | which canonical payload and digest? | equality and replay become ambiguous |
+| provenance | which source, producer, policy, and parent records? | a value survives without its derivation |
+| disposition | accepted, rejected, refused, failed, superseded, or observed? | absence is mistaken for success |
+
+Cross-package code passes typed records or stable references. Display text,
+filenames, and directory position are views of those records, not identity
+systems.
 
 ## Follow one result across the system
 
@@ -103,8 +120,8 @@ change the run, claim, or recommendation that preceded the experiment.
 | --- | --- | --- |
 | assess scientific coverage | [workflow families](foundation/workflow-families.md) | the relevant Core workflow handbook and its benchmark evidence |
 | reproduce a result | [public artifact index](foundation/public-artifact-index.md) | Runtime replay, comparison, and provenance records |
-| judge a biological claim | Knowledge grounding and contradiction guidance | Intelligence sensitivity and refusal guidance |
-| take a result into the laboratory | Intelligence recommendation records | Lab readiness, handoff, QC, and outcome capture |
+| judge a biological claim | [Knowledge grounding and contradiction guidance](../06-bijux-proteomics-knowledge/index.md) | [Intelligence sensitivity and refusal guidance](../05-bijux-proteomics-intelligence/index.md) |
+| take a result into the laboratory | [Intelligence recommendation records](../05-bijux-proteomics-intelligence/index.md) | [Lab readiness, handoff, QC, and outcome capture](../07-bijux-proteomics-lab/index.md) |
 | contribute or release a change | [local development](operations/local-development.md) | [testing and validation](operations/testing-and-validation.md) and the maintainer handbook |
 
 ## Canonical packages
@@ -128,6 +145,15 @@ automatic biological truth. Confidence is bounded by the workflow-family
 benchmark, recorded execution conditions, source quality, contradiction state,
 decision sensitivity, and feasibility of downstream validation. Each package
 can refuse work when its part of that chain is under-specified.
+
+| A visible artifact proves… | It does not prove… |
+| --- | --- |
+| canonical payload equality | source authenticity or biological equivalence |
+| completed Runtime execution | scientific acceptance or transfer |
+| benchmark acceptance | validity outside the tested family and conditions |
+| grounded support | absence of contradiction or authority to act |
+| stable recommendation under tested scenarios | feasibility or laboratory value |
+| completed assay | generality beyond the recorded controls and batch |
 
 ## Review protocol
 
