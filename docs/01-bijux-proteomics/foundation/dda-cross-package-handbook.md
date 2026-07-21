@@ -4,42 +4,72 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-21
 ---
 
 # DDA Cross-Package Handbook
 
-This page follows one real flagship DDA path across all six product packages so
-the reader does not need to open seven separate handbooks before they can see
-how the repository actually cooperates.
+DDA shows how one workflow claim crosses all six canonical product owners
+without becoming ownerless. The current lane is scientifically substantive and
+reviewable, but its Runtime mode remains `import_only`: repository execution
+begins from tracked external-engine exports rather than raw-search execution.
 
-## One Benchmark Path
+```mermaid
+flowchart LR
+    F["Foundation contracts"] --> C["Core DDA normalization and benchmark"]
+    C --> R["Runtime import_only lane"]
+    R --> K["Knowledge grounding and contradiction"]
+    K --> I["Intelligence judgment or refusal"]
+    I --> L["Lab feasibility and consequence"]
+    L --> Q{"bounded public claim"}
+```
 
-| owner | question this owner answers on the DDA path | best evidence surface |
+## Owner Chain
+
+| Owner | DDA responsibility | Evidence to inspect |
 | --- | --- | --- |
-| `bijux-proteomics-foundation` | Which identifiers, JSON envelopes, and deterministic hashes keep the DDA evidence chain stable across packages? | [bijux-proteomics-foundation Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) |
-| `bijux-proteomics-core` | Which copied benchmark package, acceptance bars, and workflow contracts define the DDA scientific lane? | [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/) and [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/) |
-| `bijux-proteomics-runtime` | Which DDA execution lane is actually supported today, and what does the current rerun limit still block? | [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/) and [Runtime Execution Boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-execution-boundary/) |
-| `bijux-proteomics-knowledge` | Which references, comparators, and contradictions still ground the DDA sentence? | [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/) and [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/) |
-| `bijux-proteomics-intelligence` | Which recommendation pressure, downgrade logic, and outsider challenge surfaces keep DDA language bounded? | [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/) and [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/) |
-| `bijux-proteomics-lab` | Which assay burden and follow-up consequence still cap the DDA story downstream? | [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/) and [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/) |
+| `bijux-proteomics-foundation` | identifiers, document envelopes, canonical JSON, hashes | serialized artifact metadata and content identity |
+| `bijux-proteomics-core` | search-export adapters, target-decoy semantics, protein rollup caution, benchmark packages | DDA benchmark lineage and acceptance bars |
+| `bijux-proteomics-runtime` | declared input boundary, bundle, lineage, replay, refusal | black-box dashboard and execution boundary |
+| `bijux-proteomics-knowledge` | citations, comparator context, claim support, contradictions | claim grounding and literature audit |
+| `bijux-proteomics-intelligence` | confidence, downgrade triggers, recommendation, refusal | recommendation challenges and decision brief |
+| `bijux-proteomics-lab` | follow-up feasibility, controls, burden, observed outcome | consequence map and outcome learning loop |
 
-## Why DDA Stops Where It Stops
+## Evidence Flow
 
-- The current DDA run mode is `import_only`, so runtime truth still depends on
-  imported external-engine output rather than an in-repository raw search lane.
-- Core still owns the benchmark lineage and acceptance language, which keeps
-  DDA from sounding broader than the current package and challenge evidence.
-- Knowledge and intelligence keep the DDA sentence honest by carrying
-  comparator pressure, reference support, and downgrade triggers.
-- Lab consequence remains narrower than a fully raw-executable family because
-  the assay burden and downstream support still depend on imported search truth.
+1. Core reads tracked MaxQuant and comparator exports while retaining engine,
+   field-loss, target-decoy, and protein-inference limits.
+2. Runtime reopens that declared package and emits a checked bundle, stage
+   lineage, and failure replay. It does not execute the external search engine.
+3. Knowledge connects the normalized result to source, comparator, literature,
+   and contradiction records.
+4. Intelligence applies an explicit bounded policy and may downgrade or refuse
+   the requested public sentence.
+5. Lab evaluates whether follow-up controls, capacity, burden, and outcome
+   evidence justify action.
 
-## Next Routes
+No downstream layer repairs an upstream evidence gap. A reproducible import
+does not become raw-search parity; grounding does not become recommendation;
+and recommendation does not become laboratory readiness.
 
-- Open [Why Trust DDA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dda/)
-  for the release-facing sentence and blocker list.
-- Open [Scientist Journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/)
-  when the question is the general reader route rather than DDA specifically.
-- Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
-  when the question becomes why these owners stay separate at all.
+## Claim Ceiling
+
+The DDA lane can support review of adapter-normalized evidence and its retained
+limitations. It cannot currently support vendor-native or engine-native raw
+reproducibility, unbounded cross-engine equivalence, or automatic laboratory
+consequence. The public sentence must follow the narrower black-box result when
+the requested `outsider_auditable_bounded` posture exceeds the dashboard's
+`review_grade_bounded` result.
+
+## Challenge Route
+
+- Open [DDA Benchmark Lineage](../../04-bijux-proteomics-core/foundation/dda-benchmark-lineage.md)
+  and inspect both public packages.
+- Open [Runtime Execution Boundary](../../09-bijux-proteomics-runtime/runtime-execution-boundary.md)
+  and confirm the declared input level and artifacts.
+- Open [Why Trust DDA](why-trust-dda.md) and compare every claim with its
+  blocker and downgrade condition.
+- Open [Workflow Consequence Maps](workflow-consequence-maps.md) before treating
+  the decision as actionable.
+- Open [Repository Shape Rationale](repository-shape-rationale.md) when a
+  proposed shortcut would move one of these responsibilities to another owner.
