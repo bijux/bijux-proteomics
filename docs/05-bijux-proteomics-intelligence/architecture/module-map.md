@@ -4,21 +4,42 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Module Map
 
-`bijux-proteomics-intelligence` stays reviewable only when its structural families remain easy to name and defend. The package owns candidate evaluation, decision policy, and explainable recommendation flow, so its modules should read like one coherent argument for that role.
+`bijux-proteomics-intelligence` turns evidence into inspectable decision support. It owns candidate comparison, skeptical challenge, policy-governed judgment, and reviewer-facing explanations; it does not create experimental evidence or authorize laboratory execution.
 
-## Owned Module Families
+```mermaid
+flowchart LR
+    Q[query] --> C[candidates]
+    E[evidence posture] --> C
+    C --> J[judgment]
+    X[contradictions and falsifiers] --> J
+    J --> N[next steps or refusal]
+    J --> R[reviews]
+    I[interpretation] --> R
+    B[belief audit] --> R
+    R --> L[learning]
+```
 
-- `src/bijux_proteomics_intelligence/candidates/` owns candidate records, ranking, lifecycle, quality, and validation
-- `src/bijux_proteomics_intelligence/judgment/` and `posture/` own scoring, recommendation, refusal, and skeptical challenge rules
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/` own review projection, interpretation contracts, and refinement structure
+## Owner modules
 
-## First Proof Check
+| Family | Responsibility |
+| --- | --- |
+| `candidates` | Candidate schemas, records, validation, quality, fingerprints, filters, ranking, selection, lifecycle, and stores |
+| `claims`, `posture` | Claim support and the explicit evidential stance used for evaluation |
+| `contradictions`, `falsifiers`, `belief_audit` | Adverse evidence, disconfirmation tests, and traceable changes in belief |
+| `judgment` | Policies, scenarios, decision paths, recommendations, and decision benchmark suites |
+| `interpretation` | Decision-facing projections of quantitative, pathway, PTM, contaminant, run, contrast, and structural evidence |
+| `next_steps`, `refusal` | Bounded follow-up actions and explicit non-recommendation when prerequisites fail |
+| `reviews` | Decision briefs, boards, outsider packets, rerun kits, public-scrutiny records, and workflow-authority contracts |
+| `learning` | Controlled adaptation from reviewed outcomes rather than silent policy mutation |
+| `query`, `governance` | Decision-question contracts and package charter constraints |
 
-- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
-- the matching package tests
-- neighboring handbook branches when a module starts to look shared
+The package root lazily exposes these fourteen owner modules. Concrete types and functions remain under their owner, which keeps ranking, interpretation, and review APIs distinguishable.
+
+## What intelligence does not own
+
+Core owns scientific calculations. Knowledge owns durable evidence memory and source grounding. Lab owns experimental planning and readiness. Runtime owns processes, services, artifacts, and operational state. Intelligence may consume records from all appropriate lower layers and emit a recommendation packet, but a recommendation is neither new evidence nor an execution command.
