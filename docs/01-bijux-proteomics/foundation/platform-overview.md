@@ -4,169 +4,115 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Platform Overview
+# Platform overview
 
-`bijux-proteomics` is split because proteomics work becomes easier to trust
-when shared payload meaning, durable program contracts, evidence state,
-decision policy, lab planning, and execution are owned in different places.
-The split is not presentation polish. It is how the repository keeps authority
-visible.
+Bijux Proteomics is a package family for scientific work that must remain
+inspectable after computation, execution, interpretation, and experimental
+follow-up have crossed process boundaries. Its packages do not represent
+deployment tiers. Each package owns a different kind of authority and emits a
+different reviewable record.
 
-The platform also carries more real scientific and operational depth now than
-this page used to admit. The package chain no longer exists only to keep
-governance neat. It exists because broad proteomics work now crosses sequence
-and chemistry rules, benchmark-backed scientific interpretation, runtime proof,
-grounded evidence, recommendation posture, and downstream assay consequence.
-
-The platform therefore should be read as an authority chain for one bounded
-scientific product, not as a packaging convenience. Each hop exists because a
-different kind of truth is being asserted: shared identifier truth, workflow
-contract truth, execution truth, evidence truth, recommendation truth, and
-downstream consequence truth.
-
-## Platform Model
+## Authority chain
 
 ```mermaid
 flowchart LR
-    foundation["foundation"]
-    core["core"]
-    knowledge["knowledge"]
-    intelligence["intelligence"]
-    lab["lab"]
-    runtime["runtime"]
-    bridge["agentic-proteins"]
+    inputs["FASTA · spectra · search results · study design"]
+    foundation["Foundation\nidentity · schemas · canonical bytes"]
+    core["Core\nscientific computation and acceptance"]
+    runtime["Runtime\nexecution and artifact custody"]
+    knowledge["Knowledge\nevidence and contradiction state"]
+    intelligence["Intelligence\nranking, challenge, and refusal"]
+    lab["Lab\nreadiness, handoff, and observation"]
 
+    inputs --> core --> runtime --> knowledge --> intelligence --> lab
     foundation --> core
+    foundation --> runtime
     foundation --> knowledge
-    core --> intelligence
-    knowledge --> intelligence
-    intelligence --> lab
-    runtime --> lab
-    bridge -. forwards to .-> runtime
+    foundation --> intelligence
+    foundation --> lab
+    lab -. "new evidence" .-> knowledge
 ```
 
-This page should give the shortest honest explanation of the package chain. Readers should leave understanding why the split exists and how authority moves through it, not just memorizing package names.
+The arrows describe the movement of records and authority, not a required
+Python import graph. Core can be used without Runtime, Knowledge can ground an
+external result, and Lab can receive a recommendation produced elsewhere. The
+contracts matter whenever an output must retain identity, lineage, assumptions,
+and disposition outside its producing process.
 
-## Responsibility Chain
+## What each package can establish
 
-- `bijux-proteomics-foundation` stabilizes schema meaning, identifiers, and
-  deterministic serialization
-- `bijux-proteomics-core` defines benchmark assets, program models, scientific
-  lifecycle rules, workflow contracts, and benchmark-backed review seams
-- `bijux-proteomics-knowledge` tracks claims, confidence, and contradiction
-  state together with grounded biological context and literature support
-- `bijux-proteomics-intelligence` turns those inputs into scores,
-  recommendations, explanations, and downgrade-aware review posture
-- `bijux-proteomics-lab` maps decisions into assay planning and outcome
-  handling
-- `bijux-proteomics-runtime` executes, replays, verifies reruns, and exposes
-  operator-facing runtime proof surfaces
-- `agentic-proteins` preserves legacy runtime entrypoints while callers migrate
+| Owner | Authoritative question | Durable record | Required refusal |
+| --- | --- | --- | --- |
+| `bijux-proteomics-foundation` | Are two cross-package documents represented under the same stable contract? | typed identifier, versioned document, canonical payload, digest, compatibility result | unknown schema, ambiguous value, or unsupported migration |
+| `bijux-proteomics-core` | What did the scientific calculation accept, reject, and conclude under its policy? | scientific result, diagnostics, workflow request, benchmark acceptance | invalid input, unmet scientific contract, or unsupported claim |
+| `bijux-proteomics-runtime` | What was configured, executed, produced, resumed, replayed, or imported? | run manifest, state history, provider decision, artifact ledger, comparison record | unavailable capability, broken integrity, or unsupported rerun |
+| `bijux-proteomics-knowledge` | Which evidence supports, contradicts, qualifies, or fails to ground a claim? | evidence bundle, provenance, context, contradiction ledger, sufficiency result | unresolved identity, missing context, or inadequate evidence for the named use |
+| `bijux-proteomics-intelligence` | Which action is preferred under a named policy, candidate set, and uncertainty model? | ranking, sensitivity, falsifiers, regret, recommendation or refusal | unstable ordering, unmet constraint, or evidence below the action burden |
+| `bijux-proteomics-lab` | Is a proposed assay ready, what was handed off, and what was observed? | assay plan, readiness decision, custody record, observation, reconciliation | unanswerable question, incomplete controls, unavailable capacity, or unsafe handoff |
 
-`bijux-proteomics-runtime` governs execution, replay, and operator-facing runtime behavior while `agentic-proteins` remains the compatibility bridge.
+No package inherits the authority of the record it consumes. Runtime completion
+does not imply Core acceptance. Grounded evidence does not authorize an action.
+A recommendation does not prove feasibility, and an observed result does not
+interpret its own biological consequence.
 
-## Concrete Product Through-Line
+## One analysis across the system
 
-| stage | owner | current repository substance |
-| --- | --- | --- |
-| shared meaning | `foundation` | identifiers, canonical payloads, compatibility profiles, deterministic hashing, outcome-safe shared records |
-| scientific law | `core` | sequences, chemistry, spectra, mzML, identification, quantification, PTM, DIA, workflow contracts, benchmark assets |
-| evidence truth | `knowledge` | grounding, contradiction, literature pressure, pathways, complexes, kinases, disease, drug-target, and ortholog context |
-| recommendation posture | `intelligence` | ranking, challenge routes, confidence, regret, downgrade, and interpretation summaries |
-| downstream consequence | `lab` | planning, readiness, handoffs, refusal, requested-versus-observed outcome loops |
-| execution proof | `runtime` | raw-executable and import-backed reruns, replay, artifacts, comparability, operator entrypoints |
+```mermaid
+sequenceDiagram
+    participant C as Core
+    participant R as Runtime
+    participant K as Knowledge
+    participant I as Intelligence
+    participant L as Lab
+    C->>R: validated workflow request and acceptance contract
+    R-->>C: identified artifacts and execution disposition
+    C->>K: accepted scientific result and limitations
+    K->>I: versioned support, contradiction, and sufficiency record
+    I->>L: advisory recommendation or refusal
+    L-->>K: observation, QC, deviations, and lineage
+```
 
-## What Each Hop Must Refuse
+The return from Lab appends evidence. It does not edit the earlier run,
+scientific result, evidence bundle, or recommendation. A later judgment cites
+new record identities so a reviewer can explain exactly why it changed.
 
-- foundation must not improvise workflow truth, recommendation posture, or lab
-  consequence
-- core must not absorb evidence truth or operator-facing execution authority
-- knowledge must not turn grounded hesitation into recommendation policy
-- intelligence must not rewrite contradiction or runtime realism into cleaner
-  prose
-- lab must not promote assay worth without carrying requested-versus-observed
-  burden
-- runtime must not claim scientific meaning just because it can emit a stable
-  run bundle
+## Scientific and execution depth
 
-## What This Split Lets Reviewers Ask
+Core covers sequence normalization and digestion, peptide chemistry,
+fragmentation, MGF and mzML intake, search-result adapters, PSM confidence,
+target-decoy review, contaminants, protein inference, LFQ, DIA, PTM,
+targeted-analysis surfaces, QC, and governed benchmark assets. Runtime adds
+preflight, providers, state transitions, checkpoints, resume, import custody,
+replay, comparison, and portable artifact handoff.
 
-- did a change alter chemistry, sequence, benchmark, PTM, or quantification
-  meaning in core, or only how runtime executes it
-- did a public sentence widen because evidence and grounding improved, or
-  because recommendation posture drifted
-- did assay-worth-it language change because observed outcomes improved, or
-  because the repository blurred consequence with analytical confidence
+That breadth is not uniform evidence. Workflow authority is assessed per
+family and stops at the weakest relevant benchmark, execution, grounding,
+decision, or consequence record. See [Workflow Families](workflow-families.md)
+for the current DDA, DIA, LFQ, multiplex, PTM, and targeted ceilings.
 
-## Why The Platform Now Looks More Real
+## Canonical and compatibility surfaces
 
-- the package graph now corresponds to real scientific and operational owner
-  surfaces instead of mostly future-facing structure
-- benchmark-backed biology and chemistry depth now sits in core while grounded
-  contradiction and literature pressure sit in knowledge, so review questions
-  no longer collapse into one vague trust sentence
-- runtime and lab now make rerun burden and downstream burden visible enough
-  that the platform chain can be audited rather than narrated
+`bijux-proteomics-runtime` governs execution, replay, provider behavior, run
+state, and runtime artifacts. `agentic-proteins` preserves historical runtime
+imports, commands, and routes while callers migrate. The short-name
+`proteomics-*` distributions are aliases for canonical owners; they do not
+define parallel scientific or operational semantics.
 
-## Why The Split Pays Off
+Compatibility is verified across the surfaces a caller observes: imports,
+call signatures, command output, HTTP schemas, configuration, persisted state,
+and replay behavior. A wrapper may be removed only when consumer evidence and
+the migration ledger support removal.
 
-A package boundary is justified only when it reduces one concrete review risk.
-Here that means reviewers can ask whether a change altered shared meaning,
-durable contracts, evidence truth, scoring policy, lab decisions, or execution
-without guessing which layer silently owns the decision.
+## Choose the next authority
 
-## What Changed Since v0.3.7
-
-- the split now maps onto real owned substance, not primarily future-facing
-  architecture
-- the core scientific layer became visibly deeper, so later packages can be
-  read as real truth, judgment, and consequence owners instead of abstraction
-  layers
-- runtime and lab now make execution burden and downstream burden inspectable
-  enough that the platform can be challenged from both ends
-- knowledge and intelligence now expose grounded hesitation and analytical
-  overreach as public owner surfaces rather than as maintainers' private review
-  context
-
-## What This Platform Can Now Explain Honestly
-
-- why one workflow family may have stronger benchmark evidence than rerun
-  evidence
-- why stronger runtime proof does not erase grounding or consequence limits
-- why public trust pages can stay narrow even while the package graph gains
-  scientific depth
-- why compatibility surfaces like `agentic-proteins` still exist without
-  regaining canonical ownership
-
-## Fast Reader Questions
-
-- where a public sentence becomes workflow law instead of evidence
-- where a reproducible run becomes grounded belief instead of only an artifact
-- where a recommendation stops because contradiction or assay burden still
-  wins
-- where a legacy compatibility surface ends and canonical ownership resumes
-
-## Strongest Platform Proof Route
-
-- start with
-  [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
-  when the question is how benchmark intake becomes consequence-bearing review
-- continue to
-  [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-  when the question becomes family-specific rather than repository-wide
-- then open runtime, knowledge, intelligence, and lab routes only after the
-  reader understands which owner is allowed to strengthen or narrow the public
-  sentence
-
-## First Proof Check
-
-- product handbooks under `docs/02-...` through `docs/09-...`
-- `packages/` for the matching package directories
-- package tests and schema artifacts once one layer clearly owns the claim
-
-## Design Pressure
-
-The easy mistake is to explain the package family as a catalog of parts instead of an authority chain that keeps trust decisions legible.
+| Need | Continue with |
+| --- | --- |
+| resolve a package or artifact owner | [Cross-Package Ownership](cross-package-ownership.md) |
+| inspect the dependency and handoff shape | [Product Architecture](product-architecture.md) |
+| assess scientific support by workflow | [Workflow Families](workflow-families.md) |
+| follow one question from input to consequence | [Scientist Journey](scientist-journey.md) |
+| reproduce or compare execution | [Runtime handbook](../../09-bijux-proteomics-runtime/index.md) |
+| inspect current release blockers | [Release Readiness Matrix](release-readiness-matrix.md) |

@@ -4,81 +4,99 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Ownership Model
+# Ownership model
 
-The repository is easiest to review when ownership can be stated in layers
-without hesitation. The root owns only what genuinely crosses package
-boundaries. Six real product packages own publishable behavior. One explicit
-compatibility bridge preserves legacy imports while callers migrate off old
-paths. The maintainer package owns repository-health automation.
+Ownership identifies the package that defines a concept, validates its
+contract, and decides how failure is represented. The package that stores,
+executes, renders, or consumes a record does not automatically own its meaning.
 
-That layered statement needs stronger wording now because the product is no
-longer shallow. The current repository has enough scientific, runtime,
-grounding, recommendation, and consequence depth that weak ownership language
-would let root docs, compatibility surfaces, or maintainer automation sound
-like backup product owners when they are not.
+## Six forms of authority
 
-## Ownership Model
+| Authority | Canonical owner | Examples |
+| --- | --- | --- |
+| representation | Foundation | identifiers, schema versions, canonical JSON, digests, migrations |
+| scientific | Core | sequence and spectrum contracts, inference, quantification, workflow acceptance |
+| operational | Runtime | providers, run state, checkpoints, replay, artifact custody |
+| evidential | Knowledge | provenance, context, support, contradiction, sufficiency |
+| decisional | Intelligence | ranking policy, sensitivity, alternatives, recommendation, refusal |
+| experimental | Lab | assay readiness, custody, observations, requested-versus-observed reconciliation |
+
+Repository orchestration and release validation are a seventh concern but not
+a product authority. `bijux-proteomics-dev`, root Make targets, and workflows
+check whether the product owners remain coherent; they do not redefine the
+contracts they validate.
+
+## Resolve an owner
 
 ```mermaid
-flowchart TB
-    root["root docs, release framing, tracked artifacts, validation coordination"]
-    maintain["bijux-proteomics-dev owns repository-health automation"]
-    product["canonical packages own publishable behavior"]
-    bridge["agentic-proteins owns temporary runtime forwarding"]
-
-    root --> maintain
-    root --> product
-    product --> bridge
+flowchart TD
+    change["new concept or disputed behavior"] --> shared{"meaning independent of a proteomics workflow?"}
+    shared -->|yes| foundation["Foundation"]
+    shared -->|no| science{"scientific calculation or acceptance?"}
+    science -->|yes| core["Core"]
+    science -->|no| execute{"execution, provider, state, or artifact custody?"}
+    execute -->|yes| runtime["Runtime"]
+    execute -->|no| evidence{"source, context, claim, or contradiction?"}
+    evidence -->|yes| knowledge["Knowledge"]
+    evidence -->|no| decision{"ranking, challenge, or recommendation?"}
+    decision -->|yes| intelligence["Intelligence"]
+    decision -->|no| consequence{"assay readiness, handoff, or observation?"}
+    consequence -->|yes| lab["Lab"]
+    consequence -->|no| review["restate the concept; ownership is unresolved"]
 ```
 
-This page should make the ownership layers easy to state in one breath. If a reviewer has to improvise who owns a behavior, the repository has already lost clarity.
+Widely used is not the same as universally owned. A type belongs in Foundation
+only when its meaning stays valid without a specific scientific, execution,
+evidence, decision, or laboratory policy.
 
-## Ownership Layers
+## Root and maintainer scope
 
-- root docs, shared release framing, schema storage, and repository-wide
-  validation coordination belong to the repository handbook and root surfaces
-- repository-health helper code belongs in `bijux-proteomics-dev`
-- canonical product behavior belongs in the publishable package that exposes it
-- runtime compatibility forwarding belongs in `agentic-proteins` only while
-  callers still depend on legacy paths
+The repository root owns cross-package navigation, tracked contract artifacts,
+shared command dispatch, coordinated release framing, and automation entry
+points. `bijux-proteomics-dev` owns the implementation of repository checks.
+Neither location owns product behavior merely because it sees every package.
 
-## What The Layer Model Protects
+| Surface | Legitimate ownership | Misplacement signal |
+| --- | --- | --- |
+| root documentation | cross-package synthesis and authority routing | repeats package-local semantics as a second source of truth |
+| `apis/` | reviewed machine-readable public contracts | contains an untracked runtime dump |
+| `makes/` and workflows | command composition and clean-environment execution | embeds scientific or compatibility policy instead of calling its owner |
+| `bijux-proteomics-dev` | validators, generators, release and repository-health checks | becomes the only implementation of a product rule |
 
-- root docs can describe the whole product without pretending to own package
-  meaning
-- maintainer automation can validate release claims without becoming the source
-  of scientific truth
-- compatibility forwarding can stay visible without regaining canonical runtime
-  ownership
-- package-local depth can grow without blurring the end-to-end authority chain
+## Compatibility ownership
 
-## Boundary Example
+`agentic-proteins` owns historical runtime naming and forwarding. Alias
+distributions own their install and import names. Compatibility packages may
+test and explain equivalence, but new behavior lands in the canonical package
+first. A wrapper that begins defining independent semantics has crossed its
+boundary even if its output still looks compatible.
 
-A new OpenAPI artifact under `apis/` is not automatically a root-owned feature.
-The root may own how the artifact is tracked and validated, but the package that
-exposes the API still owns what the API means. Root process and package meaning
-must move together without becoming the same thing.
+## Boundary examples
 
-## Strongest Ownership Reading
+| Change | Owner | Why |
+| --- | --- | --- |
+| add a stable identifier used by every product package | Foundation | shared meaning is independent of workflow policy |
+| change peptide digestion or FDR acceptance | Core | scientific calculation and acceptance changed |
+| add a checkpoint transition | Runtime | execution lifecycle changed |
+| revise how contradictory literature is reconciled | Knowledge | evidence state changed |
+| alter a ranking weight or escalation threshold | Intelligence | decision policy changed |
+| require another assay control before handoff | Lab | experimental readiness changed |
+| add a check that every package declares its owner | `bijux-proteomics-dev` | repository validation changed, not product meaning |
+| preserve an old import after a canonical module move | compatibility package | caller continuity changed, not canonical ownership |
 
-- root owns routing, release framing, and shared validation coordination
-- canonical product packages own the scientific and operational sentence
-- `agentic-proteins` owns temporary forwarding, not new source-of-truth logic
-- `bijux-proteomics-dev` owns repository-health automation, not product claims
+## When owners disagree
 
-## First Proof Check
+1. Identify the exact contract or decision under dispute.
+2. Locate the package that validates and emits its authoritative record.
+3. Inspect the narrowest public API, schema, or artifact for that record.
+4. Compare the relevant tests and generated governance evidence.
+5. Treat duplicated definitions as a defect; do not choose whichever copy is
+   convenient for the caller.
+6. Narrow the public claim until one owner and one evidence route agree.
 
-- `configs/package-governance/public-root-symbol-owners.toml` for the canonical
-  package-root ownership map
-- `packages/` for the product boundary
-- `packages/bijux-proteomics-dev/` for maintainer automation
-- root files such as `Makefile`, `apis/`, and `.github/workflows/` when the
-  change truly spans more than one package
-
-## Design Pressure
-
-The common drift is to describe several layers correctly in isolation while still letting one change claim authority from two or three of them at once.
+Use [Cross-Package Ownership](cross-package-ownership.md) for allowed dependency
+edges and artifact handoffs, and [Package Map](package-map.md) for direct routes
+into each owning handbook.
