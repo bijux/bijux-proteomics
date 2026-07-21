@@ -4,48 +4,57 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Definition of Done
+# Definition of done
 
-Done means the package is easier to trust after the change, not just that the diff merged.
+A Lab change is complete when an operator can reconstruct planned intent,
+readiness, authority, handoff, observation, QC, reconciliation, and promotion
+without treating any one state as proof of the next.
 
-For `bijux-proteomics-lab`, done means an operator can still reconstruct what was planned, what happened, and what was promoted from the durable record.
+## Completion by laboratory contract
 
-## Completion Model
+| Changed surface | Required evidence | Required non-success case |
+| --- | --- | --- |
+| assay or experiment design | endpoint, contrasts, controls, replication, blocking, power advice, and acceptance rule | design cannot answer the question |
+| dependency or batch plan | valid acyclic dependencies, gates, sample identity, and stable ordering | missing, cyclic, incompatible, or deferred work |
+| readiness | material, instrument, capacity, staffing, cost, risk, authority, and provenance | blocked, conditional, and refused readiness |
+| schedule or queue | ready-only admission, capacity, compatibility, priority policy, and reproducibility | priority cannot bypass a gate |
+| executable handoff | approved intent, custody, instructions, controls, risks, identity, and target validation | export loss, rejected target, or missing authorization |
+| observation | plan linkage, replicate values, missingness, deviations, failure class, and immutable raw record | partial, failed, or inconclusive outcome |
+| QC and reliability | declared acceptance, controls, dispersion, reproducibility, and reason codes | completed work fails acceptance |
+| reconciliation or promotion | requested-versus-observed comparison, eligibility policy, rerun or hold, and append-only feedback | evidence is not promoted |
+
+## Laboratory evidence loop
 
 ```mermaid
-flowchart TB
-    change["change lands in planning, outcomes, or lab records"]
-    story{"operator story still reconstructable?"}
-    proof{"tests and docs defend the changed lab path?"}
-    downstream{"upstream and downstream payload meaning still aligned?"}
-    done["change is done"]
-
-    change --> story
-    story -->|yes| proof
-    story -->|no| block1["not done"]
-    proof -->|yes| downstream
-    proof -->|no| block2["not done"]
-    downstream -->|yes| done
-    downstream -->|no| block3["not done"]
+flowchart LR
+    P["advisory plan"] --> V["design and readiness review"]
+    V --> A["authorized handoff"]
+    A --> O["external physical execution and returned observation"]
+    O --> Q["QC and reliability"]
+    Q --> R["reconciliation"]
+    R --> E{"promotion eligible?"}
+    E -->|yes| K["append evidence"]
+    E -->|no| H["hold, refuse, rerun, or redesign"]
 ```
 
-The real threshold is not just correctness at runtime. It is whether the promoted lab record still tells a coherent story to the next operator and the next system boundary.
+Use the focused design, planning, readiness, handoff, outcome, and
+reconciliation suites. When a payload crosses packages, also run the Core,
+Foundation, Knowledge, Intelligence, or Runtime compatibility test that owns
+the adjacent meaning.
 
-## Review Rules
+## Completion record
 
-- operators can still explain what happened from the durable record
-- tests and docs defend the changed lab surface clearly
-- upstream and downstream consumers still align on the payload meaning
+Retain plan and batch identity, evidence need, controls, readiness inputs,
+authority, custody, handoff hash, returned observations, deviations, QC,
+failure or inconclusive class, promotion policy, and follow-up. Record physical
+execution as external to this Python package.
 
-## First Proof Check
+## Not complete
 
-- `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
-
-## Design Pressure
-
-The easy mistake is to treat successful execution as enough while letting planning intent, outcome meaning, or promotion history become harder to audit.
+Work remains incomplete when `ready` is inferred from inventory alone,
+priority bypasses controls, a successful export is called execution, a
+completed assay is called accepted without QC, or promotion overwrites the
+original observation or plan.
