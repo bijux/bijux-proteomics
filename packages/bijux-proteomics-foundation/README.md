@@ -53,6 +53,23 @@ serialization, and cross-package consistency for reproducible proteomics data.
   posture to intelligence, scientific memory to knowledge, and assay follow-up
   to lab.
 
+## Contract flow
+
+```mermaid
+flowchart LR
+    model["typed model"] --> canonical["canonical JSON"]
+    canonical --> fingerprint["stable fingerprint"]
+    fingerprint --> persisted["persisted or exchanged document"]
+    persisted --> compatibility["compatibility assessment"]
+    compatibility -->|accepted| consumer["downstream package"]
+    compatibility -->|refused| refusal["typed refusal with reason"]
+```
+
+Foundation makes identity and compatibility reproducible; it does not decide
+whether a peptide assignment, recommendation, or assay plan is scientifically
+correct. Downstream packages own those meanings while reusing the same bytes,
+identifiers, failure envelopes, and migration rules.
+
 ## Why teams pick this kernel
 
 - one canonical document-contract baseline across every proteomics package
@@ -67,17 +84,6 @@ serialization, and cross-package consistency for reproducible proteomics data.
 - serialize domain models into canonical JSON for reproducible comparisons
 - validate migration paths before accepting persisted record upgrades
 - centralize shared contract behavior so other packages stay focused on domain logic
-
-## 0.3.8 Release Highlights
-
-- The shared kernel now covers canonical document metadata, JSON rendering,
-  stable hashing, identifier kinds, refusal and result envelopes, and schema
-  compatibility checks in one bounded package.
-- Foundation also ships the shared optional-dependency guards, alias helpers,
-  generated-file markers, and reusable test-policy primitives that the release
-  gates now depend on.
-- The public root stays intentionally small while durable owner families make
-  long-term boundaries explicit for contributors and downstream packages.
 
 ## Installation
 

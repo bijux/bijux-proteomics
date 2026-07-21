@@ -59,6 +59,24 @@ wider proteomics engine still needs.
   recommendation posture to intelligence, and assay follow-up authority to
   lab.
 
+## Execution evidence flow
+
+```mermaid
+flowchart LR
+    request["core workflow request"] --> preflight["capability preflight"]
+    preflight --> provider["provider and execution mode"]
+    provider --> run["run, checkpoint, resume"]
+    run --> ledger["artifact and decision ledgers"]
+    ledger --> replay["compare, replay, or refuse reuse"]
+
+    preflight -. unavailable .-> refusal["typed refusal"]
+    replay -. integrity mismatch .-> refusal
+```
+
+Runtime proves what was requested, selected, executed, persisted, and reused.
+It does not turn successful execution into scientific truth. Import-only lanes
+retain their external-engine provenance and cannot claim raw execution parity.
+
 ## Why teams pick this package
 
 - one canonical runtime surface for CLI, API, orchestration, and providers
@@ -81,16 +99,6 @@ wider proteomics engine still needs.
 - publish one useful run path from clean install to reviewable output
 - publish one useful import-only path from third-party result to reviewable output
 - integrate canonical runtime surfaces while legacy imports remain compat-only
-
-## 0.3.8 Release Highlights
-
-- Runtime now publishes advanced DIA-NN dry-run, resume, comparison, archive,
-  and architecture-demo workflows as public owner surfaces.
-- Workflow DAG typing, semantic cache fingerprints, partial rerun plans,
-  workflow failure artifacts, and reviewable handoff archives now stay
-  machine-readable instead of living in ad hoc runtime glue.
-- Black-box rerun and reviewable sequence/import paths are now explicit parts
-  of the runtime trust story rather than maintainer-only knowledge.
 
 ## Installation
 
