@@ -18,19 +18,21 @@ The checked workflow matrix currently yields these exact sets:
 
 Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 
+Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+
 Internal-support-only workflow families today: `multiplex`.
 
-Those lines describe the family matrix. They do not override a stricter live
-gate. At present, black-box rerun validation narrows DDA to review-grade bounded
-because its strongest route starts from imported MaxQuant and comparator
-exports rather than an in-repository raw search execution lane. The repository
-release preflight therefore remains blocked.
+The three sets are not a maturity ladder. A full packet makes the proof surface
+readable by an outsider. Outsider-auditable authority additionally requires the
+family to earn every governed authority cell. Internal support identifies a
+family whose cross-package evidence is not sufficient for external reliance.
+The current release preflight passes with these distinctions intact.
 
 ## Current Family Limits
 
 | Family | Family-matrix result | Strongest usable public sentence | Decisive limitation |
 | --- | --- | --- | --- |
-| DDA | outsider-auditable | review-grade bounded while the runtime veto remains | No repository-owned raw DDA search lane; external engine behavior remains outside the rerun contract. |
+| DDA | outsider-auditable | bounded outsider-auditable | Search-engine behavior and transfer remain bounded by the shipped DDA lanes and comparator evidence. |
 | DIA | outsider-auditable | bounded outsider-auditable | The executable lane remains library-conditioned rather than chromatogram-native replay. |
 | LFQ | outsider status not earned | review-grade bounded | Missingness, normalization, sparse-cohort transfer, and external-review pressure remain material. |
 | Multiplex | internal support only | internal support only | External comparison and lab-consequence closure do not support an outsider-facing claim. |
@@ -50,6 +52,25 @@ sentence. The blocker is part of the result, not an editorial qualification.
 
 **Internal support only** means implementations and benchmark material exist,
 but the cross-package proof chain does not yet support external reliance.
+
+## Evidence threshold
+
+An outsider-readable family packet connects the evidence needed to reproduce
+and challenge the public sentence:
+
+- two public benchmark packages plus one published cross-package
+  generalization report;
+- `family_stability_scorecard.json` with family-specific perturbation and
+  transfer results;
+- a canonical runtime lane, rerun dossier, artifact ledger, and comparison
+  evidence;
+- grounded support, contradiction, and citation context;
+- a challenged recommendation packet with sensitivity and downgrade evidence;
+- a requested-versus-observed outcome dossier and an assay-worth-it ledger row
+  when laboratory consequence is claimed.
+
+Missing one of these artifacts narrows the corresponding authority cell. It
+does not disappear because adjacent packages carry stronger evidence.
 
 ```mermaid
 flowchart LR
@@ -74,7 +95,7 @@ flowchart LR
 5. Confirm that requested-versus-observed outcomes and assay-worth records exist.
 6. Use the weakest result from those surfaces as the family claim.
 
-The [public artifact index](public-artifact-index.md) provides the opening order.
+The [public artifact index](public-artifact-index.md) gives the inspection order.
 The [black-box benchmark dashboard](../../09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md)
 shows the current runtime verdicts, and [current capability limits](current-capability-limits.md)
 explains why a technically substantial family may still carry a narrow public
@@ -88,5 +109,5 @@ sentence.
 - promotion of a weaker family from evidence earned by a stronger neighbor;
 - repository-wide trust inferred from any single family packet.
 
-When the family matrix and a live gate disagree, release language follows the
-live gate until the underlying evidence or declared classification is corrected.
+When the family matrix and a live gate disagree, the weaker result governs
+until the evidence and classification agree again.
