@@ -4,175 +4,89 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # Workflow Claim Limits
 
-This page is the release-facing claim-limit source of truth for the flagship
-workflow families.
+Proteomics support is evaluated one workflow family at a time. A family earns
+public confidence only when its scientific benchmark, executable route,
+external comparison, evidence review, recommendation challenge, and downstream
+consequence can be inspected together.
+
+The checked workflow matrix currently yields these exact sets:
 
 Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
-Released outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+
 Internal-support-only workflow families today: `multiplex`.
-Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
 
-Family-level trust now requires two public benchmark packages plus one
-published cross-package generalization report. The current scorecard lives at
-`packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/family_stability_scorecard.json`.
+Those lines describe the family matrix. They do not override a stricter live
+gate. At present, black-box rerun validation narrows DDA to review-grade bounded
+because its strongest route starts from imported MaxQuant and comparator
+exports rather than an in-repository raw search execution lane. The repository
+release preflight therefore remains blocked.
 
-What changed since `v0.3.7` is not only wording. The matrix now sits on a
-deeper chain of proof: broader core scientific surfaces, clearer runtime
-rerun lanes, explicit knowledge grounding, recommendation posture, and visible
-lab consequence pressure. That means the repository can now distinguish between
-families that have a full outsider-readable packet and families whose released
-sentence must still stay narrower.
+## Current Family Limits
 
-The point of this matrix is to keep that stronger depth from being flattened
-into one generic trust label. A family can now have meaningful benchmark,
-runtime, grounding, recommendation, and consequence surfaces while still
-stopping short of the broadest released sentence.
+| Family | Family-matrix result | Strongest usable public sentence | Decisive limitation |
+| --- | --- | --- | --- |
+| DDA | outsider-auditable | review-grade bounded while the runtime veto remains | No repository-owned raw DDA search lane; external engine behavior remains outside the rerun contract. |
+| DIA | outsider-auditable | bounded outsider-auditable | The executable lane remains library-conditioned rather than chromatogram-native replay. |
+| LFQ | outsider status not earned | review-grade bounded | Missingness, normalization, sparse-cohort transfer, and external-review pressure remain material. |
+| Multiplex | internal support only | internal support only | External comparison and lab-consequence closure do not support an outsider-facing claim. |
+| PTM | outsider-auditable | bounded outsider-auditable | Localization evidence is stronger than downstream consequence confidence. |
+| Targeted | outsider-auditable | bounded outsider-auditable | Calibration, interference, carryover, and follow-up burden constrain transfer. |
 
-## What This Matrix Governs
+## What Each Classification Means
 
-- what the repository can publicly say today for each workflow family
-- which family has a full benchmark, runtime, grounding, recommendation, and
-  consequence packet
-- which family still narrows at the released sentence because one part of that
-  packet remains downgrade-heavy
-- which family stops at internal support even though code, runtime, and public
-  benchmark substance exist
+**Outsider-auditable** means a skeptical reader can open the benchmark package,
+runtime evidence, comparison, grounded claim, recommendation packet, and
+consequence record without relying on maintainer narration. It does not mean
+universal accuracy or transfer.
 
-The distinction that matters most now is this:
+**Review-grade bounded** means the family has real, inspectable scientific and
+operational evidence, but a visible blocker prevents the stronger public
+sentence. The blocker is part of the result, not an editorial qualification.
 
-- `outsider-auditable` is the stronger release-language set
-- `full outsider-readable family packets` is the wider proof-packet set
-- LFQ currently belongs to the second set but not the first
+**Internal support only** means implementations and benchmark material exist,
+but the cross-package proof chain does not yet support external reliance.
 
-## Why This Distinction Matters
+```mermaid
+flowchart LR
+    benchmark["scientific benchmark"] --> runtime["runtime rerun"]
+    runtime --> comparison["external comparison"]
+    comparison --> grounding["claim grounding"]
+    grounding --> challenge["recommendation challenge"]
+    challenge --> consequence["lab consequence"]
+    consequence --> sentence["public sentence"]
 
-- it keeps the repository from flattening all strong-looking family packets
-  into one trust label
-- it explains why a public packet can be openable and still remain narrowed at
-  release time
-- it makes clear that consequence and burden surfaces can still veto broader
-  family language
+    runtime -. veto .-> narrow["narrow the sentence"]
+    comparison -. veto .-> narrow
+    consequence -. veto .-> narrow
+```
 
-## Current Limits
+## How to Audit a Family
 
-| Workflow | Internal benchmark-backed | Raw-executable | Externally cross-checked | Outsider-auditable | Lab-consequential | Public language |
-| --- | :---: | :---: | :---: | :---: | :---: | --- |
-| `dda` | yes | no | yes | yes | yes | bounded outsider-auditable |
-| `dia` | yes | yes | yes | yes | yes | bounded outsider-auditable |
-| `lfq` | yes | yes | yes | no | yes | review-grade bounded |
-| `multiplex` | yes | yes | no | no | no | internal support only |
-| `ptm` | yes | yes | yes | yes | yes | bounded outsider-auditable |
-| `targeted` | yes | yes | yes | yes | yes | bounded outsider-auditable |
+1. Open its tracked benchmark packages and cross-package generalization report.
+2. Confirm whether the strongest runtime route is raw-executable or import-only.
+3. Inspect comparator posture, known limits, and unsupported-claim records.
+4. Review the recommendation challenge and downgrade evidence.
+5. Confirm that requested-versus-observed outcomes and assay-worth records exist.
+6. Use the weakest result from those surfaces as the family claim.
 
-## How To Read This
+The [public artifact index](public-artifact-index.md) provides the opening order.
+The [black-box benchmark dashboard](../../09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md)
+shows the current runtime verdicts, and [current capability limits](current-capability-limits.md)
+explains why a technically substantial family may still carry a narrow public
+sentence.
 
-- `internal benchmark-backed` means a tracked flagship public package exists
-  under `benchmark-assets/flagship-public-packages/`
-- `raw-executable` means the strongest current runtime lane runs the tracked
-  package directly instead of stopping at an import-only bridge
-- `externally cross-checked` means public comparator posture is at least
-  advisory rather than refused
-- `outsider-auditable` means the benchmark package, runtime lane, scientific
-  reading, recommendation packet, planned lab packet, requested-versus-observed
-  outcome dossier, and the family generalization report can be opened together
-  by a skeptical reviewer
-- `review-grade bounded` means the benchmark, runtime, and review surfaces stay
-  usable, but the current external review kit or acceptance pressure still
-  narrows the stronger outsider-facing sentence
-- `lab-consequential` means a dedicated flagship lab packet, one shipped
-  requested-versus-observed outcome dossier, and one assay-worth-it ledger row
-  all exist together
+## Claims These Classifications Do Not Support
 
-## What Outsider-Auditable Still Refuses
+- equivalence across instruments, cohorts, search engines, or acquisition modes;
+- biological truth merely because a workflow executed reproducibly;
+- laboratory usefulness without a consequence record;
+- promotion of a weaker family from evidence earned by a stronger neighbor;
+- repository-wide trust inferred from any single family packet.
 
-- it does not mean universal transfer across cohorts, instruments, study
-  designs, or vendor-conditioned execution paths
-- it does not mean the runtime lane is equally strong for every family
-- it does not mean the strongest analytical sentence automatically becomes a
-  stronger lab consequence sentence
-
-## What Review-Grade Bounded Still Means
-
-- the family is real enough to inspect through benchmark, runtime, grounding,
-  and recommendation surfaces
-- the family is not weak or fake; it is explicitly narrowed by visible
-  pressure that still survives challenge
-- the narrower released sentence is part of the product honesty, not a
-  contradiction in the docs
-
-The current lab-consequence evidence is still benchmark-simulated rather than
-live wet-lab release proof. It earns bounded consequence language because the
-requested-versus-observed loop is now explicit, not because the repository has
-already closed real laboratory deployment risk.
-
-## Why LFQ Still Narrows At Release Time
-
-- LFQ now has a full outsider-auditable packet in the narrow sense: public
-  benchmark packages, runtime lane, grounding route, recommendation posture,
-  requested-versus-observed outcome dossier, and assay-worth-it ledger row
-- the released sentence still remains review-grade bounded because missingness,
-  normalization pressure, and sparse-cohort transfer risk remain visible in
-  its own external review and acceptance surfaces
-- this is intentional honesty rather than inconsistency: the packet is public,
-  and the narrowing pressure is public too
-
-## Why This Matrix Matters More Now
-
-- the repository can now show several family packets with real outsider-facing
-  review substance, so the release boundary has to be explicit instead of
-  implied
-- stronger public benchmark and rerun surfaces make overclaiming easier unless
-  one page still names the narrower sentence exactly
-- consequence pressure now matters enough that a family can look analytically
-  strong and still need a weaker released sentence
-
-## Reader Use
-
-- use this page when one trust page sounds strong and you need the release
-  boundary in one place
-- use it to distinguish family-packet breadth from released family language
-- use it before widening workflow language in changelogs, READMEs, or release
-  summaries
-
-## Family Transfer Evidence
-
-- `dda`
-  - companion package:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package`
-  - generalization report:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json`
-- `dia`
-  - companion package:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package`
-  - generalization report:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json`
-- `lfq`
-  - companion package:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package`
-  - generalization report:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json`
-- `multiplex`
-  - companion package:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package`
-  - generalization report:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/cross_package_generalization.json`
-- `ptm`
-  - companion package:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package`
-  - generalization report:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/cross_package_generalization.json`
-- `targeted`
-  - companion package:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package`
-  - generalization report:
-    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/cross_package_generalization.json`
-
-## Boundary
-
-This matrix does not grant elite language. It only narrows what each workflow
-family can honestly claim today.
+When the family matrix and a live gate disagree, release language follows the
+live gate until the underlying evidence or declared classification is corrected.

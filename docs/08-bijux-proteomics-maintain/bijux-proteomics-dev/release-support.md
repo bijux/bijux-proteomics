@@ -79,7 +79,7 @@ review-grade-bounded authority for LFQ, and internal-support-only authority for
 multiplex. The live release preflight is stricter: DDA currently stops at
 review-grade bounded because its black-box benchmark dashboard does not defend
 the requested outsider-auditable level. Until that disagreement is resolved,
-the repository is not release-ready at the declared authority boundary.
+the repository cannot publish at the declared claim limit.
 
 The most developed review packet is the DDA reviewable run under
 `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/`,

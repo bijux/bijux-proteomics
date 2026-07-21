@@ -14,6 +14,23 @@ reproducible execution, evidence-aware interpretation, and laboratory
 follow-up. It is designed for work that must remain inspectable after a result
 leaves the process that produced it.
 
+## Evidence Status
+
+The platform contains substantial scientific and operational machinery, but
+the repository does not currently pass its full release preflight. The declared
+workflow matrix lists DDA, DIA, PTM, and targeted analysis as
+outsider-auditable; LFQ remains review-grade bounded and multiplex remains
+internal support only. The live black-box gate narrows DDA to review-grade
+bounded because its strongest path still begins with imported search-engine
+outputs rather than an in-repository raw search execution lane.
+
+That disagreement is visible by design. Readers should use the weakest live
+result, not the strongest adjacent label. See
+[workflow claim limits](01-bijux-proteomics/foundation/workflow-claim-limits.md)
+for the family matrix and
+[release readiness](01-bijux-proteomics/foundation/release-readiness-matrix.md)
+for repository-wide blockers.
+
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
@@ -91,11 +108,11 @@ The implemented surface spans:
 - evidence grounding, candidate ranking, recommendation challenge, and
   laboratory consequence.
 
-Coverage is not a blanket accuracy claim. The public evidence currently
-supports outsider-auditable DDA, DIA, PTM, and targeted workflow families;
-bounded review-grade LFQ; and internal-only multiplex support. The
+Coverage is not a blanket accuracy claim. Package presence, successful
+execution, and a public benchmark packet answer different questions. The
 [workflow-family guide](01-bijux-proteomics/foundation/workflow-families.md)
-explains the exact evidence ceiling.
+shows the evidence for each family; the claim-limit page records where that
+evidence must stop.
 
 ## Choose a route
 
