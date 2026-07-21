@@ -134,6 +134,36 @@ Benchmark evidence is evaluated per workflow family. Success in one family
 does not transfer automatically to another instrument, acquisition method,
 quantification regime, modification context, or laboratory consequence.
 
+## Anatomy of scientific acceptance
+
+Every accepted result should be reducible to a review record that separates
+scientific output from the burden used to accept it.
+
+| Record field | What it preserves | Review question |
+| --- | --- | --- |
+| workflow family and contract | the exact scientific problem and required outputs | is the acceptance bar relevant to this analysis? |
+| input identity | source digests, sample design, references, contaminants, and exclusions | can the analyzed cohort be reconstructed? |
+| active policy | tolerances, digestion, modifications, FDR, inference, normalization, and missingness rules | which assumptions could change the conclusion? |
+| result and rejection sets | accepted values, rejected records, reason codes, and diagnostics | was inconvenient evidence discarded or retained? |
+| acceptance evaluation | metric values, thresholds, holdouts, perturbations, and comparison results | did the record meet its declared burden? |
+| evidence posture | internal, review-grade bounded, or outsider-auditable | what may be claimed publicly? |
+| known limits | transfer boundaries, unresolved ambiguity, and unsupported contexts | where must the claim stop? |
+
+```mermaid
+flowchart TD
+    WR["workflow record"] --> VA{"inputs and policy valid?"}
+    VA -->|no| RF["typed refusal or failure"]
+    VA -->|yes| SC["scientific computation"]
+    SC --> AE["acceptance evaluation"]
+    AE -->|bar met| BC["bounded claim"]
+    AE -->|bar not met| NR["narrow result or no public claim"]
+    BC --> KL["known limits remain attached"]
+    NR --> KL
+```
+
+An acceptance result is not a universal quality label. It applies to the named
+family, corpus, policy, and evidence version recorded with the result.
+
 ## Handoff to Runtime
 
 Core defines scientific meaning and the runtime-agnostic request. Runtime owns
@@ -163,29 +193,23 @@ the workflow contract.
 
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  locates Core inside the cross-package workflow.
-- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
-  states which scientific families have reviewable evidence.
-- [Execution](../09-bijux-proteomics-runtime/index.md) owns run resolution,
-  artifacts, and replay after Core defines scientific intent.
-- [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
-  shows how accepted results become bounded recommendations.
+| Question | Authority |
+| --- | --- |
+| which scientific families are supported, and at what level? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
+| which public evidence supports a family? | [public benchmark catalog](foundation/flagship-public-benchmark-catalog.md) |
+| what execution produced the artifacts? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
+| how does an accepted result become a recommendation? | [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) |
 
 ## Start Inside
 
-- [Package overview](foundation/package-overview.md) maps the source domains
-  and their scientific responsibility.
-- [Benchmark assets](foundation/benchmark-assets.md) covers provenance,
-  redistribution, freshness, and incompleteness.
-- [Architecture](architecture/index.md) explains internal boundaries and
-  extension seams.
-- [Interfaces](interfaces/index.md) covers Python, CLI, data, configuration,
-  and artifacts.
-- [Common workflows](operations/common-workflows.md) provides executable user
-  routes.
-- [Known limitations](quality/known-limitations.md) records scientific and
-  implementation limits.
+| Need | Read next |
+| --- | --- |
+| map scientific domains to their owners | [package overview](foundation/package-overview.md) |
+| audit benchmark provenance and redistribution | [benchmark assets](foundation/benchmark-assets.md) and the [asset audit](foundation/benchmark-asset-audit.md) |
+| inspect family-specific lineage | [DDA](foundation/dda-benchmark-lineage.md), [DIA](foundation/dia-benchmark-lineage.md), [LFQ](foundation/lfq-benchmark-lineage.md), [PTM](foundation/ptm-benchmark-lineage.md), [targeted](foundation/targeted-benchmark-lineage.md), or [multiplex](foundation/multiplex-benchmark-lineage.md) |
+| choose Python, CLI, data, or artifact interfaces | [interfaces](interfaces/index.md) |
+| execute a supported scientific route | [common workflows](operations/common-workflows.md) |
+| review scientific and implementation limits | [known limitations](quality/known-limitations.md) |
 
 Core does not own run orchestration, evidence reconciliation, recommendation
 policy, or lab scheduling. Those responsibilities belong to runtime,

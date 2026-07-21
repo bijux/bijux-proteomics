@@ -124,25 +124,53 @@ specific proteomics workflow.
 | report why no value exists | typed failure or refusal | `None`, an empty collection, or a swallowed exception |
 | handle an unavailable extra | optional-dependency outcome | unconditional heavyweight imports |
 
+## Audit a portable record
+
+A record is portable only when an independent consumer can verify its identity
+and disposition without importing the producer's internal implementation.
+Review the envelope in this order:
+
+| Check | Evidence required | Refuse when |
+| --- | --- | --- |
+| subject | a typed identifier with the expected namespace and syntax | identity is inferred from a filename, label, or directory |
+| schema | document name, declared version, and successful strict validation | the version is missing, unknown, or silently coerced |
+| content | canonical bytes and the named digest policy | the digest cannot be reproduced from the delivered payload |
+| lineage | producer identity, parent references, and any migration record | a transformation has no declared source or direction |
+| disposition | a typed success, refusal, failure, or dependency outcome | missing data is represented as an apparently successful empty value |
+
+```mermaid
+sequenceDiagram
+    participant P as Producer
+    participant F as Foundation contract
+    participant C as Consumer
+    P->>F: typed subject, schema, payload, outcome
+    F->>F: validate and canonicalize
+    F-->>P: canonical document and digest
+    P->>C: document, digest, lineage
+    C->>F: assess version and recompute identity
+    F-->>C: compatible, migratable, or incompatible
+```
+
+The consumer may trust a matching digest as evidence of content equality. It
+must obtain scientific authority, source authenticity, and acceptance policy
+from the package that owns the domain record.
+
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  places these contracts in the complete scientific system.
-- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
-  shows where shared types constrain current claims.
-- [Execution](../09-bijux-proteomics-runtime/index.md) applies the contracts to
-  run state, artifacts, and replay.
-- [Maintenance](../08-bijux-proteomics-maintain/index.md) governs schema and API
-  compatibility.
+| Question | Authority |
+| --- | --- |
+| where does this contract sit in the system? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| which package owns the scientific meaning? | [cross-package ownership](../01-bijux-proteomics/foundation/cross-package-ownership.md) |
+| how is it used for run state, artifacts, and replay? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
+| how are schema and API changes governed? | [Maintenance](../08-bijux-proteomics-maintain/index.md) |
 
 ## Start Inside
 
-Contract definitions and examples are organized by concern:
-
-- [package overview](foundation/package-overview.md) for ownership and scope;
-- [public imports](interfaces/public-imports.md) for stable and specialized
-  Python routes;
-- [data contracts](interfaces/data-contracts.md) for model and identifier
-  semantics;
-- [compatibility commitments](interfaces/compatibility-commitments.md) for
-  version assessment and migration guarantees.
+| Need | Read next |
+| --- | --- |
+| establish ownership and non-goals | [package overview](foundation/package-overview.md) |
+| choose a supported Python route | [public imports](interfaces/public-imports.md) |
+| define identifiers and document models | [data contracts](interfaces/data-contracts.md) |
+| persist or exchange an artifact | [artifact contracts](interfaces/artifact-contracts.md) |
+| assess a version or migration | [compatibility commitments](interfaces/compatibility-commitments.md) |
+| review invariants and known limits | [quality](quality/index.md) |
