@@ -7,48 +7,38 @@ owner: bijux-proteomics-lab-docs
 last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Laboratory interfaces
 
-Lab converts scientific intent into reviewable experimental design, planning,
-readiness, handoff, outcome, and reconciliation contracts. The central
-interface distinction is between advice and executable work: a scientifically
-useful assay recommendation is not a laboratory instruction until dependencies,
-review gates, samples, controls, capacity, provenance, and operational risks
-have been made explicit.
+Lab interfaces describe the artifacts that cross the boundary between
+scientific intent and experimental consequence. They distinguish advice,
+readiness, authorization, observation, and evidence promotion so no single
+“success” field can collapse the laboratory lifecycle.
 
 ```mermaid
 flowchart LR
-    need["Evidence need or<br/>decision question"]
-    advisory["Advisory assay plan"]
-    design["Design and dependency review"]
-    batch["Experiment batches"]
-    readiness{"Operationally ready?"}
-    refusal["Explicit blockers<br/>or refusal"]
-    execution["Executable assay plan"]
-    outcome["Observed outcomes and QC"]
-    reconcile["Evidence promotion,<br/>rerun, next cycle"]
-
-    need --> advisory --> design --> batch --> readiness
-    readiness -->|no| refusal
-    readiness -->|yes| execution --> outcome --> reconcile
-    reconcile -. new evidence need .-> need
+    I["evidence need"] --> A["advisory plan"]
+    A --> E["executable plan"]
+    E --> H["handoff record"]
+    H --> O["observation record"]
+    O --> R["reconciliation record"]
+    R --> F["evidence feedback"]
+    A -. blockers .-> X["refusal record"]
+    E -. readiness lost .-> X
 ```
 
-## Interface bands
+## Choose an interface
 
-| Band | Public responsibility | Critical boundary |
+| Need | Owner | Output |
 | --- | --- | --- |
-| `planning` | advisory plans, batches, dependencies, schedules, queues, capacity, materials | priority is not authorization |
-| `design` | design validation, power advice, randomization, fractionation, multiplex labels, QC insertion, carryover | a valid layout does not guarantee adequate biological power |
-| `readiness` | evidence, material, instrument, staffing, backlog, control, provenance, and budget checks | readiness is conditional on declared inputs |
-| `handoffs` | explanation, authority, risk, artifact compatibility, LIMS export, PTM and targeted review, QC feedback | handoff must not hide unresolved risk or change scientific ownership |
-| `outcomes` | assay observations, acceptance, failure classes, reliability, promotion, rerun, feedback | a completed run is not automatically promotable evidence |
-| `lifecycle`, `reconciliation` | review transitions, candidate advancement, next-cycle and follow-up decisions | promotion remains governed and auditable |
-| `benchmarks` | claim, follow-up, learning, rehearsal, and outcome-dossier evidence | rehearsal success is not production evidence |
+| express scientifically useful follow-up | `planning.assays` | advisory assay plan |
+| authorize an operationally complete plan | planning plus readiness | executable assay plan or refusal |
+| group ready work | queue, priority, batching, scheduling | batch and schedule records with constraints |
+| transfer work to an operator or system | `handoffs` | authority, risk, instruction, artifact, and export records |
+| record what happened | `outcomes` | observation, QC, failure, reliability, and feedback |
+| determine follow-up consequence | `reconciliation` | requested-versus-observed disposition and next action |
+| test package claims | `benchmarks` | rehearsal, follow-up, learning, and outcome dossier |
 
-## Public entry routes
-
-The package root contains only the three primary planning operations:
+The package root exposes three planning operations:
 
 ```python
 from bijux_proteomics_lab import (
@@ -58,31 +48,60 @@ from bijux_proteomics_lab import (
 )
 ```
 
-All richer contracts remain in their owner bands. Use
-[Python API surface](api-surface.md) for the planning sequence and
-[Public imports](public-imports.md) for choosing a root, band, or specialized
-module import.
+[API surface](api-surface.md) defines their contracts. Use
+[public imports](public-imports.md) for specialized owner modules.
 
-## Read by handoff
+## Executable-plan contract
 
-- [Data contracts](data-contracts.md) defines plans, instructions, readiness
-  findings, observations, failures, and promotion states.
-- [Artifact contracts](artifact-contracts.md) defines canonical envelopes,
-  compatibility checks, LIMS exports, and outcome records.
-- [Operator workflows](operator-workflows.md) follows work from advisory intent
-  through outcome reconciliation.
-- [Compatibility commitments](compatibility-commitments.md) covers schema,
-  reason-code, readiness, and lifecycle stability.
+An executable plan identifies:
+
+- the upstream recommendation and evidence revision;
+- biological question, measurable endpoint, and scientific rationale;
+- assay, protocol, sample, material, and instrument requirements;
+- positive, negative, process, and interpretation controls;
+- randomization, blocking, fractionation, labels, and carryover handling where
+  applicable;
+- acceptance, failure, deviation, and stopping criteria;
+- capacity, schedule, risk, ownership, and authorization;
+- the observation and reconciliation artifacts expected after execution.
+
+Missing required information produces a readiness finding or refusal rather
+than a partially executable instruction. [Data contracts](data-contracts.md)
+defines fields, reason codes, and lifecycle states.
+
+## Handoff contract
+
+```mermaid
+sequenceDiagram
+    participant P as Plan owner
+    participant L as Lab handoff
+    participant O as Operator or LIMS
+    participant R as Reconciliation
+    P->>L: executable plan and authorization
+    L->>O: instructions, materials, controls, risk
+    O-->>L: observations, QC, deviations
+    L->>R: plan-linked outcome record
+```
+
+Handoff serialization preserves identifiers and compatibility while adapting
+to external systems. An export is not proof that a LIMS accepted or executed
+the work. [Artifact contracts](artifact-contracts.md) defines envelopes,
+exports, and round-trip expectations.
+
+## Outcome and promotion
+
+An observation record reports measured facts. Promotion is a separate governed
+decision based on QC, reliability, deviations, acceptance criteria, and the
+original question. An outcome may be accepted operationally but remain
+inconclusive scientifically.
+
+[Operator workflows](operator-workflows.md) follows the full handoff and
+feedback loop. [Compatibility commitments](compatibility-commitments.md)
+covers plan, readiness, reason-code, lifecycle, and artifact evolution.
 
 ## Safety and authority
 
-Lab owns operational translation and evidence capture. Core owns scientific
-analysis contracts, knowledge owns evidence memory, intelligence owns
-recommendation and challenge, and human governance owns authorization. Lab can
-refuse an irresponsible handoff, but it cannot manufacture evidence sufficiency
-or silently clear a review gate.
-
-Every executable plan therefore carries its blockers and preflight checks.
-Every outcome retains QC, failure, reliability, and promotion context. Every
-feedback path points back to the plan and decision question that caused the
-work. These are interface requirements, not optional reporting detail.
+Lab may refuse unsafe, wasteful, under-controlled, or uninterpretable work. It
+does not manufacture upstream evidence sufficiency, replace Intelligence
+ranking, or grant itself human authorization. [Configuration surface](configuration-surface.md)
+separates declared readiness and planning policy from hidden operator defaults.
