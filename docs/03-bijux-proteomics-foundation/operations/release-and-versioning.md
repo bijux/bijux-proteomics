@@ -9,8 +9,12 @@ last_reviewed: 2026-07-21
 
 # Release and versioning
 
-Foundation uses the repository's Git-tag-derived version through `hatch-vcs`.
-Because its contracts sit below every canonical package, the release risk is
+Foundation follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports source archives
+without repository history; it does not define a separate Foundation release.
+Because Foundation contracts sit below every canonical package, release risk is
 determined by semantic and byte compatibility rather than the number of files
 changed.
 

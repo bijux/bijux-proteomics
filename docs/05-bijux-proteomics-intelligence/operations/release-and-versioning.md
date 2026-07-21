@@ -9,9 +9,13 @@ last_reviewed: 2026-07-21
 
 # Release and versioning
 
-Intelligence follows the repository's Git-tag-derived version line through
-`hatch-vcs`. Release review focuses on whether a consumer can reproduce and
-challenge an advisory outcome under the released evidence and policy.
+Intelligence follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports source archives
+without repository history; it is not a separate Intelligence release line.
+Release review focuses on whether a consumer can reproduce and challenge an
+advisory outcome under the released evidence and policy.
 
 ## Classify decision impact
 

@@ -9,10 +9,14 @@ last_reviewed: 2026-07-21
 
 # Release and versioning
 
-Lab participates in the repository's Git-tag-derived version line through
-`hatch-vcs`. Release review is operational: it must show that an upgraded
-consumer cannot silently change authorization, readiness, instructions,
-observations, or follow-up obligations.
+Lab follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports source archives
+without repository history; it is not a separate Lab release line. Release
+review is operational: it must show that an upgraded consumer cannot silently
+change authorization, readiness, instructions, observations, or follow-up
+obligations.
 
 ## Classify operational impact
 

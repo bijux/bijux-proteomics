@@ -9,10 +9,13 @@ last_reviewed: 2026-07-21
 
 # Release and versioning
 
-`agentic-proteins` participates in the repository's tag-derived release line.
-Its version comes from Git through `hatch-vcs`; the fallback version in package
-metadata supports source archives that lack repository history. The package
-does not maintain an independent semantic clock for bridge behavior.
+`agentic-proteins` follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports
+source archives that lack repository history; it is not an independent release
+authority. The package does not maintain a separate semantic clock for bridge
+behavior.
 
 ## How to read a release
 

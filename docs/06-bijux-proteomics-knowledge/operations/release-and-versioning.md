@@ -9,9 +9,14 @@ last_reviewed: 2026-07-21
 
 # Release and versioning
 
-Knowledge versions are derived from repository Git tags through `hatch-vcs`.
-Release evidence must establish that historical evidence remains interpretable
-and that refreshed reference data is distinguishable from code behavior.
+Knowledge follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports source archives
+without repository history; it is not a version for a reference corpus or a
+separate Knowledge release line. Release evidence must establish that historical
+evidence remains interpretable and that refreshed reference data is
+distinguishable from code behavior.
 
 ## Separate code, schema, and corpus movement
 

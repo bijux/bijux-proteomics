@@ -9,9 +9,13 @@ last_reviewed: 2026-07-21
 
 # Release and versioning
 
-Core versions are resolved from repository Git tags through `hatch-vcs`. A Core
-release is trustworthy only when its scientific meaning, executable interfaces,
-and published artifacts agree at that version.
+Core follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata exists for source
+archives without repository history; it is not a second version authority. A
+Core release is trustworthy only when its scientific meaning, executable
+interfaces, and published artifacts agree at that version.
 
 ## Release classification
 
