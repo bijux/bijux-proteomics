@@ -1,7 +1,7 @@
 ---
 title: Flagship Release Candidate
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-docs
 last_reviewed: 2026-07-21
@@ -9,85 +9,95 @@ last_reviewed: 2026-07-21
 
 # Flagship Release Candidate
 
-The repository does not currently have an unqualified flagship release
-candidate. Its strongest workflow packets are public and inspectable, but the
-ordered release preflight still reports scientific-ownership and runtime-rerun
-blockers. A tag or successful build would not remove those blockers.
+The `flagship-release-candidate-bundle` is the review boundary for the
+repository’s strongest workflow-family evidence. It is not an unqualified
+release approval. Publication remains blocked whenever ownership, generated
+governance, Runtime reproducibility, public language, or downstream consequence
+reports a narrower result.
 
-The checked family matrix currently records:
+## Candidate Scope
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+- full outsider-readable family packets: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- internal-support-only workflow families: `multiplex`
 
-Internal-support-only workflow families today: `multiplex`.
+An outsider-readable packet means the sources, manifests, outputs, tests,
+limitations, and review route are available for inspection. It does not mean
+every family has the same Runtime mode or allowed claim. In particular, the DDA
+black-box lane remains review-grade bounded because it begins after external
+search execution.
 
-LFQ remains review-grade bounded. DDA also has an active runtime veto: although
-the family matrix earns an outsider-auditable cell, the black-box dashboard
-defends only review-grade bounded because the repository does not own the raw
-search-engine execution lane. The effective release sentence follows that
-weaker result.
-
-## Candidate Evidence Chain
+## Evidence Inventory
 
 ```mermaid
-flowchart TB
-    source["tagged source revision"]
-    ownership["single owners and package boundaries"]
-    benchmark["tracked benchmark packages"]
-    runtime["black-box rerun evidence"]
-    review["grounding and recommendation challenge"]
-    consequence["requested and observed consequence"]
-    release{"all required gates pass?"}
-    publish["candidate may be published"]
-    refuse["candidate remains blocked"]
-
-    source --> ownership --> benchmark --> runtime --> review --> consequence --> release
-    release -->|yes| publish
-    release -->|no| refuse
+flowchart LR
+    roots["paired public benchmark packages"] --> stability["family_stability_scorecard.json"]
+    stability --> rerun["independent rerun dossiers"]
+    rerun --> review["external review kits"]
+    review --> consequence["requested-versus-observed outcome dossier"]
+    consequence --> index["public artifact index + role matrix"]
+    index --> decision{"candidate accepted?"}
+    decision -->|no| refusal["narrow or refuse release language"]
 ```
 
-A release candidate must preserve all of these links. Benchmark depth cannot
-compensate for duplicate model ownership. Reproducible orchestration cannot
-compensate for an import-only scientific engine. A recommendation packet cannot
-compensate for missing consequence evidence.
+The bundle must retain:
 
-## Current Blocking Evidence
+- primary and companion benchmark manifests for each covered family;
+- `family_stability_scorecard.json` and its perturbation evidence;
+- independent rerun dossiers with environment and artifact identity;
+- external review kits that do not depend on maintainer narration;
+- a requested-versus-observed outcome dossier when follow-up evidence exists;
+- the [public artifact index](public-artifact-index.md) and
+  [Public Artifact Role Matrix](public-artifact-role-matrix.md);
+- current claim limits, refusals, and the exact release-preflight result.
 
-The live preflight currently identifies:
+No artifact can substitute for a different authority layer. A run bundle does
+not replace benchmark acceptance; a decision brief does not replace grounded
+evidence; a clean outcome does not retroactively authorize the original
+recommendation.
 
-- duplicate canonical ownership for `BeliefAuditEntry`, `BeliefAuditReport`,
-  and `BeliefAuditSummary` across Core and Intelligence;
-- a Core package surface with 133 thin modules that still needs tighter
-  ownership boundaries;
-- DDA rerun evidence that begins after external search execution;
-- a DIA route that remains conditioned on exported libraries;
-- multiplex evidence that does not close external-comparison and consequence
-  requirements;
-- generated public-governance and runtime pages that are stale relative to
-  their live evidence.
+## Stability And Coexistence
 
-These are product and evidence failures, not missing release prose.
+The candidate review requires a stable coexistence map for canonical packages,
+compatibility distributions, public imports, commands, schemas, and artifacts.
+Compatibility aliases must either preserve observable parity or carry explicit
+retirement evidence.
 
-## Strongest Reviewable Packet
+It also requires a stable language-demotion rule set. When the requested family
+language exceeds black-box, grounding, recommendation, or consequence
+evidence, the candidate adopts the lower allowed language automatically. A
+release note cannot override that demotion.
 
-The DDA reviewable run is the deepest current packet:
+## Blocking Review
 
-`packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/`
+Open these surfaces in order:
 
-It contains a package manifest, scientific invariants, warning demonstrations,
-and reviewable outputs. Open it alongside the runtime black-box result and the
-MaxQuant/MSFragger comparison evidence. The packet demonstrates substantial
-review depth; it does not supply the missing raw search execution lane.
+1. [Workflow claim limits](workflow-claim-limits.md) for requested and allowed
+   language;
+2. [Core benchmark assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+   for source, license, acceptance, freshness, and incompleteness;
+3. [Execution](../../09-bijux-proteomics-runtime/execution-overview.md) and
+   [Black-Box Run Verification](../../09-bijux-proteomics-runtime/black-box-run-verification.md)
+   for actual run mode and rerun evidence;
+4. [Decision Support](decision-support.md) for grounding, challenge, and
+   recommendation stability;
+5. [Lab Consequence](../../07-bijux-proteomics-lab/foundation/lab-consequence.md)
+   for readiness, burden, refusal, and observed outcomes;
+6. [Release Narrowing Protocol](release-narrowing-protocol.md) for evidence-led
+   language demotion;
+7. [Hostile Review Kit](hostile-review-kit.md) for independent scrutiny;
+8. [Why This Repository Is Not Ready Yet](why-this-repository-is-not-ready-yet.md)
+   and [What Would Make This Repository Ready](what-would-make-this-repository-ready.md)
+   for open vetoes and their closure evidence.
 
-## Release Review Order
+## Reader Routes
 
-1. [Workflow claim limits](workflow-claim-limits.md)
-2. [Public artifact index](public-artifact-index.md)
-3. [Core benchmark assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
-4. [Runtime black-box verification](../../09-bijux-proteomics-runtime/black-box-run-verification.md)
-5. [Decision support](decision-support.md)
-6. [Current capability limits](current-capability-limits.md)
-7. [Release readiness matrix](release-readiness-matrix.md)
+- Open [Workflow Families](workflow-families.md) to compare family trust status,
+  run mode, benchmark coverage, and blockers.
+- Open [Execution](../../09-bijux-proteomics-runtime/execution-overview.md) to
+  distinguish native, delegated, and imported work.
+- Open [Decision Support](decision-support.md) to identify the owner currently
+  limiting the advisory conclusion.
 
-The candidate remains blocked whenever any required surface reports a narrower
-result. Publication language may widen only after the evidence, generated
-governance records, and release preflight agree.
+The candidate is publishable only when the tagged source, package ownership,
+generated governance, benchmark evidence, Runtime lane, consequence chain, and
+public language agree on the same bounded result.

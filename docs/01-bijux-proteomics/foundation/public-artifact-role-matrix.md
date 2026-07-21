@@ -1,68 +1,82 @@
 ---
 title: Public Artifact Role Matrix
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # Public Artifact Role Matrix
 
-This page records why public proof surfaces that look adjacent still both
-exist, and which one is stronger when they answer related questions.
+Artifacts that discuss the same workflow can carry different authority. This
+matrix distinguishes navigation from proof, primary evidence from derived
+views, and a bounded positive result from the challenge evidence that can
+overturn it.
 
-The point is not cataloging for its own sake. The point is to stop the docs
-tree from accumulating several trust-shaped pages that all feel similar but do
-not clearly justify their coexistence.
+`weaker artifact` does not mean useless. It means the artifact answers a
+narrower question or derives from evidence elsewhere. `stronger artifact`
+means the more direct or demanding authority for the claim under review.
 
-## How To Read The Matrix
+## Authority Order
 
-- `weaker surface` means a narrower or less decisive page that still helps a
-  different reader or decision step
-- `stronger surface` means the harder challenge route for the same question
-- if an entry cannot name either side, it should be reviewed for removal or
-  consolidation
+```mermaid
+flowchart LR
+    guide["guide or index"] --> summary["generated summary"]
+    summary --> record["versioned evidence record"]
+    record --> challenge["independent challenge result"]
+    challenge --> refusal["release acceptance or refusal"]
+```
 
-## Repository-Level Roles
+Authority is question-specific. A benchmark manifest is stronger than a prose
+summary for input identity, while a Runtime run bundle is stronger for what
+executed. Neither can answer the other question by itself.
 
-| surface | role | weaker surface | stronger surface |
+## Repository Roles
+
+| Artifact | Question answered | Weaker artifact | Stronger artifact |
 | --- | --- | --- | --- |
-| [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/) | strongest current release sentence | [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) when the question is only ceiling language | [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/) when the question is the hardest outsider challenge route |
-| [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) | honesty boundary and release-language brake | none | [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/) when the question is the current positive sentence |
-| [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/) | strongest whole-repository challenge route | [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/) | none |
-| [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/) | closing-condition surface for wider language | [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/) | none |
+| [Public Artifact Index](public-artifact-index.md) | where does review begin? | duplicated navigation in package pages | the underlying artifact for the selected claim |
+| [Current Capability Limits](current-capability-limits.md) | where must language stop? | package overview caveats | the failing benchmark, Runtime, grounding, decision, or consequence record |
+| [Flagship Release Candidate](flagship-release-candidate.md) | what candidate scope and vetoes are assembled? | family overview | [Hostile Review Kit](hostile-review-kit.md) and live release preflight |
+| [Release Readiness Matrix](release-readiness-matrix.md) | which proof categories and gates apply? | prose checklist | validator output and referenced evidence paths |
+| [What Would Make This Repository Ready](what-would-make-this-repository-ready.md) | what evidence would close each blocker? | unscheduled roadmap language | accepted closure evidence plus a passing gate |
 
 ## Workflow-Family Roles
 
-For each outsider-facing flagship family:
+| Artifact | Owner | Authority |
+| --- | --- | --- |
+| family overview or trust guide | repository docs | explains scope, status, and navigation; does not independently prove the status |
+| benchmark manifest and lineage | Core | establishes source, corpus, policy, and acceptance boundary |
+| primary run bundle | Runtime | establishes execution for the declared primary lane |
+| companion run and comparison | Runtime with Core assets | applies transfer or stress pressure to the primary result |
+| claim and contradiction bundle | Knowledge | establishes contextual support and unresolved conflict |
+| recommendation challenge record | Intelligence | establishes sensitivity, calibration, downgrade, and refusal |
+| requested-versus-observed dossier | Lab | establishes downstream readiness, burden, QC, deviations, and outcome |
+| external review kit | cross-package | assembles the independent opening route without replacing any owner record |
 
-- the trust page is weaker than the external review kit because it explains the
-  sentence rather than challenging it as hard as possible
-- the independent rerun dossier is weaker than the external review kit because
-  it isolates the replay and rerun challenge instead of packaging the full
-  benchmark-to-consequence route
-- the external review kit is the strongest outsider-facing family artifact
-  because it packages the distinct challenge surfaces together
+For `dda`, `dia`, `lfq`, `ptm`, and `targeted`, an outsider packet can combine
+these roles. Multiplex remains `internal_support_only`; assembling its artifacts
+does not override fragile transfer or incomplete consequence evidence.
 
-This role pattern applies to `dda`, `dia`, `lfq`, `ptm`, and `targeted`.
+## Coexistence Rules
 
-## Why This Is A Quality Surface
+Two public artifacts may coexist when:
 
-- it forces new public artifacts to justify a distinct decision role
-- it makes weaker-but-still-useful surfaces explicit instead of accidental
-- it gives maintainers a durable removal rule when the tree starts to sprawl
+- they have different owner packages or authority questions;
+- one is a stable derived view with a freshness check and resolvable source;
+- one preserves historical or compatibility evidence required for replay;
+- one applies independent pressure that the primary artifact does not contain.
 
-## Rule
+Consolidate or remove an artifact when:
 
-A new public artifact should do one of two things:
+- it repeats another artifact’s conclusion without adding evidence or a reader
+  route;
+- its owner, generator, source identity, or freshness check is unknown;
+- readers can mistake it for a stronger authority surface;
+- it survives only because old links exist and no compatibility contract
+  requires it.
 
-- replace a weaker surface
-- justify a distinct stronger or weaker role beside an existing surface
-
-If it does neither, it should not remain in the public artifact set.
-
-## Boundary
-
-This page explains coexistence and replacement pressure. It should not become
-a second index once the stronger opening order is already clear.
+When artifacts disagree, the preferred conclusion does not select the winner.
+Open the source identities, owner contracts, and validators; then narrow the
+claim until the conflict is resolved.

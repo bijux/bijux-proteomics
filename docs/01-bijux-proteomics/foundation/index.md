@@ -82,23 +82,23 @@ flowchart LR
 
 1. Read the [release readiness matrix](release-readiness-matrix.md) to identify
    the proof category required by the claim.
-2. Open the [public artifact index](public-artifact-index.md) and use the
-   [artifact role matrix](public-artifact-role-matrix.md) to distinguish
+2. Open the [Public Artifact Index](public-artifact-index.md) and use the
+   [Public Artifact Role Matrix](public-artifact-role-matrix.md) to distinguish
    benchmark, rerun, review, and consequence evidence.
 3. Follow an [independent rerun dossier](independent-rerun-dossiers.md) or an
    [external review kit](external-review-kits.md) without relying on maintainer
    narration.
-4. Apply the [hostile review kit](hostile-review-kit.md), including negative
+4. Apply the [Hostile Review Kit](hostile-review-kit.md), including negative
    paths and missing-evidence checks.
 5. If the evidence does not meet the burden, use the
-   [release narrowing protocol](release-narrowing-protocol.md) rather than
+   [Release Narrowing Protocol](release-narrowing-protocol.md) rather than
    strengthening the prose.
 
 The [flagship release candidate](flagship-release-candidate.md) and
 [one-workflow support record](what-one-workflow-family-supports-today.md) show
 how those layers compose for a concrete public claim. The
 [readiness blockers](why-this-repository-is-not-ready-yet.md) and
-[acceptance conditions](what-would-make-this-repository-ready.md) keep remaining
+[What Would Make This Repository Ready](what-would-make-this-repository-ready.md) keep remaining
 gaps explicit.
 
 ## Ownership rules
