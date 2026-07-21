@@ -132,6 +132,35 @@ Intelligence may consume all of those signals, but it must not rewrite them.
 Outcome-aware learning creates a new policy or calibration record rather than
 editing the historical recommendation.
 
+## Compare decisions without erasing history
+
+When a recommendation changes, compare immutable decision records. Do not
+rewrite the earlier record to match the current evidence or policy.
+
+| Comparison dimension | Meaning of a difference | Required interpretation |
+| --- | --- | --- |
+| candidate universe | candidates were added, removed, or newly excluded | isolate selection effects before comparing scores |
+| evidence fingerprint | the support or contradiction snapshot changed | attribute the change to evidence custody in Knowledge |
+| policy fingerprint | weights, thresholds, constraints, or objectives changed | report a policy change, not scientific discovery |
+| scenario set | the tested uncertainty envelope changed | compare only shared scenarios or label the new burden |
+| feasibility input | cost, capacity, safety, or assay burden changed | distinguish operational consequence from evidence strength |
+| ranking and posture | ordering, confidence, escalation, or refusal changed | state which upstream difference caused the disposition change |
+
+```mermaid
+flowchart LR
+    O["earlier decision record"] --> CP["compare fingerprints and inputs"]
+    N["current decision record"] --> CP
+    CP --> EC{"what changed?"}
+    EC -->|evidence| ER["evidence-attributed explanation"]
+    EC -->|policy| PR["policy-attributed explanation"]
+    EC -->|feasibility| FR["consequence-attributed explanation"]
+    EC -->|multiple| MR["separate effects and disclose ambiguity"]
+```
+
+If the responsible difference cannot be isolated, the correct output is an
+attribution gap. A plausible narrative is not a substitute for matching
+record identities.
+
 ## Human authority boundary
 
 Intelligence can rank, challenge, downgrade, or refuse an action. It does not
@@ -151,26 +180,20 @@ flowchart LR
 
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  places recommendations in the full evidence-to-action system.
-- [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
-  trace how family-specific evidence changes downstream decisions.
-- [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
-  explains how to compare decision records without erasing history.
-- [Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md)
-  bounds the operational effect of advisory output.
+| Question | Authority |
+| --- | --- |
+| where does advisory judgment sit in the product? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| how does family-specific evidence affect an action? | [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md) |
+| why did two recommendation records differ? | [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md) |
+| what operational authority remains outside Intelligence? | [Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md) |
 
 ## Start Inside
 
-- [Package overview](foundation/package-overview.md) describes analytical
-  modules and artifact flow.
-- [Recommendation challenges](foundation/workflow-recommendation-challenges.md)
-  covers blinded, counterfactual, and family-specific pressure.
-- [Recommendation confidence](foundation/workflow-recommendation-confidence.md)
-  covers calibration, overconfidence, underconfidence, and regret.
-- [Architecture](architecture/index.md) explains policy and dependency
-  boundaries.
-- [Interfaces](interfaces/index.md) documents Python, data, and artifact
-  contracts.
-- [Known limitations](quality/known-limitations.md) records where decision
-  authority remains bounded.
+| Need | Read next |
+| --- | --- |
+| understand module ownership and artifact flow | [package overview](foundation/package-overview.md) |
+| pressure-test a ranking | [recommendation challenges](foundation/workflow-recommendation-challenges.md) |
+| interpret confidence, calibration, or regret | [recommendation confidence](foundation/workflow-recommendation-confidence.md) |
+| inspect policy and dependency boundaries | [architecture](architecture/index.md) |
+| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) |
+| determine when Intelligence must downgrade or refuse | [known limitations](quality/known-limitations.md) |

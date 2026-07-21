@@ -151,6 +151,36 @@ flowchart TD
 Retrieval success, identifier resolution, and source reputation are necessary
 inputs to grounding; none alone makes a claim true.
 
+## Evidence sufficiency is use-specific
+
+The same evidence bundle can be adequate for description and inadequate for
+prioritization or experimental action. Sufficiency must therefore name the
+intended use and apply its burden explicitly.
+
+| Intended use | Minimum review burden | Stop condition |
+| --- | --- | --- |
+| describe an observation | resolved subject, source, context, and faithful proposition | identity or context remains unresolved |
+| summarize a body of evidence | source diversity, deduplication, support and contradiction edges, coverage limits | the summary hides conflict or systematic gaps |
+| prioritize a candidate | relevant support, active contradictions, comparator context, and evidence-quality assessment | ranking would depend on missing or indirect evidence |
+| support an experimental decision | candidate burden plus falsifiers, uncertainty, feasibility-relevant context, and explicit review scope | consequential uncertainty has no owner or response |
+| revise an earlier conclusion | new evidence identity, previous bundle identity, reconciliation result, and change explanation | history would need to be overwritten to explain the change |
+
+```mermaid
+flowchart TD
+    EB["versioned evidence bundle"] --> IU{"intended use"}
+    IU --> DS["descriptive burden"]
+    IU --> PS["prioritization burden"]
+    IU --> AS["action-support burden"]
+    DS --> RV{"burden met?"}
+    PS --> RV
+    AS --> RV
+    RV -->|yes| SB["sufficiency record with limits"]
+    RV -->|no| KG["knowledge deficit or refusal"]
+```
+
+Sufficiency is not stored as an unqualified property of a source or claim. It
+is a versioned assessment of a named bundle against a named use.
+
 ## Ownership boundary
 
 Knowledge depends on foundation contracts and core scientific semantics. It
@@ -162,26 +192,20 @@ their own policy or operational state.
 
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  locates evidence custody in the complete product system.
-- [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
-  connect grounded claims to downstream review and action.
-- [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
-  shows how evidence changes remain attributable in decision history.
-- [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
-  explains the handoff from reconciled evidence to advisory judgment.
+| Question | Authority |
+| --- | --- |
+| where does evidence custody sit in the product? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| how can evidence change downstream action? | [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md) |
+| how is a changed recommendation attributed? | [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md) |
+| how does a review bundle become advisory judgment? | [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) |
 
 ## Start Inside
 
-- [Package overview](foundation/package-overview.md) maps memory, grounding,
-  biological context, and review surfaces.
-- [Workflow claim grounding](foundation/workflow-claim-grounding.md) traces
-  public claims to support and contradiction.
-- [Workflow literature audits](foundation/workflow-literature-audits.md)
-  explains curated source pressure.
-- [Architecture](architecture/index.md) covers memory and reconciliation
-  boundaries.
-- [Interfaces](interfaces/index.md) documents Python, data, and artifact
-  contracts.
-- [Known limitations](quality/known-limitations.md) records source, coverage,
-  and inference limits.
+| Need | Read next |
+| --- | --- |
+| understand memory, grounding, and review ownership | [package overview](foundation/package-overview.md) |
+| trace a public claim to support and contradiction | [workflow claim grounding](foundation/workflow-claim-grounding.md) |
+| evaluate curated literature pressure | [workflow literature audits](foundation/workflow-literature-audits.md) |
+| inspect memory and reconciliation boundaries | [architecture](architecture/index.md) |
+| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) |
+| review source, coverage, and inference limits | [known limitations](quality/known-limitations.md) |
