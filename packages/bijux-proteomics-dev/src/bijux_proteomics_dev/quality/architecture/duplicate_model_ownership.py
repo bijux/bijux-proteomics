@@ -13,6 +13,7 @@ __all__ = [
     "DuplicateModelDefinition",
     "DuplicateModelOwnershipIssue",
     "build_duplicate_model_inventory",
+    "is_duplicate_model_ownership_report_up_to_date",
     "run",
     "validate_duplicate_model_ownership",
 ]
@@ -357,6 +358,13 @@ def _is_up_to_date(
     ) and DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.read_text(
         encoding="utf-8"
     ) == _summary_text(definitions, issues)
+
+
+def is_duplicate_model_ownership_report_up_to_date() -> bool:
+    """Return whether generated ownership artifacts match the current inventory."""
+    definitions = build_duplicate_model_inventory(REPO_ROOT)
+    issues = validate_duplicate_model_ownership(REPO_ROOT)
+    return _is_up_to_date(definitions, issues)
 
 
 def run(check: bool = False) -> int:
