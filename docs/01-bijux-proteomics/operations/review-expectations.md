@@ -1,50 +1,68 @@
 ---
 title: Review Expectations
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Review Expectations
+# Review expectations
 
-Root review should be stricter than a purely local code review because repository
-changes can alter how the whole package family is explained, validated, or
-released.
+Review establishes that the change belongs to the right owner, moves every
+affected contract deliberately, and carries evidence proportional to its risk.
+Style and passing tests do not compensate for an incorrect ownership boundary
+or an unexplained scientific consequence.
 
-## Review Model
+## Review in risk order
 
 ```mermaid
-flowchart TB
-    change["repository-level change"]
-    owner["right owning surface"]
-    alignment["docs, artifacts, metadata, and automation align"]
-    proof["best proof surface named directly"]
-    accept["ready for root review"]
-
-    change --> owner
-    owner --> alignment
-    alignment --> proof
-    proof --> accept
+flowchart TD
+    scope["scope and owner"]
+    meaning["scientific or operational meaning"]
+    contracts["API · data · CLI · artifacts"]
+    evidence["tests · benchmarks · migration"]
+    delivery["docs · metadata · release"]
+    scope --> meaning --> contracts --> evidence --> delivery
 ```
 
-This page should make root review feel like a coherence check across several proof classes, not just a stricter style review. If a reviewer cannot point to the best proof surface directly, the change is not ready.
+Stop early when the owner is wrong. Detailed line review is wasted if Core
+logic is being added to Runtime, a compatibility package is gaining canonical
+behavior, or a maintainer helper is defining product policy.
 
-## Non-Negotiable Evidence
+## Evidence by change class
 
-- the change lives in the right owning surface
-- docs, schema artifacts, metadata, and automation move together when they
-  describe the same behavior
-- package-local behavior is not smuggled into root or maintainer automation
-- the best proof surface is named directly, not implied
+| Change | Review evidence |
+| --- | --- |
+| scientific algorithm or threshold | curated cases, units, tolerances, failure boundaries, and interpretation impact |
+| persisted model or schema | old-load or migration proof, deterministic serialization, and consumer round trip |
+| public API, CLI, or import | snapshots, behavior tests, alias impact, and migration guidance |
+| runtime execution | state transitions, artifact lineage, replay, failure recovery, and provider boundaries |
+| evidence or decision policy | provenance, ambiguity, contradiction, sensitivity, refusal, and explanation |
+| lab planning or outcome | authority, readiness, handoff idempotency, QC, deviation, and reconciliation |
+| automation or release | command trace, package selection, environment, permissions, and failure propagation |
+| public documentation | reader-facing language, source-backed claims, working links, examples, and MkDocs build |
 
-## First Proof Check
+## Diff and commit review
 
-- the owning handbook branch
-- the matching code, tests, tracked artifacts, or workflow files
-- staged diff boundaries before commit so one intent stays one review unit
+Each commit represents one durable intent and leaves the repository coherent.
+Review the staged diff, not only the working tree, so unrelated files and
+generated residue do not enter the commit. Generated contract refreshes remain
+separate from handwritten changes unless the two are inseparable for
+correctness.
 
-## Design Pressure
+Names must describe enduring responsibility rather than delivery sequence or
+temporary status. New top-level modules, directories, commands, and public
+symbols require an obvious owner and navigation route.
 
-The easy failure is to review repository changes with package-local standards and miss the cross-surface drift that only shows up when docs, automation, and contracts are read together.
+## Completion record
+
+The handoff identifies what changed, the relevant owner, commands run, exact
+failures or skipped checks, compatibility impact, and remaining limitations.
+Known failures stay visible even when unrelated to the patch. A review is not
+complete when a gate was silenced, an exclusion broadened, or output was moved
+out of sight.
+
+The reviewer should be able to connect every important claim in the change to
+source, a contract, and appropriate evidence without relying on private context
+from the author.
