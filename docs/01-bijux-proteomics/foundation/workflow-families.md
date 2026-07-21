@@ -7,103 +7,130 @@ owner: bijux-proteomics-docs
 last_reviewed: 2026-07-21
 ---
 
-# Workflow families
+# Workflow Families
 
-Proteomics workflows have different inputs, assumptions, failure modes, and
-evidence depth. Bijux Proteomics therefore assigns public confidence to each
-family separately. Support in one family does not transfer automatically to
-another.
+Support is evaluated separately for `dda`, `dia`, `lfq`, `multiplex`, `ptm`,
+and `targeted`. Each family has different source material, scientific
+assumptions, executable lanes, failure modes, comparison rules, and downstream
+consequences. Evidence from one family does not raise another family’s status.
 
-## Evidence posture
+## Current Family Status
 
-| Family | Public posture | Primary run mode | Strongest current evidence | Principal limitation |
+The trust status below is the strongest language defended by the checked
+benchmark package and black-box Runtime evidence. It is a ceiling, not a
+promise that every dataset inside the family will meet the same result.
+
+| family | trust status | primary run mode | benchmark coverage | current blockers |
 | --- | --- | --- | --- | --- |
-| DDA | outsider-auditable, bounded | `import_only` | public benchmark lineage, reviewed downstream identification and replay evidence | live in-repository search-engine parity remains narrower |
-| DIA | outsider-auditable, bounded | `raw_executable` | library-aware benchmark, execution, replay, and comparison records | incomplete libraries and absent-peptide consequences |
-| LFQ | review-grade, bounded | `raw_executable` | normalization, missingness, cohort, and quantitative review surfaces | transfer evidence and external-review depth |
-| multiplex | internal support | `raw_executable` | substantive runtime and analysis surfaces | public stress evidence does not sustain outsider-facing trust |
-| PTM | outsider-auditable, bounded | `raw_executable` | localization, site mapping, site-level review, and consequence-aware records | downstream biological consequence is less certain than localization |
-| targeted | outsider-auditable, bounded | `raw_executable` | panel, calibration, interference, transition, and validation-planning records | matrix effects, calibration transfer, interference, and assay burden |
+| `dda` | `review_grade_bounded` | `import_only` | MaxQuant primary package, Comet/Sage companion pressure, reviewed PSM/FDR/inference outputs | no repository-owned raw search execution; imported engines and parameters bound parity |
+| `dia` | `outsider_auditable_bounded` | `raw_executable` over checked reports | Spectronaut primary package, DIA-NN matrix-shift companion, library-aware QC and comparison | no chromatogram-native replay; library completeness and absent-peptide consequences remain bounded |
+| `lfq` | `outsider_auditable_bounded` | `raw_executable` over checked features | cohort primary package, sparse-contrast companion, normalization and missingness pressure | cohort transfer and external truth beyond repeatability remain bounded |
+| `multiplex` | `internal_support_only` | `raw_executable` over checked features | TMTpro primary package, channel-stress companion, ratio and interference surfaces | transfer is fragile; outsider review and laboratory consequence are not closed |
+| `ptm` | `outsider_auditable_bounded` | `raw_executable` over checked localization inputs | localization primary package, ambiguity companion, site mapping and site-level review | function, occupancy, and regulatory consequence remain weaker than localization |
+| `targeted` | `outsider_auditable_bounded` | `raw_executable` over checked targeted QC | transition primary package, carryover companion, panel and follow-up records | vendor parity, calibration transfer, matrix interference, and assay burden remain bounded |
 
-`Raw executable` means the repository can operate the declared lane from its
-scientific inputs. `Import only` means the strongest evidence begins with
-externally produced results and reviews them under owned contracts. Neither
-label is an accuracy grade.
+`raw_executable` means the repository can execute its declared transformation
+from the checked scientific inputs. It does not mean vendor-native raw files
+are processed for every family. `import_only` means the strongest lane begins
+with results produced by an external engine and preserves their provenance
+through owned review contracts. Neither mode is an accuracy grade.
 
-## Family boundaries
-
-### Data-dependent acquisition
-
-DDA support centers on governed search-result intake, PSM normalization,
-target-decoy FDR, protein inference, quantification, and downstream review.
-Claims must identify whether search execution occurred outside the repository
-and preserve search-engine and parameter provenance.
-
-[Inspect DDA benchmark lineage](../../04-bijux-proteomics-core/foundation/dda-benchmark-lineage.md).
-
-### Data-independent acquisition
-
-DIA support includes precursor and protein matrices, library-aware processing,
-quantification, replay, and benchmark comparison. Library construction,
-coverage, interference, and treatment of missing precursors constrain
-cross-study conclusions.
-
-[Inspect DIA benchmark lineage](../../04-bijux-proteomics-core/foundation/dia-benchmark-lineage.md).
-
-### Label-free quantification
-
-LFQ conclusions depend strongly on design, normalization, missingness,
-batch structure, aggregation, and contrast policy. A workflow can be
-operationally reproducible while remaining sensitive to those analytical
-choices.
-
-[Inspect LFQ benchmark lineage](../../04-bijux-proteomics-core/foundation/lfq-benchmark-lineage.md).
-
-### Multiplex quantification
-
-Multiplex models and runtime routes exist, but public trust remains internal.
-Channel assignment, pooled-reference strategy, ratio compression,
-interference, bridge design, and batch connectivity require stronger public
-stress evidence before the posture can widen.
-
-[Inspect multiplex benchmark lineage](../../04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage.md).
-
-### Post-translational modification analysis
-
-PTM support separates modified-peptide evidence, localization, protein-site
-mapping, site-level FDR, abundance correction, motifs, occupancy, and
-functional interpretation. A confidently localized site is not automatically
-a causal or functional result.
-
-[Inspect PTM benchmark lineage](../../04-bijux-proteomics-core/foundation/ptm-benchmark-lineage.md).
-
-### Targeted proteomics
-
-Targeted support covers candidate peptides, transitions, calibration,
-interference, assay planning, and discovery-to-validation handoff. Claims must
-retain matrix, calibration range, limit, transition, and readiness context.
-
-[Inspect targeted benchmark lineage](../../04-bijux-proteomics-core/foundation/targeted-benchmark-lineage.md).
-
-## How posture is established
+## Evidence Ladder
 
 ```mermaid
 flowchart LR
-    benchmark["public inputs and acceptance contract"]
-    science["family-specific scientific result"]
-    runtime["execution and replay evidence"]
-    grounding["sources and contradictions"]
-    decision["challenge and recommendation"]
-    consequence["lab feasibility or outcome"]
-    posture["bounded public posture"]
-    benchmark --> science --> runtime --> grounding --> decision --> consequence --> posture
+    asset["source, license, and benchmark manifest"] --> science["family scientific contract"]
+    science --> execution["Runtime lane and run bundle"]
+    execution --> grounding["support, contradiction, and context"]
+    grounding --> judgment["challenge, sensitivity, and refusal"]
+    judgment --> consequence["feasibility and observed outcome"]
+    consequence --> status["bounded trust status"]
+    asset -. missing .-> narrow["narrow or refuse"]
+    execution -. imported or unstable .-> narrow
+    grounding -. contradicted .-> narrow
+    consequence -. infeasible .-> narrow
 ```
 
-The weakest required layer limits the final posture. A strong runtime lane
-cannot compensate for weak scientific acceptance criteria; a strong benchmark
-cannot compensate for missing provenance; a recommendation cannot compensate
-for infeasible validation.
+The weakest required layer determines the public claim. A complete Runtime
+bundle cannot compensate for an unclear scientific acceptance policy. A
+grounded claim cannot compensate for a recommendation that reverses under a
+small policy change. A recommendation cannot compensate for infeasible or
+uninformative laboratory follow-up.
 
-For a full review procedure, use the [scientist journey](scientist-journey.md).
-For claims that remain unsupported or bounded, see
-[current capability limits](current-capability-limits.md).
+## DDA
+
+DDA support covers governed search-result intake, PSM normalization,
+target-decoy FDR, protein inference, quantification, and downstream review. The
+primary and companion lanes import external-engine results; they do not run a
+search engine from raw spectra inside this repository.
+
+Inspect [DDA Benchmark Lineage](../../04-bijux-proteomics-core/foundation/dda-benchmark-lineage.md),
+[DDA Cross-Package Handbook](dda-cross-package-handbook.md), and the
+[Runtime Execution Boundary](../../09-bijux-proteomics-runtime/runtime-execution-boundary.md)
+before making a rerun or parity claim.
+
+## DIA
+
+DIA support covers library-conditioned precursor and protein matrices,
+quantification, run QC, replay, and comparison between checked Spectronaut and
+DIA-NN exports. The executable lane operates on those checked reports; it does
+not establish chromatogram-native or universal vendor parity.
+
+Inspect [DIA Benchmark Lineage](../../04-bijux-proteomics-core/foundation/dia-benchmark-lineage.md)
+and record spectral-library coverage, absent-precursor policy, and matrix-shift
+sensitivity with the result.
+
+## LFQ
+
+LFQ conclusions depend on design, normalization, missingness, batch structure,
+aggregation, and contrast policy. The primary cohort and sparse companion give
+real transfer pressure, but operational repeatability is not external
+quantitative truth.
+
+Inspect [LFQ Benchmark Lineage](../../04-bijux-proteomics-core/foundation/lfq-benchmark-lineage.md)
+and preserve the design and missingness policy alongside every comparison.
+
+## Multiplex
+
+Multiplex has substantive scientific models and executable primary and
+channel-stress lanes. Its status remains internal because companion pressure
+exposes fragile transfer and the outsider-facing decision and laboratory chain
+is incomplete.
+
+Inspect [Multiplex Benchmark Lineage](../../04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage.md)
+and [Why Multiplex Stops At Internal Support](why-multiplex-stops-at-internal-support.md).
+Do not borrow trust from LFQ or targeted workflows merely because their
+quantitative vocabulary overlaps.
+
+## PTM
+
+PTM support separates modified-peptide evidence, localization, protein-site
+mapping, site-level FDR, abundance correction, motifs, occupancy, and
+interpretation. A confidently localized site is not automatically functional,
+causal, occupied, or regulatory.
+
+Inspect [PTM Benchmark Lineage](../../04-bijux-proteomics-core/foundation/ptm-benchmark-lineage.md)
+and retain ambiguity and protein-abundance context through the handoff.
+
+## Targeted
+
+Targeted support covers candidate peptides, transitions, calibration,
+interference, assay QC, and discovery-to-validation handoff. Matrix,
+calibration range, carryover, limits, transition identity, and readiness state
+remain part of the claim.
+
+Inspect [Targeted Benchmark Lineage](../../04-bijux-proteomics-core/foundation/targeted-benchmark-lineage.md)
+before treating a technically executable follow-up as analytically transferable.
+
+## Follow A Family
+
+- [Scientist Journey](scientist-journey.md) follows one claim from benchmark to
+  observed consequence.
+- [Benchmark Assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+  covers source custody, licensing, freshness, and acceptance.
+- [Execution](../../09-bijux-proteomics-runtime/execution-overview.md) explains
+  run modes, state, artifacts, and replay.
+- [Decision Support](decision-support.md) identifies the layer that limits an
+  advisory conclusion.
+- [Current Capability Limits](current-capability-limits.md) records evidence
+  that is absent, bounded, or insufficient for stronger language.

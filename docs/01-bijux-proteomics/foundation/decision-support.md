@@ -4,129 +4,110 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # Decision Support
 
-This route exists for the question after benchmark and runtime evidence:
-what should a skeptical reader believe now, and which owner surface actually
-earns that sentence.
+Decision support begins after a scientific result exists. It determines what a
+reviewer may believe, which advisory action remains defensible, and why a
+stronger action is downgraded or refused. It never turns a successful run into
+scientific truth or an advisory ranking into authority to act.
 
-Decision support is where the repository stops pretending that stronger code,
-cleaner prose, or a successful rerun automatically create stronger judgment.
-The full chain has to survive grounded evidence, contradiction pressure,
-recommendation challenge, and downstream lab burden together.
+## Decision Chain
 
-## The Decision Chain
+```mermaid
+flowchart LR
+    result["accepted scientific result"] --> evidence["grounded evidence state"]
+    evidence --> challenge["scenario and counterfactual challenge"]
+    challenge --> recommendation["rank, downgrade, or refusal"]
+    recommendation --> readiness["Lab readiness and burden"]
+    readiness --> review{"human and domain review"}
+    review -->|advisory acceptance| handoff["authorized downstream handoff"]
+    review -->|revise| revision["new evidence or policy record"]
+    review -->|reject| closed["closed or refused action"]
+```
 
-Read the current product judgment in this order:
+Each transition creates or consumes a versioned record. Later evidence may
+change the recommendation, but it must not overwrite the evidence, policy, or
+decision that produced the earlier record.
 
-1. `core` and `runtime` establish what happened, what can be replayed, and how
-   much execution confidence exists
-2. `knowledge` establishes which claim-bearing sentences are grounded and which
-   still remain scientifically contradicted or thin
-3. `intelligence` establishes how strong the recommendation may sound after
-   evidence loss, comparator pressure, and regret review
-4. `lab` establishes whether the requested follow-up still deserves operator
-   burden once controls, readiness, refusal, and observed outcomes are
-   included
+## Find The Limiting Owner
 
-The weakest honest sentence across those four layers wins.
-
-## What This Route Owns
-
-This repository-level route does not replace the package owners. It does
-something narrower and more important:
-
-- it names the order in which the owner pages should be read
-- it keeps one strong artifact from overruling the weaker limiting layer
-- it explains why public language must narrow when downstream consequence does
-  not support the stronger sentence
-
-## Which Limiter Usually Wins
-
-The most common decision-support failures are not missing prose. They are owner
-conflicts such as:
-
-- a strong benchmark packet with weak grounding under contradiction pressure
-- a grounded sentence with visible recommendation overconfidence
-- a strong recommendation that still triggers costly or low-yield follow-up
-- a successful rerun lane that still does not authorize stronger scientific or
-  release language
-
-## Question-To-Owner Route
-
-| reader question | first owner | why |
+| Question | First owner | Required evidence |
 | --- | --- | --- |
-| is the public sentence grounded at all | `knowledge` | grounding and contradiction live there |
-| is the sentence analytically too strong | `intelligence` | recommendation posture and regret live there |
-| is the sentence too expensive or fragile to act on | `lab` | downstream burden and refusal live there |
-| is the sentence blocked because the run itself is not strong enough | `runtime` | rerun realism and artifact proof live there |
-| is the sentence blocked because the evidence root is too thin | `core` | benchmark and flagship contract depth live there |
+| did the computation meet its scientific contract? | Core | typed result, rejections, warnings, benchmark acceptance |
+| what actually executed and can it be reopened? | Runtime | state history, environment, artifacts, replay comparison |
+| which claims are supported or contradicted in context? | Knowledge | evidence bundle, source context, contradiction and reconciliation state |
+| how stable is the proposed action? | Intelligence | policy, rationale, scenarios, counterfactuals, calibration and refusal |
+| is the action feasible and worth its burden? | Lab | readiness, controls, resources, expected information gain and observed outcome |
 
-## Start Here
+The lowest supported layer limits the final sentence. No upstream strength can
+vote away a downstream refusal.
 
-- Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
-  when the first disagreement is whether the sentence itself is scientifically
-  supported.
-- Open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-  when the disagreement is how strong the current recommendation may sound.
-- Open [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
-  when the disagreement is whether downstream burden, refusal, or observed
-  outcome should narrow the sentence.
-- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
-  when the reader needs the whole contradiction-to-recommendation-to-lab route
-  on one page.
-- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
-  when the question is which evidence axis or observed outcome actually moved
-  the call.
+## Recommendation Record
 
-## Questions This Route Should Settle
+A reviewable recommendation identifies:
 
-- Is the current sentence blocked by thin grounding, by recommendation
-  overreach, or by downstream assay burden?
-- Which owner currently deserves the final word on the family call?
-- Which public artifact should a hostile reviewer open first?
-- Which stronger sentence would be dishonest today even if one upstream layer
-  looks impressive?
+- the decision question, target, and allowed action set;
+- the exact scientific result and evidence-bundle versions it consumed;
+- active ranking, calibration, challenge, and refusal policies;
+- alternatives considered and reasons they were rejected;
+- counterfactuals that would reverse, downgrade, or strengthen the result;
+- unresolved contradictions and information gaps;
+- required human or domain review;
+- downstream readiness, burden, and expected information gain;
+- a stable identifier for comparison with later decisions.
 
-## What Changed Since v0.3.7
+A score without these fields is a presentation value, not a reproducible
+decision.
 
-- decision support now crosses richer benchmark, runtime, grounding,
-  recommendation, and lab surfaces instead of leaning on one or two trust pages
-- contradiction, downgrade, regret, refusal, and requested-versus-observed
-  outcome loops are now explicit enough to act as real release-language brakes
-- the repository can now show why a sentence is limited, not merely state that
-  it is limited
+## Read The Consequence Chain
 
-## Reader Discipline
+- [Workflow Claim Grounding](../../06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md)
+  establishes the support, contradiction, freshness, and context of the claim.
+- [Workflow Recommendation Confidence](../../05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence.md)
+  exposes blinded pressure, overconfidence, underconfidence, and regret.
+- [Workflow Consequence Maps](workflow-consequence-maps.md) follows every
+  family from grounded claim through recommendation and laboratory burden.
+- [What Changed The Recommendation](what-changed-the-recommendation.md) compares
+  counterfactual and outcome drivers without erasing history.
+- [Lab Consequence](../../07-bijux-proteomics-lab/foundation/lab-consequence.md)
+  tests whether the advisory action remains feasible and informative.
+- [Outcome Learning Loops](../../07-bijux-proteomics-lab/foundation/outcome-learning-loops.md)
+  returns observations to evidence and policy review.
 
-- do not let a strong benchmark packet outrun a weak grounding surface
-- do not let a grounded sentence outrun a visible downgrade or regret surface
-- do not let a strong recommendation outrun explicit assay burden
-- do not let a feasible assay outrun weak scientific grounding
+## Common Decision Failures
 
-## What This Route Refuses
+| Failure | Why it is unsafe | Correct response |
+| --- | --- | --- |
+| citing benchmark acceptance as biological truth | acceptance is bounded to a corpus and policy | inspect grounded support and contradictions |
+| treating Runtime completion as scientific acceptance | execution and science have different owners | evaluate the Core result contract |
+| reporting only the top-ranked candidate | hides alternatives and sensitivity | preserve ranking rationale and counterfactuals |
+| interpreting confidence as calibration | an internal score may not match observed outcomes | inspect challenge and regret evidence |
+| treating feasibility as authorization | available resources do not grant scientific or operational approval | require explicit human and domain review |
+| rewriting a historical recommendation | destroys reproducibility and learning | append a new decision linked to the prior record |
 
-- benchmark strength by itself is not enough
-- runtime reproducibility by itself is not enough
-- grounded support by itself is not enough
-- recommendation confidence by itself is not enough
-- follow-up feasibility by itself is not enough
+## Widen Or Narrow A Decision
 
-The product claim only widens when the full chain still agrees.
+Widen a recommendation only when the same versioned chain has stronger
+scientific acceptance, grounding, challenge performance, calibration, and
+feasible consequence. Narrow or refuse when any required layer is missing,
+contradicted, unstable, or operationally disproportionate.
 
-## Best Reader Outcome
+```mermaid
+flowchart TD
+    proposed["proposed decision language"] --> grounded{"claims grounded?"}
+    grounded -->|no| refuse["refuse or request evidence"]
+    grounded -->|yes| stable{"stable under challenge?"}
+    stable -->|no| narrow["downgrade and expose sensitivity"]
+    stable -->|yes| feasible{"feasible with controls?"}
+    feasible -->|no| narrow
+    feasible -->|yes| human{"required review complete?"}
+    human -->|no| hold["hold as advisory"]
+    human -->|yes| bounded["bounded authorized handoff"]
+```
 
-A careful reader should leave knowing:
-
-- which owner is actually limiting the current sentence
-- whether the current dispute is about evidence, judgment, or consequence
-- which stronger sentence would be dishonest today even if one upstream layer
-  looks impressive
-
-## Boundary
-
-This page owns the combined judgment route. It should hand the reader to the
-knowledge, intelligence, or lab owner once the real limiting layer is clear.
+The final record should make the limiting layer obvious to a skeptical reader.
+If that layer cannot be named, the recommendation is not ready for downstream
+use.

@@ -7,113 +7,132 @@ owner: bijux-proteomics-docs
 last_reviewed: 2026-07-21
 ---
 
-# Scientist journey
+# Scientist Journey
 
-Evaluate one workflow family at a time. Begin with the scientific question and
-benchmark population, then follow the exact result through execution, evidence,
-decision, and experimental consequence. Stop when one layer no longer supports
-the proposed claim.
+A defensible review follows one bounded claim through every owner that can
+weaken it. Begin with the intended scientific sentence—not with a successful
+command—and stop as soon as the evidence no longer supports that sentence.
 
-## Frame the question
+## Define A Falsifiable Claim
 
-Write the intended claim before selecting a command or benchmark:
+Record these fields before opening an artifact:
 
-- Which workflow family is involved: DDA, DIA, LFQ, multiplex, PTM, or
-  targeted?
-- What biological population, sample type, instrument context, and comparison
-  does the claim cover?
-- Is the desired result descriptive, inferential, mechanistic, predictive, or
-  a recommendation to act?
-- What result would falsify it?
+| Field | Example of sufficient precision |
+| --- | --- |
+| workflow family | `dia`, not “quantitative proteomics” |
+| population | declared samples, species, tissue, matrix, and exclusions |
+| acquisition and analysis context | instrument class, library, search/import route, policies |
+| outcome | identified proteins, differential abundance, localized sites, or assay readiness |
+| comparison | baseline, comparator engine, cohort, or perturbation |
+| falsifier | measurable condition that would reject or narrow the claim |
 
-A broad question such as “does the platform support DIA?” is not testable.
-“Can the shipped DIA route reproduce the declared precursor and protein
-acceptance criteria under its recorded library assumptions?” is.
+“The platform supports DIA” is not falsifiable. “The shipped DIA review lane
+meets its declared precursor and protein acceptance bars on the checked library
+package and remains stable on the matrix-shift companion” is reviewable.
 
-## Follow the evidence chain
+## Trace One Result
 
 ```mermaid
-flowchart TD
-    claim["bounded scientific claim"]
-    benchmark["public benchmark inputs and acceptance bars"]
-    result["core scientific result"]
-    runtime["run manifest, artifacts, replay"]
-    grounding["sources, context, contradictions"]
-    recommendation["sensitivity, falsifiers, refusal"]
-    consequence["assay readiness and observed outcome"]
-    claim --> benchmark --> result --> runtime --> grounding --> recommendation --> consequence
+sequenceDiagram
+    participant B as Benchmark asset
+    participant C as Core result
+    participant R as Runtime record
+    participant K as Knowledge claim
+    participant I as Intelligence decision
+    participant L as Lab consequence
+    B->>C: inputs + acceptance policy
+    C->>R: validated request + expected artifacts
+    R-->>C: state history + output identities
+    C->>K: accepted result + rejections + caveats
+    K->>I: support + contradictions + unresolved context
+    I->>L: advisory action + sensitivity + refusal state
+    L-->>K: observed outcome + QC + deviations
 ```
 
-### Inspect the benchmark root
+Every arrow must preserve identifiers. If the claim cannot be traced back to
+the exact benchmark, run, scientific result, and evidence records, the chain
+has become narrative rather than evidence.
 
-Confirm source identity, license, fixture lineage, workflow request, expected
-outputs, metrics, thresholds, and known exclusions. A benchmark with unclear
-sample provenance or acceptance criteria cannot support a strong workflow
-claim, even when execution succeeds.
+## Review The Benchmark Contract
 
-Start with [benchmark assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
-and the family-specific lineage page linked from
-[workflow families](workflow-families.md).
+Open [Benchmark Assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+and the lineage page for the selected family. Verify source identity, license,
+copied-source manifest, benchmark population, challenge cases, expected
+outputs, acceptance thresholds, and known exclusions.
 
-### Inspect the scientific result
+For DDA, use the [DDA Cross-Package Handbook](dda-cross-package-handbook.md) to
+keep imported search execution distinct from repository-owned review.
 
-Check accepted and rejected inputs, normalization and missingness policy,
-target-decoy treatment, inference ambiguity, uncertainty, and family-specific
-caveats. Review typed result records before summary tables; presentation may
-omit nested diagnostics or provenance.
+## Review The Scientific Result
 
-### Inspect execution truth
+Inspect typed result records before presentation tables. Confirm:
 
-Verify the resolved configuration, provider or tool identity, environment,
-state transitions, checkpoints, artifact digests, terminal state, and replay
-comparison. Distinguish raw execution from imported evidence. The
-[runtime execution overview](../../09-bijux-proteomics-runtime/execution-overview.md)
-defines those modes.
+- accepted and rejected inputs remain separately visible;
+- normalization, missingness, FDR, inference, aggregation, or localization
+  policy is explicit for the family;
+- warnings and ambiguity survive serialization;
+- the acceptance result names the benchmark and policy version;
+- an absent value is distinguishable from refusal, failure, and filtering.
 
-### Inspect grounding
+## Review Execution Evidence
 
-Trace important statements to contextual evidence records. Look for species,
-tissue, assay, perturbation, quantitative support, freshness, origin, and
-contradicting evidence. Identifier resolution and pathway coverage are not
-equivalent to biological activity or causality.
+Open [Execution](../../09-bijux-proteomics-runtime/execution-overview.md), then
+the family route in [Benchmark Rerun Kits](../../09-bijux-proteomics-runtime/benchmark-rerun-kits.md).
+Verify resolved configuration, entrypoint, provider, environment, state
+history, artifact inventory, checksums, terminal state, and comparison policy.
 
-### Challenge the recommendation
+A completed imported lane proves custody and replay of imported results. It
+does not prove that the external engine was rerun.
 
-Read the ranking policy, scenario disagreement, counterfactual behavior,
-falsifiers, downgrade chain, refusal gates, and human-review requirement. If a
-policy change reverses the recommendation, report that sensitivity rather than
-only the selected candidate.
+## Review Claim Grounding
 
-### Inspect laboratory consequence
+Use [Workflow Claim Grounding](../../06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md)
+to trace important sentences to contextual evidence. Inspect species, tissue,
+assay, perturbation, quantitative support, freshness, derivation, and
+contradiction state. Identifier resolution and pathway coverage do not by
+themselves establish activity, causality, or mechanism.
 
-Separate advisory assay planning from executable instructions. Check design,
-controls, materials, staffing, instrumentation, review gates, and operational
-refusals. When outcomes exist, compare requested and observed work, including
-QC, deviations, failure class, uncertainty, and evidence-promotion status.
+## Review Recommendation Stability
 
-## Family-specific pressure points
+Use [Workflow Recommendation Confidence](../../05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence.md)
+to inspect blinded challenge results, counterfactual recommendations,
+overconfidence, underconfidence, regret, downgrade, refusal, and human-review
+state. Report sensitivity when a plausible policy or evidence change reverses
+the recommendation.
 
-| Family | Questions that commonly narrow the claim |
+## Review Lab Consequence
+
+Open [Lab Consequence](../../07-bijux-proteomics-lab/foundation/lab-consequence.md).
+Separate advisory planning from executable handoff. Confirm materials,
+controls, staffing, instrumentation, readiness gates, expected information
+gain, burden, and refusal conditions. When observations exist, compare the
+requested and observed assays, including QC, deviations, failure class,
+uncertainty, and evidence-promotion status.
+
+## Apply Family Pressure
+
+| Family | Pressure that commonly changes the conclusion |
 | --- | --- |
-| DDA | Is execution imported or live? Are decoy, inference, and downstream review policies comparable? |
-| DIA | How complete and appropriate is the spectral library? How are absent precursors handled? |
-| LFQ | Which normalization and missingness assumptions govern transfer across cohorts? |
-| multiplex | Are channel assignment, reference channels, interference, and batch structure represented in public stress evidence? |
-| PTM | Is site localization distinguishable from protein abundance and downstream functional consequence? |
-| targeted | Are calibration, transition interference, matrix effects, and assay burden represented? |
+| `dda` | imported versus live execution, engine parameters, decoy and inference comparability |
+| `dia` | library coverage, absent precursors, matrix shift, chromatogram-native replay |
+| `lfq` | normalization, missingness, batch structure, cohort transfer |
+| `multiplex` | channel assignment, reference design, interference, ratio compression, fragile transfer |
+| `ptm` | localization ambiguity, protein-abundance correction, occupancy and functional overreach |
+| `targeted` | calibration range, matrix effects, transition interference, carryover and operational burden |
 
-## Record the conclusion
+## Write The Review Record
 
-A reviewable conclusion names:
+A review record is complete when it identifies:
 
-- the exact workflow family and intended scope;
-- benchmark and run artifact identifiers;
-- scientific acceptance result and important rejections;
-- evidence support, contradictions, and unresolved questions;
-- recommendation posture and sensitivity;
-- laboratory readiness or observed outcome;
-- the narrowest remaining limitation.
+1. the exact family, population, comparison, and intended claim;
+2. benchmark package, source lineage, and acceptance policy;
+3. Runtime entrypoint, run identity, environment, and artifact inventory;
+4. scientific acceptance, rejected inputs, warnings, and uncertainty;
+5. supporting, contradicting, and unresolved evidence;
+6. recommendation policy, counterfactual sensitivity, and refusal state;
+7. laboratory readiness or observed outcome;
+8. the narrowest layer that limits the conclusion.
 
-Use [current capability limits](current-capability-limits.md) when the evidence
-chain stops before the desired claim. A shorter, well-supported conclusion is
-more useful than a broad sentence assembled from unrelated strengths.
+Consult [Current Capability Limits](current-capability-limits.md) before
+widening the sentence. A narrow conclusion with complete lineage is stronger
+than a broad conclusion assembled from unrelated package strengths.
