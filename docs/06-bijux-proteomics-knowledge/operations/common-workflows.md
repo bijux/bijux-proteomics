@@ -30,8 +30,8 @@ flowchart LR
     normalize["contextual normalization"]
     record["EvidenceRecord"]
     bundle["versioned EvidenceBundle"]
-    graph["evidence graph"]
-    source --> normalize --> record --> bundle --> graph
+    evidence_graph["evidence graph"]
+    source --> normalize --> record --> bundle --> evidence_graph
 ```
 
 Retain imported, observed, inferred, and synthetic origins. Do not convert
@@ -88,6 +88,41 @@ Package canonical JSON with reviewer-facing TSV or narrative views. Flat views
 must retain identifiers that resolve to the typed record whenever they omit
 nested context.
 
+## Evidence handoff contract
+
+Every downstream handoff preserves the evidence state rather than exporting
+only a conclusion:
+
+| Handoff field | Required meaning |
+| --- | --- |
+| bundle identity and schema | exact version of the evidence contract |
+| source and evidence identifiers | resolvable path back to origin and extraction |
+| context | species, tissue, assay, perturbation, population, and time |
+| claim polarity | support, contradiction, qualification, or unresolved relevance |
+| derivation | observed, imported, inferred, or synthetic origin |
+| freshness | observation time, expiry, and current-use assessment |
+| reconciliation | duplicate, superseded, context-specific, or unresolved relationship |
+| decision impact | why the record may strengthen, weaken, or block an action |
+
+```mermaid
+sequenceDiagram
+    participant R as Runtime or assay record
+    participant K as Knowledge bundle
+    participant I as Intelligence review
+    participant L as Lab observation
+    R->>K: artifact identity + scientific context
+    K->>K: resolve, reconcile, and audit claims
+    K->>I: versioned support + contradiction state
+    I->>L: advisory question + evidence references
+    L-->>K: new observation + QC + deviations
+    K->>K: append evidence; preserve prior state
+```
+
+Runtime output can be ingested as evidence, but execution success does not
+establish claim truth. Intelligence can consume a Knowledge bundle, but its
+ranking policy cannot rewrite evidence history. Lab observations return as new
+records rather than edits to the recommendation that requested them.
+
 ## Maintain evidence over time
 
 Expiry marks a record stale for current decisions without removing it from
@@ -99,6 +134,24 @@ A workflow is complete when source context is recoverable, contradictions are
 visible, graph integrity passes, ambiguous mappings are retained, freshness is
 assessed, and downstream consumers receive a versioned artifact rather than an
 unattributed summary.
+
+## Stop conditions
+
+Do not produce a decision-ready bundle when:
+
+- a cited evidence identifier does not resolve;
+- source context is missing for a claim whose meaning depends on species,
+  tissue, assay, population, or perturbation;
+- an inferred or synthetic record is presented as observed;
+- an important contradiction is hidden by aggregation;
+- entity resolution remains ambiguous but the exported view selects one match;
+- an expired record is used without a current-use assessment;
+- the evidence graph contains orphaned claims, invalid edges, or cycles;
+- a downstream summary cannot be traced to the versioned bundle.
+
+Return an explicit refusal or unresolved state with the failed invariant and
+next evidence requirement. An incomplete bundle that looks decisive is more
+dangerous than a visible stop.
 
 See [evidence and grounding contracts](../interfaces/data-contracts.md) and
 [knowledge artifact contracts](../interfaces/artifact-contracts.md).
