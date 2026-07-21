@@ -4,88 +4,112 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Operations
+# Repository operations
 
-The operations section covers repository work that sits above one package:
-setup that spans several surfaces, shared validation, release coordination,
-review discipline, and runtime migration checks. It should help a maintainer
-find the governing process without blurring package-local behavior into root
-process prose.
+Repository operations connect a local change to reviewable evidence and, when
+appropriate, a publishable package family. They cover the controls shared by
+multiple packages: environment setup, test selection, API and schema governance,
+artifact custody, automation, compatibility migration, and release proof.
+
+```mermaid
+flowchart LR
+    C["scoped change"] --> V["local validation"]
+    V --> R["review evidence"]
+    R --> A["automation"]
+    A --> P{"release preflight"}
+    P -->|passes| O["publishable output"]
+    P -->|fails| B["visible blocker"]
+    B --> C
+```
+
+A passing unit test is one layer of evidence. It does not replace architecture,
+documentation, security, package-boundary, migration, or publication checks.
+
+## Operating routes
+
+| Work | Begin with | Required evidence |
+| --- | --- | --- |
+| prepare a contributor environment | [Local development](local-development.md) | supported interpreter, root environment, successful narrow check |
+| change one package | [Package contributor onboarding](package-contributor-onboarding.md) | package tests plus affected repository contracts |
+| choose validation depth | [Testing and validation](testing-and-validation.md) | named gates matched to the changed surface |
+| change a public model or endpoint | [API and schema governance](api-and-schema-governance.md) | compatibility diff, schema evidence, consumer impact |
+| add or regenerate evidence | [Artifact governance](artifact-governance.md) | provenance, deterministic location, validation, retention decision |
+| alter automation | [Automation surfaces](automation-surfaces.md) | local equivalent, workflow ownership, failure visibility |
+| migrate historical runtime users | [Runtime migration validation](runtime-migration-validation.md) | import, CLI, route, configuration, replay, and sunset evidence |
+| prepare a release | [Release and versioning](release-and-versioning.md) | package identity, build, install, documentation, and preflight results |
+
+## Validation is layered
 
 ```mermaid
 flowchart TB
-    question["repository operations question"]
-    local["local development"]
-    validation["testing and validation"]
-    review["review expectations"]
-    automation["automation and artifact governance"]
-    release["release and migration checks"]
-    proof["checked operational proof surface"]
-
-    question --> local
-    local --> validation
-    validation --> review
-    review --> automation
-    automation --> release
-    release --> proof
+    U["unit and contract tests"] --> Q["quality and type checks"]
+    Q --> D["documentation and public-language checks"]
+    D --> S["security and dependency checks"]
+    S --> B["package and architecture boundaries"]
+    B --> G["release and artifact gates"]
 ```
 
-This section should move a maintainer from an operational question to the exact proof surface that governs it. If it only lists topics, it leaves readers to reconstruct the workflow themselves.
+Run the narrowest check that can expose an error while developing, then expand
+to every gate affected by the change. A docs-only change still requires link,
+navigation, build, and public-language validation. A model move additionally
+requires public API, schema, import, and package-boundary checks. A release
+candidate requires the entire preflight, including negative paths.
 
-## What This Section Is Really About
+The root `Makefile` is the command entry point. `makes/` owns command routing,
+while `packages/bijux-proteomics-dev/` supplies checked validation logic. CI is
+the independent execution environment, not the first place a contributor
+discovers whether a change is coherent.
 
-- how repository-wide work becomes trustworthy enough to publish
-- how local proof, CI proof, and release proof connect instead of competing
-- where migration validation becomes a first-class operational concern rather
-  than a forgotten appendix
+## Evidence custody
 
-## Start With
+Generated output belongs in the repository `artifacts/` tree unless a governed
+workflow explicitly refreshes a published location. Each retained artifact
+needs enough context to answer:
 
-- Open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
-  when the first question is how to make and validate a change locally.
-- Open [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/)
-  when the question is which checks prove which change class.
-- Open [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/)
-  when the concern is publishable output, tags, or compatibility-sensitive
-  version movement.
-- Open [Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
-  when runtime migration proof is the release blocker.
+- which command and source revision produced it;
+- which configuration, dependency set, and input identities were active;
+- whether it is authoritative, diagnostic, or disposable;
+- which validator accepted it and which limitations remain;
+- whether a later run supersedes it without erasing historical evidence.
 
-## Section Pages
+Artifact names and directories describe stable responsibility, not the order in
+which work happened. See [artifact governance](artifact-governance.md) for the
+full custody and hygiene rules.
 
-- [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
-- [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/)
-- [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/)
-- [API and Schema Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
-- [Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
-- [Contributor Workflows](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/contributor-workflows/)
-- [Automation Surfaces](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/automation-surfaces/)
-- [Artifact Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/artifact-governance/)
-- [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/)
-- [Change Management](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/change-management/)
+## Compatibility-sensitive changes
 
-## What This Section Settles
+Runtime compatibility spans more than Python imports. Historical users may
+depend on command names, HTTP routes, configuration keys, serialized records,
+checkpoint formats, or replay behavior. The migration ledger therefore tracks
+each surface separately.
 
-- which repository process owns a given proof obligation
-- which checks belong before release-sensitive work can move forward
-- when migration pressure changes the normal release and validation story
+```mermaid
+flowchart LR
+    H["historical surface"] --> M["explicit mapping"]
+    M --> C["canonical Runtime owner"]
+    C --> E["equivalence evidence"]
+    E --> N["narrowing or removal decision"]
+```
 
-## First Proof Check
+Absence of a failing test is not migration proof. The
+[runtime migration validation](runtime-migration-validation.md) guide defines
+the required comparisons and the conditions for narrowing or removing a
+compatibility surface.
 
-- `Makefile` and `makes/` for root command routing
-- `.github/workflows/` for shared automation and release orchestration
-- `packages/bijux-proteomics-dev/` when helper code carries the operational
-  rule
+## Review and release controls
 
-## Design Pressure
+- [Contributor workflows](contributor-workflows.md) covers change preparation,
+  selective validation, and coherent commits.
+- [Review expectations](review-expectations.md) defines the evidence a reviewer
+  needs for scientific, contract, and operational claims.
+- [Change management](change-management.md) covers ownership, compatibility,
+  deprecation, and cross-package coordination.
+- [Release and versioning](release-and-versioning.md) connects version movement
+  to built distributions, installation proof, documentation truth, and release
+  evidence.
 
-The easy failure is to let repository operations read like a loose catalog instead of a governed sequence from local work to publishable proof.
-
-## Boundary
-
-If a package handbook can explain the workflow honestly from package-local
-commands, tests, and contracts, the repository operations section should not try
-to own it.
+A failed gate remains a named blocker. Narrowing the release claim is valid;
+silencing, excluding, or relabeling the failure is not.

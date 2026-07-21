@@ -82,7 +82,7 @@ sequenceDiagram
 The return arrow creates a new evidence record. It does not retroactively
 change the run, claim, or recommendation that preceded the experiment.
 
-## Navigate by concern
+## Choose a route
 
 - [Product architecture](foundation/product-architecture.md) — end-to-end data,
   control, evidence, and feedback flow.
@@ -98,6 +98,14 @@ change the run, claim, or recommendation that preceded the experiment.
   common commands.
 - [Testing and validation](operations/testing-and-validation.md) — test,
   quality, security, docs, and architecture gates.
+
+| If you are trying to… | Begin here | Continue with |
+| --- | --- | --- |
+| assess scientific coverage | [workflow families](foundation/workflow-families.md) | the relevant Core workflow handbook and its benchmark evidence |
+| reproduce a result | [public artifact index](foundation/public-artifact-index.md) | Runtime replay, comparison, and provenance records |
+| judge a biological claim | Knowledge grounding and contradiction guidance | Intelligence sensitivity and refusal guidance |
+| take a result into the laboratory | Intelligence recommendation records | Lab readiness, handoff, QC, and outcome capture |
+| contribute or release a change | [local development](operations/local-development.md) | [testing and validation](operations/testing-and-validation.md) and the maintainer handbook |
 
 ## Canonical packages
 
@@ -121,7 +129,7 @@ benchmark, recorded execution conditions, source quality, contradiction state,
 decision sensitivity, and feasibility of downstream validation. Each package
 can refuse work when its part of that chain is under-specified.
 
-## Reader checkpoints
+## Review protocol
 
 Before accepting a cross-package conclusion, confirm that:
 
