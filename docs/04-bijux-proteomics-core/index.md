@@ -161,7 +161,18 @@ the workflow contract.
 | acceptance policy | logs, diagnostics, and refusal | thresholds, QC, ambiguity, and known limits |
 | expected artifact contract | artifact ledger and hashes | family-specific acceptance result |
 
-## Documentation map
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  locates Core inside the cross-package workflow.
+- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+  states which scientific families have reviewable evidence.
+- [Execution](../09-bijux-proteomics-runtime/index.md) owns run resolution,
+  artifacts, and replay after Core defines scientific intent.
+- [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
+  shows how accepted results become bounded recommendations.
+
+## Start Inside
 
 - [Package overview](foundation/package-overview.md) maps the source domains
   and their scientific responsibility.

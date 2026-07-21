@@ -124,6 +124,19 @@ specific proteomics workflow.
 | report why no value exists | typed failure or refusal | `None`, an empty collection, or a swallowed exception |
 | handle an unavailable extra | optional-dependency outcome | unconditional heavyweight imports |
 
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  places these contracts in the complete scientific system.
+- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+  shows where shared types constrain current claims.
+- [Execution](../09-bijux-proteomics-runtime/index.md) applies the contracts to
+  run state, artifacts, and replay.
+- [Maintenance](../08-bijux-proteomics-maintain/index.md) governs schema and API
+  compatibility.
+
+## Start Inside
+
 Contract definitions and examples are organized by concern:
 
 - [package overview](foundation/package-overview.md) for ownership and scope;

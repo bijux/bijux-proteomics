@@ -201,7 +201,18 @@ The execution evidence can be audited from the boundary inward:
 - [Runtime Rerun Refusals](runtime-rerun-refusals.md) states when rerun language
   is unsupported.
 
-## Documentation map
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  places execution inside the scientific evidence chain.
+- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+  distinguishes native, delegated, and imported family support.
+- [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+  defines the scientific inputs whose execution is recorded here.
+- [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
+  explains why a completed run is not yet an authorized action.
+
+## Start Inside
 
 - [Execution overview](execution-overview.md) — execution model and run record.
 - [Operator rerun journey](operator-rerun-journey.md) — reopen a workflow from

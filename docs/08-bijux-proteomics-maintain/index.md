@@ -160,3 +160,25 @@ accuracy of public claims.
 
 Release evidence is revision-specific. Preserve the exact source identity,
 environment, commands, and failure output needed to review or repeat it.
+
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  defines the public system whose contracts maintenance protects.
+- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+  exposes the evidence status that constrains releases.
+- [Execution](../09-bijux-proteomics-runtime/index.md) documents run evidence
+  and replay surfaces used by release review.
+- [Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
+  joins package gates to scientific claim readiness.
+
+## Start Inside
+
+- [Maintainer Safe Change](bijux-proteomics-dev/maintainer-safe-change.md)
+  follows one change from ownership through verification.
+- [Testing And Validation](../01-bijux-proteomics/operations/testing-and-validation.md)
+  maps repository checks to the contracts they protect.
+- [Release Support](bijux-proteomics-dev/release-support.md) defines build,
+  publication, and scientific dossier evidence.
+- [Quality gates](bijux-proteomics-dev/quality-gates.md) explains gate intent
+  and failure interpretation.

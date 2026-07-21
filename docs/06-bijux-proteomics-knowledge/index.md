@@ -160,7 +160,18 @@ review bundle; lab observations can be ingested as new evidence through an
 explicit handoff. None of those consumers may mutate evidence history through
 their own policy or operational state.
 
-## Documentation map
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  locates evidence custody in the complete product system.
+- [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+  connect grounded claims to downstream review and action.
+- [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
+  shows how evidence changes remain attributable in decision history.
+- [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
+  explains the handoff from reconciled evidence to advisory judgment.
+
+## Start Inside
 
 - [Package overview](foundation/package-overview.md) maps memory, grounding,
   biological context, and review surfaces.

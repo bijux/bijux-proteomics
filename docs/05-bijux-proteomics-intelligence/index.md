@@ -149,7 +149,18 @@ flowchart LR
     L -->|ready and authorized| E["executable handoff"]
 ```
 
-## Documentation map
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  places recommendations in the full evidence-to-action system.
+- [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+  trace how family-specific evidence changes downstream decisions.
+- [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
+  explains how to compare decision records without erasing history.
+- [Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md)
+  bounds the operational effect of advisory output.
+
+## Start Inside
 
 - [Package overview](foundation/package-overview.md) describes analytical
   modules and artifact flow.

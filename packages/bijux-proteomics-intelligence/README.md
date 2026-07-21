@@ -59,7 +59,7 @@ Those families are the durable answer to what intelligence can decide and what i
 must refuse or downgrade.
 
 It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
-`lfq`, `targeted`, and `multiplex` workflows when reviewers need package-owned
+`targeted`, `lfq`, and `multiplex` workflows when reviewers need package-owned
 claims instead of presentation-only summaries.
 
 ## Decision ownership
@@ -343,6 +343,15 @@ chain, but it does not own the whole story.
 - [`src/bijux_proteomics_intelligence/interpretation/quantitative.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/quantitative.py) for quantitative interpretation and missingness caveats
 - [`src/bijux_proteomics_intelligence/learning/adaptation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/adaptation.py) for follow-up learning pressure
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
+
+## Release evidence
+
+A release review starts with this package `README.md`, its `CHANGELOG.md`, and
+the package `docs/*.md`. Together they state the public decision contract,
+record user-visible changes, and preserve detailed boundary and interpretation
+guidance. Reviewers then confirm those claims against the package tests and the
+repository release gates; passing tests alone do not authorize broader
+scientific or operational language.
 
 ## Documentation
 

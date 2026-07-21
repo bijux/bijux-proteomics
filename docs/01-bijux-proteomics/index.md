@@ -99,10 +99,33 @@ sequenceDiagram
 The return arrow creates a new evidence record. It does not retroactively
 change the run, claim, or recommendation that preceded the experiment.
 
-## Choose a route
+## Shared Reader Routes
+
+- [Product Architecture](foundation/product-architecture.md) explains the
+  end-to-end data, execution, evidence, decision, and feedback boundaries.
+- [Cross-Package Ownership](foundation/cross-package-ownership.md) identifies
+  the package that owns each public contract and handoff.
+- [Repository Shape Rationale](foundation/repository-shape-rationale.md)
+  explains why those responsibilities remain separate distributions.
+- [Release Readiness Matrix](foundation/release-readiness-matrix.md) connects
+  scientific claims to their release evidence and blockers.
+
+## Reader Routes
 
 - [Product architecture](foundation/product-architecture.md) — end-to-end data,
   control, evidence, and feedback flow.
+- [Product Overview](foundation/product-overview.md) — supported workflow
+  families, package responsibilities, and current claim boundaries.
+- [Workflow Families](foundation/workflow-families.md) — family-by-family trust
+  status, run mode, benchmark coverage, and blockers.
+- [Scientist Journey](foundation/scientist-journey.md) — follow a scientific
+  question from inputs through bounded evidence.
+- [Operator Rerun Journey](../09-bijux-proteomics-runtime/operator-rerun-journey.md)
+  — reproduce a published run from its execution evidence.
+- [Maintainer Safe Change](../08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md)
+  — carry a repository change through ownership, validation, and release review.
+- [Maintenance](../08-bijux-proteomics-maintain/index.md) — verification and
+  release operations for the repository.
 - [Package map](foundation/package-map.md) — install names and repository
   locations.
 - [Workflow families](foundation/workflow-families.md) — DDA, DIA, LFQ, PTM,

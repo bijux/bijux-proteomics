@@ -159,7 +159,18 @@ sequenceDiagram
     I->>I: rerank, downgrade, or refuse
 ```
 
-## Documentation map
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  places experimental consequence in the full scientific loop.
+- [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+  connect family-specific claims to feasible follow-up.
+- [Outcome Learning Loops](foundation/outcome-learning-loops.md) defines how
+  observations return to evidence and decision review.
+- [Workflow Refusal Handbook](foundation/workflow-refusal-handbook.md) maps
+  unsafe or unsupported handoffs to explicit next actions.
+
+## Start Inside
 
 - [Lab consequence](foundation/lab-consequence.md) explains cost, controls, and
   downstream burden.

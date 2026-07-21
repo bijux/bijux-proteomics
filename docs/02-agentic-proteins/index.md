@@ -152,7 +152,18 @@ state that no replacement exists.
 Passing local bridge tests does not prove caller absence. Removal is therefore
 a consumer-evidence decision, not a code-size decision.
 
-## Documentation map
+## Shared Reader Routes
+
+- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+  defines the canonical package system and supported scientific scope.
+- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+  records family-specific trust and benchmark status.
+- [Execution](../09-bijux-proteomics-runtime/index.md) is the canonical owner
+  for new run orchestration and evidence.
+- [Maintenance](../08-bijux-proteomics-maintain/index.md) governs compatibility
+  verification and release review.
+
+## Start Inside
 
 - [Foundation](foundation/index.md) — role, compatibility contract, scope, and
   dependencies.
