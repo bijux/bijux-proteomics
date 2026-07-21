@@ -1,15 +1,59 @@
 # bijux-proteomics
 
-`bijux-proteomics` is a Python platform for auditable proteomics workflows. It
-connects sequence and mass-spectrometry analysis to reproducible execution,
-evidence grounding, decision review, and laboratory follow-up without hiding
-those responsibilities behind one opaque pipeline.
+`bijux-proteomics` is a Python package family for proteomics work that must
+remain inspectable from scientific input to downstream consequence. It combines
+sequence and mass-spectrometry analysis, reproducible execution, evidence
+grounding, recommendation review, and laboratory follow-up without collapsing
+those responsibilities into one opaque pipeline.
 
-The repository is deliberately modular. Scientific algorithms live in the
-core package; stable document semantics live in foundation; runtime owns
-execution and replay; knowledge records why claims are supportable;
-intelligence challenges recommendations; and lab turns accepted decisions into
-assay plans and observed outcomes.
+## Product Scope
+
+The repository owns six canonical layers. Foundation defines stable document
+semantics. Core owns scientific models and algorithms. Runtime executes and
+replays work. Knowledge records why a claim is supportable or contradicted.
+Intelligence ranks and challenges possible actions. Lab records whether an
+accepted action was feasible and what happened next.
+
+The result is an evidence chain, not a promise that every workflow is equally
+mature. Packages can be installed independently, and every cross-package handoff
+has an identifiable owner. Start with the
+[product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+for the full data and decision path.
+
+## Current Credible Workflow Families
+
+The checked family matrix currently records these public classifications:
+
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+
+Internal-support-only workflow families today: `multiplex`.
+
+LFQ is review-grade bounded. More importantly, the live black-box rerun gate
+currently narrows DDA to review-grade bounded because the repository does not
+own a raw DDA search execution lane. The declared family matrix therefore runs
+ahead of the strict release preflight for DDA; a release must follow the weaker
+live result until those surfaces agree.
+
+Read [what one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
+for the evidence chain and
+[release readiness](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+for the active blockers.
+
+## Forbidden Claims
+
+This repository does not yet claim:
+
+- `release-ready`, `reference-grade`, `elite`, or `product-grade` status;
+- universal transfer across cohorts, instruments, search engines, or study
+  designs;
+- vendor-engine parity from imported result tables;
+- biological truth from successful execution alone;
+- decision validity without grounding, challenge, and downstream consequence
+  evidence.
+
+These are release boundaries, not disclaimers attached after stronger marketing
+language. Public wording must remain behind the weakest live benchmark, runtime,
+grounding, recommendation, or lab-consequence gate.
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
@@ -48,7 +92,22 @@ assay plans and observed outcomes.
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-## The scientific path
+## Reader Paths
+
+- [Repository handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
+  explains package selection, ownership, and system boundaries.
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  identifies the canonical owner of each durable contract.
+- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  gives reviewers the shortest route to checked evidence.
+- [Runtime migration validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
+  distinguishes canonical runtime behavior from compatibility imports.
+- [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  covers scientific models, algorithms, adapters, and benchmark assets.
+- [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  covers execution, providers, checkpoints, replay, and run evidence.
+
+## Evidence Chain
 
 ```mermaid
 flowchart LR
@@ -66,7 +125,7 @@ The packages can be used independently, but their contracts form one review
 chain. A scientific result is useful only when its inputs, transformations,
 evidence, decision policy, and downstream consequence remain distinguishable.
 
-## Capabilities
+## Scientific and Operational Capabilities
 
 The core package covers FASTA parsing, enzymatic digestion, peptide and
 fragment chemistry, modification handling, mzML and spectrum models,
@@ -84,12 +143,12 @@ quality-control reports. The surrounding packages add:
 - assay design, readiness gates, scheduling, lab handoffs, outcome recording,
   and evidence feedback.
 
-The benchmark evidence is family-specific. DDA, DIA, PTM, and targeted routes
-have outsider-auditable packets; LFQ is review-grade but bounded; multiplex
-support remains internal. See [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-for the evidence and limitations behind that classification.
+Benchmark evidence is family-specific. A strong packet in one family does not
+transfer authority to another family, and a public packet does not erase a
+weaker runtime lane. See [Workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
+for family evidence and limitations.
 
-## Package ownership
+## Package Map
 
 | Distribution | Stable responsibility | Documentation |
 | --- | --- | --- |
@@ -154,10 +213,12 @@ for scientific workflows and the
 [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 when execution must be checkpointed, resumed, compared, or replayed.
 
-## Where to begin
+## Evidence and Review Routes
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
   traces data and decisions across package boundaries.
+- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  orders benchmark, runtime, recommendation, and consequence evidence for review.
 - [Core package overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/)
   maps the scientific surface by domain.
 - [Runtime CLI](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/interfaces/cli-surface/)
