@@ -4,43 +4,50 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Change Validation
+# Change validation
 
-Change validation should make it obvious whether a package edit is safe, risky, or mis-scoped.
+Validate Knowledge changes over the complete evidence chain. A schema edit is
+unsafe when provenance, graph meaning, contradiction, review history, or
+consumer interpretation changes even if the new record round-trips.
 
-## Validation Model
+## Change-to-proof map
+
+| Change | Required proof | Boundary review |
+| --- | --- | --- |
+| source registry or reference | identity, version/retrieval, license, duplicate, unavailable and stale cases | public citation and grounding records |
+| biological mapping | exact, ambiguous, absent, obsolete, species and isoform cases | claims, joins, and downstream consumers |
+| claim or evidence model | invalid/valid construction, provenance, context, confidence, immutable identity, round trip | graph and review packages |
+| graph edge or traversal | endpoints, type, direction, orphan prevention, cycle policy, deterministic traversal | decision briefs and Intelligence queries |
+| reconciliation rule | competing context, support, contradiction, hold, unresolved, deterministic audit | historical review state |
+| confidence policy | scale, inputs, update, boundaries, missing evidence, revision | public language and Intelligence consumption |
+| review or brief assembly | fixed evidence revision, complete adverse evidence, deterministic order, round trip | external and downstream reviewers |
+| persistence or serialization | old/new fixtures, graph integrity, provenance, review history, rejection | all persisted-state readers |
+
+## Validation route
 
 ```mermaid
-flowchart LR
-    truth["claim, evidence, or review-state change"]
-    contradictions["contradiction and repository proof"]
-    uncertainty["uncertainty stays inspectable"]
-    verdict["safe, risky, or mis-scoped"]
-
-    truth --> contradictions --> uncertainty --> verdict
+flowchart TD
+    E["Knowledge edit"] --> S["name source, claim, edge, or review meaning"]
+    S --> P["provenance and identity proof"]
+    P --> G["graph and contradiction proof"]
+    G --> R["revision and persistence proof"]
+    R --> C["consumer interpretation"]
+    C --> V{"uncertainty still visible?"}
+    V -->|yes| D["validated"]
+    V -->|no or unknown| B["blocked"]
 ```
 
-This page should make knowledge validation about truth-handling pressure. A
-change is safe only when claim meaning, persisted state, and uncertainty
-survive together under proof rather than wishful interpretation.
+Compare record counts, edge counts, contradiction sets, unresolved items,
+confidence inputs, provenance, and review revisions—not only serialized bytes.
+Run affected Intelligence and Lab tests when briefs, recommendations, or
+feedback consume the changed state.
 
-## Review Rules
+## Validation record
 
-- require proof when evidence meaning, review state, or persisted artifacts change
-- run contradiction and repository checks together when durable state moves
-- reject edits that make uncertainty easier to ignore
-
-## First Proof Check
-
-- `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
-
-## Design Pressure
-
-Knowledge validation breaks when evidence movement is easier to prove than the
-meaning of uncertainty around it. The package has to keep contradiction,
-storage, and review proof bound to the same change.
+State source and retrieval context, affected identifiers, prior and new claim
+or edge meaning, duplicate lineage, contradictions, confidence policy, review
+revision, serialization compatibility, consumers, exact checks, and unresolved
+coverage. Never replace missing evidence with a synthetic supporting record.

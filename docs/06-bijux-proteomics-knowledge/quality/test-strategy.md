@@ -4,45 +4,54 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Test Strategy
+# Test strategy
 
-A useful test strategy names what evidence is needed and why shallow coverage is not enough.
+Knowledge testing applies pressure to evidence custody: incomplete sources,
+ambiguous identities, duplicated lineage, contradiction, stale records,
+unresolved review, serialization, and downstream interpretation.
 
-For `bijux-proteomics-knowledge`, the test story should show how the package handles imperfect evidence without hiding contradiction, confidence, or review-state drift.
+## Evidence layers
 
-## Strategy Model
+| Layer | Contract under test | Representative suite |
+| --- | --- | --- |
+| reference custody | registry integrity, source identity, citation, license and freshness fields | `tests/references/` |
+| biological identity | exact, ambiguous, absent, obsolete, cross-species, isoform, and namespace mapping | identity and biological namespace tests |
+| claim and evidence models | valid/invalid construction, context, provenance, confidence meaning, and immutability | `tests/memory/test_claims.py`, `test_evidence_bundle.py` |
+| graph integrity | endpoints, edge types, support, contradiction, orphan prevention, and round trip | `test_evidence_graph.py` |
+| reconciliation | competing contexts, deterministic policy, hold, unresolved, and audit trace | `test_resolution.py` and contradiction surfaces |
+| review state | fixed revision, complete adverse evidence, disposition, rationale, and stable assembly | `tests/reviews/` |
+| grounding | citations, benchmark lineage, literature coverage, deficits, contradiction, and release ceiling | workflow grounding and literature tests |
+| package boundary | Foundation serialization, Core results, Intelligence references, and Lab feedback remain aligned | `tests/package/` and consumer tests |
+
+## Challenge route
 
 ```mermaid
-flowchart TB
-    records["claims and evidence records"]
-    meaning["contradiction and confidence tests"]
-    review["review-state and persistence proof"]
-    fixtures["imperfect and conflicting fixtures"]
-    release["release confidence"]
-
-    records --> meaning
-    meaning --> review
-    review --> fixtures
-    fixtures --> release
+flowchart LR
+    R["source and identity"] --> M["claim and evidence models"]
+    M --> G["graph integrity"]
+    G --> C["contradiction and reconciliation"]
+    C --> V["review revision"]
+    V --> B["consumer bundle"]
 ```
 
-This page should make it obvious that the package is not defending one ideal path. The real proof comes from preserving meaning under messy evidence and stored-state pressure.
+Run the focused source, memory, review, or grounding suite first, then the full
+package suite for shared models, persistence, registries, and public outputs:
 
-## Review Rules
+```bash
+uv run --project packages/bijux-proteomics-knowledge \
+  pytest -q packages/bijux-proteomics-knowledge/tests
+```
 
-- favor contradiction, confidence, and review-state tests over generic coverage claims
-- cover persistence cases where knowledge meaning could drift silently
-- use fixtures that show imperfect or conflicting evidence, not just ideal cases
+## Required imperfect evidence
 
-## First Proof Check
+Include missing sources, duplicate lineage, ambiguous identifiers, stale
+records, unsupported namespaces, conflicting claims, context-dependent
+agreement, unresolved reconciliation, and incomplete review. An idealized
+single-source graph cannot establish honest uncertainty handling.
 
-- `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
-
-## Design Pressure
-
-The common drift is to optimize for storage or coverage shape while leaving contradiction handling and downstream interpretation less clearly defended.
+Fixture replay proves deterministic handling of retained records. Live-source
+availability and freshness require separate retrieval evidence. Keep those
+claims distinct in test reports.
