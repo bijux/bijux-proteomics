@@ -15,8 +15,8 @@ entrypoint exports the canonical runtime `click` command object directly.
 Command names, arguments, output envelopes, exit behavior, and runtime
 artifacts therefore come from the runtime package.
 
-Use `bijux-proteomics-runtime` in new scripts and operational procedures. Keep
-`agentic-proteins` only where an existing consumer cannot yet change its
+The compatibility rule is direct: new workflow use should start from `bijux-proteomics-runtime --help`.
+Keep `agentic-proteins` only where an existing consumer cannot yet change its
 executable name.
 
 ```bash
@@ -57,6 +57,23 @@ The package tests assert that the compatibility and runtime CLI objects are
 identical and that their help text is byte-for-byte equivalent. The HTTP app
 factory is forwarded under the same rule. A difference between the two names
 is a compatibility defect, not an alternative behavior to document.
+
+## Migration verification
+
+Test the historical and Runtime executables with the same input fixture and
+resolved environment. Compare more than successful completion:
+
+| Observable | Required parity |
+| --- | --- |
+| command discovery | command tree, option names, defaults, required arguments |
+| machine output | JSON schema, field meaning, ordering guarantees, error envelope |
+| terminal behavior | exit status, stdout/stderr ownership, refusal explanation |
+| execution custody | provider decision, run identity, artifact paths and digests |
+| recovery | persisted candidate, resume boundary, comparison and replay behavior |
+
+After parity is established, change the executable name in the caller and keep
+the resulting Runtime run bundle as migration evidence. A help-text match alone
+does not establish state, artifact, or replay equivalence.
 
 The full option-level reference lives in the
 [runtime CLI reference](../../09-bijux-proteomics-runtime/cli-reference.md).

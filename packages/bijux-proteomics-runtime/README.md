@@ -47,17 +47,23 @@ Runtime owns execution control. It does not own the scientific workflow
 blueprint, evidence truth, ranking semantics, or lab progression logic that the
 wider proteomics engine still needs.
 
-## At a glance
+## Execution ownership
 
-- Use runtime when the concern is executable workflow control, provider
-  binding, deterministic replay, or operator-facing handoff.
-- Start with `bijux-proteomics-runtime --help` for the live CLI surface, then
-  open the
-  [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  when you need the end-to-end run path.
-- Route scientific truth to core, cited evidence memory to knowledge,
-  recommendation posture to intelligence, and assay follow-up authority to
-  lab.
+Choose Runtime when the question is what can execute, which provider and mode
+were selected, what state transitions occurred, which artifacts were produced,
+and whether a completed run can be resumed, compared, or replayed.
+
+| Runtime owns | Runtime records | Runtime does not decide |
+| --- | --- | --- |
+| preflight and capability checks | unmet requirements and refusal reason | scientific validity |
+| provider and execution-mode selection | selected capability, fallback, environment | evidence truth |
+| run lifecycle and checkpoints | transitions, events, resume boundary | recommendation policy |
+| artifact and cache custody | paths, hashes, lineage, reuse decision | laboratory readiness |
+| comparison, rerun, and replay | normalized differences and equivalence limits | cross-context biological transfer |
+
+The live CLI contract is available through `bijux-proteomics-runtime --help`.
+The [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+traces a run from request to archived evidence.
 
 ## Execution evidence flow
 
@@ -77,28 +83,37 @@ Runtime proves what was requested, selected, executed, persisted, and reused.
 It does not turn successful execution into scientific truth. Import-only lanes
 retain their external-engine provenance and cannot claim raw execution parity.
 
-## Why teams pick this package
+## Execution evidence contract
 
-- one canonical runtime surface for CLI, API, orchestration, and providers
-- deterministic replay and artifact shaping for repeatable execution outcomes
-- typed run context, artifact ledger, replay contract, and local/container/scheduler/import run bundle outputs
-- runtime-owned CLI and API operations that avoid private helper glue
-- reviewable run and import paths that publish canonical downstream-facing manifests
-- partial rerun planning, cache claims, cleanup plans, and failure-recovery audits for operational safety
-- preflight and failure reports that fail early on missing execution requirements
-- import traces, human-review resume checkpoints, and artifact-integrity reports for safe reuse
-- runtime-owned control surfaces that consume lower-layer contracts without re-exporting their domain semantics
-- explicit migration target for `agentic-proteins` compatibility forwarding
+Each governed run exposes a typed run context, artifact ledger, replay contract,
+preflight and failure reports, provider decision, checkpoint history, and
+terminal disposition. Local, container, scheduler, and import launch surfaces
+produce distinct records because their custody and reproducibility boundaries
+differ.
 
-## Typical use cases
+```mermaid
+flowchart TD
+    Q["validated workflow request"] --> P{"preflight"}
+    P -->|refuse| F["typed refusal and unmet capability"]
+    P -->|accept| S["resolved provider and execution mode"]
+    S --> R["run context and lifecycle events"]
+    R --> A["artifact ledger and checkpoints"]
+    A --> T{"terminal disposition"}
+    T -->|complete| C["comparison · rerun · replay evidence"]
+    T -->|fail| E["failure report and recovery boundary"]
+```
 
-- run the canonical proteomics workflow through CLI or HTTP entrypoints
-- bind local or API-backed structure providers behind one orchestration layer
-- enforce replay-safe runtime execution without moving domain semantics upward
-- ingest third-party engine outputs while preserving external provenance honestly
-- publish one useful run path from clean install to reviewable output
-- publish one useful import-only path from third-party result to reviewable output
-- integrate canonical runtime surfaces while legacy imports remain compat-only
+## Supported operational work
+
+- execute validated workflow requests through CLI, Python, or HTTP;
+- bind built-in, local, and remote providers behind capability checks;
+- emit launch bundles for local, container, and scheduler environments without
+  claiming infrastructure ownership;
+- normalize imported third-party outputs while retaining external provenance;
+- checkpoint and resume human-review or interruption boundaries;
+- plan partial reruns, verify cache claims and artifact integrity, and compare
+  completed run bundles;
+- provide the canonical target for `agentic-proteins` forwarding.
 
 ## Installation
 

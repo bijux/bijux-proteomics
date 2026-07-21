@@ -48,17 +48,24 @@ Core also owns workflow blueprints and execution requests, but only as
 runtime-agnostic scientific contracts. It does not take over provider binding,
 run orchestration, ranking policy, reference curation, or lab readiness.
 
-## At a glance
+## Ownership decision
 
-- Use core when a change defines proteomics meaning that should remain true
-  before orchestration, curation, recommendation, or lab follow-up is layered
-  on top.
-- Start with the [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md) for the
-  fastest non-developer path, or `bijux_proteomics.interfaces` for curated
-  reader-facing examples.
-- Route provider binding and replay to runtime, cited scientific memory to
-  knowledge, recommendation posture to intelligence, and assay follow-up to
-  lab.
+Choose Core when the output must retain proteomics meaning outside the process
+that computed it. Core owns the models and policies needed to answer whether a
+sequence, spectrum, PSM, protein group, quantitative value, PTM site, or
+workflow result is scientifically interpretable.
+
+| Concern | Core owns | Adjacent owner |
+| --- | --- | --- |
+| sequence and chemistry | validation, digestion, masses, modifications, fragments | Runtime executes provider-backed work |
+| evidence intake | format parsing, search-result normalization, loss accounting | Knowledge grounds claims against sources |
+| identification and inference | PSM confidence, FDR, protein grouping, ambiguity | Intelligence ranks possible actions |
+| quantification and specialized workflows | LFQ, DIA, multiplex, PTM, targeted contracts | Lab evaluates experimental follow-up |
+| benchmark evidence | corpora, acceptance bars, perturbations, family limitations | Runtime records rerun and replay evidence |
+
+The [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md) is the minimal
+non-developer CLI path. Curated Python examples live in
+`bijux_proteomics.interfaces`.
 
 ## Scientific ownership flow
 
@@ -78,19 +85,31 @@ Core owns the scientific meaning on this path. It deliberately stops before
 provider selection, run scheduling, evidence curation, recommendation policy,
 or laboratory execution.
 
-## Why teams pick this package
+## Scientific guarantees
 
-- explicit scientific contracts for sequence, chemistry, identification, quantification, PTM, DIA, study, and review surfaces
-- deterministic evidence normalization with honest loss and refusal reporting
-- workflow contracts that stay runtime-agnostic while preserving scientific meaning
-- reviewable artifacts that downstream packages can consume without redefining core domain truth
+- intake returns accepted and rejected records instead of silently dropping
+  malformed or unsupported input;
+- normalization records mapped, unsupported, refused, and lost fields;
+- policies such as digestion, tolerance, FDR, inference, missingness, and
+  normalization remain attached to their results;
+- ambiguity and QC are first-class outputs rather than prose added after the
+  calculation;
+- workflow requests remain runtime-agnostic and name their expected artifacts
+  and refusal conditions;
+- benchmark acceptance is family-specific and cannot be transferred to an
+  untested workflow by API similarity.
 
-## Typical use cases
+## Scientific work owned here
 
-- normalize proteomics evidence into durable core contracts before higher-layer judgment begins
-- model program, target, assay, review, and workflow state with explicit scientific semantics
-- inspect unsupported or lossy scientific inputs without hiding uncertainty
-- build reviewable scientific artifacts that runtime, knowledge, intelligence, and lab can consume
+- parse FASTA, MGF, mzML, mzIdentML, mzTab, and supported engine outputs;
+- calculate digestion, peptide chemistry, isotope, labeling, and fragment
+  contracts;
+- audit PSM confidence, target-decoy FDR, contaminants, calibration, and
+  protein inference;
+- build LFQ, DIA, multiplex, PTM, proteoform, and targeted-review artifacts;
+- evaluate study design, batch QC, reproducibility, and publication thresholds;
+- construct benchmark and workflow contracts consumed by Runtime and review
+  packages.
 
 ## Installation
 
