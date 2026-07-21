@@ -4,48 +4,50 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Dependency Governance
+# Dependency governance
 
-Dependency governance is really boundary governance under another name.
-
-For `bijux-proteomics-foundation`, a dependency change is acceptable only when it strengthens shared contract work without smuggling in package-specific policy or hidden operational ownership.
-
-## Governance Model
+Foundation sits at the bottom of the product dependency graph. Its required
+runtime library dependency is Pydantic; product packages depend on Foundation,
+never the reverse.
 
 ```mermaid
-flowchart TB
-    change["new or changed dependency"]
-    purpose{"serves shared contract purpose?"}
-    boundary{"keeps package-specific policy out?"}
-    proof{"versioning and adapter posture stay explicit?"}
-    accept["dependency is governable"]
-
-    change --> purpose
-    purpose -->|yes| boundary
-    purpose -->|no| reject1["reject or relocate"]
-    boundary -->|yes| proof
-    boundary -->|no| reject2["reject or relocate"]
-    proof -->|yes| accept
-    proof -->|no| reject3["pin, isolate, or redesign"]
+flowchart BT
+    F["Foundation"] --> P["Pydantic"]
+    C["Core"] --> F
+    K["Knowledge"] --> F
+    I["Intelligence"] --> F
+    L["Lab"] --> F
+    R["Runtime"] --> F
+    A["compatibility"] --> F
 ```
 
-This page should help a reviewer judge whether a dependency still belongs in a shared-contract package. If the dependency starts carrying local behavior, the package seam has already weakened.
+## Admission test
 
-## Review Rules
+| Question | Acceptable answer |
+| --- | --- |
+| which shared contract needs the dependency? | named identity, outcome, serialization, compatibility, provenance, support, or testing contract |
+| can Python or the existing Pydantic boundary express it? | no, with a concrete missing capability |
+| does the library carry product policy? | no scientific, evidence, decision, execution, or Lab policy |
+| what enters the base installation? | explicit modules, version range, license, vulnerability and supply-chain posture |
+| how does failure appear? | import and unsupported-state behavior are explicit and tested |
+| can the dependency be isolated? | adapters keep library types outside public Foundation contracts where practical |
+| what proves compatibility? | focused tests plus affected consumer tests |
 
-- keep dependencies minimal and shared-purpose
-- do not add package-specific policy dependencies to foundation
-- prefer versioned adapters over hidden dependency magic
+Reject dependencies that require Core, Knowledge, Intelligence, Lab, Runtime,
+the compatibility package, network services, credentials, or environment state
+to interpret a Foundation value. Optional scientific libraries may support
+tests; they do not become hidden runtime requirements.
 
-## First Proof Check
+## Change consequences
 
-- `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
-- `src/bijux_proteomics_foundation/serialization/`
+A dependency version can alter validation, JSON encoding, schema generation,
+error text, typing, or import behavior without changing Foundation source.
+Review canonical bytes, schema fixtures, public API, migration paths, and
+consumer behavior on upgrades. Pin or constrain versions when the public
+contract depends on behavior outside Foundation’s control.
 
-## Design Pressure
-
-The easy failure is to accept a convenient helper dependency that quietly turns foundation into the hidden owner of policy or operational behavior.
+Package aliases route approved imports; they are not permission to introduce a
+second implementation or dependency stack.
