@@ -4,83 +4,101 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
-# Scientific Workflow Roadmap
+# Scientific workflow roadmap
 
-`bijux-proteomics` no longer needs a roadmap because the repository has no
-scientific substance. It needs one because the product now has several real
-workflow-family proof routes, but that proof is still uneven across the wider
-proteomics surface. The roadmap exists to separate genuine current depth from
-the next scientific surfaces that still need their own public evidence,
-runtime realism, grounding pressure, and consequence discipline.
+Scientific coverage grows by completing family-specific evidence chains, not
+by counting modules. A workflow family becomes publicly stronger only when its
+inputs, scientific acceptance, execution posture, grounding, decision pressure,
+and experimental consequence survive the same bounded review.
 
-## Current State
+## Evidence progression
 
-Today the repository is strongest in these areas:
+```mermaid
+flowchart LR
+    implementation["implemented scientific surface"] --> contract["typed workflow and acceptance contract"]
+    contract --> assets["governed primary and challenge assets"]
+    assets --> execution["identified Runtime lanes and artifacts"]
+    execution --> grounding["support, contradiction, and context"]
+    grounding --> decision["challenge, sensitivity, downgrade, refusal"]
+    decision --> consequence["feasibility and observed outcome"]
+    consequence --> posture{"public evidence burden met?"}
+    posture -->|no| bounded["internal or review-grade support"]
+    posture -->|yes| auditable["outsider-auditable bounded support"]
+```
 
-- outsider-auditable bounded families: `dda`, `dia`, `ptm`, `targeted`
-- review-grade-bounded family: `lfq`
-- internal-support-only family: `multiplex`
-- broader core scientific ownership across sequence, chemistry, spectra, mzML,
-  quantification, PTM review, and benchmark packaging
-- explicit runtime, grounding, recommendation, and consequence routes that now
-  let reviewers challenge one workflow sentence end to end
+Every promotion remains bounded to its named corpus, run mode, comparison
+policy, biological context, and consequence evidence. A stronger scientific
+implementation does not automatically promote a family whose Runtime or
+downstream evidence remains weaker.
 
-## What Is Still Missing
+## Current family baseline
 
-- broader cross-family transfer proof that survives the same scrutiny level
-  across more study shapes and instrument contexts
-- stronger live-engine or broader runtime realism where some lanes still stop
-  at import-backed or library-conditioned pressure
-- wider biological and assay consequence closure that can survive stronger
-  downstream burden without collapsing back to exploratory-only wording
-- public proof for advanced surfaces such as glycopeptide-heavy, broader
-  library-search, and more external-engine-intensive workflows
+| Family | Declared product posture | Evidence already present | Primary work still required |
+| --- | --- | --- | --- |
+| DDA | review-grade bounded at the current black-box ceiling | MaxQuant review package, Comet/Sage challenge package, import-backed runtime custody, PSM/FDR/inference review | repository-owned raw search execution or equivalently strong live-engine evidence; authority surfaces must agree |
+| DIA | outsider-auditable bounded | primary and matrix-shift packages, raw-executable review lanes, library-aware QC and comparisons | faithful-rerun consistency, chromatogram-level vendor parity, broader library and absent-peptide pressure |
+| LFQ | review-grade bounded at the product level | cohort and sparse-contrast packages, raw-executable processing, missingness and normalization pressure | external truth beyond repeatability, broader cohort transfer, consistent product and Runtime authority language |
+| multiplex | internal support only | TMTpro and channel-stress packages, raw-executable processing, interference surfaces | outsider review, stable transfer, laboratory consequence, and a defensible public decision packet |
+| PTM | outsider-auditable bounded | localization and ambiguity packages, site mapping, raw-executable review | occupancy, function, regulatory consequence, and ambiguity-aware transfer evidence |
+| targeted | outsider-auditable bounded | transition and carryover packages, targeted QC and follow-up records | vendor parity, calibration transfer, matrix interference, and broader assay consequence |
 
-## Next State
+The [Workflow Families](workflow-families.md) ledger and the generated release
+surfaces are the operative authorities. When they disagree, the narrower
+posture governs and the mismatch blocks stronger publication language.
 
-The next durable step is not to add more words. It is to add more
-family-specific proof packets:
+## Expansion priorities
 
-- preserve the current family packet pattern:
-  benchmark package, runtime lane, grounding route, recommendation packet, and
-  consequence surface
-- widen that pattern to the scientifically important families that still stop
-  at boundary-only or internal-support language
-- keep glycopeptide, library-search, and external-engine behavior at explicit
-  boundary scope until they earn the same public scrutiny route
-- widen the proven workflow surface without losing package ownership clarity
+### Close current family evidence gaps
 
-Each new workflow family should remain reviewable from repository contracts
-rather than being hidden inside one runtime path or one notebook.
+The first priority is consistency and depth for the six declared families:
 
-## Why This Matters
+- align workflow, black-box, rerun, grounding, and consequence authorities;
+- replace import-only or report-conditioned evidence where a stronger
+  execution claim is required;
+- add transfer cases that differ materially in cohort, instrument, library,
+  missingness, ambiguity, interference, or assay burden;
+- preserve negative, refused, and inconclusive results as public evidence.
 
-Without an explicit roadmap, the repository can look deeper than it is. The
-goal is not to decorate package boundaries with ambition. The goal is to grow a
-real scientific workflow on top of those boundaries without losing ownership
-clarity.
+### Promote implemented adjacent domains carefully
 
-The roadmap is about what should exist next after the current bounded
-family-level proof set. The exact list of what does not yet exist lives in
-[Current Capability Limits](./current-capability-limits.md).
+Core contains additional chemistry, format, annotation, proteoform, and
+workflow-building surfaces. Those capabilities remain component-level until a
+named family owns:
 
-## Strongest Companion Routes
+1. a scientific question and acceptance contract;
+2. governed primary and challenge corpora with redistribution terms;
+3. an executable or explicitly import-backed Runtime route;
+4. comparison rules and known transfer boundaries;
+5. grounding and contradiction pressure;
+6. recommendation and laboratory consequence appropriate to the claim.
 
-- open
-  [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-  for the current release-facing family map
-- open
-  [Workflow Claim Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-claim-limits/)
-  for the current public-language ceiling
-- open
-  [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
-  for the exact blockers that prevent broader workflow language today
+Glycopeptide-heavy analysis, broader spectral-library search, additional
+external-engine workflows, and wider proteoform interpretation should not be
+described as supported workflow families before that chain exists.
 
-## Boundary
+## Promotion decision
 
-This roadmap should keep the repository honest. If a future claim sounds like a
-workflow capability, it should land either as one concrete workflow contract or
-stay here as future work until it exists.
+| Proposed change | Required response |
+| --- | --- |
+| algorithm or parser added without a family packet | document component scope; do not raise workflow posture |
+| primary benchmark passes without a distinct challenge case | retain the existing posture and publish the missing transfer burden |
+| Runtime completes but Core acceptance fails | publish execution evidence and scientific refusal separately |
+| scientific and Runtime evidence pass but grounding is insufficient | keep the result descriptive; do not promote decision support |
+| recommendation survives challenge but Lab refuses readiness | publish the refusal and retain advisory-only language |
+| all required records pass under a named scope | update the workflow ledger and generated release evidence together |
+
+## Evidence required for broader claims
+
+A wider cross-family statement requires more than several independently strong
+families. It needs a declared common scope, comparable acceptance semantics,
+transfer evidence across materially different conditions, consistent Runtime
+posture, and downstream limits that remain valid across the combined set.
+
+Until that evidence exists, public language stays family-specific. Inspect
+[Current Capability Limits](current-capability-limits.md) for active ceilings,
+[Benchmark Assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+for corpus governance, and the [Release Readiness Matrix](release-readiness-matrix.md)
+for blockers that prevent publication.
