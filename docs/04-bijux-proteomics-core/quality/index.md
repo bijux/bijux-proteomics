@@ -4,60 +4,90 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Quality
+# Scientific quality
 
-`bijux-proteomics-core` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
-
-## Trust Model
+Core quality is the ability to detect when an input, algorithm, artifact, or
+claim violates its declared scientific contract. It combines software checks
+with domain invariants, benchmark challenges, negative paths, provenance, and
+explicit limitation records.
 
 ```mermaid
 flowchart LR
-    invariants["invariants"]
-    tests["test strategy"]
-    validation["change validation"]
-    risks["risk register and limitations"]
-    decision["trust or block the change"]
-
-    invariants --> tests --> validation --> risks --> decision
+    C["scientific contract"] --> T["unit and property tests"]
+    T --> A["adversarial and malformed inputs"]
+    A --> B["benchmark and holdout evidence"]
+    B --> X["cross-package transfer"]
+    X --> R{"review posture"}
+    R -->|supported| P["bounded claim"]
+    R -->|gap| N["limitation or blocker"]
 ```
 
-This page should show core quality as contract defense, not general confidence.
-The package stays trustworthy when program, target, and lifecycle meaning
-remain explicit enough for downstream packages to build on safely.
+## Quality dimensions
 
-## Start With
+| Dimension | Evidence | Blocking example |
+| --- | --- | --- |
+| contract integrity | typed models, validation, schema and API checks | a field changes meaning without compatibility handling |
+| scientific correctness | unit, property, reference, and regression tests | FDR orientation or mass calculation changes unexpectedly |
+| input honesty | malformed, ambiguous, contaminant, decoy, and missing-data cases | invalid records are silently accepted or dropped |
+| determinism | stable serialization, ordering, hashing, seeded behavior | identical supported inputs produce unexplained artifact drift |
+| provenance | source, engine, database, policy, and version records | imported output is presented as native computation |
+| benchmark validity | licensed assets, challenge corpus, holdouts, acceptance bars | a public posture survives only on training-like fixtures |
+| boundary integrity | dependency, ownership, and public-surface checks | Runtime or recommendation policy is duplicated inside Core |
 
-- open [Invariants](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/invariants/) before changing package meaning
-- open [Change Validation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/change-validation/) when you need the minimum proof for a real edit
-- open [Risk Register](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/risk-register/) when the package boundary feels under pressure
+## Proof by change type
 
-## Section Pages
+| Change | Minimum scientific proof |
+| --- | --- |
+| parser or adapter | representative formats, malformed input, rejected records, source identity |
+| algorithm or threshold | reference cases, boundary values, regression evidence, sensitivity |
+| quantification or normalization | missingness, scale, ordering, batch, and reproducibility cases |
+| workflow-family behavior | family corpus, negative cases, acceptance bars, transfer limits |
+| public model or artifact | schema compatibility, serialization, round trip, consumer review |
+| performance path | serial equivalence, determinism, failure and resource behavior |
 
-- [Invariants](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/invariants/)
-- [Test Strategy](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/test-strategy/)
-- [Change Validation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/change-validation/)
-- [Definition of Done](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/definition-of-done/)
-- [Dependency Governance](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/dependency-governance/)
-- [Documentation Standards](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/documentation-standards/)
-- [Known Limitations](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/known-limitations/)
-- [Review Checklist](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/review-checklist/)
-- [Risk Register](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/risk-register/)
+[Change validation](change-validation.md) gives the repository commands and
+[test strategy](test-strategy.md) maps them to the test layers.
 
-## What Quality Means Here
+## Invariants
 
-- proving that durable program and lifecycle contracts stay explicit, stable, and downstream-safe
+The active invariants include:
 
-## First Proof Check
+- scientific policy is explicit and serialized with the result;
+- accepted, rejected, refused, and failed inputs remain distinguishable;
+- units, score orientation, thresholds, and missing-value meaning are stable;
+- external-engine and reference-data provenance is never inferred from a file
+  name alone;
+- workflow-family maturity is evaluated independently;
+- a completed process is not automatically a scientifically accepted result;
+- public facades point to one owner rather than duplicating behavior.
 
-- `packages/bijux-proteomics-core/tests`
-- `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
-- `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
+See [invariants](invariants.md) for the detailed contract set.
 
-## Design Pressure
+## Review failure modes
 
-Core quality weakens when implementation changes are easier to describe than
-the contract they move. The section has to keep durable semantics and proof in
-the same line of sight.
+Quality review blocks a change when evidence is absent, stale, circular, or too
+narrow for the claim. Passing happy-path tests cannot compensate for missing
+negative cases. Documentation cannot strengthen the posture beyond the checked
+implementation and artifacts. A known failure stays visible in the
+[risk register](risk-register.md) and [known limitations](known-limitations.md)
+until its owning evidence closes it.
+
+```mermaid
+flowchart TD
+    E["observed failure"] --> O{"new regression?"}
+    O -->|yes| C["correct change or reject it"]
+    O -->|no| K["confirm known owner and scope"]
+    K --> D["record exact blocker"]
+    D --> L["keep release language behind evidence"]
+```
+
+## Review route
+
+Use [dependency governance](dependency-governance.md) for import and optional
+dependency changes, [documentation standards](documentation-standards.md) for
+public scientific language, and the [review checklist](review-checklist.md) for
+handoff. [Definition of done](definition-of-done.md) requires both successful
+evidence and an explicit account of checks that remain blocked.

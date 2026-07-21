@@ -7,79 +7,102 @@ owner: bijux-proteomics-core-docs
 last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Scientific interfaces
 
-Core exposes the scientific contracts and transformations that turn proteomics
-inputs into inspectable analysis artifacts. Its interfaces cover sequence
-intake, experimental design, identification, quantification, specialized assay
-families, interpretation, review, and workflow planning. They do not grant
-execution authority or make release decisions on behalf of consuming systems.
+Core interfaces expose scientific operations through Python, CLI, and portable
+artifacts. All three routes share the same domain contracts: format acceptance,
+scientific policy, result schema, rejected-input evidence, QC, and typed failure
+must not change merely because the caller changes.
 
 ```mermaid
 flowchart LR
-    inputs["FASTA, spectra,<br/>identifications, design"]
-    intake["Parse and validate"]
-    analysis["Identify and quantify"]
-    specialized["DIA, PTM, targeted,<br/>multiplex, proteoforms"]
-    review["Audit and interpretation"]
-    artifacts["Portable result artifacts"]
-    runtime["Runtime execution"]
-
-    inputs --> intake --> analysis --> specialized --> review --> artifacts
-    runtime -. invokes .-> intake
-    runtime -. invokes .-> analysis
+    P["Python API"] --> C["scientific owner"]
+    L["bijux-proteomics CLI"] --> C
+    R["Runtime workflow request"] --> C
+    C --> O["typed result"]
+    C --> F["failure or refusal"]
+    O --> A["JSON · JSONL · TSV · manifests · review bundles"]
+    F --> A
 ```
 
-## Interface layers
+## Choose an entry route
 
-| Layer | Consumer need | Core responsibility | Explicit limit |
-| --- | --- | --- | --- |
-| root Python facade | begin common intake and audit operations | five curated, dependency-light exports | not a mirror of the entire package |
-| scientific modules | use a specific analytical capability | typed inputs, policies, reports, and reason codes | not orchestration or service hosting |
-| CLI | run independently reviewable operations | argument validation, artifact writing, non-zero failure | not a workflow scheduler |
-| artifact contracts | move results across processes or packages | schema, lineage, parameters, thresholds, accepted and rejected records | not proof of scientific fitness |
-| workflow contracts | plan and validate multi-operation work | runtime-agnostic plans and requirements | not process ownership |
+| Need | Interface | Appropriate when |
+| --- | --- | --- |
+| common intake from Python | curated package root | one of the five stable root operations is sufficient |
+| specialized scientific work | owning family module | the caller needs domain-specific policies, reports, or reason codes |
+| shell composition or inspection | `bijux-proteomics` CLI | files and machine-readable artifacts are the natural boundary |
+| governed multi-operation execution | Runtime request consuming Core contracts | lifecycle, providers, checkpoints, or replay are required |
+| cross-process review | artifact contract | another tool or reviewer must inspect the exact result independently |
 
-## Start from the question
+The package root intentionally exposes only `DigestPolicy`,
+`parse_fasta_document`, `parse_experimental_design_table`,
+`build_normalized_run_bundle`, and `build_fdr_audit_trail`. Use
+[public imports](public-imports.md) to find the supported owner module for wider
+capabilities. Do not treat every importable internal symbol as public API.
 
-- For the five stable package-root imports and their behavior, use
-  [Python API and CLI surface](api-surface.md).
-- For choosing package-root, family facade, or specialized module imports, use
-  [Public imports](public-imports.md).
-- For field meanings, invariants, and failure records, use
-  [Data contracts](data-contracts.md).
-- For persisted JSON, JSONL, TSV, manifests, and review bundles, use
-  [Artifact contracts](artifact-contracts.md).
-- For command names and exit behavior, use [CLI surface](cli-surface.md).
-- For end-to-end operator sequences, use
-  [Operator workflows](operator-workflows.md).
+## Result contract
 
-## Ownership boundary
+A reviewable result preserves more than its headline values:
 
-Core owns scientific semantics: how FASTA records are accepted or rejected,
-which digestion policy was applied, how design rows are normalized, how FDR is
-calculated, and which thresholds produced an accepted result. Runtime owns
-process execution, service transport, resource policy, and retry behavior.
-Intelligence owns decision posture; knowledge owns evidence memory and
-reconciliation; lab owns assay planning and experimental consequences.
+| Contract element | Examples |
+| --- | --- |
+| source identity | input digest, file identity, external engine and version |
+| normalized policy | protease, modification set, tolerances, FDR method, inference or normalization rule |
+| accepted material | parsed proteins, PSMs, peptides, groups, quantities, sites, transitions |
+| excluded material | rejected rows, contaminants, decoys, ambiguous assignments, missing observations |
+| diagnostics and QC | counts, distributions, calibration, missingness, interference, sensitivity |
+| compatibility | schema identity, producer version, migration posture |
+| scientific limits | unresolved ambiguity, transfer boundary, heuristic status, unavailable evidence |
 
-This boundary matters when interpreting status. A successful core operation
-means its declared contract completed. It does not mean a service deployment
-succeeded, a candidate should advance, a knowledge conflict is resolved, or an
-experiment is safe to run.
+See [data contracts](data-contracts.md) for field invariants and
+[artifact contracts](artifact-contracts.md) for persisted representations.
 
-## Evidence carried by results
+## CLI behavior
 
-Reader-facing outputs should retain enough information to answer:
+CLI commands validate arguments before scientific work, write machine-readable
+outputs atomically, and return nonzero status for invalid input or governed
+failure. Concise terminal text is an operator aid; it is not the authoritative
+scientific artifact.
 
-1. Which source records and parameters entered the operation?
-2. Which records were accepted, rejected, or refused, and why?
-3. Which policy, threshold, score orientation, or normalization rule applied?
-4. Which schema and package version produced the artifact?
-5. Which later interpretation is scientific judgment rather than computed
-   output?
+```bash
+bijux-proteomics fasta-parse --help
+bijux-proteomics digest --help
+bijux-proteomics fdr --help
+bijux-proteomics protein-lfq --help
+bijux-proteomics ptm --help
+bijux-proteomics targeted-panel-builder --help
+```
 
-The implementation beneath `packages/bijux-proteomics-core/src/bijux_proteomics/`
-is the behavior authority. Curated `public_api` ledgers and package tests guard
-the supported facades; documentation explains how to use them without
-overstating what the resulting artifacts prove.
+The [CLI surface](cli-surface.md) documents commands and exit behavior.
+[Operator workflows](operator-workflows.md) connects commands into defensible
+scientific sequences, while [entrypoints and examples](entrypoints-and-examples.md)
+provides focused invocations.
+
+## Artifact custody
+
+JSON and table exports are deterministic where their contract promises stable
+ordering. A manifest identifies inputs, parameters, producer, and owned output
+files. Review bundles connect primary results to diagnostics and limitations
+without replacing the primary artifacts.
+
+An artifact proves what Core serialized under a declared policy. It does not by
+itself prove that an external engine behaved correctly, that a run can be
+replayed, that evidence is sufficient for a recommendation, or that an assay is
+safe to execute.
+
+## Configuration boundary
+
+Scientific configuration belongs with the Core operation: digestion,
+modification, tolerance, scoring, inference, normalization, or workflow-family
+policy. Process configuration—provider choice, resources, retries, service
+transport, checkpoints, and scheduling—belongs to Runtime. See
+[configuration surface](configuration-surface.md) before adding a setting.
+
+## Compatibility
+
+Public imports, command names, fields, enumerations, artifact schemas, defaults,
+and failure behavior are compatibility surfaces. A change may require a schema
+migration even when Python imports remain unchanged. [Compatibility commitments](compatibility-commitments.md)
+defines the review burden for those changes; [API surface](api-surface.md)
+identifies the curated facade and its evidence.
