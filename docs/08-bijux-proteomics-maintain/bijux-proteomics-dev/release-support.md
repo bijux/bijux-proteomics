@@ -4,210 +4,111 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-05-07
+last_reviewed: 2026-07-21
 ---
 
 # Release Support
 
-Release support should make version and publication rules visible before tags and workflows do the irreversible part.
+`bijux-proteomics-dev` turns release policy into executable evidence. Its release
+modules answer three different questions: what version would be published,
+whether the artifacts are mechanically publishable, and whether the repository
+can defend the claims attached to that release.
 
-## Release Model
+## Three Proof Layers
 
 ```mermaid
 flowchart TB
-    release["release candidate"]
-    version["version and changelog checks"]
-    guard["publication guard"]
-    publish["tag and publication may proceed"]
+    identity["release identity<br/>version resolver"]
+    package["package integrity<br/>publication guard"]
+    authority["repository authority<br/>release preflight"]
+    decision{"all required evidence passes?"}
+    publish["publication may proceed"]
+    refuse["stop and preserve the failure"]
 
-    release --> version
-    version --> guard
-    guard --> publish
+    identity --> package --> authority --> decision
+    decision -->|yes| publish
+    decision -->|no| refuse
 ```
 
-This page should make release support feel like a pre-publication proof chain. The repository needs version logic, changelog discipline, and publication guards to agree before tags turn policy mistakes into published artifacts.
+### Release identity
 
-## Support Rules
+`release/versioning/version_resolver.py` reads static project metadata when
+present, otherwise asks Hatch for the VCS-derived version, and finally inspects
+matching Git tags. An unresolved version becomes `0.0.0`; publication treats
+that value as a failure rather than inventing an identity.
 
-- keep version resolution and changelog checks explicit
-- block publication when repository proof is incomplete
-- tie release decisions back to checked-in policy helpers
-- require SSOT ownership readiness before any benchmark-backed scientific release claim can count as publishable
-- require one checked-in scientific release dossier that names the owner,
-  benchmark, tests, docs, and scientific limit for each workflow family
+### Package integrity
 
-## First Proof Check
+`release/governance/publication_guard.py` rejects prerelease and local-version
+markers by default. When given a distribution directory, it also parses wheel
+and source-distribution filenames and requires every embedded version to equal
+the resolved version. Twine then checks the resulting archive metadata.
 
-- `src/bijux_proteomics_dev/release/versioning/version_resolver.py`
-- `src/bijux_proteomics_dev/release/governance/publication_guard.py`
-- `src/bijux_proteomics_dev/release/governance/repository_truth.py`
-- `src/bijux_proteomics_dev/release/governance/workflow_lab_consequence.py`
-- `src/bijux_proteomics_dev/release/governance/workflow_consequence_chain.py`
-- `src/bijux_proteomics_dev/release/governance/workflow_consequence_docs.py`
-- `src/bijux_proteomics_dev/release/governance/workflow_public_scrutiny.py`
-- `src/bijux_proteomics_dev/release/governance/hostile_review_pages.py`
-- `src/bijux_proteomics_dev/release/governance/release_narrowing_protocol.py`
-- `src/bijux_proteomics_dev/release/governance/final_preflight.py`
-- `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
-- `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`
-- `src/bijux_proteomics_dev/release/governance/ssot_readiness.py`
-- `configs/package-governance/flagship-workflow-manifest.toml`
-- `configs/package-governance/scientific-release-workflows.toml`
+### Repository authority
 
-## Scientific Proof Chain
+`release/governance/final_preflight.py` composes the minimum hostile-review
+sequence behind `make release-preflight`:
 
-The release dossier is intentionally narrow. It covers the benchmark-backed
-workflow families that the suite can defend today:
+1. documentation clarity;
+2. package boundaries;
+3. test collection;
+4. benchmark assets;
+5. runtime reproducibility;
+6. consequence coherence;
+7. artifact hygiene.
 
-- `dda`
-- `dia`
-- `ptm`
-- `lfq`
-- `multiplex`
-- `targeted`
+The report prints every failing stage and returns a nonzero status when any
+stage fails. A downstream stage cannot erase an earlier failure.
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
-Review-grade-bounded workflow families today: `lfq`.
-Internal-support-only workflow families today: `multiplex`.
+## Scientific Release Dossier
 
-For the strongest current outsider-readable proof, start with the DDA package
-before reading the release policy helpers:
+The scientific release dossier connects a workflow-family claim to concrete
+ownership and evidence. Its checked-in declaration is
+`configs/package-governance/scientific-release-workflows.toml`. For each covered
+family, a reviewer should be able to recover:
 
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/scientific_invariants.json`
-- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/comparator_confrontations.py`
+- the owning package and benchmark identifier;
+- the checked-in dataset or benchmark-package locator;
+- the builder symbol that creates the reviewable output;
+- the test and documentation paths that defend it;
+- the scientific limit that constrains public language.
 
-Reviewers should be able to open one manifest and see:
+Current proof is intentionally uneven. The checked-in claim-limit surfaces
+request outsider-auditable authority for DDA, DIA, PTM, and targeted workflows,
+review-grade-bounded authority for LFQ, and internal-support-only authority for
+multiplex. The live release preflight is stricter: DDA currently stops at
+review-grade bounded because its black-box benchmark dashboard does not defend
+the requested outsider-auditable level. Until that disagreement is resolved,
+the repository is not release-ready at the declared authority boundary.
 
-- the owning package
-- the benchmark id and checked-in dataset locator
-- the builder symbol that produces the reviewable output
-- the test path that proves the path
-- the doc path that explains the scope
-- the exact scientific limit summary that keeps the claim honest
+The most developed review packet is the DDA reviewable run under
+`packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/`,
+but packet depth does not override the runtime rerun gate. No repository-wide
+label may silently promote a workflow family beyond the weakest live authority
+surface that evaluates it.
 
-For `dda`, the release conversation should now point directly to:
+## Evidence Routes
 
-- `benchmark:dda_search_reproducibility`
-- `benchmark_package:dda_reviewable_run`
-- `dda-maxquant-pipeline-corpus`
-- `comparator_path:msfragger_imported_dda_review`
-- `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
-- `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
+Use the narrowest authority surface that answers the review question:
 
-Use `build_scientific_release_dossier()` when you need the live code-backed
-index, and review
-`configs/package-governance/scientific-release-workflows.toml` when you need
-the checked-in declaration that release policy depends on.
+| Question | Authority |
+| --- | --- |
+| Is the version publishable? | `version_resolver.py` and `publication_guard.py` |
+| Are generated governance records current? | `generated_governance_freshness.py` |
+| Do package ownership and compatibility bridges remain coherent? | `ssot_readiness.py` |
+| Is public wording no stronger than the evidence? | `public_language.py` and `release_narrowing_protocol.py` |
+| Do runtime reruns and scientific claims agree? | `runtime_black_box_docs.py` and `scientific_readiness.py` |
+| Can the repository pass its minimum release bar? | `final_preflight.py` |
 
-Use `build_repository_truth_report()` when the question is stronger than
-package publication and benchmark scope: it answers whether the repository may
-honestly speak in `reference-grade` or `elite` language at all.
+Repository truth is a derived conclusion, not a substitute for opening the
+underlying benchmark package, runtime lane, comparator result, validating test,
+and claim-limit page. A release must narrow its language when any of those
+surfaces disagree.
 
-That repository truth now includes the runtime flagship rerun gate. If the
-strongest current runtime lane for a workflow family still depends on a fake
-helper anywhere in its claimed flagship path, or the rerun ledger still names
-an explicit faithful-rerun refusal, the family must not count toward
-outsider-auditable or release-candidate authority.
+## Failure Contract
 
-That repository truth also includes the lab-consequence gate. A workflow family
-must not be called lab-consequential unless the authority surface points to one
-shipped requested-versus-observed outcome dossier and one assay-worth-it ledger
-row for that same family.
-
-That consequence realism now also depends on one shared consequence chain
-across knowledge, intelligence, and lab. If those owners disagree on the
-current strongest allowed posture, or if the shared consequence docs drift from
-the live package surfaces, stronger recommendation language must stop.
-
-Repository truth should not be cited without those shared consequence surfaces.
-Its evidence path now includes:
-
-- `docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md`
-- `docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md`
-- `docs/07-bijux-proteomics-lab/foundation/outcome-learning-loops.md`
-- `docs/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md`
-
-Open these consequence routes before widening recommendation or assay-facing
-language:
-
-- `docs/01-bijux-proteomics/foundation/workflow-consequence-maps.md`
-- `docs/01-bijux-proteomics/foundation/what-changed-the-recommendation.md`
-- `docs/07-bijux-proteomics-lab/foundation/outcome-learning-loops.md`
-- `docs/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md`
-
-When the question is specifically how a runtime lane should be reopened,
-challenged, or refused, open these runtime-owned boundary surfaces before
-generalizing from runtime success:
-
-- `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
-- `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`
-- `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`
-- `docs/09-bijux-proteomics-runtime/runtime-rerun-refusals.md`
-
-Those pages should not be the first stop for workflow trust. First open the
-flagship package, runtime lane, comparator surface, and validating tests. Then
-use repository truth to decide how far the repository may generalize from those
-artifacts.
-
-The current repository-wide language boundary is stricter than the strongest
-current outsider packet:
-
-- five bounded outsider-auditable workflow families exist
-- multiplex remains internal support only
-- repository-wide elite language is still blocked
-- the scorecard for that boundary lives in
-  `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
-- the workflow-family limit pages now live in
-  `docs/01-bijux-proteomics/foundation/workflow-claim-limits.md` and
-  `docs/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md`
-- the artifact-role coherence map for that boundary now lives in
-  `docs/01-bijux-proteomics/foundation/public-artifact-role-matrix.md`
-- the public opening-order registry now lives in
-  `docs/01-bijux-proteomics/foundation/public-artifact-index.md`
-
-Use `validate_generated_governance_freshness()` before release to make sure
-the generated governance reports under `configs/package-governance/` are still
-fresh instead of silently stale.
-
-Use `validate_public_language()` when the question is whether root docs,
-package READMEs, foundation pages, and release-support surfaces have slipped
-back into retired public language after the last cleanup.
-
-Use `validate_workflow_public_scrutiny()` when the question is whether the
-external review kits, artifact index, artifact-role matrix, and stronger
-release language are still aligned.
-
-Use `validate_workflow_consequence_coherence()` when the question is whether
-knowledge contradiction pressure, intelligence recommendation posture, and lab
-consequence still agree on the same strongest allowed family sentence.
-
-Use `bijux_proteomics_dev.release.governance.hostile_review_pages` when the
-question is whether the repository-wide hostile review kit and the blocker
-pages are still generated from live release evidence instead of hand-softened
-prose.
-
-Use `bijux_proteomics_dev.release.governance.release_narrowing_protocol` when
-the question is whether workflow-family language should already be narrower
-than the strongest public sentence.
-
-Use `make release-preflight` when the question is whether the minimum hostile
-review gates across docs, package boundaries, benchmark assets, runtime
-reproducibility, consequence coherence, and artifact hygiene still survive in
-one exact order.
-
-Use `validate_ssot_readiness()` when the question is whether public symbol
-ownership, duplicate model ownership, compatibility-bridge posture, and
-package-boundary substance are all clean enough for scientific release claims
-to count at all. Review
-`docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-substance.md`
-when the question is whether the current package split still earns its
-separate release identities.
-
-## Design Pressure
-
-The easy failure is to let release automation look authoritative even when the underlying version and publication rules are no longer explicit or aligned.
+Release checks are refusal mechanisms. Do not regenerate evidence merely to make
+a diff disappear, opt into prerelease flags accidentally, skip Twine validation,
+or weaken public wording checks to unblock a tag. Resolve the owner-level cause,
+rerun the narrow failing gate, and then rerun `make release-preflight` from a
+clean repository state.
