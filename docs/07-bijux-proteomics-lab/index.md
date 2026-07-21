@@ -4,143 +4,111 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # bijux-proteomics-lab
 
-`bijux-proteomics-lab` owns lab-facing execution in `bijux-proteomics`. It
-turns plans and decisions into assay work, captures outcomes, and keeps
-experiment-facing state separate from lower-layer contracts and runtime control.
-This is where the repository stops being only a reasoning system and becomes a
-practical instrument for experimental action.
+`bijux-proteomics-lab` converts a supported recommendation into an operational
+assay plan and records what the experiment actually observed. It owns assay
+design, readiness, batching, scheduling, handoff, outcome capture, and feedback
+to scientific review.
+
+```bash
+python -m pip install bijux-proteomics-lab
+```
+
+## Closed-loop validation
 
 ```mermaid
 flowchart LR
-    knowledge["knowledge<br/>evidence state"]
-    intelligence["intelligence<br/>recommendations"]
-    core["core<br/>workflow rules"]
-    lab["lab<br/>plans, assays, outcomes"]
-    runtime["runtime<br/>execution support"]
-    results["captured outcomes"]
+    recommendation["recommendation record"]
+    design["assay design\nprotocol · controls · materials"]
+    readiness{"ready?"}
+    queue["priority · batches · schedule"]
+    handoff["executable lab handoff"]
+    observation["observed outcome"]
+    reconcile["requested vs observed\nreconciliation"]
+    feedback["new evidence and policy feedback"]
+    refusal["refusal or revised plan"]
 
-    knowledge --> lab
-    intelligence --> lab
-    core --> lab
-    runtime --> lab
-    lab --> results
-    results --> knowledge
+    recommendation --> design --> readiness
+    readiness -->|yes| queue --> handoff --> observation --> reconcile --> feedback
+    readiness -->|no| refusal
 ```
 
-## Why This Package Exists
+Planning and observation are separate records. A recommendation can be
+scientifically plausible but operationally unready; an executed assay can be
+technically successful but inconclusive; and an unexpected outcome can weaken
+the upstream evidence or decision policy.
 
-- recommendation only matters if it can survive contact with real assays
-- lab work needs its own language and artifacts instead of being reduced to
-  runtime tasks
-- outcomes must return to the evidence layer without losing experimental context
+## Operational capabilities
 
-This package matters more now because the upstream scientific and analytical
-surfaces are stronger. More signal creates more downstream burden. The lab
-layer is where the repository proves it can turn recommendation into practical
-follow-up honestly instead of pretending every strong analytical sentence is
-cheap or easy to validate.
+| Surface | Responsibility |
+| --- | --- |
+| `design` | experiment and protocol contracts |
+| `planning` | advisory and executable assay plans, priorities, queues, batches, schedules, and next-cycle planning |
+| `readiness` | stage-specific operational checks and progression decisions |
+| `lifecycle` | governed movement through lab states |
+| `handoffs` | artifacts, explanations, serialization, PTM and QC feedback, risk, and transfer records |
+| `outcomes` | observations and evidence feedback |
+| `reconciliation` | requested-versus-observed follow-up and flagship closure |
+| `benchmarks` | lab claims, rehearsals, follow-up evidence, learning, and outcome dossiers |
 
-## Why Readers Should Not Skip This Package
+The package root exposes three planning entry points:
 
-- this is where the repository proves that downstream science still costs real
-  assays, controls, queue time, and material discipline
-- stronger upstream biology and recommendation depth only become honest product
-  surfaces if the lab layer can name what should be spent, delayed, narrowed,
-  or refused
-- this package is one of the clearest places where `bijux-proteomics` stops
-  sounding like governance and starts sounding like practical scientific work
+```python
+from bijux_proteomics_lab import (
+    build_advisory_assay_plan,
+    build_executable_assay_plan,
+    plan_experiment_batches,
+)
+```
 
-## What It Owns
+An advisory plan can be produced while operational details remain incomplete.
+An executable plan requires the stronger readiness and handoff information
+needed to act. Batch planning groups ready work under declared constraints; it
+does not make an unready assay executable.
 
-- assay planning and experiment-facing workflows
-- outcome capture, promotion, and closed-loop lab decisions
-- lab-facing artifacts that connect recommendations to real execution
+## Readiness and refusal
 
-## Concrete Lab Families
+Readiness evaluates scientific inputs, controls, materials, protocol detail,
+capacity, scheduling constraints, and handoff completeness. A refusal is an
+expected scientific safety result when a plan would waste material, obscure
+interpretation, or create an outcome that cannot answer the stated question.
 
-| owner band | visible package substance | why it matters |
-| --- | --- | --- |
-| planning and design | assay plans, design routes, material and control thinking | recommendations become priced scientific work |
-| readiness and lifecycle | queue discipline, preflight burden, follow-up state | the product can say when not to spend yet |
-| handoffs and benchmarks | downstream packets, rehearsal routes, benchmark-facing consequence work | analytical confidence meets operational reality |
-| outcomes and reconciliation | requested-versus-observed loops and closure state | later scientific language can narrow because of what actually happened |
+The refusal record should identify the blocking condition and a valid next
+action such as narrowing the assay, adding controls, resolving an upstream
+contradiction, rerunning analysis, or waiting for capacity. It must not be
+rendered as a generic runtime failure.
 
-## Why This Package Matters More Now
+## Outcome feedback
 
-- stronger workflow packets create stronger assay-cost and control-demand
-  questions
-- downstream burden is now a visible release boundary instead of a final
-  afterthought
-- observed outcomes now feed back into the recommendation chain more explicitly
+Observed outcomes are reconciled against the requested measurements and
+acceptance criteria. The resulting consequence record can:
 
-## Shared Reader Routes
+- strengthen or weaken a knowledge claim;
+- expose an unmodeled contradiction;
+- recalibrate candidate ranking or recommendation confidence;
+- trigger a revised assay plan;
+- close a follow-up route as confirmed, rejected, or inconclusive.
 
-- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
-  when the question is whether assay burden or the cost of being wrong already
-  blocks stronger workflow language.
-- Use [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
-  when the question is still about downstream assay burden, refusal, or outcome
-  pressure rather than one lab-owner module.
-- Use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
-  when the question is how observed outcomes should tighten or weaken the next
-  recommendation.
-- Use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
-  when the question is whether the honest next action is to stop, rerun,
-  narrow, or refuse.
-- Use [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the disagreement is still about recommendation posture rather than
-  execution reality.
+History is append-only in meaning: later evidence can supersede a conclusion
+without erasing the recommendation and assumptions that led to the experiment.
 
-## Start Inside This Package
+## Documentation map
 
-- Open [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/)
-  for the package role and boundary.
-- Open [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
-  when the question is how planning, readiness, and outcomes stay separated.
-- Open [Interfaces](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/)
-  when the question is a lab-facing contract or artifact surface.
+- [Lab consequence](foundation/lab-consequence.md) explains cost, controls, and
+  downstream burden.
+- [Outcome learning loops](foundation/outcome-learning-loops.md) covers feedback
+  into evidence and policy.
+- [Workflow refusal handbook](foundation/workflow-refusal-handbook.md) maps
+  refusal reasons to safe next actions.
+- [Architecture](architecture/index.md) separates planning, readiness, handoff,
+  and outcomes.
+- [Interfaces](interfaces/index.md) documents Python and artifact contracts.
+- [Known limitations](quality/known-limitations.md) records operational and
+  scientific bounds.
 
-## What It Refuses
-
-- evidence truth that belongs in knowledge
-- recommendation policy that belongs in intelligence
-- general execution orchestration that belongs in runtime
-
-## Strongest Proof Route
-
-- start at [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
-  when the question is still about shared downstream burden
-- continue to [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/)
-  when the question is which planning, readiness, refusal, or outcome surfaces
-  this package truly owns
-- open outcome-learning and refusal routes when the real question is whether
-  the next honest action is to spend, narrow, rerun, or stop
-
-## Reader Questions This Package Can Answer Well
-
-- which workflow family still looks attractive analytically but becomes costly
-  or fragile once assay controls are named
-- where observed outcomes should narrow later trust language instead of getting
-  filed away as operational detail
-- why a refusal can be the strongest scientific answer even when a benchmark or
-  recommendation route looks promising
-
-## What Changed Since v0.3.7
-
-- the package now presents downstream burden as a real scientific constraint,
-  not as a project-management afterthought
-- observed outcomes and refusals now clearly participate in later trust
-  language
-- lab consequence is now one of the strongest proofs that the repository has
-  become a practical scientific product instead of only a review framework
-
-## First Proof Check
-
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab`
-- `packages/bijux-proteomics-lab/tests`
-- outcome and planning modules once a claim narrows to one surface
+Lab does not own upstream scientific computation, evidence truth,
+recommendation policy, or general execution orchestration.

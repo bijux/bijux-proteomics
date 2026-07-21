@@ -1,70 +1,103 @@
 ---
 title: Maintainer Handbook
-audience: mixed
+audience: maintainer
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Maintainer Handbook
+# Maintainer handbook
 
-`bijux-proteomics-maintain` is the repository-health handbook. It explains how
-the repository keeps its promises alive: docs stay buildable, schemas stay
-checked, releases stay guarded, and shared commands stay understandable.
+This handbook covers the repository-wide systems that keep fifteen published
+distributions, their API contracts, documentation, release artifacts, and
+scientific boundaries coherent. Package-local development remains documented
+in each package handbook.
 
-Product packages carry the scientific and operational ideas. This handbook
-carries the discipline that stops those ideas from decaying into folklore.
+## Verification architecture
 
 ```mermaid
-flowchart TB
-    dev["bijux-proteomics-dev<br/>helper code"]
-    makes["make system<br/>shared command surface"]
-    workflows["github workflows<br/>automation and publication"]
-    contracts["apis, docs, releases,<br/>package verification"]
-    packages["product packages"]
-
-    dev --> contracts
-    makes --> contracts
-    workflows --> contracts
-    contracts --> packages
+flowchart LR
+    change["source, docs, schema, or dependency change"]
+    make["Make target\nstable operator entry point"]
+    dev["bijux-proteomics-dev\npolicy and validation code"]
+    checks["tests · lint · typing · API · security · docs · architecture"]
+    ci["GitHub workflows\nclean-environment verification"]
+    release["PyPI · GHCR · GitHub Release · docs"]
+    change --> make --> dev --> checks --> ci --> release
 ```
 
-## What This Handbook Makes Visible
+The same named Make targets are used locally and in automation. Generated API,
+schema, governance, and documentation evidence is checked for drift rather than
+treated as an informal review aid.
 
-- where repository rules are executable instead of merely stated
-- how local commands, CI, and release automation reinforce each other
-- why a multi-package repository can stay coherent over time
+## Local workflow
 
-## Shared Reader Routes
+From the repository root:
 
-- Use [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
-  when the reader still needs the repository-health route before dropping into
-  one maintainer owner family.
-- Use [Maintainer Safe Change](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/)
-  when the question is a concrete package change rather than a general
-  repository-health question.
+```bash
+make ensure-venv
+make test
+make quality
+make security
+make api
+make docs-check
+```
 
-## Start Inside This Handbook
+Use the narrowest package target during development, then run the relevant
+repository gate before committing. `make check` is the full verification flow;
+`make release-preflight` applies the ordered hostile-review checks required
+before a release candidate.
 
-- open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the rule is implemented as checked-in Python maintainer code
-- open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the symptom starts from GitHub automation
-- open [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the question starts from `make`, CI target routing, or release command fan-out
+All generated local outputs belong under `artifacts/`. Package trees contain
+source, tests, governed fixtures, and release-owned assets—not transient logs,
+coverage output, caches, or ad hoc run products.
 
-## What This Handbook Owns
+## Change-to-gate map
 
-- repository-wide proof, publication, docs integrity, security, and policy enforcement
-- shared command routing and GitHub automation contracts
-- the boundary between package handbooks and repository-health surfaces
+| Changed surface | Required focus |
+| --- | --- |
+| Python behavior | package tests, lint, type checks, public API types |
+| package imports or dependencies | lock check, circular-import checks, dependency minimization, optional-dependency guards |
+| public exports | API checks, schema freeze, API lock and compatibility review |
+| runtime or compatibility bridge | runtime boundaries, migration ledger, migration validation |
+| docs or navigation | docs links, consistency, strict MkDocs build, docs hygiene |
+| architecture or package layout | canonical package tree, orphan modules, architecture regression |
+| release metadata | builds, SBOMs, badge checks, license assets, release preflight |
+| security-sensitive code | static security, vulnerability gates, dependency allowlist |
 
-## What It Should Never Become
+## Repository owners
 
-- a substitute for product-package documentation
-- a vague collection of release reminders
-- a place where automation hides without naming its real owner
+- [`bijux-proteomics-dev`](bijux-proteomics-dev/index.md) implements quality,
+  security, API, schema, documentation, governance, and release validators.
+- [The Make system](makes/index.md) provides discoverable root commands and
+  package dispatch without duplicating policy.
+- [GitHub workflows](gh-workflows/index.md) run clean-environment verification,
+  publication, and docs deployment.
+- `configs/` contains tool and governed policy inputs; `apis/` contains tracked
+  public-contract evidence.
 
-## First Proof Check
+## Safe change sequence
 
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`
-- `.github/workflows/`
-- `Makefile` and `makes/`
+1. Identify the package owner and the public contract affected.
+2. Change implementation and package-local tests together.
+3. Regenerate governed outputs only through their owning command.
+4. Inspect generated and handwritten diffs separately.
+5. Run the narrow package checks and the repository gates implied by the
+   change-to-gate map.
+6. Confirm documentation describes released behavior and its limitations.
+7. Build and inspect distributions when packaging or public data changes.
+
+Start with [maintainer safe change](bijux-proteomics-dev/maintainer-safe-change.md)
+for detailed routing, [quality gates](bijux-proteomics-dev/quality-gates.md) for
+verification, [schema governance](bijux-proteomics-dev/schema-governance.md)
+for compatibility, and [release support](bijux-proteomics-dev/release-support.md)
+for publication.
+
+## Release boundary
+
+Releases are tag-driven and publish independently versioned distributions. A
+green build is necessary but does not prove scientific readiness. Release
+review also checks workflow-family evidence, runtime replay, grounding,
+recommendation posture, lab consequence, package compatibility, and the
+accuracy of public claims.

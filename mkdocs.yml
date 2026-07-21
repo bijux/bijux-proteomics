@@ -499,7 +499,24 @@ nav:
           - Risk Register: 07-bijux-proteomics-lab/quality/risk-register.md
   - bijux-proteomics-runtime:
       - Overview: 09-bijux-proteomics-runtime/index.md
-      - This Package Does Not Own: 09-bijux-proteomics-runtime/this-package-does-not-own.md
+      - Operate:
+          - CLI Reference: 09-bijux-proteomics-runtime/cli-reference.md
+          - Execution Overview: 09-bijux-proteomics-runtime/execution-overview.md
+          - Operator Rerun Journey: 09-bijux-proteomics-runtime/operator-rerun-journey.md
+          - Benchmark Rerun Kits: 09-bijux-proteomics-runtime/benchmark-rerun-kits.md
+          - Raw Versus Import Execution: 09-bijux-proteomics-runtime/raw-versus-import-execution.md
+      - Verify:
+          - Flagship Run Registry: 09-bijux-proteomics-runtime/flagship-run-registry.md
+          - Benchmark Comparability Matrix: 09-bijux-proteomics-runtime/benchmark-comparability-matrix.md
+          - Black-Box Benchmark Dashboard: 09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md
+          - Black-Box Run Verification: 09-bijux-proteomics-runtime/black-box-run-verification.md
+          - Runtime Artifact Stability: 09-bijux-proteomics-runtime/runtime-artifact-stability.md
+      - Boundaries:
+          - Runtime Execution Boundary: 09-bijux-proteomics-runtime/runtime-execution-boundary.md
+          - Runtime Environment Contracts: 09-bijux-proteomics-runtime/runtime-environment-contracts.md
+          - Runtime Replay Challenges: 09-bijux-proteomics-runtime/runtime-replay-challenges.md
+          - Runtime Rerun Refusals: 09-bijux-proteomics-runtime/runtime-rerun-refusals.md
+          - This Package Does Not Own: 09-bijux-proteomics-runtime/this-package-does-not-own.md
       - Migration Ledger:
           - Migration Ledger: 09-bijux-proteomics-runtime/migration-ledger/README.md
           - Agentic Module Ledger Summary: 09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md

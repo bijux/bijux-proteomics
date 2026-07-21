@@ -1,154 +1,110 @@
 ---
-title: Runtime Handbook
+title: bijux-proteomics-runtime
 audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Runtime Handbook
+# bijux-proteomics-runtime
 
-`bijux-proteomics-runtime` is the canonical execution package for the
-proteomics family. It owns how work is invoked, orchestrated, replayed, and
-made inspectable after the run. This is where the system becomes operational:
-operators touch it, providers plug into it, state moves through it, and runs
-leave artifacts behind that a reviewer can inspect later.
+`bijux-proteomics-runtime` is the canonical execution layer. It turns validated
+workflow requests into inspectable runs with explicit configuration, provider
+selection, lifecycle state, checkpoints, artifacts, comparison, replay, and
+operator handoff.
 
-```mermaid
-flowchart LR
-    operators["operators<br/>CLI, HTTP, automation"]
-    bridge["agentic-proteins<br/>legacy paths"]
-    runtime["runtime<br/>orchestration and control"]
-    providers["providers and tools"]
-    state["state, memory, registry"]
-    validation["validation and replay"]
-    artifacts["run artifacts and execution record"]
-
-    operators --> runtime
-    bridge -. migrate .-> runtime
-    runtime --> providers
-    runtime --> state
-    runtime --> validation
-    validation --> artifacts
-    providers --> artifacts
-    state --> artifacts
+```bash
+python -m pip install bijux-proteomics-runtime
+bijux-proteomics-runtime --help
 ```
 
-## Why This Package Is Central
+## Runtime lifecycle
 
-- it is the place where abstract package contracts become concrete runs
-- it keeps execution reviewable instead of letting provider calls disappear into
-  opaque side effects
-- it holds the operational seam between the product family and the outside
-  world
+```mermaid
+stateDiagram-v2
+    [*] --> Preflight
+    Preflight --> Refused: invalid input or unavailable capability
+    Preflight --> Planned: contract and provider accepted
+    Planned --> Running
+    Running --> Checkpointed: interruption or review boundary
+    Checkpointed --> Running: resume
+    Running --> Failed: governed execution failure
+    Running --> Completed
+    Completed --> Reproduced: replay under compatible environment
+    Completed --> Compared: compare run records
+    Completed --> Archived: export and handoff
+```
 
-## Why This Package Matters More Now
+Runtime records execution truth: what was requested, selected, attempted,
+produced, refused, or failed. It does not convert operational success into a
+scientific or biological claim.
 
-- runtime is now a public proof surface for flagship families, not only an
-  internal operator utility
-- the repository can now show checked run bundles, replay pressure,
-  comparability limits, and raw-versus-import honesty in public docs instead of
-  maintainer explanation
-- stronger benchmark and trust routes only become operationally meaningful when
-  runtime keeps their execution limits explicit
+## Operator surfaces
 
-## Shared Reader Routes
+- The `bijux-proteomics-runtime` CLI starts, resumes, compares, reproduces,
+  inspects, imports, and exports runs.
+- `create_app()` exposes the FastAPI application and versioned route surface.
+- `RunManager` provides the direct Python execution owner.
+- `AppConfig` configures the HTTP application.
+- `agentic-proteins` forwards historical commands and imports to these
+  canonical owners.
 
-- Use [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-  when the question is still about rerun flow rather than one runtime-owned
-  surface.
-- Use [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
-  when the question starts from a flagship workflow family rather than from a
-  runtime subsystem.
-- Use [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/)
-  when the question is how an outsider would reopen the shipped benchmark lane
-  without relying on maintainer memory.
+See the [CLI reference](cli-reference.md) for exact commands and examples.
 
-## Start Inside This Package
+## Execution subsystems
 
-- Proof route:
-  open [Flagship Run Registry](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/flagship-run-registry/),
-  [Benchmark Comparability Matrix](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-comparability-matrix/),
-  and [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/)
-  when the question is which runtime-backed workflow claims are live and what
-  evidence still authorizes them.
-- Boundary route:
-  open [Runtime Execution Boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-execution-boundary/),
-  [Black-Box Run Verification](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-run-verification/),
-  and [Raw Versus Import Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/raw-versus-import-execution/)
-  when the question is how a benchmark package becomes a checked runtime story
-  and where that story still stops.
-- Stability route:
-  open [Runtime Replay Challenges](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-replay-challenges/),
-  [Runtime Environment Contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-environment-contracts/),
-  [Runtime Artifact Stability](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-artifact-stability/),
-  and [Runtime Rerun Refusals](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-rerun-refusals/)
-  when the question is what still blocks a stronger rerun claim.
-- Compatibility route:
-  open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
-  and the [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
-  when the question starts from a legacy import, CLI path, or API surface.
-- Domain handoff:
-  open the lower package handbooks when the disputed behavior is really domain,
-  evidence, recommendation, or lab meaning instead of runtime execution.
+| Subsystem | Responsibility |
+| --- | --- |
+| `api` | CLI, FastAPI application, v1 routes, request context, errors, logging, and command output |
+| `execution` | agent and tool contracts, planning, compilation, graph validation, engine, evaluation, and validation |
+| `providers` | capability discovery, selection, assurance, environment checks, and built-in, local, or remote implementations |
+| `runs` | configuration, preflight, context, lifecycle, manager, ledger, artifacts, checkpoints, cache, telemetry, recovery, replay, and reruns |
+| `state` | memory records, stores, schemas, and snapshots |
+| `parallel` and `streaming` | controlled alternative execution modes |
+| `rehydrate`, `resume`, and `diff` | recovery, continuation, and completed-run comparison |
+| `handoff` | portable archive bundles |
 
-## What Runtime Owns
+## Provider boundary
 
-- operator entrypoints such as CLI and HTTP surfaces
-- provider binding, execution adapters, and workspace control
-- run orchestration, replay, determinism, and state transitions
-- runtime artifacts and execution-lifecycle records
+The built-in heuristic provider supports deterministic local behavior.
+Structure providers such as ESMFold, RoseTTAFold, ColabFold, and OpenProtein
+are opt-in and carry environment, dependency, network, hardware, and upstream
+service constraints. Provider selection and capability checks are recorded in
+the run. A fallback must remain visible; it cannot masquerade as the requested
+provider.
 
-## Concrete Runtime Subsystems
+## Run evidence
 
-| owner band | visible package substance | why it matters |
-| --- | --- | --- |
-| API and operator entrypoints | CLI, HTTP, and route surfaces | outsiders and operators can start runs from public interfaces |
-| execution control | engine, compiler, evaluation, parallel, resume, rehydrate | runtime proof is structured instead of ad hoc |
-| providers and tools | builtin, local, and remote providers | execution realism is visible and bounded |
-| state and artifacts | runs, checkpoints, handoff, state, artifacts, diff | the product can prove what happened after the run |
+A reviewable run includes its request, normalized configuration, environment
+and version identity, provider decision, lifecycle transitions, structured
+logs, checkpoints, artifact hashes, failure or refusal information, and output
+summary. Replay verifies declared runtime behavior under a compatible
+environment; comparison identifies relevant differences between completed
+runs.
 
-## What Runtime Refuses
+Imported results have a distinct provenance route. Supplying an external
+engine name, version, source file, and sequence creates an import-backed run
+record; it does not make the external computation native or independently
+reproducible.
 
-- canonical domain and biology semantics
-- evidence, confidence, contradiction, and review semantics
-- recommendation policy, scoring, and design-loop meaning
-- planning and outcome-promotion meaning from the lab layer
+## Documentation map
 
-## Reader Questions Runtime Can Answer Well
+- [Execution overview](execution-overview.md) — execution model and run record.
+- [Operator rerun journey](operator-rerun-journey.md) — reopen a workflow from
+  public evidence.
+- [Benchmark rerun kits](benchmark-rerun-kits.md) — inputs and instructions for
+  benchmark replay.
+- [Raw versus import execution](raw-versus-import-execution.md) — provenance
+  difference between native and external results.
+- [Artifact stability](runtime-artifact-stability.md) — persistence and
+  comparison guarantees.
+- [Environment contracts](runtime-environment-contracts.md) — provider and
+  system assumptions.
+- [Rerun refusals](runtime-rerun-refusals.md) — conditions that prevent an
+  honest rerun claim.
+- [Migration ledger](migration-ledger/README.md) — historical
+  `agentic-proteins` mappings.
 
-- which workflow families are truly raw-executable today and which still stop
-  at import-backed review lanes
-- which checked run bundles an outsider can inspect right now without asking
-  maintainers what counts
-- where rerun strength still fails to authorize stronger scientific or release
-  language
-
-## What Changed Since v0.3.7
-
-- runtime is now visibly a public proof owner, not just an internal run
-  surface
-- replay, comparability, refusal, and artifact-stability routes now make
-  rerun honesty auditable
-- the package now shows how execution can be strong and still remain bounded
-  by benchmark, grounding, recommendation, or consequence limits
-
-## First Proof Check
-
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/`, `providers/`, and `state/`
-- `packages/bijux-proteomics-runtime/tests`
-
-## Migration References
-
-- [Repository Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
-- [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
-- [Agentic Module Ledger Summary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary/)
-
-## Boundary
-
-Runtime should explain execution clearly, but it should not quietly absorb the
-meaning of evidence, recommendation, or lab intent just because those meanings
-eventually move through a run.
+Runtime does not own core scientific semantics, knowledge grounding,
+recommendation policy, or laboratory readiness.
