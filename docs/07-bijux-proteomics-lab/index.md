@@ -140,6 +140,36 @@ acceptance criteria. The resulting consequence record can:
 History is append-only in meaning: later evidence can supersede a conclusion
 without erasing the recommendation and assumptions that led to the experiment.
 
+## Interpret the outcome safely
+
+Execution state, assay QC, answerability, and biological consequence are
+separate judgments. The reconciliation record retains all four.
+
+| Observed condition | Lab disposition | Downstream meaning |
+| --- | --- | --- |
+| work did not start because readiness failed | refused or deferred | no observation; return the blocking condition to the plan owner |
+| execution failed before a valid measurement | operational failure | no scientific conclusion; preserve diagnostics and consumed resources |
+| measurements exist but controls or QC fail | observed, not accepted | retain data and deviations; do not promote to claim evidence |
+| QC passes but the requested contrast is unresolved | technically accepted, inconclusive | record answerability limits and revise the question or assay |
+| accepted observation supports the expected direction | consequence supports the requested proposition | Knowledge determines the resulting support edge and its scope |
+| accepted observation opposes the expected direction | consequence contradicts or qualifies the proposition | preserve the unexpected result and trigger review |
+| accepted observation falls outside the planned interpretation | unmodeled consequence | create a knowledge gap; do not force it into confirm or reject |
+
+```mermaid
+flowchart TD
+    OR["observation record"] --> QC{"measurement and controls accepted?"}
+    QC -->|no| OA["observed, not scientifically accepted"]
+    QC -->|yes| AN{"requested question answered?"}
+    AN -->|no| IC["inconclusive consequence"]
+    AN -->|yes| RC["requested-versus-observed reconciliation"]
+    RC --> SP["support, contradiction, qualification, or gap"]
+    SP --> KR["Knowledge review"]
+```
+
+The disposition must describe the observed record, not the hoped-for result.
+Unexpected and inconclusive outcomes remain first-class evidence about the
+assay, the question, or the upstream model.
+
 ## Observation is not interpretation
 
 Lab owns what was requested, executed, measured, and observed under the assay
@@ -161,28 +191,23 @@ sequenceDiagram
 
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  places experimental consequence in the full scientific loop.
-- [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
-  connect family-specific claims to feasible follow-up.
-- [Outcome Learning Loops](foundation/outcome-learning-loops.md) defines how
-  observations return to evidence and decision review.
-- [Workflow Refusal Handbook](foundation/workflow-refusal-handbook.md) maps
-  unsafe or unsupported handoffs to explicit next actions.
+| Question | Authority |
+| --- | --- |
+| where does experimental consequence sit in the product? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| which follow-up is appropriate for a workflow family? | [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md) |
+| how does an observation return to evidence and decision review? | [Outcome Learning Loops](foundation/outcome-learning-loops.md) |
+| why was a handoff refused, and what can happen next? | [Workflow Refusal Handbook](foundation/workflow-refusal-handbook.md) |
 
 ## Start Inside
 
-- [Lab consequence](foundation/lab-consequence.md) explains cost, controls, and
-  downstream burden.
-- [Outcome learning loops](foundation/outcome-learning-loops.md) covers feedback
-  into evidence and policy.
-- [Workflow refusal handbook](foundation/workflow-refusal-handbook.md) maps
-  refusal reasons to safe next actions.
-- [Architecture](architecture/index.md) separates planning, readiness, handoff,
-  and outcomes.
-- [Interfaces](interfaces/index.md) documents Python and artifact contracts.
-- [Known limitations](quality/known-limitations.md) records operational and
-  scientific bounds.
+| Need | Read next |
+| --- | --- |
+| evaluate cost, controls, and downstream burden | [lab consequence](foundation/lab-consequence.md) |
+| return outcomes to evidence and policy | [outcome learning loops](foundation/outcome-learning-loops.md) |
+| map a refusal to a safe next action | [workflow refusal handbook](foundation/workflow-refusal-handbook.md) |
+| separate planning, readiness, handoff, and outcomes | [architecture](architecture/index.md) |
+| choose Python or artifact contracts | [interfaces](interfaces/index.md) |
+| review operational and scientific bounds | [known limitations](quality/known-limitations.md) |
 
 Lab does not own upstream scientific computation, evidence truth,
 recommendation policy, or general execution orchestration.
