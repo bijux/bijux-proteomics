@@ -161,24 +161,56 @@ accuracy of public claims.
 Release evidence is revision-specific. Preserve the exact source identity,
 environment, commands, and failure output needed to review or repeat it.
 
+## Current release disposition
+
+The current repository preflight is blocked. Documentation must present that
+state directly; passing package-local checks or building distributions does
+not make the release candidate publishable.
+
+| Blocker class | Current conflict | Evidence needed to close it |
+| --- | --- | --- |
+| documentation clarity | workflow authority, black-box language, and generated hostile-review surfaces do not fully agree | regenerate from one authority and pass claim-proof and release-honesty checks |
+| scientific ownership | belief-audit contracts have duplicate ownership and Core retains thin ownership boundaries | establish one canonical owner and satisfy source-tree substance gates |
+| runtime evidence | faithful rerun is refused for DDA, DIA, and multiplex while some generated runtime surfaces report stronger readiness | align executable evidence, refusal records, and generated dashboards |
+| public install surface | the runtime migration release matrix does not cover every promised installation route | add and validate the missing install evidence |
+
+These are release facts, not documentation defects to word around. The
+[Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
+owns the cross-product categories; gate output owns the verdict for the tested
+revision. A handbook may explain a failure but cannot downgrade its severity.
+
+## Release decision record
+
+A release decision is reviewable only when it preserves:
+
+| Field | Required value |
+| --- | --- |
+| source identity | exact commit and clean or explicitly described worktree state |
+| candidate inventory | distributions, containers, documentation, schemas, and governed evidence under review |
+| command evidence | exact gates, environment, timestamps, and retained output |
+| failure disposition | owner, affected claim, whether introduced or pre-existing, and closure evidence |
+| scientific ceiling | workflow-family posture after runtime, grounding, recommendation, and consequence review |
+| publication decision | publish, narrow, or refuse, with the approving authority |
+
+No failure disappears because it predates a change. No green category offsets
+a red category that protects a different contract.
+
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  defines the public system whose contracts maintenance protects.
-- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
-  exposes the evidence status that constrains releases.
-- [Execution](../09-bijux-proteomics-runtime/index.md) documents run evidence
-  and replay surfaces used by release review.
-- [Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
-  joins package gates to scientific claim readiness.
+| Question | Authority |
+| --- | --- |
+| which public system contracts are protected? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| which scientific posture constrains a release? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
+| what run and replay evidence exists? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
+| which cross-product category blocks publication? | [Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md) |
 
 ## Start Inside
 
-- [Maintainer Safe Change](bijux-proteomics-dev/maintainer-safe-change.md)
-  follows one change from ownership through verification.
-- [Testing And Validation](../01-bijux-proteomics/operations/testing-and-validation.md)
-  maps repository checks to the contracts they protect.
-- [Release Support](bijux-proteomics-dev/release-support.md) defines build,
-  publication, and scientific dossier evidence.
-- [Quality gates](bijux-proteomics-dev/quality-gates.md) explains gate intent
-  and failure interpretation.
+| Need | Read next |
+| --- | --- |
+| carry one owned change through verification | [Maintainer Safe Change](bijux-proteomics-dev/maintainer-safe-change.md) |
+| map checks to protected contracts | [Testing And Validation](../01-bijux-proteomics/operations/testing-and-validation.md) |
+| build and review publication evidence | [Release Support](bijux-proteomics-dev/release-support.md) |
+| interpret a gate failure without hiding it | [Quality gates](bijux-proteomics-dev/quality-gates.md) |
+| govern schemas and API locks | [Schema governance](bijux-proteomics-dev/schema-governance.md) |
+| understand documentation truth checks | [Documentation integrity](bijux-proteomics-dev/documentation-integrity.md) |

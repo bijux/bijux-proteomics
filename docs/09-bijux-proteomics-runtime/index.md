@@ -184,6 +184,26 @@ These surfaces establish Runtime evidence only. Their verdicts constrain
 workflow claims but do not replace Core acceptance, grounding, recommendation
 challenge, or laboratory consequence.
 
+## Current execution ceiling
+
+Runtime evidence is not uniformly strong across workflow families, and its
+dashboard cannot independently raise the product-level release posture.
+
+| Family | Runtime evidence reading | Repository-wide consequence |
+| --- | --- | --- |
+| DDA | the black-box dashboard narrows an outsider-auditable request to review-grade because both lanes are import-only | the authority mismatch is a release blocker; do not publish the stronger request |
+| DIA | raw-executable primary and companion lanes are recorded, but the current release preflight still reports a faithful-rerun refusal | treat the generated surfaces as inconsistent until the rerun evidence and dashboard agree |
+| LFQ | the runtime dashboard permits outsider-auditable execution language | the product workflow contract remains review-grade bounded; execution does not promote scientific authority |
+| multiplex | raw-executable lanes exist, with fragile transfer and no outsider review route | keep the family at internal support only |
+| PTM | raw-executable lanes support bounded review of localization | do not extend the claim to occupancy or regulatory interpretation |
+| targeted | raw-executable lanes support bounded transition and carryover review | vendor parity and calibration-perfect claims remain outside the evidence boundary |
+
+The [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) is the
+authority for installed-entrypoint execution language. The
+[Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+ledger is the authority for product posture. When they disagree, the narrower
+language governs and the disagreement remains visible as release work.
+
 The execution evidence can be audited from the boundary inward:
 
 - [Runtime Execution Boundary](runtime-execution-boundary.md) identifies the
@@ -203,32 +223,25 @@ The execution evidence can be audited from the boundary inward:
 
 ## Shared Reader Routes
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  places execution inside the scientific evidence chain.
-- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
-  distinguishes native, delegated, and imported family support.
-- [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md)
-  defines the scientific inputs whose execution is recorded here.
-- [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
-  explains why a completed run is not yet an authorized action.
+| Question | Authority |
+| --- | --- |
+| where does execution sit in the scientific evidence chain? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| which family posture limits the execution claim? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
+| which scientific inputs were executed? | [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md) |
+| why is a completed run not an authorized action? | [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) |
 
 ## Start Inside
 
-- [Execution overview](execution-overview.md) — execution model and run record.
-- [Operator rerun journey](operator-rerun-journey.md) — reopen a workflow from
-  public evidence.
-- [Benchmark Rerun Kits](benchmark-rerun-kits.md) — inputs and instructions for
-  benchmark replay.
-- [Raw versus import execution](raw-versus-import-execution.md) — provenance
-  difference between native and external results.
-- [Artifact stability](runtime-artifact-stability.md) — persistence and
-  comparison guarantees.
-- [Environment contracts](runtime-environment-contracts.md) — provider and
-  system assumptions.
-- [Rerun refusals](runtime-rerun-refusals.md) — conditions that prevent an
-  honest rerun claim.
-- [Migration ledger](migration-ledger/README.md) — historical
-  `agentic-proteins` mappings.
+| Need | Read next |
+| --- | --- |
+| understand the execution model and run record | [execution overview](execution-overview.md) |
+| reopen a workflow from public evidence | [operator rerun journey](operator-rerun-journey.md) |
+| execute and compare a benchmark lane | [Benchmark Rerun Kits](benchmark-rerun-kits.md) and the [comparability matrix](benchmark-comparability-matrix.md) |
+| distinguish native execution from external-result custody | [raw versus import execution](raw-versus-import-execution.md) |
+| assess persistence and comparison guarantees | [artifact stability](runtime-artifact-stability.md) |
+| reproduce provider and system assumptions | [environment contracts](runtime-environment-contracts.md) |
+| understand why a rerun claim is refused | [rerun refusals](runtime-rerun-refusals.md) |
+| migrate a historical caller | [migration ledger](migration-ledger/README.md) |
 
 Runtime does not own core scientific semantics, knowledge grounding,
 recommendation policy, or laboratory readiness.
