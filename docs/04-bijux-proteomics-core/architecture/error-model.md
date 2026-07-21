@@ -4,21 +4,37 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Error Model
 
-Failures in `bijux-proteomics-core` should help a reviewer tell whether the problem is local, upstream, downstream, or a boundary mismatch. Error handling that hides ownership makes the package harder to trust.
+Core uses exceptions for operations that cannot satisfy their contract and structured issues for scientific findings that must remain reviewable alongside partial or rejected data.
 
-## Error Rules
+## Exception boundaries
 
-- contract and readiness failures should be explicit and reviewable
-- domain-validation errors should stay separate from runtime transport failures
-- error names should help a reviewer tell whether the failure is semantic, structural, or procedural
+| Exception | Meaning |
+| --- | --- |
+| `SchemaError` | A payload does not satisfy the expected shape |
+| `DesignError` | Experimental design is invalid for the requested analysis |
+| `ScientificEvidenceError` | Available evidence cannot support the requested scientific result |
+| `UnsupportedFormatError` | No supported parser or adapter can interpret the input format |
+| `InvalidWorkflowError` | A workflow composition violates its declared contract |
+| `ProgramValidationError` | Program validation produced governed issues |
+| `ReviewGateBlockedError` | A named scientific or review gate prevents progression |
+| `InvalidLifecycleTransitionError` | A requested state transition is not allowed |
+| `MissingExecutionBackendError` | An explicitly requested external execution backend is unavailable |
 
-## First Proof Check
+Structured issue models cover sequence, spectrum, format, input integrity, search configuration, decoy strategy, identification, quantification, PTM, experimental design, annotations, workflow output, and scientific-consistency findings. They retain codes and row or entity context so a report can include rejected material without turning it into valid evidence.
 
-- package error types and failure paths
-- tests that assert the intended failure class
-- neighboring packages when a failure crosses a handoff seam
+```mermaid
+flowchart TD
+    X[Scientific operation] --> V{Contract valid?}
+    V -->|no| E[Typed exception]
+    V -->|yes| Q{Record-level issues?}
+    Q -->|yes, recoverable| P[Partial result plus issue and rejection tables]
+    Q -->|yes, gate-breaking| B[Blocked or refused result]
+    Q -->|no| S[Complete result]
+```
+
+Empty output is not a universal error representation. “No identifications,” “all rows rejected,” “unsupported format,” “failed QC,” and “no biological effect” carry different scientific meanings and require different evidence.
