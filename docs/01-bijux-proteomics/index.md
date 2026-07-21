@@ -99,53 +99,53 @@ sequenceDiagram
 The return arrow creates a new evidence record. It does not retroactively
 change the run, claim, or recommendation that preceded the experiment.
 
+## Authority ladder
+
+A claim is only as strong as the narrowest authority it can cite. Start with
+scope, follow the record into its owning package, and finish at executable or
+externally inspectable evidence.
+
+| Authority | Use it to answer | Do not infer |
+| --- | --- | --- |
+| [product overview](foundation/product-overview.md) | what the product is designed to cover | that every workflow family has equal evidence |
+| [workflow-family ledger](foundation/workflow-families.md) | which families, run modes, and trust levels are declared | that a declared level has passed its current release gate |
+| package contract | who owns an input, operation, result, or refusal | that another package may redefine the same concept |
+| runtime or scientific record | what happened for one identified invocation | general validity outside its recorded inputs and policy |
+| [public artifact index](foundation/public-artifact-index.md) | which evidence is intended for independent inspection | that unpublished or stale evidence supports a public claim |
+| [release-readiness matrix](foundation/release-readiness-matrix.md) | which claims are releasable and which remain blocked | that documentation can override a failing gate |
+
+Stop at the first missing identity, unresolved artifact, stale generated
+surface, or weaker-than-declared evidence class. A narrative summary never
+repairs a broken evidence chain.
+
 ## Shared Reader Routes
 
-- [Product Architecture](foundation/product-architecture.md) explains the
+Four documents establish the repository-wide frame before a reader descends
+into package evidence:
+
+- [Product Architecture](foundation/product-architecture.md) defines the
   end-to-end data, execution, evidence, decision, and feedback boundaries.
 - [Cross-Package Ownership](foundation/cross-package-ownership.md) identifies
-  the package that owns each public contract and handoff.
+  the owner of every shared contract and handoff.
 - [Repository Shape Rationale](foundation/repository-shape-rationale.md)
   explains why those responsibilities remain separate distributions.
-- [Release Readiness Matrix](foundation/release-readiness-matrix.md) connects
-  scientific claims to their release evidence and blockers.
+- [Release Readiness Matrix](foundation/release-readiness-matrix.md) binds
+  public claims to their current evidence and blockers.
 
 ## Reader Routes
 
-- [Product architecture](foundation/product-architecture.md) — end-to-end data,
-  control, evidence, and feedback flow.
-- [Product Overview](foundation/product-overview.md) — supported workflow
-  families, package responsibilities, and current claim boundaries.
-- [Workflow Families](foundation/workflow-families.md) — family-by-family trust
-  status, run mode, benchmark coverage, and blockers.
-- [Scientist Journey](foundation/scientist-journey.md) — follow a scientific
-  question from inputs through bounded evidence.
-- [Operator Rerun Journey](../09-bijux-proteomics-runtime/operator-rerun-journey.md)
-  — reproduce a published run from its execution evidence.
-- [Maintainer Safe Change](../08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md)
-  — carry a repository change through ownership, validation, and release review.
-- [Maintenance](../08-bijux-proteomics-maintain/index.md) — verification and
-  release operations for the repository.
-- [Package map](foundation/package-map.md) — install names and repository
-  locations.
-- [Workflow families](foundation/workflow-families.md) — DDA, DIA, LFQ, PTM,
-  targeted, and multiplex evidence posture.
-- [Public artifact index](foundation/public-artifact-index.md) — benchmark and
-  review artifacts intended for external inspection.
-- [Current capability limits](foundation/current-capability-limits.md) — areas
-  where implementation or evidence remains bounded.
-- [Local development](operations/local-development.md) — root environment and
-  common commands.
-- [Testing and validation](operations/testing-and-validation.md) — test,
-  quality, security, docs, and architecture gates.
+Choose a route by the question you need to answer:
 
 | If you are trying to… | Begin here | Continue with |
 | --- | --- | --- |
-| assess scientific coverage | [workflow families](foundation/workflow-families.md) | the relevant Core workflow handbook and its benchmark evidence |
-| reproduce a result | [public artifact index](foundation/public-artifact-index.md) | Runtime replay, comparison, and provenance records |
+| establish product scope | [Product Overview](foundation/product-overview.md) | [Workflow Families](foundation/workflow-families.md) and the release-readiness matrix |
+| understand package ownership | [Product Architecture](foundation/product-architecture.md) | [Cross-Package Ownership](foundation/cross-package-ownership.md) and the package handbook |
+| assess scientific coverage | [Workflow Families](foundation/workflow-families.md) | the relevant Core workflow handbook, benchmark evidence, and [current capability limits](foundation/current-capability-limits.md) |
+| follow a scientific analysis | [Scientist Journey](foundation/scientist-journey.md) | Core results, Runtime execution evidence, and Knowledge review records |
+| reproduce a result | [public artifact index](foundation/public-artifact-index.md) | the [Operator Rerun Journey](../09-bijux-proteomics-runtime/operator-rerun-journey.md) and Runtime comparison records |
 | judge a biological claim | [Knowledge grounding and contradiction guidance](../06-bijux-proteomics-knowledge/index.md) | [Intelligence sensitivity and refusal guidance](../05-bijux-proteomics-intelligence/index.md) |
 | take a result into the laboratory | [Intelligence recommendation records](../05-bijux-proteomics-intelligence/index.md) | [Lab readiness, handoff, QC, and outcome capture](../07-bijux-proteomics-lab/index.md) |
-| contribute or release a change | [local development](operations/local-development.md) | [testing and validation](operations/testing-and-validation.md) and the maintainer handbook |
+| contribute or release a change | [local development](operations/local-development.md) | [testing and validation](operations/testing-and-validation.md), [Maintainer Safe Change](../08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md), and [Maintenance](../08-bijux-proteomics-maintain/index.md) |
 
 ## Canonical packages
 

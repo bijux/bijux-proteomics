@@ -152,25 +152,44 @@ state that no replacement exists.
 Passing local bridge tests does not prove caller absence. Removal is therefore
 a consumer-evidence decision, not a code-size decision.
 
-## Shared Reader Routes
+## Caller migration record
 
-- [Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
-  defines the canonical package system and supported scientific scope.
-- [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
-  records family-specific trust and benchmark status.
-- [Execution](../09-bijux-proteomics-runtime/index.md) is the canonical owner
-  for new run orchestration and evidence.
-- [Maintenance](../08-bijux-proteomics-maintain/index.md) governs compatibility
-  verification and release review.
+Treat each application, service, notebook collection, or automation system as
+an independently auditable caller. A migration record should identify the
+legacy dependency, canonical replacement, observed behavior, evidence, and
+remaining decision.
 
-## Start Inside
+| Field | Required content | Acceptance rule |
+| --- | --- | --- |
+| caller identity | repository, deployable, notebook set, or automation owner | the consumer boundary is explicit |
+| legacy surface | exact import, command, route, configuration key, or state schema | every depended-on surface is inventoried |
+| canonical replacement | owning package and public path | the target is public and supported |
+| equivalence evidence | test, recorded invocation, response comparison, or replay record | behavior is compared, not merely importability |
+| intentional difference | documented contract and caller response | the difference is accepted deliberately |
+| removal decision | migrated, blocked, or no replacement | no unresolved surface is reported as complete |
 
-- [Foundation](foundation/index.md) — role, compatibility contract, scope, and
-  dependencies.
-- [Architecture](architecture/index.md) — forwarding layout and integration
-  seams.
-- [Interfaces](interfaces/index.md) — preserved CLI, HTTP, imports, data, and
-  artifact contracts.
-- [Operations](operations/index.md) — installation, migration, diagnostics, and
-  release behavior.
-- [Quality](quality/index.md) — invariants, tests, risk, and retirement gates.
+```mermaid
+stateDiagram-v2
+    [*] --> Inventoried
+    Inventoried --> Compared: canonical target exists
+    Inventoried --> Blocked: no supported replacement
+    Compared --> Migrated: depended-on behavior is accepted
+    Compared --> Blocked: contract differs unexpectedly
+    Migrated --> BridgeRemovable: consumer evidence is complete
+    Blocked --> Inventoried: caller or canonical contract changes
+```
+
+`BridgeRemovable` applies to the recorded caller, not automatically to the
+whole compatibility distribution. Repository-wide retirement still requires
+the complete consumer inventory and release evidence.
+
+## Choose the next document
+
+| Need | Read next |
+| --- | --- |
+| understand what the bridge owns | [package foundation](foundation/index.md) and the [compatibility contract](foundation/compatibility-contract.md) |
+| inspect forwarding boundaries | [architecture](architecture/index.md) |
+| migrate Python, CLI, HTTP, data, or artifact surfaces | [interfaces](interfaces/index.md) and the [canonical migration guide](../09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md) |
+| install, diagnose, or release the package | [operations](operations/index.md) |
+| evaluate risk or retirement readiness | [quality](quality/index.md) and the [maintenance handbook](../08-bijux-proteomics-maintain/index.md) |
+| build new execution behavior | [Runtime](../09-bijux-proteomics-runtime/index.md), the canonical owner |
