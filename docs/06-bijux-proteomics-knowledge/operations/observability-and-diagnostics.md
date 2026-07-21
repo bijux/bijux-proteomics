@@ -1,24 +1,53 @@
 ---
 title: Observability and Diagnostics
-audience: mixed
+audience: evidence-curator
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Observability and Diagnostics
 
-Diagnostics should reveal whether a failure belongs to this package or to a neighbor.
+Knowledge observability is the ability to explain how source records became a
+review recommendation. The principal diagnostic surfaces are serialized
+reports and provenance-linked records, not process logs. Each surface answers a
+different integrity or interpretation question.
 
-## Operating Rules
+## Evidence health signals
 
-- review outputs and serialized records are the main diagnostics
-- make contradictions, confidence shifts, and review decisions easy to inspect
-- track which schema or rule version produced a disputed record
+| Surface | Signals |
+| --- | --- |
+| Ingestion report | input, accepted, skipped, and rejected counts; duplicate identifiers; rejection reasons; accepted fingerprints |
+| Identity and membership resolution | canonical accession, match method, ambiguity count, unresolved input, pathway or complex coverage |
+| Graph validation and trace | missing nodes, invalid edges, claim-to-evidence paths, and context carried along those paths |
+| Evidence-state index | trust, freshness, contradiction, caveat, and decision relevance by evidence record |
+| Conflict clusters | participating records, severity, trust posture, resolution, and recommended hold |
+| Quality audit | trust score, triangulation score, source balance, gaps, and limiting evidence |
+| Critical-claim provenance | claim statement, source records, relation, and evidence state |
+| Decision brief | readiness, recommendation, scientific conclusions, unresolved questions, caveats, and next evidence |
 
-## First Proof Check
+Begin with reconciliation invariants. Ingestion counts must balance. Every
+evidence identifier referenced by a claim must exist. Fingerprints for accepted
+normalized inputs must remain stable unless source meaning changed. Resolution
+reports must retain ambiguous and unresolved identifiers instead of forcing a
+single match. A direct evidence conflict must appear in the conflict and
+decision surfaces.
 
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
-- `packages/bijux-proteomics-knowledge/tests`
+## Diagnose recommendation changes
+
+Compare source membership and fingerprints, then identity resolution, context,
+freshness, trust, conflict clusters, coverage, and gate profile. This ordering
+separates changed evidence from changed interpretation policy. A recommendation
+may legitimately move because a source aged past a freshness threshold, a
+direct contradiction was added, a sparse pathway lost coverage, or a required
+context became available. The brief should expose that cause.
+
+For an incident, record bundle and schema identity, affected claim and evidence
+identifiers, ingestion reconciliation, graph issues, conflict cluster, state
+index entries, gate thresholds, and before-and-after fingerprints. Include
+source locations only when the incident channel is authorized for them.
+
+Diagnostics are sufficient when a curator can traverse from recommendation to
+claim, evidence, source, context, and governing threshold—and can see ambiguity,
+disagreement, and missing coverage without consulting undocumented knowledge.
