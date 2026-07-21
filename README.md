@@ -22,6 +22,7 @@ traces the full data and decision path.
 
 | If your immediate need is… | Begin with | You receive |
 | --- | --- | --- |
+| create stable identifiers, canonical documents, or compatibility decisions | `bijux-proteomics-foundation` | validated document, canonical bytes, digest, schema decision, or typed refusal |
 | parse, normalize, identify, infer, quantify, or review proteomics data | `bijux-proteomics-core` | typed scientific result, rejections, diagnostics, and active policy |
 | execute, resume, compare, or replay configured work | `bijux-proteomics-runtime` | run state, environment, checkpoints, artifact ledger, and terminal disposition |
 | ground a result against literature, databases, or biological context | `bijux-proteomics-knowledge` | versioned evidence, provenance, support, contradiction, and gaps |
@@ -120,25 +121,37 @@ grounding, recommendation, or lab-consequence gate.
 
 ## Reader Paths
 
-- **Scientist: start with** the [scientist journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/), then inspect the [workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) and [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/).
-- **Operator: start with the** [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) and [operator rerun journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/).
-- **Maintainer: start with** the [safe-change guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/) and [runtime migration validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/).
-- **Reviewer: start with** [cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/) and follow each claim to its benchmark, run, evidence, decision, and consequence records.
+Choose the route that matches the decision in front of you. Each route ends at
+an inspectable record, not at a narrative summary.
+
+| Reader | Start | Follow until you can inspect |
+| --- | --- | --- |
+| **Scientist: start with** the [scientist journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/) | the relevant [workflow family](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) | accepted and rejected inputs, active policy, result, family evidence, and limits |
+| **Operator: start with the** [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) | the [operator rerun journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/) | request, environment, provider decision, state history, artifact ledger, and comparison |
+| **Reviewer: start with** [cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/) | the [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/) | benchmark, run, grounding, recommendation, and consequence records for the same claim |
+| **Maintainer: start with** the [safe-change guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/) | the gate named for the changed contract | the owning source, generated evidence, exact check result, and consumer impact |
 
 ## Evidence Chain
 
 ```mermaid
 flowchart LR
+    foundation["foundation\nidentity, schemas, canonical bytes"]
     sample["sequence, spectra, search output"]
     core["core\nnormalize, identify, quantify, review"]
     runtime["runtime\nexecute, checkpoint, replay"]
     knowledge["knowledge\nground claims, reconcile evidence"]
     intelligence["intelligence\nrank, challenge, recommend"]
     lab["lab\nplan assays, record outcomes"]
+    foundation --> core
+    foundation --> runtime
+    foundation --> knowledge
+    foundation --> intelligence
+    foundation --> lab
     sample --> core --> runtime --> knowledge --> intelligence --> lab
     lab -. observed evidence .-> knowledge
 ```
 
+The arrows describe record and evidence movement, not the Python import graph.
 The packages can be used independently, but their contracts form one review
 chain. A scientific result is useful only when its inputs, transformations,
 evidence, decision policy, and downstream consequence remain distinguishable.
@@ -213,8 +226,16 @@ before enabling provider-backed or external-tool workflows.
 
 ## Common Commands
 
-The Core CLI operates directly on scientific inputs and reports. The Runtime
-CLI owns configured execution, checkpoints, resume, comparison, and replay.
+Choose the command by the record you need. The Core CLI operates directly on
+scientific inputs and reports. The Runtime CLI owns configured execution,
+checkpoints, resume, comparison, and replay.
+
+| Need | Command owner | Result to retain |
+| --- | --- | --- |
+| inspect or transform scientific inputs | `bijux-proteomics` | typed report, rejected inputs, diagnostics, and policy |
+| execute a configured workflow | `bijux-proteomics-runtime run` | run bundle and artifact ledger |
+| continue interrupted work | `bijux-proteomics-runtime resume` | continued state history and new terminal disposition |
+| compare or reproduce a run | `bijux-proteomics-runtime compare` or `reproduce` | normalized comparison or reproduction record |
 
 ```bash
 bijux-proteomics --help
@@ -226,7 +247,7 @@ Before changing or removing a legacy entrypoint, run
 `make quality-runtime-migration-validation` and inspect the generated module
 and compatibility ledgers.
 
-## First auditable operation
+## Run an auditable operation
 
 The smallest useful example parses a FASTA document without discarding rejected
 records:

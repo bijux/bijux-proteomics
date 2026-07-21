@@ -25,11 +25,13 @@ Runtime entrypoints without becoming a second owner.
 
 | Question | Authority to open first | What it can establish |
 | --- | --- | --- |
+| How is a record identified and serialized? | Foundation contract | subject identity, schema, canonical representation, digest, compatibility, and typed disposition |
 | What scientific calculation ran? | Core report and benchmark lineage | inputs, assumptions, output, rejection, QC, and family acceptance |
 | What actually executed? | Runtime run bundle | configuration, provider, state, artifacts, comparison, and replay evidence |
 | Why is the claim supportable? | Knowledge review bundle | source identity, context, support, contradiction, and unresolved gaps |
 | Why did this action rank? | Intelligence recommendation record | candidate universe, policy, sensitivity, alternatives, confidence, and refusal |
 | What did the follow-up cost and observe? | Lab consequence dossier | controls, readiness, custody, deviations, outcome, and feedback |
+| Why does an old import or command still work? | `agentic-proteins` compatibility record | forwarded owner, parity evidence, migration target, and retirement state |
 
 ## Current Credible Workflow Families
 
@@ -100,13 +102,15 @@ records the live repository gates.
 
 ## Reader Paths
 
-- **Scientist:** follow the [Scientist Journey](01-bijux-proteomics/foundation/scientist-journey.md) from input through consequence.
-- **Operator:** use the [Operator Rerun Journey](09-bijux-proteomics-runtime/operator-rerun-journey.md) for execution, resume, comparison, and replay.
-- **Maintainer:** use [Maintainer Safe Change](08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md) before editing an owned surface.
-- **Reviewer:** begin with [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) and the [Public Artifact Index](01-bijux-proteomics/foundation/public-artifact-index.md).
+| Reader | Route | Finish with |
+| --- | --- | --- |
+| **Scientist:** | follow the [Scientist Journey](01-bijux-proteomics/foundation/scientist-journey.md) from intake to consequence | a family-specific result, its acceptance evidence, and the limitation that bounds interpretation |
+| **Operator:** | use the [Operator Rerun Journey](09-bijux-proteomics-runtime/operator-rerun-journey.md) | a run bundle whose request, environment, state, artifacts, and comparison can be reopened |
+| **Reviewer:** | begin with [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) and the [Public Artifact Index](01-bijux-proteomics/foundation/public-artifact-index.md) | a continuous chain from public claim to owning records and current gate verdict |
+| **Maintainer:** | use [Maintainer Safe Change](08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md) before editing an owned surface | the narrow checks, governed outputs, consumer impact, and release consequence |
 
 Choose a route by the decision you need to make, then stop at the first missing
-owner record. Do not substitute a later summary for an absent benchmark,
+owner record. Do not substitute a later summary for an absent scientific,
 execution, evidence, recommendation, or consequence artifact.
 
 ## One result, six accountable layers
@@ -165,21 +169,21 @@ evidence must stop.
 
 ## Reader-First Sections
 
-| You need to… | Start here |
-| --- | --- |
-| understand the product boundary | [Product Overview](01-bijux-proteomics/foundation/product-overview.md) |
-| trace system data and decisions | [Product Architecture](01-bijux-proteomics/foundation/product-architecture.md) |
-| resolve canonical ownership | [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) |
-| compare evidence by workflow | [Workflow Families](01-bijux-proteomics/foundation/workflow-families.md) |
-| inspect grounding, ranking, and consequence | [Decision Support](01-bijux-proteomics/foundation/decision-support.md) |
-| inspect scientific algorithms and benchmark assets | [Core](04-bijux-proteomics-core/index.md) |
-| run, resume, compare, or replay work | [Runtime](09-bijux-proteomics-runtime/index.md) |
-| trace a claim to evidence and contradictions | [Knowledge](06-bijux-proteomics-knowledge/index.md) |
-| rank candidates or challenge a recommendation | [Intelligence](05-bijux-proteomics-intelligence/index.md) |
-| plan follow-up assays and capture outcomes | [Lab](07-bijux-proteomics-lab/index.md) |
-| evolve schemas and stable identifiers | [Foundation](03-bijux-proteomics-foundation/index.md) |
-| migrate historical execution callers | [agentic-proteins](02-agentic-proteins/index.md) |
-| develop, validate, or release the repository | [Maintainer handbook](08-bijux-proteomics-maintain/index.md) |
+| You need to… | Start here | Authoritative result |
+| --- | --- | --- |
+| understand the product boundary | [Product Overview](01-bijux-proteomics/foundation/product-overview.md) | declared scope, non-goals, and package authority |
+| trace system data and decisions | [Product Architecture](01-bijux-proteomics/foundation/product-architecture.md) | handoff owner, record identity, and refusal boundary |
+| resolve canonical ownership | [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) | one owner for the disputed meaning or behavior |
+| compare evidence by workflow | [Workflow Families](01-bijux-proteomics/foundation/workflow-families.md) | family posture, execution mode, evidence, and current ceiling |
+| inspect grounding, ranking, and consequence | [Decision Support](01-bijux-proteomics/foundation/decision-support.md) | evidence-to-action chain with human and lab authority intact |
+| inspect scientific algorithms and evidence assets | [Core](04-bijux-proteomics-core/index.md) | scientific result and family-specific acceptance record |
+| run, resume, compare, or reproduce work | [Runtime](09-bijux-proteomics-runtime/index.md) | run, state, artifact, and comparison records |
+| trace a claim to evidence and contradictions | [Knowledge](06-bijux-proteomics-knowledge/index.md) | versioned evidence bundle and unresolved gaps |
+| rank candidates or challenge a recommendation | [Intelligence](05-bijux-proteomics-intelligence/index.md) | policy-bound recommendation, downgrade, or refusal |
+| plan follow-up assays and capture outcomes | [Lab](07-bijux-proteomics-lab/index.md) | readiness, handoff, observation, and consequence records |
+| evolve schemas and stable identifiers | [Foundation](03-bijux-proteomics-foundation/index.md) | compatibility decision and canonical document identity |
+| migrate historical execution callers | [agentic-proteins](02-agentic-proteins/index.md) | caller-specific parity evidence and canonical destination |
+| develop, validate, or release the repository | [Maintainer handbook](08-bijux-proteomics-maintain/index.md) | exact gate output and release decision record |
 
 ## Start with a visible contract
 
