@@ -58,24 +58,28 @@ analytical families:
 Those families are the durable answer to what intelligence can decide and what it
 must refuse or downgrade.
 
-Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
-package `docs/*.md` set aligned before claiming new intelligence behavior or
-scientific scope.
-
 It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
-`lfq`, and `multiplex` workflows when reviewers need package-owned claims
-instead of presentation-only summaries.
+`lfq`, `targeted`, and `multiplex` workflows when reviewers need package-owned
+claims instead of presentation-only summaries.
 
-## At a glance
+## Decision ownership
 
-- Use intelligence when reviewers need ranking, readiness, refusal, or
-  recommendation posture without pretending those outputs are scientific truth.
-- Start with `candidates.ranking`, `judgment.paths`, and
-  `posture.evidence`, then open the
-  [intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  for the full owner map.
-- Route curated evidence memory to knowledge, scientific meaning to core,
-  executable control to runtime, and assay follow-up execution to lab.
+Choose Intelligence when reviewed evidence must become a reproducible ranking,
+recommendation, downgrade, or refusal. The package records how a declared
+policy behaved; it does not convert that policy output into scientific truth or
+execution authority.
+
+| Input pressure | Intelligence responsibility | Output evidence |
+| --- | --- | --- |
+| candidate universe and exclusions | validate and fingerprint the choice set | candidate ledger |
+| evidence support and contradiction | preserve evidence posture without rewriting it | evidence references and caveats |
+| objectives, constraints, thresholds | apply an explicit ranking policy | score components and ordering |
+| plausible alternatives and withheld evidence | run scenarios, falsifiers, and counterfactuals | challenge record |
+| threshold and burden changes | measure sensitivity, confidence, and regret | stability and downgrade chain |
+| inadequate or unstable support | refuse the action | reason codes and unmet conditions |
+
+The [intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+connects these records to benchmark review and laboratory handoff boundaries.
 
 ## Recommendation flow
 
@@ -98,20 +102,26 @@ The output is a policy decision with traceable reasons, not a new scientific
 fact. Intelligence must preserve uncertainty and contradiction inherited from
 Knowledge and must not promise laboratory feasibility on Lab's behalf.
 
-## Why teams pick this package
+## Decision invariants
 
-- transparent ranking and recommendation outputs with traceable decision rationale
-- explicit downgrade and refusal behavior when evidence is stale, thin, or contradictory
-- review-ready packets and skeptical challenge surfaces that keep unresolved questions visible
-- typed interpretation summaries that stay cautious about biological meaning
+- the complete candidate universe and exclusions survive the ranking;
+- policy, thresholds, evidence fingerprints, and tie-breaking are recoverable;
+- contradiction, uncertainty, and missing evidence can only narrow posture;
+- sensitivity and counterfactual results remain attached to the recommendation;
+- confidence is distinct from evidence strength and cost of error;
+- refusal remains a valid terminal result when no supported action exists.
 
-## Typical use cases
+## Decision work owned here
 
-- rank candidate proteins against defined decision policies
-- decide whether current evidence is ready for progression-oriented review
-- produce explainable shortlists and review-board packets for expert scrutiny
-- summarize proteomics interpretation posture without re-owning raw analysis
-- carry benchmark-backed review claims into release conversations
+- rank and select candidates under explicit policies and constraints;
+- interpret quantitative, pathway, contrast, PTM, contaminant, structure, and
+  run-level evidence without re-owning Core computation;
+- challenge claims through contradictions, falsifiers, blinded evidence,
+  scenarios, sensitivity, and regret;
+- assemble review boards, decision briefs, outsider packets, and
+  family-specific benchmark reviews;
+- apply outcome-aware calibration through new learning records rather than
+  mutating historical recommendations.
 
 ## Installation
 

@@ -44,16 +44,24 @@ Use this package when you need auditable scientific memory, explicit
 provenance, contradiction-aware evidence reasoning, and grounded workflow
 briefings that downstream packages can consume without re-curating locally.
 
-## At a glance
+## Memory ownership
 
-- Use knowledge when evidence, claims, citations, and contradictions must stay
-  reviewable over time instead of being flattened into generic context.
-- Start with `references`, `memory.models`, and `reviews.decision_briefs`,
-  then open the
-  [knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-  for the full owner surface.
-- Route execution to runtime, recommendation posture to intelligence, assay
-  follow-up to lab, and changes to scientific meaning back to core.
+Choose Knowledge when scientific evidence must remain selective, cited,
+versioned, and reviewable after ingestion. It owns the relationship between a
+source record and a claim; it does not own the action a consumer may take from
+that claim.
+
+| Question | Knowledge record |
+| --- | --- |
+| What was observed or asserted? | evidence record with source identity and context |
+| What proposition may it affect? | typed claim with subject, relation, object, and scope |
+| Does it support, contradict, qualify, or merely mention? | explicit evidence-to-claim relationship |
+| Which version and transformation produced this record? | provenance and normalization lineage |
+| What changed across reviews? | append-only resolution history and decision brief |
+| What is still unknown? | coverage, sufficiency, risk, and knowledge-gap report |
+
+The [knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+maps these records to biological grounding and workflow review surfaces.
 
 ## Evidence memory flow
 
@@ -73,19 +81,27 @@ Knowledge preserves why a claim is supported, contradicted, stale, or
 unresolved. It does not rank candidates or convert evidence availability into a
 recommendation; those decisions belong to Intelligence.
 
-## Why teams pick this package
+## Memory invariants
 
-- explicit evidence and claim memory with provenance, trust, and freshness semantics
-- contradiction-aware resolution flows that preserve audit history
-- grounded workflow briefings, caveats, and scientific rules tied to citations
-- compatibility with shared schema and serialization contracts
+- source identity, source version, retrieval time, and content digest remain
+  distinguishable;
+- biological and analytical context are recorded rather than inferred from a
+  citation title;
+- contradiction and qualification are retained alongside support;
+- reconciliation can deduplicate or supersede records without erasing lineage;
+- review briefs are projections of evidence memory, not replacement stores;
+- missing context and unresolved identity remain explicit knowledge gaps.
 
-## Typical use cases
+## Grounding work owned here
 
-- preserve evidence bundles, claims, and resolution history for later scientific review
-- retrieve grounded workflow caveats, benchmark claims, and ontology mappings
-- explain why a scientific conclusion changed over time without losing provenance
-- surface unresolved knowledge gaps before downstream packages rank, schedule, or execute work
+- resolve proteins, features, pathways, complexes, kinase substrates, diseases,
+  drugs, and orthologs against curated annotation packs;
+- ingest evidence and claims into versioned memory models;
+- reconcile duplicates, conflicts, contradictions, and superseded records;
+- assemble workflow briefings, literature audits, comparator positions, and
+  evidence-sufficiency reports;
+- provide grounded review bundles to Intelligence without embedding ranking or
+  recommendation policy.
 
 ## Installation
 
