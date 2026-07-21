@@ -4,72 +4,83 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Interfaces
 
-`bijux-proteomics-knowledge` interfaces are the published shape of evidence
-work. This section should help a reader see how evidence records, claims,
-confidence segments, contradiction handling, and review payloads leave the
-package in forms that other packages and human reviewers can still interrogate.
+Knowledge owns the durable path from source evidence to contradiction-aware
+scientific memory. Its interfaces preserve evidence origin, context,
+quantitative support, claims, graph lineage, biological annotation resolution,
+conflict handling, coverage gaps, and review handoffs.
 
 ```mermaid
 flowchart LR
-    evidence["evidence inputs"]
-    claims["claim surfaces"]
-    lineage_graph["graph and lineage contracts"]
-    confidence["confidence and resolution outputs"]
-    review["review artifacts and repositories"]
+    sources["Literature, databases,<br/>runtime and lab artifacts"]
+    records["Evidence records"]
+    claims["Evidence-backed claims"]
+    graph["Lineage graph"]
+    grounding["Identity and biological<br/>context resolution"]
+    conflicts{"Conflicts or gaps?"}
+    resolve["Resolve, split,<br/>curate, or hold"]
+    brief["Decision brief"]
 
-    evidence --> claims --> lineage_graph --> confidence --> review
+    sources --> records --> claims --> graph --> grounding --> conflicts
+    conflicts -->|yes| resolve --> brief
+    conflicts -->|no| brief
 ```
 
-## What These Interfaces Need To Preserve
+## Interface layers
 
-- evidence should remain traceable after it is transformed into claims or
-  reviewable knowledge
-- contradictions should remain visible in the interface, not hidden inside
-  internal resolution code
-- downstream consumers need enough structure to ask why a conclusion changed,
-  not just what the new conclusion is
+| Layer | Public responsibility | Required uncertainty |
+| --- | --- | --- |
+| evidence memory | records, bundles, claim links, provenance, expiry | observed, inferred, imported, and synthetic origins remain distinct |
+| graph integrity | nodes, relations, decision traces, unresolved questions | missing nodes and support edges are validation findings |
+| identity grounding | accession, annotation identifier, gene-symbol resolution | ambiguous aliases and unresolved identifiers remain explicit |
+| biological context | pathway, complex, disease, drug, kinase, feature, ortholog resolution | annotation source, coverage, ambiguity, and evidence status remain visible |
+| reconciliation | conflict classification, policy, resolution action, belief impact | holds and required curation are valid outcomes |
+| review | provenance reports, explanations, decision briefs | unresolved and contradicting evidence travels with the brief |
 
-## Start With
+## Entry routes
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
-  when the question is how evidence, claims, or reviews are represented
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
-  when the concern is lineage, persisted decision briefs, or contradiction-aware
-  outputs
-- open [Operator Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/operator-workflows/)
-  when the reader wants the knowledge flow rather than a code inventory
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/)
-  before changing any surface that other packages use to reason about evidence
+The package root provides a curated set of high-value models, resolution
+operations, report types, TSV renderers, and schema checks:
 
-## Read By Evidence Question
+```python
+from bijux_proteomics_knowledge import (
+    EvidenceBundle,
+    EvidenceClaim,
+    EvidenceRecord,
+    KnowledgeDecisionBrief,
+    resolve_protein_ids,
+)
+```
 
-- [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
-  for programmatic evidence and resolution entrypoints
-- [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
-  for the durable shape of knowledge work
-- [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/)
-  for automation and operator control
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/entrypoints-and-examples/)
-  for concrete examples of contradiction-aware use
+Specialized evidence-memory and reference-workflow contracts live in documented
+owner modules. [Python API surface](api-surface.md) maps the root facade;
+[Public imports](public-imports.md) explains when a direct owner-module import
+is the more accurate dependency.
 
-## What This Section Should Make Clear
+## Read by scientific question
 
-- which public surfaces let readers reconstruct the reasoning path from evidence
-  to review output
-- where confidence and contradiction are explicit interface concepts rather than
-  background implementation
-- why repository-facing review payloads are first-class outputs for this package
+- Use [Data contracts](data-contracts.md) for evidence, claims, status,
+  provenance, graph, and resolution semantics.
+- Use [Artifact contracts](artifact-contracts.md) for persisted bundles,
+  coverage reports, contradiction dossiers, and decision briefs.
+- Use [Operator workflows](operator-workflows.md) for ingestion, graph
+  validation, conflict review, and grounding sequences.
+- Use [Compatibility commitments](compatibility-commitments.md) before changing
+  a status enum, relation name, resolution action, or report field.
 
-## First Proof Check
+## Trust boundary
 
-- `src/bijux_proteomics_knowledge/memory/models/claims.py`, `memory/models/evidence.py`, and `memory/integrity/graph.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/decision_briefs.py`, and `reviews/provenance.py`
-- `packages/bijux-proteomics-knowledge/tests`
+Knowledge can show that an identifier resolved against a supplied annotation
+pack, that an evidence record supports a claim, or that one resolution policy
+prefers an action. It cannot prove that an external source is complete,
+current, unbiased, or biologically correct. Resolution is contextual and
+policy-bound; it is not deletion of disagreement.
+
+A consumer must therefore keep `ambiguous`, `unresolved`, `conflicted`,
+`contradicted`, stale, and hold states intact. Converting them to an empty
+result or a generic success destroys the evidence boundary this package exists
+to preserve.
