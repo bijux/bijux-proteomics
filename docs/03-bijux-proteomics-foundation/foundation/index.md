@@ -14,6 +14,13 @@ package family. It stays dependency-light so Core, Runtime, Knowledge,
 Intelligence, and Lab can exchange durable documents without importing one
 another's scientific or operational policy.
 
+Its public contract is deliberately small: typed identifiers,
+canonical serialization, deterministic hashing, schema compatibility, and typed
+outcomes.
+Together these are cross-package invariants. They make a document portable and
+comparable; they do not decide whether its scientific claim is true or its next
+action is wise.
+
 ```mermaid
 flowchart LR
     I["typed identity"] --> D["document contract"]
@@ -69,11 +76,11 @@ flowchart TD
     C -->|yes| F["Foundation owner"]
 ```
 
-## Invariants protected at the boundary
+## Cross-package invariants
 
-- Identifier kinds remain distinguishable and validated across documents.
-- Canonical JSON is deterministic for supported values.
-- Hashes and fingerprints identify canonical content under a named policy.
+- Identifiers remain distinguishable and validated across documents.
+- Canonical serialization produces deterministic JSON for supported values.
+- Deterministic hashing identifies canonical content under a named policy.
 - Schema assessment precedes migration; migration is explicit and directional.
 - Results, failures, refusals, and unavailable optional dependencies remain
   distinct outcomes.
@@ -84,6 +91,15 @@ These guarantees are intentionally limited. A stable fingerprint proves
 content identity, not authenticity, correctness, or biological validity. A
 schema-compatible document can still contain weak evidence. A typed success can
 still represent a scientifically bounded result.
+
+## This Package Does Not Own
+
+Foundation does not own peptide or spectrum interpretation, workflow execution,
+evidence strength, recommendation posture, or laboratory readiness. Consumers
+may carry Foundation identities and envelopes through those domains, but the
+domain package remains responsible for validation, authority, and refusal. The
+[boundary examples](../this-package-does-not-own.md) show where a shared value
+ends and a consumer-owned decision begins.
 
 ## Dependency and evolution rules
 

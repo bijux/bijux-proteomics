@@ -17,6 +17,12 @@ ground its claims; Intelligence may rank actions from it; Lab may test its
 consequences. None of those packages can redefine the original scientific
 contract.
 
+This is scientific law expressed as runtime-agnostic workflow contracts. The
+law covers admissible inputs, algorithms and assumptions, scientific refusals,
+typed outputs, lifecycle transitions, and benchmark-acceptance criteria. It is
+portable across an in-process call, a queued run, or a later replay because the
+execution mechanism cannot change its meaning.
+
 ```mermaid
 flowchart LR
     I["scientific inputs"] --> V["validation policy"]
@@ -127,7 +133,7 @@ holdouts, perturbations, and cross-package cases. The
 [benchmark status](benchmark-flagship-status.md) summarizes the current posture
 without replacing the underlying lineage and acceptance evidence.
 
-## Acceptance and transfer
+## Benchmark-acceptance and transfer
 
 An acceptance bar states a measurable condition and the consequence of missing
 it. Passing the in-distribution corpus is necessary but not sufficient for a
@@ -142,6 +148,16 @@ broad claim. Review also considers:
 
 The result is a bounded workflow-family posture, not a universal statement
 about proteomics.
+
+## This Package Does Not Own
+
+Core does not own provider discovery, retries, scheduling, run custody, or
+artifact transport; those belong to Runtime. It does not own evidence truth,
+recommendation posture, or assay authorization either. Those authorities remain
+with Knowledge, Intelligence, and Lab. Core supplies the scientific request,
+result, refusal, and benchmark-acceptance law that each downstream package must
+preserve. The [boundary examples](../this-package-does-not-own.md) make these
+handoffs concrete.
 
 ## Package evolution
 

@@ -14,6 +14,11 @@ operational assay, incurs material and opportunity cost, and produces an
 observed consequence. It protects that boundary with readiness, controls,
 explicit handoff, QC, reconciliation, and refusal.
 
+An assay consequence is therefore more than a proposed experiment. It joins
+control demands, queue or material burden, operator custody, acceptance rules,
+and observed outcomes in one reviewable chain. If any link is missing, Lab must
+retain the plan as advisory, narrow it, or refuse execution.
+
 ```mermaid
 flowchart LR
     R["advisory recommendation"] --> D["assay design"]
@@ -39,7 +44,7 @@ flowchart LR
 | Why did a plan stop? | [Workflow refusal handbook](workflow-refusal-handbook.md) | reason code, blocking evidence, and safe next action |
 | How do outcomes change future work? | [Outcome learning loops](outcome-learning-loops.md) | reconciliation and versioned feedback |
 
-[This package does not own](../this-package-does-not-own.md) resolves cases
+The [package boundary](../this-package-does-not-own.md) resolves cases
 where recommendation policy or generic orchestration is being mislabeled as
 laboratory ownership.
 
@@ -84,6 +89,15 @@ Refusal preserves the reason work is unsafe, wasteful, under-specified, or
 unable to answer the question. It also identifies a valid next action. A lab
 refusal is not an execution crash and does not invalidate the upstream result;
 it bounds what may happen next.
+
+## This Package Does Not Own
+
+Lab does not establish scientific truth, maintain the evidence graph, rank
+recommendations, or provide general-purpose execution infrastructure. It owns
+the stronger operational question: whether a proposed assay can be authorized
+under its control demands, queue or material burden, safety constraints, and
+acceptance rules. Knowledge, Intelligence, and Runtime retain their respective
+authorities throughout that handoff.
 
 ## Handoff and observation
 
