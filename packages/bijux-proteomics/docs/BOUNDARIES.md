@@ -14,7 +14,7 @@
 
 ## This package does not own
 
-- scientific models, algorithms, workflow contracts, or benchmark acceptance
+- scientific models, algorithms, workflow contracts, or evaluation acceptance
 - Runtime execution, evidence reconciliation, recommendation policy, or lab planning
 - a second implementation beneath the alias metadata helper
 

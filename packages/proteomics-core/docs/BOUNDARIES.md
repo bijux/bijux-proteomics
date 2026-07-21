@@ -14,7 +14,7 @@
 
 ## This package does not own
 
-- alternate scientific types, algorithms, validation, or benchmark logic
+- alternate scientific types, algorithms, validation, or evaluation logic
 - Runtime state, Knowledge evidence, Intelligence decisions, or Lab readiness
 - a separate release posture from the canonical Core package
 

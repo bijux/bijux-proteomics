@@ -15,7 +15,7 @@
 ## This package does not own
 
 - scientific models, parsing, inference, quantification, or workflow acceptance
-- benchmark evidence, Runtime orchestration, evidence policy, or laboratory consequence
+- comparative evidence, Runtime orchestration, evidence policy, or laboratory consequence
 - independent defaults, errors, serialization, or command semantics
 
 ## Downstream expectations
