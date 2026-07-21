@@ -4,47 +4,59 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Review Checklist
 
-A review checklist is useful only if it catches the real ways this package can drift.
+Review Lab changes as changes to a safety- and evidence-bearing lifecycle, not
+as ordinary record plumbing. Approval requires both correct behavior and a
+reconstructable operator-facing history.
 
-For `bijux-proteomics-lab`, review has to separate workflow convenience from durable operator truth. A fast lab-facing change is still wrong if the record becomes harder to reconstruct.
+## Ownership And State
 
-## Review Model
+- Name the lifecycle state or transition being changed.
+- Confirm the change belongs to Lab rather than Foundation, Core, Knowledge,
+  Intelligence, or Runtime.
+- Ensure advice, executable intent, readiness, handoff, observation, triage,
+  and promotion remain distinct states.
+- Require explicit rejection for illegal or incomplete transitions.
 
-```mermaid
-flowchart TB
-    review["review proposed lab change"]
-    layer{"planning meaning, outcome meaning, or storage detail?"}
-    proof{"promotion and prerequisite cases still defended?"}
-    record{"durable record still aligns with shared contracts?"}
-    approve["ready to approve"]
+## Scientific And Operational Safety
 
-    review --> layer
-    layer --> proof
-    proof -->|yes| record
-    proof -->|no| block1["keep reviewing"]
-    record -->|yes| approve
-    record -->|no| block2["keep reviewing"]
-```
+- Re-evaluate prerequisites, controls, replicates, capacity, materials,
+  staffing, and protocol versions.
+- Preserve units, detection limits, censoring, and technical versus biological
+  failure classes.
+- Check queue ordering for hidden score, cost, capacity, or fairness changes.
+- Confirm a stale readiness snapshot cannot authorize new work.
 
-This checklist is useful only if it catches when operator-facing clarity is being traded away for implementation convenience.
+## Record Integrity
 
-## Review Rules
+- Retain actor, timestamp, rationale, source identifiers, prior state, and
+  resulting state where the contract requires them.
+- Round-trip plans, handoffs, observations, and follow-up records.
+- Compare old serialized fixtures when schema or defaults move.
+- Keep promotion rationale and rejected alternatives linked to the observation.
+- Verify review outputs still match the canonical record.
 
-- ask whether the change alters planning meaning, outcome meaning, or only storage detail
-- check promotion and prerequisite examples before approval
-- verify that durable records still align with shared contracts
+## Boundary And Failure Cases
 
-## First Proof Check
+| Challenge | Expected behavior |
+| --- | --- |
+| missing prerequisite or control | affected transition refuses |
+| capacity changes after approval | readiness is re-evaluated |
+| duplicated or replayed handoff | idempotent handling or explicit conflict |
+| partial observation | incomplete state remains visible |
+| below-detection value | censoring metadata is retained |
+| technical failure | not promoted as biological evidence |
+| contradictory follow-up | both evidence and reconciliation remain reviewable |
+| downstream service unavailable | durable record remains readable and uncorrupted |
 
-- `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
+## Verification Route
 
-## Design Pressure
-
-The easy mistake is to approve a change because the assay loop still runs, while the planning history or promotion path has become harder to explain after the fact.
+Run the focused tests for the changed domain under
+`packages/bijux-proteomics-lab/tests`, then package serialization, public API,
+dependency, and documentation checks implicated by the change. Inspect emitted
+artifacts and diffs; a passing transition test alone does not prove record
+quality or downstream evidence safety.

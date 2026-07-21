@@ -4,48 +4,59 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Dependency Governance
 
-Dependency governance is really boundary governance under another name.
-
-For `bijux-proteomics-lab`, dependency review should preserve the line between durable lab records, upstream recommendation logic, and repository helpers that support but do not own behavior.
-
-## Governance Model
+Lab depends on Foundation, Core, Knowledge, and Pydantic. The graph supports
+durable consequence records without importing Runtime orchestration or
+Intelligence recommendation policy into laboratory ownership.
 
 ```mermaid
-flowchart TB
-    change["new or changed dependency"]
-    record{"supports lab record and workflow purpose?"}
-    contracts{"shared contracts stay owned upstream?"}
-    helpers{"repository helpers stay support code?"}
-    accept["dependency is governable"]
-
-    change --> record
-    record -->|yes| contracts
-    record -->|no| reject1["reject or relocate"]
-    contracts -->|yes| helpers
-    contracts -->|no| reject2["reject or isolate"]
-    helpers -->|yes| accept
-    helpers -->|no| reject3["redesign the dependency path"]
+flowchart LR
+    F["Foundation"] --> L["Lab"]
+    C["Core"] --> L
+    K["Knowledge"] --> L
+    P["Pydantic"] --> L
+    I["Intelligence decision"] -. "explicit handoff contract" .-> L
+    L -. "must not import" .-> R["Runtime"]
 ```
 
-This page should help reviewers keep the lab package honest. A dependency is risky when it makes local convenience the hidden owner of contract meaning or workflow decisions.
+## Current Dependency Contract
 
-## Review Rules
+| Dependency | Permitted role | Authority that remains external |
+| --- | --- | --- |
+| `bijux-proteomics-foundation` | identifiers, provenance, shared lifecycle contracts | canonical primitive meaning |
+| `bijux-proteomics-core` | scientific result and assay-relevant data contracts | scientific computation and inference |
+| `bijux-proteomics-knowledge` | evidence, biological grounding, promoted-record handoff | evidence custody and claim truth |
+| Pydantic | validation and serialization of plans, handoffs, and outcomes | lifecycle validity and scientific acceptance |
 
-- guard the line between lab records and upstream recommendation logic
-- keep shared contracts in foundation and core rather than copying them locally
-- avoid dependencies that make repository helpers the hidden owner of behavior
+Intelligence is not an installed dependency. Recommendation inputs must cross a
+reviewable handoff boundary so Lab can assess feasibility without inheriting or
+reimplementing ranking policy. Runtime is also absent: Lab describes executable
+work and records consequence, while Runtime owns execution mechanics.
 
-## First Proof Check
+## Admission Test
 
-- `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
+A dependency is acceptable only when:
 
-## Design Pressure
+1. It supports assay design, readiness, scheduling, handoff, observation, or
+   outcome reconciliation.
+2. Lifecycle transitions remain explicit in Lab code.
+3. Shared and scientific meanings remain with their upstream owner.
+4. Failure, absence, and degraded operation are recordable without fabrication.
+5. Operator-visible artifacts remain serializable and reviewable.
+6. It does not start work, mutate Knowledge custody, or apply recommendation
+   policy as an import side effect.
 
-The easy drift is to pull shared contract meaning or workflow policy into the lab package because a helper dependency makes that move feel cheap.
+Hardware SDKs, schedulers, inventory services, and laboratory information
+systems belong behind adapters. Their availability and identifiers may affect
+readiness, but their object models must not define the durable Lab contract.
+
+## Rejection Signals
+
+Reject a dependency that hides mutable global capacity, converts a technical
+failure into a biological result, requires network access to read a retained
+record, bypasses transition validation, or makes generated convenience objects
+the owner of protocol and outcome meaning.
