@@ -44,7 +44,7 @@ namespace shipped by core.
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.
 
-## Alias at a glance
+## Distribution role
 
 - Use `bijux-proteomics` when packaging, documentation, or deployment needs
   the flagship distribution name rather than the canonical owner package name.
@@ -54,13 +54,18 @@ all scientific behavior owned by the canonical core package.
 - Route all new scientific behavior to `bijux-proteomics-core`; keep this
   package focused on install-name compatibility and publication metadata.
 
-## 0.3.8 Release Highlights
+```mermaid
+flowchart LR
+    install["pip install bijux-proteomics"]
+    alias["distribution metadata alias"]
+    owner["bijux-proteomics-core"]
+    api["bijux_proteomics public API"]
 
-- The flagship distribution name now routes readers directly to the current
-  core scientific surface instead of implying a second owner package.
-- The alias follows the `0.3.8` release line while the canonical
-  `bijux-proteomics-core` package continues to own FASTA, digestion, search,
-  quantification, PTM, QC, and workflow-planning behavior.
+    install --> alias --> owner --> api
+```
+
+There is no parallel implementation in this distribution. Scientific fixes,
+new exports, tests, and release evidence belong to the Core owner.
 
 ## Installation
 

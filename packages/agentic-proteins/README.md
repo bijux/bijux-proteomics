@@ -51,6 +51,24 @@ behavior stays in canonical packages.
   behavior to the canonical `bijux-proteomics-*` packages, and keep this layer
   forwarding-only.
 
+## Compatibility routing
+
+```mermaid
+flowchart LR
+    caller["existing agentic-proteins caller"]
+    bridge["forwarding import or command"]
+    runtime["bijux-proteomics-runtime"]
+    owners["canonical scientific packages"]
+
+    caller --> bridge --> runtime
+    bridge --> owners
+    new["new integration"] --> runtime
+```
+
+The bridge preserves call compatibility, not independent behavior. A forwarded
+symbol must resolve to its canonical owner, and any new implementation belongs
+in that owner before a compatibility export is considered.
+
 ## Compatibility contract
 
 - mirrors the canonical runtime root exports at `agentic_proteins`
@@ -59,15 +77,6 @@ behavior stays in canonical packages.
 - keeps the historical submodule tree explicit so legacy imports stay
   inspectable
 - exists to preserve migration safety for existing integrations
-
-## 0.3.8 Release Highlights
-
-- The package now states its forwarding-only contract directly instead of
-  sounding like a second runtime owner.
-- Direct dependencies and optional extras are narrowed to the canonical
-  `bijux-proteomics-core` and `bijux-proteomics-runtime` packages.
-- Legacy CLI and import continuity remain documented, but new integrations are
-  pointed at the canonical runtime package first.
 
 ## Installation
 

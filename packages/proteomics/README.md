@@ -42,7 +42,7 @@ It is the install and import alias for bijux-proteomics-core.
 Use this package when you want the shortest public distribution and import name
 for the core scientific surface without creating a second owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics` when the shortest install and import name matters more than
   the canonical owner package spelling.
@@ -52,12 +52,19 @@ for the core scientific surface without creating a second owner.
 - Route all scientific behavior to `bijux-proteomics-core`; keep this package
   focused on compatibility naming and short-form ergonomics.
 
-## 0.3.8 Release Highlights
+```mermaid
+flowchart LR
+    caller["from proteomics import …"]
+    alias["short-name forwarding layer"]
+    owner["bijux-proteomics-core"]
+    api["bijux_proteomics implementation"]
 
-- The short-name alias now points readers straight at the current core docs
-  and shipped scientific examples instead of reading like a second owner.
-- Compatibility wording, package boundaries, and release guidance now state
-  directly that `bijux-proteomics-core` owns all real behavior.
+    caller --> alias --> owner --> api
+```
+
+The short name changes how consumers install and import the surface; it does
+not change scientific semantics. Behavioral changes belong to Core and must be
+visible through the canonical tests before this alias forwards them.
 
 ## Installation
 
