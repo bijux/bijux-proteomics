@@ -1,0 +1,6 @@
+schema_version = "1.0.0"
+policy = "deny-by-default"
+
+# The repository project is an orchestration workspace, not an installable
+# runtime. Development and test tools belong in named dependency groups.
+allowed_distributions = []
