@@ -9,10 +9,10 @@ last_reviewed: 2026-07-21
 
 # Maintainer handbook
 
-This handbook covers the repository-wide systems that keep fifteen published
-distributions, their API contracts, documentation, release artifacts, and
-scientific boundaries coherent. Package-local development remains documented
-in each package handbook.
+Repository maintenance keeps fifteen published distributions, their API
+contracts, documentation, release artifacts, and scientific boundaries
+coherent. Package-local checks establish local behavior; repository gates
+establish whether that behavior still composes safely.
 
 ## Verification architecture
 
@@ -66,6 +66,26 @@ coverage output, caches, or ad hoc run products.
 | release metadata | builds, SBOMs, badge checks, license assets, release preflight |
 | security-sensitive code | static security, vulnerability gates, dependency allowlist |
 
+## Generated evidence ownership
+
+Generated files are governed artifacts, not convenient text snapshots. The
+generator owns content and ordering; the generated path owns review and
+publication. A coherent change identifies both.
+
+```mermaid
+flowchart LR
+    S["source contract or policy"] --> G["named generator"]
+    G --> O["governed output"]
+    O --> C["check mode compares bytes"]
+    C -->|match| R["review source and output"]
+    C -->|drift| F["repair generator or regenerate"]
+```
+
+Hand-editing an output without updating its owner produces the same failure on
+the next regeneration. Regenerating without understanding the source can hide
+an unintended policy change. Review handwritten and generated diffs separately
+even when correctness requires them in one commit.
+
 ## Interpret gate results
 
 ```mermaid
@@ -116,11 +136,19 @@ Verification output supports different claims:
 6. Confirm documentation describes released behavior and its limitations.
 7. Build and inspect distributions when packaging or public data changes.
 
-Start with [maintainer safe change](bijux-proteomics-dev/maintainer-safe-change.md)
-for detailed routing, [quality gates](bijux-proteomics-dev/quality-gates.md) for
-verification, [schema governance](bijux-proteomics-dev/schema-governance.md)
-for compatibility, and [release support](bijux-proteomics-dev/release-support.md)
-for publication.
+Detailed operational routes are available in
+[maintainer safe change](bijux-proteomics-dev/maintainer-safe-change.md),
+[quality gates](bijux-proteomics-dev/quality-gates.md),
+[schema governance](bijux-proteomics-dev/schema-governance.md), and
+[release support](bijux-proteomics-dev/release-support.md).
+
+## Commit boundary
+
+A commit represents one durable intent whose affected checks have a known
+result. Selective staging keeps unrelated user work outside that intent.
+Generated sync, handwritten behavior, and documentation can share a commit
+when they are inseparable for correctness; otherwise they remain separate so a
+reviewer can identify the policy source and its consequences.
 
 ## Release boundary
 

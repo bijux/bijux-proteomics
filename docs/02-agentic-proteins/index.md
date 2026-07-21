@@ -105,6 +105,24 @@ Its durable promise is a visible, testable migration route. See the
 [known limitations](quality/known-limitations.md) before relying on an
 historical surface.
 
+## Observable parity
+
+Import forwarding is only one compatibility dimension. A migrated caller may
+also depend on defaults, exception types, command output, HTTP schemas,
+configuration precedence, serialized state, or replay behavior.
+
+| Surface | Equivalent behavior includes |
+| --- | --- |
+| Python | export, callable signature, default, return type, exception type |
+| CLI | command and option names, exit status, stdout, stderr, artifact path |
+| HTTP | method, route, request and response schema, status, error envelope |
+| configuration | accepted keys, precedence, default, unknown-key response |
+| persistence | schema, identity, state transition, resume compatibility |
+| execution | provider choice, side effects, refusal, retry, replay semantics |
+
+An intentional difference is recorded as a migration contract. An undocumented
+difference is compatibility drift even when both routes complete successfully.
+
 ## Migration evidence
 
 Migration is complete only when all depended-on surfaces have been checked:
@@ -122,6 +140,17 @@ The migration ledger records module disposition and the validation suite checks
 forwarding, command parity, route behavior, configuration, and replay. A module
 marked dead has no canonical substitute; remove the dependency rather than
 inventing a new bridge.
+
+## Removal evidence
+
+A compatibility module is removable only after repository imports, package
+entrypoints, documented examples, serialization contracts, and supported
+external callers no longer require it. The module ledger must change with the
+source tree, and release communication must name the canonical replacement or
+state that no replacement exists.
+
+Passing local bridge tests does not prove caller absence. Removal is therefore
+a consumer-evidence decision, not a code-size decision.
 
 ## Documentation map
 

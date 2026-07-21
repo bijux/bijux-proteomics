@@ -99,6 +99,18 @@ engine name, version, source file, and sequence creates an import-backed run
 record; it does not make the external computation native or independently
 reproducible.
 
+## Native, delegated, and imported work
+
+| Execution posture | Runtime controls | Evidence ceiling |
+| --- | --- | --- |
+| native | implementation, configuration, state, artifacts, and failures | rerun and replay claims within the recorded environment contract |
+| delegated provider | request, selection, transport, custody, and returned artifacts | provider-conditioned execution; upstream service remains external |
+| imported result | intake validation, provenance, normalization, and downstream custody | review of supplied outputs; no claim that Runtime executed the source engine |
+
+These postures cannot be collapsed into a generic completed state. Provider
+fallbacks and imported sources remain visible in the run bundle and comparison
+record.
+
 ## Read a run without overclaiming
 
 ```mermaid
@@ -136,6 +148,28 @@ consequence.
 See [artifact stability](runtime-artifact-stability.md),
 [environment contracts](runtime-environment-contracts.md), and
 [rerun refusals](runtime-rerun-refusals.md) before using reproduction language.
+
+## Comparison semantics
+
+A run comparison separates expected and consequential differences. Timestamps,
+generated identifiers, environment changes, provider versions, configuration,
+input digests, lifecycle events, and artifact digests are compared under named
+rules. Ignoring a field requires a declared normalization policy; it is not a
+license to discard inconvenient divergence.
+
+```mermaid
+flowchart TD
+    A["reference run"] --> N["normalize under declared policy"]
+    B["candidate run"] --> N
+    N --> D["identity · config · environment · events · artifacts"]
+    D --> E{"difference class"}
+    E -->|expected| X["record tolerated variance"]
+    E -->|consequential| C["comparison fails or narrows claim"]
+    E -->|unknown| U["refuse equivalence"]
+```
+
+Runtime comparison establishes operational equivalence only. Scientific
+equivalence still requires the Core acceptance contract and domain evidence.
 
 ## Documentation map
 
