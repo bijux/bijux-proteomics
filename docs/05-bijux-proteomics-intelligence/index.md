@@ -39,6 +39,19 @@ Every recommendation is a policy output, not a fact. The record should make
 the candidate set, policy, evidence posture, sensitivity, alternatives, and
 reason codes recoverable.
 
+## Recommendation record anatomy
+
+| Field | Why it matters |
+| --- | --- |
+| candidate universe and exclusions | prevents a winning candidate from being presented without the alternatives it defeated |
+| evidence references and fingerprints | ties the decision to immutable review inputs without copying or rewriting them |
+| policy and constraints | exposes the values, thresholds, feasibility limits, and objectives that shaped the ranking |
+| score components and ordering | makes aggregation and tie-breaking inspectable |
+| contradictions and falsifiers | records evidence that weakens or could overturn the action |
+| scenarios and sensitivity | shows whether small plausible changes reverse the ranking |
+| confidence and regret | separates certainty language from the estimated cost of being wrong |
+| posture and human-review flag | distinguishes advisory output, downgrade, escalation, and refusal |
+
 ## Analytical capabilities
 
 | Surface | Responsibility |
@@ -72,6 +85,25 @@ Benchmark review modules cover DDA, DIA, PTM, quantification, and targeted
 workflow families. Their existence does not grant equal authority to every
 family; the recommendation record inherits the evidence ceiling of the input
 benchmark and review packet.
+
+## Challenge before action
+
+```mermaid
+flowchart TD
+    R["ranked candidates"] --> B["blinded evidence challenge"]
+    B --> C["counterfactual scenarios"]
+    C --> S["threshold sensitivity"]
+    S --> G["regret analysis"]
+    G --> D{"ranking remains defensible?"}
+    D -->|yes| P["bounded recommendation"]
+    D -->|weakens| W["downgrade or escalate"]
+    D -->|no| F["refuse"]
+```
+
+A recommendation that changes under a plausible threshold, withheld evidence
+pattern, or feasible alternative must expose that instability. Explanation is
+not a substitute for challenge; it reports how the declared policy behaved
+under challenge.
 
 ## Ownership boundary
 

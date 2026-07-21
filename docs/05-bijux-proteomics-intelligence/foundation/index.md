@@ -4,132 +4,111 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
-# Foundation
+# Decision foundations
 
-The foundation section explains the durable role of `bijux-proteomics-intelligence` before it
-explains implementation detail. Use it to resolve why decision policy belongs here without pretending to own evidence truth or execution.
-
-That boundary needs more explicit language now because the repository has
-enough benchmark, workflow, and grounding depth that analytical judgment can no
-longer hide behind vague prose. This section exists to show where
-recommendation posture begins, how challenge evidence disciplines that posture,
-and why explanation must stay visibly downstream from scientific truth.
-
-## Why Readers Should Stay Here Longer
-
-- this is where the repository shows that recommendation language is not a
-  vague afterthought layered on top of benchmarks
-- blinded challenges, counterfactual collapses, regret, and downgrade posture
-  now make analytical judgment inspectable instead of merely assertive
-- the package exposes real public routes for how one family sentence survives,
-  weakens, or collapses under withheld evidence
+Intelligence owns the policy that transforms reviewed evidence and program
+constraints into a ranked action, downgrade, escalation, or refusal. Its output
+is an inspectable judgment under a declared policy. It is never a replacement
+for the scientific result, evidence record, execution history, or laboratory
+decision on which it depends.
 
 ```mermaid
 flowchart LR
-    evidence["evidence input"]
-    constraints["program constraints"]
-    policy["scoring and scenario policy"]
-    explanation["explanations"]
-    intelligence["intelligence foundation"]
-    action["downstream action"]
-
-    evidence --> intelligence
-    constraints --> intelligence
-    policy --> intelligence
-    intelligence --> explanation
-    intelligence --> action
+    E["immutable evidence references"] --> J["decision context"]
+    C["program constraints"] --> J
+    P["declared policy"] --> J
+    J --> R["ranking"]
+    R --> H["challenge"]
+    H --> S["sensitivity and regret"]
+    S --> O{"posture"}
+    O -->|stable| A["advisory recommendation"]
+    O -->|uncertain| D["downgrade or escalate"]
+    O -->|unsupported| F["refusal"]
 ```
 
-## What This Section Protects
+## Decision routes
 
-- a visible seam between fact and judgment
-- recommendation logic that can be argued about instead of merely obeyed
-- explanation surfaces that stay tied to policy rather than pretending to be
-  raw evidence
+| Question | Guide | Governing record |
+| --- | --- | --- |
+| What does Intelligence own? | [Package overview](package-overview.md) | decision context and policy output |
+| Is a proposal policy or upstream truth? | [Ownership boundary](ownership-boundary.md) | canonical owner and immutable input reference |
+| Which analytical surfaces exist? | [Capability map](capability-map.md) | candidates, interpretation, challenge, judgment, posture, reviews |
+| What is outside the decision boundary? | [Scope and non-goals](scope-and-non-goals.md) | scientific calculation, evidence truth, execution, and lab authority |
+| Does the recommendation survive pressure? | [Workflow recommendation challenges](workflow-recommendation-challenges.md) | blinded and counterfactual challenge record |
+| Is confidence calibrated? | [Workflow recommendation confidence](workflow-recommendation-confidence.md) | sensitivity, calibration, and regret record |
 
-## What This Section Now Carries
+[This package does not own](../this-package-does-not-own.md) resolves common
+category errors, including copying evidence into a policy model or presenting a
+recommendation as laboratory authorization.
 
-- recommendation posture that remains separate from evidence truth
-- challenge and confidence routes that expose overconfidence, underconfidence,
-  and regret instead of smoothing them away
-- explanation surfaces that justify analytical judgment without pretending to
-  be upstream fact
+## Fact, policy, and action
 
-## Start With
+| Layer | Owns | Intelligence treatment |
+| --- | --- | --- |
+| Core | scientific result and benchmark acceptance | reference as an input; never recalculate silently |
+| Runtime | run identity, provider, state, and artifacts | use execution evidence; never rewrite run history |
+| Knowledge | claims, sources, context, and contradictions | consume a versioned review bundle; never edit evidence truth |
+| Intelligence | ranking, challenge, sensitivity, posture, and refusal | create a new decision record under a named policy |
+| Lab | readiness, execution authority, observation, and QC | hand off an advisory action; receive outcomes as new evidence |
 
-- Open [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/) for the shortest statement of
-  the package role.
-- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/) when the question is
-  whether a change belongs here or in a neighbor.
-- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/scope-and-non-goals/) when a proposed change
-  risks broadening the package.
-- Open [Capability Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/capability-map/) when you need the concrete work
-  the package is allowed to do.
-- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/this-package-does-not-own/)
-  when a proposal is trying to recast recommendation policy as scientific truth
-  or runtime control.
-- Open [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/)
-  when you need the current blinded recommendation record rather than summary language.
-- Open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-  when you need the current counterfactual, overconfidence, underconfidence, and regret surfaces.
+This separation allows two policies to reach different rankings from the same
+evidence without pretending that the evidence itself changed.
 
-## Section Pages
+## Decision protocol
 
-- [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/)
-- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/scope-and-non-goals/)
-- [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/)
-- [This Package Does Not Own](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/this-package-does-not-own/)
-- [Capability Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/capability-map/)
-- [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/)
-- [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/dependencies-and-adjacencies/)
-- [Repository Fit](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/repository-fit/)
-- [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/)
-- [Domain Language](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/domain-language/)
-- [Change Principles](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/change-principles/)
+1. Validate and fingerprint the complete candidate universe, including explicit
+   exclusions.
+2. Resolve immutable references to scientific, execution, and evidence inputs.
+3. Apply a named policy with visible constraints, weights, thresholds, and
+   tie-breaking.
+4. Preserve score components and competing candidates, not only the winner.
+5. Challenge the ranking with contradictions, falsifiers, blinded evidence,
+   plausible scenarios, and counterfactuals.
+6. Measure sensitivity, calibration, and regret.
+7. Emit a recommendation, downgrade, escalation, or refusal with reason codes
+   and human-review posture.
 
-## What This Section Settles
+```mermaid
+sequenceDiagram
+    participant K as Knowledge
+    participant I as Intelligence
+    participant L as Lab
+    K->>I: versioned evidence review bundle
+    I->>I: rank, challenge, test sensitivity
+    I->>L: advisory record or refusal
+    L-->>K: observed outcome with provenance
+    K-->>I: new evidence version for a new decision
+```
 
-- when a rule is a judgment policy rather than a knowledge claim
-- which recommendation behavior belongs here before runtime or lab acts on it
-- when a proposed change is really about evidence truth or workflow rules and
-  should leave this package
+The feedback loop creates a new recommendation. Historical decisions remain
+attached to the evidence and policy available when they were made.
 
-## Reader Questions This Section Can Answer Well
+## Challenge and confidence
 
-- why one workflow family still stops at a downgrade even when its benchmark
-  packet looks strong
-- which hidden evidence pattern would make the current recommendation regretful
-- where overconfidence is already measurable instead of only suspected
-- how recommendation pressure differs from scientific truth and downstream lab
-  consequence
+The [recommendation challenge](workflow-recommendation-challenges.md) route asks
+what evidence pattern would reverse or weaken the ranking. The
+[recommendation confidence](workflow-recommendation-confidence.md) route asks
+whether expressed confidence matches observed and benchmark behavior. Together
+they expose:
 
-## Strongest Intelligence Proof
+- dependence on one fragile feature, threshold, or source;
+- hidden alternatives that become preferable under plausible constraints;
+- overconfidence, underconfidence, and poorly calibrated refusal;
+- regret when a different action would have produced a better consequence;
+- workflow-family ceilings inherited from upstream evidence.
 
-- start with
-  [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/)
-  when the dispute is whether recommendation posture survives blinded pressure
-- continue to
-  [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-  when the question is where confidence, regret, and counterfactual weakness
-  still remain
-- open
-  [This Package Does Not Own](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/this-package-does-not-own/)
-  when someone is trying to rename scientific truth or runtime control as
-  intelligence policy
+Strong explanation without these checks is still only persuasive prose.
 
-## First Proof Check
+## Evolution rules
 
-- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
-- `packages/bijux-proteomics-intelligence/tests`
-- neighboring handbooks once the change crosses the local boundary
-
-## Neighbors
-
-- Open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-  when the question leaves scoring, ranking, scenarios, and explanations.
-- Open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-  when the issue is clearly outside this package's local role.
+The [domain language](domain-language.md) stabilizes terms such as candidate,
+policy, scenario, falsifier, posture, confidence, and regret. The
+[change principles](change-principles.md) require policy identity and comparison
+when ranking behavior changes. [Dependencies and adjacencies](dependencies-and-adjacencies.md)
+and [repository fit](repository-fit.md) preserve one-way ownership, while the
+[lifecycle overview](lifecycle-overview.md) connects candidate intake through
+decision and downstream outcome without granting Intelligence execution or lab
+authority.

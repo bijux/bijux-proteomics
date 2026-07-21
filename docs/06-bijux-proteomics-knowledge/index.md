@@ -71,6 +71,23 @@ These workflows distinguish three questions:
 
 A “yes” at one level does not imply a “yes” at the next.
 
+## Claim anatomy
+
+| Element | Required question |
+| --- | --- |
+| proposition | what exactly is asserted, at what granularity? |
+| subject identity | which protein, peptide, feature, pathway, disease, drug, species, or experimental entity? |
+| context | in which organism, tissue, condition, instrument, workflow, and time window? |
+| source | where did the observation or assertion originate, and under which version? |
+| support relationship | does the record support, contradict, qualify, or merely mention the proposition? |
+| quality and limitations | what biases, coverage gaps, indirectness, and uncertainty constrain use? |
+| intended use | is the evidence sufficient for description, prioritization, or an experimental decision? |
+
+A source can be authoritative yet irrelevant to the declared context. A
+correct identifier match can still ground the wrong biological entity or
+species. Knowledge records resolution and context separately so downstream
+consumers can distinguish these failures.
+
 ## Memory integrity
 
 Evidence memory uses explicit claim and evidence models, normalized ingestion,
@@ -78,6 +95,25 @@ reconciliation, and graph-integrity checks. Provenance links the normalized
 record back to its source; contradiction handling records incompatible claims
 without discarding either; review briefs summarize the current state without
 becoming the canonical evidence store.
+
+```mermaid
+flowchart TD
+    N["new evidence"] --> M["append to memory"]
+    M --> R["resolve identity and context"]
+    R --> C["reconcile with active claims"]
+    C --> S{"relationship"}
+    S -->|supports| U["support edge"]
+    S -->|contradicts| X["contradiction edge"]
+    S -->|qualifies| Q["scope or limitation edge"]
+    S -->|unresolved| G["knowledge gap"]
+    U --> B["versioned review bundle"]
+    X --> B
+    Q --> B
+    G --> B
+```
+
+New evidence appends to memory and may change the current review. It does not
+erase the evidence or review state available to an earlier recommendation.
 
 ## Ownership boundary
 
