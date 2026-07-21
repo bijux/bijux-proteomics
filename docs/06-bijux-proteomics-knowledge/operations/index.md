@@ -4,60 +4,94 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Operations
+# Operating evidence workflows
 
-`bijux-proteomics-knowledge` operations is about maintaining trustworthy
-evidence state. The package does not earn trust by always producing one neat
-answer. It earns trust by preserving provenance, keeping contradictions visible,
-and making resolution changes reviewable over time.
+Knowledge operations preserve the history needed to answer not only “what is
+believed?” but “which sources, contexts, conflicts, and policies produced that
+posture?” A normal workflow appends evidence, validates graph integrity,
+grounds identities, reconciles relationships, and emits a versioned review.
 
 ```mermaid
 flowchart LR
-    source["new source or resolution change"]
-    lineage["check lineage and graph integrity"]
-    confidence["check confidence and contradiction behavior"]
-    review["rebuild review outputs"]
-    compatibility["check schema and serialization continuity"]
-    release["publish updated knowledge behavior"]
-
-    source --> lineage --> confidence --> review --> compatibility --> release
+    S["register source"] --> I["ingest and normalize"]
+    I --> V["validate memory graph"]
+    V --> G["ground identity and context"]
+    G --> R["reconcile support and conflict"]
+    R --> A["assess coverage and sufficiency"]
+    A --> B["publish review bundle"]
 ```
 
-## What Operations Means Here
+## Common operating routes
 
-- the operational problem is epistemic drift as much as software drift
-- release confidence depends on preserving reviewability of evidence state
-- changes to trust scoring or contradiction resolution deserve the same rigor as
-  interface changes
+| Work | Required review |
+| --- | --- |
+| ingest literature or a database extract | source identity, retrieval context, license, normalization, duplicates |
+| ingest a Core or Runtime artifact | artifact digest, producer, schema, run provenance, computed versus inferred content |
+| ingest a Lab outcome | assay and batch identity, observation, QC, deviation, reconciliation context |
+| refresh an annotation pack | source version, changed mappings, unresolved and newly ambiguous identifiers |
+| change reconciliation policy | before-and-after conflicts, selected actions, holds, downstream review differences |
+| assemble a decision brief | fixed memory revision, intended use, support, contradiction, deficits, freshness |
 
-## Start With
+[Common workflows](common-workflows.md) gives the detailed sequences and
+[installation and setup](installation-and-setup.md) covers optional reference
+and file dependencies.
 
-- open [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/)
-  when you need the standard route from evidence change to released package
-- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/)
-  when contradiction behavior, confidence outputs, or decision briefs look wrong
-- open [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/)
-  when a knowledge state must be repaired without erasing lineage
-- open [Release and Versioning](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/release-and-versioning/)
-  before publishing changes that alter how evidence is scored or resolved
+## Incremental evidence updates
 
-## Route From Failure Mode
+Do not rebuild history by overwriting records. Register the new source or
+observation, link superseding material, rerun affected grounding and
+reconciliation, and publish a new review revision. Preserve the previous bundle
+for decisions that cite it.
 
-- [Local Development](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/local-development/)
-  and [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/)
-  for reproducible knowledge-state work
-- [Deployment Boundaries](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/deployment-boundaries/)
-  and [Security and Safety](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/security-and-safety/)
-  for the limits around sensitive evidence and durable records
-- [Performance and Scaling](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/performance-and-scaling/)
-  when evidence volume, graph size, or decision-brief generation becomes the
-  real operator pain
+```mermaid
+sequenceDiagram
+    participant O as Old review
+    participant M as Evidence memory
+    participant N as New source
+    participant R as New review
+    N->>M: append record and provenance
+    M->>M: validate, ground, reconcile
+    M->>R: assemble new revision
+    O-->>R: historical lineage, not replacement
+```
 
-## First Proof Check
+## Diagnose evidence state
 
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
-- `packages/bijux-proteomics-knowledge/tests`
+| Symptom | Inspect first | Likely class |
+| --- | --- | --- |
+| expected claim disappeared | source ingestion, normalization, graph edges | missing or invalid lineage |
+| one identifier maps unexpectedly | source version, alias and organism context | ambiguous or changed grounding |
+| support count increased after refresh | duplicate and derivation relationships | non-independent evidence |
+| contradiction vanished | reconciliation action and context split | destructive conflict handling |
+| review looks more certain than memory | sufficiency policy and unresolved deficits | review assembly error |
+| consumer sees different state | memory revision and schema identity | stale or incompatible artifact |
+
+[Observability and diagnostics](observability-and-diagnostics.md) maps these
+symptoms to reports. [Failure recovery](failure-recovery.md) covers repair while
+preserving lineage.
+
+## Security and source custody
+
+Treat external files and reference payloads as untrusted input. Record source
+and license metadata, validate schema and size before ingestion, and avoid
+embedding credentials or restricted material in persisted public artifacts.
+See [security and safety](security-and-safety.md) and
+[deployment boundaries](deployment-boundaries.md).
+
+## Scale and determinism
+
+Batch ingestion, graph partitioning, caching, and parallel resolution must
+preserve record identity, independent lineage, conflict classification, stable
+ordering where promised, and the same review result as the supported serial
+path. [Performance and scaling](performance-and-scaling.md) defines the
+equivalence burden.
+
+## Release boundary
+
+Changes to source policy, status enums, grounding, reconciliation, sufficiency,
+or review schemas can alter downstream decisions even when imports remain
+stable. [Release and versioning](release-and-versioning.md) requires explicit
+compatibility and before-and-after review evidence for those changes.

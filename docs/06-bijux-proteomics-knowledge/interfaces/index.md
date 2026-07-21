@@ -7,80 +7,99 @@ owner: bijux-proteomics-knowledge-docs
 last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Evidence interfaces
 
-Knowledge owns the durable path from source evidence to contradiction-aware
-scientific memory. Its interfaces preserve evidence origin, context,
-quantitative support, claims, graph lineage, biological annotation resolution,
-conflict handling, coverage gaps, and review handoffs.
+Knowledge interfaces carry evidence from a named source into durable memory,
+through identity and context grounding, and into contradiction-aware review.
+They make uncertainty a typed part of the result rather than an annotation
+added after a conclusion is chosen.
 
 ```mermaid
 flowchart LR
-    sources["Literature, databases,<br/>runtime and lab artifacts"]
-    records["Evidence records"]
-    claims["Evidence-backed claims"]
-    graph["Lineage graph"]
-    grounding["Identity and biological<br/>context resolution"]
-    conflicts{"Conflicts or gaps?"}
-    resolve["Resolve, split,<br/>curate, or hold"]
-    brief["Decision brief"]
-
-    sources --> records --> claims --> graph --> grounding --> conflicts
-    conflicts -->|yes| resolve --> brief
-    conflicts -->|no| brief
+    I["literature · database · run · lab observation"] --> E["evidence contract"]
+    E --> G["grounding report"]
+    G --> R["reconciliation record"]
+    R --> B["review bundle"]
+    B --> C["downstream consumer"]
+    G -. ambiguous or unresolved .-> B
+    R -. contradiction or hold .-> B
 ```
 
-## Interface layers
+## Choose an interface
 
-| Layer | Public responsibility | Required uncertainty |
+| Need | Public route | Output |
 | --- | --- | --- |
-| evidence memory | records, bundles, claim links, provenance, expiry | observed, inferred, imported, and synthetic origins remain distinct |
-| graph integrity | nodes, relations, decision traces, unresolved questions | missing nodes and support edges are validation findings |
-| identity grounding | accession, annotation identifier, gene-symbol resolution | ambiguous aliases and unresolved identifiers remain explicit |
-| biological context | pathway, complex, disease, drug, kinase, feature, ortholog resolution | annotation source, coverage, ambiguity, and evidence status remain visible |
-| reconciliation | conflict classification, policy, resolution action, belief impact | holds and required curation are valid outcomes |
-| review | provenance reports, explanations, decision briefs | unresolved and contradicting evidence travels with the brief |
+| store evidence or claims | evidence-memory owner modules | `EvidenceRecord`, `EvidenceClaim`, `EvidenceBundle` |
+| resolve protein identity | curated root or identity module | typed resolution report and optional TSV |
+| resolve biological context | feature, pathway, complex, kinase, disease, drug, or ortholog owner | source-qualified matches, ambiguity, coverage |
+| inspect graph integrity | memory integrity module | missing-node, invalid-edge, and lineage findings |
+| reconcile evidence | reconciliation module | classification, policy action, retained conflict |
+| assemble literature or ontology review | reference grounding and workflow modules | audit, corpus, dossier, sufficiency, or deficit artifact |
+| hand evidence to decision policy | review module | versioned `KnowledgeDecisionBrief` or review bundle |
 
-## Entry routes
+The [Python API surface](api-surface.md) maps curated root exports. Use
+[public imports](public-imports.md) when a specialized owner module expresses
+the dependency more accurately than the package root.
 
-The package root provides a curated set of high-value models, resolution
-operations, report types, TSV renderers, and schema checks:
+## Evidence contract
+
+A durable evidence record identifies:
+
+- the proposition or observation represented;
+- source, source version, retrieval or production context, and provenance;
+- subject identity and biological context;
+- observed, inferred, imported, curated, or synthetic origin;
+- support, contradiction, qualification, mention, or unresolved relationship;
+- quality, freshness, directness, and known limitations;
+- links to superseding or derived records without destructive replacement.
+
+[Data contracts](data-contracts.md) defines model and enumeration semantics.
+
+## Grounding reports
+
+Resolution functions return reports because a scalar answer would hide the
+scientifically important cases. Reports distinguish resolved, ambiguous,
+unresolved, incompatible, and coverage-limited outcomes and retain the source
+pack used for the decision.
 
 ```python
-from bijux_proteomics_knowledge import (
-    EvidenceBundle,
-    EvidenceClaim,
-    EvidenceRecord,
-    KnowledgeDecisionBrief,
-    resolve_protein_ids,
-)
+from bijux_proteomics_knowledge import resolve_protein_ids
+
+report = resolve_protein_ids(("P28482", "Q02750"), annotation_pack)
 ```
 
-Specialized evidence-memory and reference-workflow contracts live in documented
-owner modules. [Python API surface](api-surface.md) maps the root facade;
-[Public imports](public-imports.md) explains when a direct owner-module import
-is the more accurate dependency.
+The exact annotation-pack contract and rendering routes are documented in
+[entrypoints and examples](entrypoints-and-examples.md). A resolved identifier
+does not establish pathway membership, disease association, or experimental
+relevance; those are separate interfaces with separate evidence.
 
-## Read by scientific question
+## Artifact contracts
 
-- Use [Data contracts](data-contracts.md) for evidence, claims, status,
-  provenance, graph, and resolution semantics.
-- Use [Artifact contracts](artifact-contracts.md) for persisted bundles,
-  coverage reports, contradiction dossiers, and decision briefs.
-- Use [Operator workflows](operator-workflows.md) for ingestion, graph
-  validation, conflict review, and grounding sequences.
-- Use [Compatibility commitments](compatibility-commitments.md) before changing
-  a status enum, relation name, resolution action, or report field.
+Portable outputs include evidence bundles, graph findings, grounding reports,
+coverage reports, contradiction dossiers, knowledge-deficit reports,
+literature audits, reading packs, and decision briefs. Each artifact identifies
+its source memory revision and assembly policy.
 
-## Trust boundary
+[Artifact contracts](artifact-contracts.md) defines persisted fields and
+round-trip expectations. TSV renderers support inspection but do not replace
+the typed record when nested provenance or competing resolutions matter.
 
-Knowledge can show that an identifier resolved against a supplied annotation
-pack, that an evidence record supports a claim, or that one resolution policy
-prefers an action. It cannot prove that an external source is complete,
-current, unbiased, or biologically correct. Resolution is contextual and
-policy-bound; it is not deletion of disagreement.
+## Configuration and compatibility
 
-A consumer must therefore keep `ambiguous`, `unresolved`, `conflicted`,
-`contradicted`, stale, and hold states intact. Converting them to an empty
-result or a generic success destroys the evidence boundary this package exists
-to preserve.
+Source selection, alias policy, context rules, conflict policy, freshness
+thresholds, and intended-use sufficiency are domain configuration. Consumers
+must not substitute local defaults that reinterpret a stored review silently.
+See [configuration surface](configuration-surface.md).
+
+Status values, relationship kinds, source identity, report fields, and
+serialization are compatibility surfaces. [Compatibility commitments](compatibility-commitments.md)
+defines migration requirements; unknown states are not coerced into success.
+
+## Consumer boundary
+
+Core supplies scientific artifacts. Runtime may supply execution provenance.
+Lab supplies observations. Knowledge records and reviews them. Intelligence
+consumes a versioned review bundle and owns ranking. A consumer may reference
+Knowledge state but cannot mutate its history through a recommendation or run
+status. [Operator workflows](operator-workflows.md) shows the supported
+handoffs.
