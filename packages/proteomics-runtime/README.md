@@ -56,11 +56,22 @@ without creating a second execution owner.
 | --- | --- | --- |
 | Distribution | `proteomics-runtime` | `bijux-proteomics-runtime` |
 | Import root | `proteomics_runtime` | `bijux_proteomics_runtime` |
-| Behavior | forwarded execution API | Runtime CLI, HTTP, providers, runs, replay, and workflow modules |
+| Behavior | forwarded execution API | Runtime CLI, HTTP, providers, runs, recovery, and workflow modules |
 
-Run state, provider decisions, artifacts, and replay behavior must be identical
-through both import roots. New execution behavior belongs in Runtime before it
-can appear here.
+Run state, provider decisions, artifacts, and recovery behavior remain owned by
+the canonical package. New execution behavior belongs in Runtime before it can
+appear here.
+
+## Evidence boundary
+
+This alias demonstrates import and application-construction compatibility. It
+does not carry an independent execution-evidence suite or make package-local
+reproducibility claims. Inspect the canonical Runtime run bundles, comparison
+records, refusal records, and validation tests for operational evidence.
+
+Successful forwarding establishes that the alias reaches a canonical public
+surface. It does not establish provider availability, completed execution,
+artifact equivalence, or scientific acceptance for a workflow.
 
 ## Installation
 
