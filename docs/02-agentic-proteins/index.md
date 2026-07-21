@@ -4,82 +4,98 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # agentic-proteins
 
-`agentic-proteins` is the strict compatibility package in
-`bijux-proteomics`. It preserves legacy runtime imports and entrypoints long
-enough for callers to migrate to `bijux-proteomics-runtime`. Its value is not
-new capability. Its value is controlled continuity while the old surface is
-retired without breaking downstream users in the dark.
+`agentic-proteins` is the compatibility distribution for applications built on
+the original execution package. It preserves historical imports, the
+`agentic-proteins` command, and legacy HTTP module paths while canonical
+implementation lives in `bijux-proteomics-runtime` and, for scientific report
+surfaces, `bijux-proteomics-core`.
 
-It is now tracked as an explicit compatibility bridge beneath the six real
-product packages. That means its release case depends on a checked migration
-path and a wrapper-only inventory, not on growing new product value inside the
-bridge itself.
+Install it only when an existing caller still depends on those names:
+
+```bash
+python -m pip install agentic-proteins
+agentic-proteins --help
+```
+
+New applications should install `bijux-proteomics-runtime` and use the
+`bijux-proteomics-runtime` command.
+
+## Compatibility flow
 
 ```mermaid
 flowchart LR
-    callers["legacy callers<br/>imports, CLI paths, API usage"]
-    bridge["agentic-proteins<br/>compatibility forwarding"]
-    runtime["bijux-proteomics-runtime<br/>canonical execution"]
-    lower["foundation, core, knowledge,<br/>intelligence, lab"]
-
-    callers --> bridge
-    bridge --> runtime
-    runtime --> lower
-    bridge -. retire when callers move .-> runtime
+    caller["existing application"]
+    legacy["agentic_proteins import\nor agentic-proteins command"]
+    runtime["bijux_proteomics_runtime\ncanonical execution"]
+    core["bijux_proteomics\ncanonical scientific reports"]
+    caller --> legacy
+    legacy --> runtime
+    legacy --> core
 ```
 
-## Why This Package Still Matters
+The command surfaces are intentionally equivalent. Both currently expose
+`run`, `resume`, `compare`, `reproduce`, `inspect-candidate`, `import-result`,
+`export-report`, `identity`, and `api`. Forwarding must preserve exit behavior
+and output contracts while a caller migrates.
 
-- it absorbs migration pain so the canonical runtime can keep moving
-- it keeps legacy entrypoints visible instead of burying them in silent shims
-- it provides a defensible retirement surface: each preserved path should have
-  a reason to exist, not only inertia
+## Migration pattern
 
-## What It Owns
+Replace legacy modules with their canonical owners:
 
-- compatibility forwarding for legacy runtime imports
-- preserved legacy CLI and API entrypoints while migration is still justified
-- the proof bar for keeping or retiring those preserved surfaces
-- the checked migration guide and compatibility inventory that explain how old
-  imports collapse back to canonical package ownership
+```python
+# Historical
+from agentic_proteins.execution.manager import RunManager
 
-## Shared Reader Routes
+# Canonical
+from bijux_proteomics_runtime.runs.manager import RunManager
+```
 
-- Use [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
-  when the question is still product-wide rather than compatibility-specific.
-- Use [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-  when the question is about canonical runtime behavior instead of the legacy
-  bridge.
+Common mappings include:
 
-## Start Inside This Package
+| Historical family | Canonical family |
+| --- | --- |
+| `agentic_proteins.execution.*` | `bijux_proteomics_runtime.runs.*` or `bijux_proteomics_runtime.execution.*` |
+| `agentic_proteins.orchestration.*` | `bijux_proteomics_runtime.execution.*` and `bijux_proteomics_runtime.runs.*` |
+| `agentic_proteins.providers.*` | `bijux_proteomics_runtime.providers.*` |
+| `agentic_proteins.state.*` | `bijux_proteomics_runtime.state.*` and `bijux_proteomics_runtime.runs.*` |
+| `agentic_proteins.tools.*` | `bijux_proteomics_runtime.execution.tools.*` |
+| `agentic_proteins.interfaces.http.*` | `bijux_proteomics_runtime.api.*` |
 
-- Open [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
-  when you need the package boundary first.
-- Open [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/)
-  when the question is a preserved import, CLI, API, or compatibility contract.
-- Open [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/)
-  when the question is local migration or release behavior inside the bridge.
+Use the generated
+[canonical migration guide](../09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md)
+for the exact module-by-module target. Some namespace modules are recorded as
+dead rather than wrappers; callers must remove those imports instead of
+expecting a replacement.
 
-## What Should Make A Reader Suspicious
+## Compatibility guarantees
 
-- a feature that is attractive even without any legacy caller
-- business logic growing inside the bridge instead of inside runtime
-- compatibility wording that no longer points to a real migration path
+- A bridge module forwards to a declared canonical target and does not own an
+  independent implementation.
+- New runtime behavior is added to the canonical package first.
+- Compatibility regressions are tested against import, CLI, and API contracts.
+- Removal requires the compatibility inventory and migration evidence to show
+  that supported callers no longer need the path.
 
-## First Proof Check
+The package does not promise permanent preservation of every internal symbol.
+Its durable promise is a visible, testable migration route. See the
+[compatibility contract](foundation/compatibility-contract.md),
+[public imports](interfaces/public-imports.md), and
+[known limitations](quality/known-limitations.md) before relying on an
+historical surface.
 
-- `packages/agentic-proteins`
-- `packages/agentic-proteins/src/agentic_proteins`
-- `packages/agentic-proteins/tests`
-- `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md`
-- `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md`
+## Documentation map
 
-## Boundary
-
-If the behavior would still be desirable after legacy callers disappear, it
-probably belongs in the canonical runtime package instead of here.
+- [Foundation](foundation/index.md) — role, compatibility contract, scope, and
+  dependencies.
+- [Architecture](architecture/index.md) — forwarding layout and integration
+  seams.
+- [Interfaces](interfaces/index.md) — preserved CLI, HTTP, imports, data, and
+  artifact contracts.
+- [Operations](operations/index.md) — installation, migration, diagnostics, and
+  release behavior.
+- [Quality](quality/index.md) — invariants, tests, risk, and retirement gates.

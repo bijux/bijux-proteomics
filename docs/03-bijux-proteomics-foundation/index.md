@@ -4,103 +4,84 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
 # bijux-proteomics-foundation
 
-`bijux-proteomics-foundation` owns shared payload meaning in
-`bijux-proteomics`. It keeps identifiers, schema compatibility, migrations, and
-deterministic serialization stable enough that the rest of the package family
-can exchange meaning without ambiguity. This is the quiet substrate of the
-system. When it is right, every downstream package can speak clearly. When it
-drifts, every package starts inventing its own dialect.
+`bijux-proteomics-foundation` provides the small, dependency-light kernel used
+to exchange durable data across Bijux Proteomics packages. It defines identity,
+canonical representation, schema compatibility, and typed outcomes; it does
+not define proteomics algorithms or workflow policy.
 
-This package remains intentionally narrow, but it is not trivial. The current
-product depth in core, runtime, knowledge, intelligence, and lab only stays
-coherent because foundation keeps identifiers, compatibility, migrations,
-canonical serialization, and shared document semantics stable enough for the
-other owners to build on one meaning instead of five competing ones.
-
-```mermaid
-flowchart TB
-    ids["identifiers"]
-    schemas["schemas"]
-    migrations["migrations"]
-    serialization["deterministic serialization"]
-    foundation["foundation<br/>shared meaning layer"]
-    core["core"]
-    knowledge["knowledge"]
-    intelligence["intelligence"]
-    lab["lab"]
-    runtime["runtime"]
-
-    ids --> foundation
-    schemas --> foundation
-    migrations --> foundation
-    serialization --> foundation
-    foundation --> core
-    foundation --> knowledge
-    foundation --> intelligence
-    foundation --> lab
-    foundation --> runtime
+```bash
+python -m pip install bijux-proteomics-foundation
 ```
 
-## What Breaks Without This Package
+## Contract layers
 
-- two packages can talk about the same entity and still mean different things
-- migrations become local hacks instead of a visible family-level discipline
-- runtime, lab, and intelligence code start carrying serialization burdens that
-  should have stayed below them
+```mermaid
+flowchart TD
+    identity["identity\ntyped stable identifiers"]
+    serialization["serialization\ncanonical JSON · hashes · schemas"]
+    compatibility["compatibility\nversions · assessments · migrations"]
+    outcomes["outcomes\nresult · failure · refusal"]
+    support["support\nprovenance · state · charter"]
+    consumers["core · runtime · knowledge · intelligence · lab"]
+    identity --> serialization --> compatibility
+    outcomes --> consumers
+    support --> consumers
+    compatibility --> consumers
+```
 
-## What It Owns
+## Public kernel
 
-- identifiers and shared payload primitives
-- schema and serialization compatibility helpers
-- migration rules for shared payload evolution
+The package root deliberately exports only fifteen stable primitives:
 
-## Why This Surface Matters More Now
+- identifiers: `AssayId`, `BatchId`, `CandidateId`, `ClaimId`, `EvidenceId`,
+  `GateId`, `ProgramId`, and `TargetId`;
+- document contracts: `DocumentSchema` and `JsonModel`;
+- representation: `to_canonical_json` and `fingerprint_model`;
+- hashing: `hash_model`, `hash_payload`, and `hash_text`.
 
-- more benchmark and workflow depth in core increases the cost of shared-model
-  drift
-- stronger runtime proof increases the cost of unstable serialization
-- deeper knowledge and intelligence routes increase the cost of ambiguous
-  identifiers and document meaning
+More specialized contracts live in their owning submodules. Root exports are
+lazy so importing a shared identifier does not pull unrelated implementation
+into a consumer.
 
-## Shared Reader Routes
+## Why canonical representation matters
 
-- Use [Product Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-overview/)
-  before this page when the question is still repository-wide.
-- Use [Maintenance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintenance-overview/)
-  when the dispute is about safe change or release gates rather than shared
-  payload meaning.
+Reproducibility requires byte-stable documents. Semantically identical payloads
+must produce the same canonical JSON and fingerprint regardless of insertion
+order or process. Scientific values require explicit handling; unsupported or
+ambiguous values fail rather than being converted silently. A stable hash can
+prove equality of canonical content, but not the scientific truth of that
+content.
 
-## Start Inside This Package
+## Compatibility model
 
-- Open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
-  for the package role and boundary.
-- Open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)
-  when the question is how identifiers, schemas, and migrations stay arranged.
-- Open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/)
-  when the question is a public contract or shared data surface.
+Versioned documents carry schema identity separately from domain data.
+Compatibility assessment determines whether a consumer can read a document;
+migrations perform declared transformations between supported schemas. Import
+migrations handle renamed Python surfaces independently from document-schema
+migrations. This distinction prevents package renames from being confused with
+scientific data evolution.
 
-## What It Refuses
+## Typed outcomes
 
-- program policy and lifecycle decisions
-- evidence truth and contradiction state
-- execution, provider, or operator-facing runtime behavior
+Foundation distinguishes successful results, operational failures, refusals,
+and missing optional dependencies. Consumers can therefore preserve the reason
+work did not produce a value instead of collapsing every condition into an
+exception or empty payload.
 
-## Strongest Proof Route
+## Boundaries
 
-- start at [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/)
-  for the narrow owner statement
-- continue to [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
-  for boundary and invariant routes
-- hand off to [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-  once the question stops being about shared meaning
+Foundation has no outbound dependency on another product package. It does not
+own sequence models, spectrum processing, execution state machines, evidence
+truth, ranking policy, or assay planning. A type belongs here only when all
+consumers need the same meaning and that meaning remains valid without a
+specific proteomics workflow.
 
-## First Proof Check
-
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation`
-- `packages/bijux-proteomics-foundation/tests`
-- tracked artifacts under `apis/` when the change reaches a public contract
+Continue with [package overview](foundation/package-overview.md),
+[public imports](interfaces/public-imports.md),
+[data contracts](interfaces/data-contracts.md), or
+[compatibility commitments](interfaces/compatibility-commitments.md).
