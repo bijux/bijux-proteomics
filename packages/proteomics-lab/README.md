@@ -42,7 +42,7 @@ It is the install and import alias for bijux-proteomics-lab.
 Use this package when you want a shorter distribution and import name for assay
 planning and handoff behavior without creating a second owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-lab` when you want a shorter package name for assay
   planning, readiness, and handoff entrypoints.
@@ -52,12 +52,15 @@ planning and handoff behavior without creating a second owner.
 - Route lab behavior to `bijux-proteomics-lab`; keep this package focused on
   compatibility naming and import forwarding.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-lab` | `bijux-proteomics-lab` |
+| Import root | `proteomics_lab` | `bijux_proteomics_lab` |
+| Behavior | forwarded consequence API | Lab planning, readiness, handoffs, reconciliation, and outcome modules |
 
-- The alias now sends readers to the current lab handbook instead of sounding
-  like a second operational owner.
-- Release guidance and compatibility wording now make the forwarding contract
-  explicit before a reader reaches the deeper sections.
+Assay readiness, refusal reasons, handoff payloads, and outcome reconciliation
+must remain identical through either import root. Operational policy remains
+owned by Lab.
 
 ## Installation
 

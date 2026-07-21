@@ -43,7 +43,7 @@ Use this package when you want a shorter distribution and import name for the
 serialization, schema, and compatibility kernel without creating a second
 foundation owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-foundation` when you want a shorter package name for the
   shared kernel without changing who owns the contracts.
@@ -54,12 +54,15 @@ foundation owner.
   `bijux-proteomics-foundation`; keep this package focused on compatibility
   naming.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-foundation` | `bijux-proteomics-foundation` |
+| Import root | `proteomics_foundation` | `bijux_proteomics_foundation` |
+| Behavior | forwarded contracts | Foundation serialization, identity, outcomes, and compatibility modules |
 
-- The alias now routes readers to the current foundation handbook instead of
-  reading like a second kernel surface.
-- Compatibility prose now makes the canonical ownership and forwarding-only
-  contract explicit in the first screen.
+Canonical JSON, fingerprints, identifiers, and compatibility verdicts must be
+identical through either import route. This package cannot carry an alternative
+schema policy.
 
 ## Installation
 

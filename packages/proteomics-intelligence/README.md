@@ -42,7 +42,7 @@ It is the install and import alias for bijux-proteomics-intelligence.
 Use this package when you want a shorter distribution and import name for the
 recommendation and review layer without creating a second owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-intelligence` when a shorter name is useful for the
   recommendation and review surface, but canonical ownership must stay the
@@ -53,12 +53,15 @@ recommendation and review layer without creating a second owner.
 - Route recommendation behavior to `bijux-proteomics-intelligence`; keep this
   package focused on compatibility naming and import forwarding.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-intelligence` | `bijux-proteomics-intelligence` |
+| Import root | `proteomics_intelligence` | `bijux_proteomics_intelligence` |
+| Behavior | forwarded decision API | Intelligence candidates, judgment, posture, interpretation, reviews, and learning |
 
-- The alias now routes readers to the current intelligence handbook instead of
-  sounding like a second analytical owner.
-- Documentation and release guidance now state the forwarding contract in
-  direct, audit-friendly language.
+Ranking, refusal, and recommendation posture must be invariant across the two
+import roots. Decision policy changes belong to Intelligence and require its
+evidence and challenge tests.
 
 ## Installation
 

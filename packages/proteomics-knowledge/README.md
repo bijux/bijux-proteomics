@@ -42,7 +42,7 @@ It is the install and import alias for bijux-proteomics-knowledge.
 Use this package when you want a shorter distribution and import name for the
 curated scientific memory surface without creating a second owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-knowledge` when you want a shorter package name for curated
   scientific memory without changing who owns the behavior.
@@ -52,12 +52,15 @@ curated scientific memory surface without creating a second owner.
 - Route curation and grounding behavior to `bijux-proteomics-knowledge`; keep
   this package focused on compatibility naming and import forwarding.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-knowledge` | `bijux-proteomics-knowledge` |
+| Import root | `proteomics_knowledge` | `bijux_proteomics_knowledge` |
+| Behavior | forwarded evidence API | Knowledge references, memory, reconciliation, reviews, and contracts |
 
-- The alias now points readers at the current knowledge handbook instead of
-  reading like a second memory owner.
-- Boundaries, release guidance, and compatibility wording now state the
-  forwarding-only contract more clearly.
+Evidence identifiers, provenance, contradiction state, and resolution history
+must not diverge by import spelling. Curation logic remains exclusively owned
+by Knowledge.
 
 ## Installation
 

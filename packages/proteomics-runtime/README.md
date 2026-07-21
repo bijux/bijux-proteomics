@@ -42,7 +42,7 @@ It is the install and import alias for bijux-proteomics-runtime.
 Use this package when you want a shorter runtime distribution and import name
 without creating a second execution owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-runtime` when you want a shorter install or import name for
   canonical runtime entrypoints.
@@ -52,12 +52,15 @@ without creating a second execution owner.
 - Route all runtime behavior to `bijux-proteomics-runtime`; keep this package
   focused on compatibility naming and CLI/import forwarding.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-runtime` | `bijux-proteomics-runtime` |
+| Import root | `proteomics_runtime` | `bijux_proteomics_runtime` |
+| Behavior | forwarded execution API | Runtime CLI, HTTP, providers, runs, replay, and workflow modules |
 
-- The alias now sends readers straight to the live runtime handbook and CLI
-  contract instead of looking like a second execution product.
-- Release guidance and boundary language now make the forwarding-only contract
-  easier to review before publishing.
+Run state, provider decisions, artifacts, and replay behavior must be identical
+through both import roots. New execution behavior belongs in Runtime before it
+can appear here.
 
 ## Installation
 
