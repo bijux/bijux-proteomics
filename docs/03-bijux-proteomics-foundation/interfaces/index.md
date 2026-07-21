@@ -4,75 +4,89 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Interfaces
 
-`bijux-proteomics-foundation` interfaces are the points where shared meaning
-leaves this small package and becomes everybody else's assumption. This section
-should help a reader see how identifiers, schema profiles, canonical
-serialization, and migrations become stable promises that the rest of the
-repository can safely build on.
+Foundation supplies the identifiers, document metadata, deterministic
+serialization, and outcome vocabulary shared by the package family. These are
+small interfaces with a large compatibility radius: a change to identifier
+syntax or canonical JSON can alter persisted artifacts produced by every
+downstream package.
 
 ```mermaid
 flowchart LR
-    imports["public imports"]
-    ids["stable ids"]
-    contracts["schema and data contracts"]
-    artifacts["canonical artifacts"]
-    migration["migration commitments"]
-    packages["core, runtime, intelligence,<br/>knowledge, lab"]
+    producer["Product package"]
+    ids["Typed identifiers"]
+    model["JsonModel contract"]
+    document["DocumentSchema metadata"]
+    canonical["Canonical JSON"]
+    digest["Stable fingerprint"]
+    artifact["Reviewable artifact"]
 
-    imports --> ids --> contracts --> artifacts --> migration --> packages
+    producer --> ids
+    producer --> model
+    model --> document
+    ids --> document
+    document --> canonical --> digest --> artifact
 ```
 
-## What These Interfaces Actually Do
+## Choose the interface by responsibility
 
-- they give every other package a shared language for document identity and
-  payload shape
-- they make persisted artifacts comparable across versions instead of merely
-  serializable once
-- they publish small surfaces, but those surfaces carry repository-wide
-  consequences when they change
+| Need | Interface | Contract boundary |
+| --- | --- | --- |
+| refer to a program, claim, evidence item, assay, or batch | typed identifiers | constrained strings and recognized prefixes; not entity resolution |
+| define a JSON-backed domain object | `JsonModel` | validation and deterministic representations; not scientific correctness |
+| attach lifecycle and lineage metadata | `DocumentSchema` | producer, version, revision, ancestry, and content hash |
+| compare payload identity across runs | canonical JSON and stable hashing | deterministic representation; not semantic equivalence |
+| communicate refusal or failure | outcome modules | explicit non-success vocabulary; not recovery policy |
+| evolve stored documents | compatibility modules | version assessment and migration; not silent schema coercion |
 
-## Start With
+## Supported entry routes
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
-  when the question is really about what a payload means and how long that
-  meaning must survive
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
-  when the concern is canonical JSON, fingerprints, or persisted record form
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/)
-  before changing any outward promise that downstream packages rely on
-- open [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
-  when the question starts from Python code rather than from artifacts
+Use package-root imports for the deliberately narrow shared primitives:
 
-## Read By Surface
+```python
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_payload
+```
 
-- [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
-  for the narrow code surface this package intentionally exports
-- [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
-  for the two surfaces that most directly preserve shared meaning
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/entrypoints-and-examples/)
-  and [Operator Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/operator-workflows/)
-  for how maintainers touch those primitives in practice
-- [API Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/configuration-surface/)
-  mainly as repository integration seams rather than end-user product surfaces
+Use documented submodules when the contract is intentionally broader than the
+root facade, such as identifier construction, schema migration, refusal
+records, or provenance state. The [Python API surface](api-surface.md) names
+those ownership boundaries; [Public imports](public-imports.md) distinguishes
+stable root names from explicit submodule use.
 
-## What A Reader Should Walk Away Knowing
+Foundation has no command-line or network service surface. Runtime owns process
+execution and HTTP behavior. Product packages own biological interpretation,
+decision policy, evidence reconciliation, and laboratory consequences.
 
-- why such a small package still has some of the highest-leverage public
-  contracts in the repository
-- which promises belong to payload stability versus operational convenience
-- where to look first before assuming another package owns a serialization or
-  migration concern
+## Contract reading order
 
-## First Proof Check
+1. Start with [Data contracts](data-contracts.md) for identifier and model
+   semantics.
+2. Read [Artifact contracts](artifact-contracts.md) before persisting or
+   comparing documents.
+3. Use [Compatibility commitments](compatibility-commitments.md) before
+   changing a schema version or import path.
+4. Consult [Configuration surface](configuration-surface.md) to confirm that a
+   behavior is code-owned rather than environment-controlled.
+5. Use [Operator workflows](operator-workflows.md) for inspection and migration
+   procedures.
 
-- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py`
-- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py`
-- `packages/bijux-proteomics-foundation/tests`
+## Trust boundaries
+
+A valid model can still contain weak evidence. A stable hash proves that two
+canonical byte representations match; it does not prove provenance,
+authenticity, or biological equivalence. A migrated document can satisfy the
+new schema while still requiring scientific review. Downstream packages must
+preserve those distinctions rather than converting technical validity into a
+scientific claim.
+
+## Source of truth
+
+The package root defines the curated import facade. Contract implementations
+live under `identity`, `serialization`, `compatibility`, and `outcomes` in
+`packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/`.
+Package tests and the public API ledger verify that the documented facade does
+not drift from the installed distribution.
