@@ -4,73 +4,82 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Interfaces
 
-`bijux-proteomics-core` interfaces are where the domain speaks in public. This
-section should make it obvious which surfaces define protein programs, lifecycle
-gates, assay requirements, and execution readiness so a reader can tell where
-governance ends and orchestration begins.
+Core exposes the scientific contracts and transformations that turn proteomics
+inputs into inspectable analysis artifacts. Its interfaces cover sequence
+intake, experimental design, identification, quantification, specialized assay
+families, interpretation, review, and workflow planning. They do not grant
+execution authority or make release decisions on behalf of consuming systems.
 
 ```mermaid
 flowchart LR
-    imports["public imports"]
-    programs["program and target contracts"]
-    reviews["review and liability surfaces"]
-    assays["assay and criteria payloads"]
-    execution["execution-facing contracts"]
-    operators["cli, repositories,<br/>operator workflows"]
+    inputs["FASTA, spectra,<br/>identifications, design"]
+    intake["Parse and validate"]
+    analysis["Identify and quantify"]
+    specialized["DIA, PTM, targeted,<br/>multiplex, proteoforms"]
+    review["Audit and interpretation"]
+    artifacts["Portable result artifacts"]
+    runtime["Runtime execution"]
 
-    imports --> programs --> reviews --> assays --> execution --> operators
+    inputs --> intake --> analysis --> specialized --> review --> artifacts
+    runtime -. invokes .-> intake
+    runtime -. invokes .-> analysis
 ```
 
-## What Makes These Interfaces Important
+## Interface layers
 
-- they publish the constitutional rules of the proteomics program model
-- they are meant to be consumed by both code and review processes, not just by
-  Python call sites
-- they define readiness and progression without owning runtime execution itself
+| Layer | Consumer need | Core responsibility | Explicit limit |
+| --- | --- | --- | --- |
+| root Python facade | begin common intake and audit operations | five curated, dependency-light exports | not a mirror of the entire package |
+| scientific modules | use a specific analytical capability | typed inputs, policies, reports, and reason codes | not orchestration or service hosting |
+| CLI | run independently reviewable operations | argument validation, artifact writing, non-zero failure | not a workflow scheduler |
+| artifact contracts | move results across processes or packages | schema, lineage, parameters, thresholds, accepted and rejected records | not proof of scientific fitness |
+| workflow contracts | plan and validate multi-operation work | runtime-agnostic plans and requirements | not process ownership |
 
-## Start With
+## Start from the question
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
-  when the question is what a program, review, assay, or gate payload is
-  allowed to mean
-- open [Operator Workflows](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/operator-workflows/)
-  when the reader is less interested in Python and more interested in how the
-  package is actually used in governed work
-- open [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
-  and [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/)
-  when the question starts from code or command entrypoints
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
-  before widening or narrowing any public domain promise
+- For the five stable package-root imports and their behavior, use
+  [Python API and CLI surface](api-surface.md).
+- For choosing package-root, family facade, or specialized module imports, use
+  [Public imports](public-imports.md).
+- For field meanings, invariants, and failure records, use
+  [Data contracts](data-contracts.md).
+- For persisted JSON, JSONL, TSV, manifests, and review bundles, use
+  [Artifact contracts](artifact-contracts.md).
+- For command names and exit behavior, use [CLI surface](cli-surface.md).
+- For end-to-end operator sequences, use
+  [Operator workflows](operator-workflows.md).
 
-## Read By Domain Question
+## Ownership boundary
 
-- [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
-  for the exported domain vocabulary
-- [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/artifact-contracts/)
-  for the durable forms of those rules
-- [API Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/configuration-surface/)
-  for how operators and tooling touch the domain
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/entrypoints-and-examples/)
-  and [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
-  for the cost of changing those surfaces
+Core owns scientific semantics: how FASTA records are accepted or rejected,
+which digestion policy was applied, how design rows are normalized, how FDR is
+calculated, and which thresholds produced an accepted result. Runtime owns
+process execution, service transport, resource policy, and retry behavior.
+Intelligence owns decision posture; knowledge owns evidence memory and
+reconciliation; lab owns assay planning and experimental consequences.
 
-## What This Section Should Settle
+This boundary matters when interpreting status. A successful core operation
+means its declared contract completed. It does not mean a service deployment
+succeeded, a candidate should advance, a knowledge conflict is resolved, or an
+experiment is safe to run.
 
-- which public surfaces define program authority
-- where a downstream package may depend on core contracts without taking over
-  core governance
-- how to distinguish execution readiness from actual execution ownership
+## Evidence carried by results
 
-## First Proof Check
+Reader-facing outputs should retain enough information to answer:
 
-- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py`
-- `src/bijux_proteomics/interfaces/cli/app.py` and `interfaces/cli/__main__.py`
-- `packages/bijux-proteomics-core/tests`
+1. Which source records and parameters entered the operation?
+2. Which records were accepted, rejected, or refused, and why?
+3. Which policy, threshold, score orientation, or normalization rule applied?
+4. Which schema and package version produced the artifact?
+5. Which later interpretation is scientific judgment rather than computed
+   output?
+
+The implementation beneath `packages/bijux-proteomics-core/src/bijux_proteomics/`
+is the behavior authority. Curated `public_api` ledgers and package tests guard
+the supported facades; documentation explains how to use them without
+overstating what the resulting artifacts prove.
