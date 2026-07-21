@@ -16,15 +16,15 @@ the same repository state.
 
 ## One Version, Several Publication Channels
 
-Package versions are resolved from Git through `hatch-vcs`. Release tags use the
+The version is resolved from Git tags through `hatch-vcs`. Release tags use the
 `v<version>` form, and each publishable package records its user-visible changes
-in its own `CHANGELOG.md`. That combination gives a consumer two complementary
-views: the tag identifies the source state; the package changelog explains what
-changed at that boundary.
+in its own `CHANGELOG.md`. The tag identifies one source state; the package
+changelog explains the behavior and compatibility changes at that distribution
+boundary.
 
 ```mermaid
 flowchart LR
-    tag["signed release intent<br/>v&lt;version&gt;"]
+    tag["release intent<br/>v&lt;version&gt;"]
     source["one source revision"]
     proof["repository and package proof"]
     artifacts["wheel, sdist, release bundle"]
@@ -45,6 +45,23 @@ The four release workflows have distinct ownership:
 
 These are parallel delivery channels for one release identity, not independent
 definitions of the version.
+
+## Release Identity Contract
+
+Before building, verify that:
+
+- the intended `v<version>` tag resolves to the exact source revision under
+  review;
+- every publishable distribution resolves the same coordinated version;
+- no unresolved `0.0.0`, unintended prerelease, or local-version marker remains;
+- every affected package has an accurate `CHANGELOG.md` entry;
+- compatibility distributions describe the canonical owner and migration
+  impact;
+- the release matrix contains every intended PyPI, GHCR, and GitHub artifact.
+
+The resolved version must match the version embedded in every wheel and source
+distribution filename and metadata record. A coherent version number does not
+erase independent package compatibility obligations.
 
 ## Evidence Before Publication
 
@@ -89,6 +106,10 @@ After publication, verify the artifacts from the consumer side: install from the
 target index into a clean environment, import the documented public packages,
 and exercise the smallest representative workflow. The release is complete only
 when the published artifact—not the source checkout—passes that check.
+
+Record the published filenames, checksums, target channels, source revision,
+and clean-environment verification result. If one channel publishes a different
+artifact identity, stop promotion until the release set is coherent.
 
 ## Compatibility Is Part of the Release
 
