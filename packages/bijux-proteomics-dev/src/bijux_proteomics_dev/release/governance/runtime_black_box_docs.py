@@ -41,6 +41,15 @@ RUNTIME_ENVIRONMENT_CONTRACTS_PATH = RUNTIME_DIR / "runtime-environment-contract
 RUNTIME_ARTIFACT_STABILITY_PATH = RUNTIME_DIR / "runtime-artifact-stability.md"
 RUNTIME_RERUN_REFUSALS_PATH = RUNTIME_DIR / "runtime-rerun-refusals.md"
 
+_LAST_REVIEWED_BY_TITLE = {
+    "Black-Box Run Verification": "2026-07-01",
+    "Raw Versus Import Execution": "2026-07-21",
+    "Runtime Artifact Stability": "2026-07-21",
+    "Runtime Environment Contracts": "2026-07-21",
+    "Runtime Execution Boundary": "2026-07-01",
+    "Runtime Replay Challenges": "2026-07-01",
+}
+
 
 def _front_matter(title: str) -> list[str]:
     return [
@@ -50,7 +59,7 @@ def _front_matter(title: str) -> list[str]:
         "type: explanation",
         "status: canonical",
         "owner: bijux-proteomics-runtime",
-        f"last_reviewed: {LAST_REVIEWED}",
+        f"last_reviewed: {_LAST_REVIEWED_BY_TITLE.get(title, LAST_REVIEWED)}",
         "---",
         "",
     ]
@@ -69,6 +78,14 @@ def _render_execution_boundary() -> str:
             "# Runtime Execution Boundary",
             "",
             "Start here when the question is: how would an independent reviewer reopen a shipped workflow family without asking maintainers what to trust next?",
+            "",
+            "## How An Independent Reviewer Should Use This Route",
+            "",
+            "- start from the public benchmark manifest, not from runtime prose",
+            "- reopen the checked bundle before deciding whether the lane still deserves a",
+            "  stronger sentence",
+            "- use stage lineage and failure replay to test whether the execution story is",
+            "  robust enough to survive scrutiny without maintainer narration",
             "",
             "## Shortest Rerun Route",
             "",
@@ -107,7 +124,19 @@ def _render_execution_boundary() -> str:
                 "",
             ]
         )
-    return "\n".join(lines)
+    lines.extend(
+        [
+            "## What This Route Proves And What It Does Not",
+            "",
+            "- it proves that a reviewer can reopen the shipped runtime lane from named",
+            "  public roots",
+            "- it does not prove that execution alone upgrades benchmark, grounding,",
+            "  recommendation, or lab authority",
+            "- it should hand off once the question becomes whether the reopened lane still",
+            "  deserves stronger language beyond runtime traceability",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _render_black_box_run_verification() -> str:
@@ -118,6 +147,21 @@ def _render_black_box_run_verification() -> str:
             "# Black-Box Run Verification",
             "",
             "These routes begin from one public benchmark asset and end at one checked runtime bundle, stage lineage artifact, and replay challenge. The route is black-box on purpose: the reader should not need maintainer narration to find the next artifact.",
+            "",
+            'This page is narrower than the rerun kits. The rerun kits answer "where do I',
+            'start for this family?" This page answers "what exact artifact chain proves',
+            'that the shipped benchmark packet became the checked runtime story?"',
+            "",
+            "## What Counts As Verification",
+            "",
+            "- the benchmark entry artifact fixes the public package boundary",
+            "- the source locator manifest proves where the benchmark packet points for its",
+            "  runtime-facing inputs",
+            "- the checked runtime bundle proves the emitted execution summary that the",
+            "  repository currently stands behind",
+            "- the stage lineage artifact shows that the run is not only a terminal output",
+            "- the replay artifact shows how the same route should fail under hostile",
+            "  pressure rather than only how it succeeds",
             "",
         ]
     )
@@ -139,7 +183,17 @@ def _render_black_box_run_verification() -> str:
                 "",
             ]
         )
-    return "\n".join(lines)
+    lines.extend(
+        [
+            "## What This Route Protects Against",
+            "",
+            "- claiming that a benchmark package is reviewable when no checked runtime story",
+            "  exists",
+            "- confusing a successful bundle with an untested replay boundary",
+            "- hiding execution lineage behind one terminal artifact",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _render_raw_versus_import_execution() -> str:
@@ -149,16 +203,39 @@ def _render_raw_versus_import_execution() -> str:
         [
             "# Raw Versus Import Execution",
             "",
-            "This page makes the execution-mode boundary explicit for each flagship workflow family. It exists to stop import-backed or library-conditioned lanes from quietly inheriting stronger raw-rerun language.",
+            "Execution mode states where repository-controlled computation begins. It does not, by itself, establish vendor-native acquisition replay, chromatogram processing, external-engine parity, or scientific authority.",
             "",
-            "| workflow family | current run mode | raw rerun supported | imported dependency count |",
-            "| --- | --- | --- | --- |",
+            "```mermaid",
+            "flowchart LR",
+            '    A["vendor or acquisition system"] --> X["exported or derived input"]',
+            '    X --> R["repository-controlled runtime lane"]',
+            '    R --> B["checked bundle and lineage"]',
+            '    B --> C["bounded runtime claim"]',
+            '    A -. "not implied by raw_executable" .-> R',
+            "```",
+            "",
+            "## Mode Contract",
+            "",
+            "| mode | repository guarantee | claim ceiling |",
+            "| --- | --- | --- |",
+            "| `import_only` | the checked lane begins from imported exported-result evidence | no raw or external-engine rerun claim |",
+            "| `raw_executable` | the repository can execute its declared transformation from the checked input level | no automatic vendor-native, acquisition-native, or vendor-parity claim |",
+            "",
+            "The model field `raw_rerun_supported` distinguishes those two repository modes.",
+            "On this page, the clearer reader-facing term is **declared lane executable from",
+            "checked input** because the input may already be exported or derived.",
+            "",
+            "## Family Summary",
+            "",
+            "| workflow family | current run mode | declared lane executable from checked input | imported dependency count | blocked claim count |",
+            "| --- | --- | --- | --- | --- |",
         ]
     )
     for row in rows:
         lines.append(
             f"| `{row.workflow_family}` | `{row.current_run_mode.value}` | "
-            f"{'yes' if row.raw_rerun_supported else 'no'} | `{len(row.imported_dependency_paths)}` |"
+            f"{'yes' if row.raw_rerun_supported else 'no'} | "
+            f"`{len(row.imported_dependency_paths)}` | `{len(row.blocked_claims)}` |"
         )
     lines.extend(["", "## Family Boundaries", ""])
     for row in rows:
@@ -166,14 +243,24 @@ def _render_raw_versus_import_execution() -> str:
             [
                 f"### `{row.workflow_family}`",
                 "",
-                f"- mode difference: {row.mode_difference_summary}",
-                f"- imported dependencies: {', '.join(f'`{path}`' for path in row.imported_dependency_paths)}",
+                f"- run contract: {row.mode_difference_summary}",
+                f"- tracked imported dependencies: {', '.join(f'`{path}`' for path in row.imported_dependency_paths)}",
                 f"- blocked claims: {', '.join(row.blocked_claims) if row.blocked_claims else 'none'}",
-                f"- claim guard: {row.claim_guard}",
+                f"- public claim ceiling: {row.claim_guard}",
                 "",
             ]
         )
-    return "\n".join(lines)
+    lines.extend(
+        [
+            "## Interpretation Discipline",
+            "",
+            "A stronger execution mode changes the runtime statement only. Benchmark",
+            "acceptance, grounding, recommendation, and lab consequence remain separately",
+            "owned decisions. Imported dependencies stay visible even for `raw_executable`",
+            "families so a repository rerun cannot be mistaken for vendor-parity replay.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _render_runtime_replay_challenges() -> str:
@@ -184,6 +271,20 @@ def _render_runtime_replay_challenges() -> str:
             "# Runtime Replay Challenges",
             "",
             "Each challenge starts from a clean environment, reopens the tracked benchmark package, and asks the smallest hostile question that should still reconstruct the shipped runtime artifact story.",
+            "",
+            "These are not full benchmark reruns and they are not broad scientific",
+            "acceptance suites. They are disciplined replay pressure. Each challenge asks",
+            "whether the runtime lane can re-emit the checked story and whether the failure",
+            "surface stays visible when the lane is stressed.",
+            "",
+            "## What A Successful Replay Proves",
+            "",
+            "- the reviewer can reopen the shipped public package without hidden local state",
+            "- the runtime lane still reconstructs the checked bundle and lineage artifacts",
+            "- invalidation is documented as part of the route rather than treated as an",
+            "  embarrassing exception",
+            "- the family still stops exactly where the current release language says it",
+            "  stops",
             "",
         ]
     )
@@ -210,7 +311,19 @@ def _render_runtime_replay_challenges() -> str:
                 "",
             ]
         )
-    return "\n".join(lines)
+    lines.extend(
+        [
+            "## Reading Discipline",
+            "",
+            "- use the clean-environment requirements to avoid false confidence from a dirty",
+            "  local workspace",
+            "- treat the invalidation cases as part of the proof surface because a replay",
+            "  route that only describes success is incomplete",
+            "- hand off to environment contracts and artifact stability when the reviewer",
+            "  asks whether the same replay should remain stable across repeated runs",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _render_runtime_environment_contracts() -> str:
@@ -220,25 +333,54 @@ def _render_runtime_environment_contracts() -> str:
         [
             "# Runtime Environment Contracts",
             "",
-            "These contracts record the supported and unsupported environment combinations for each flagship workflow family so runtime claims do not quietly expand beyond the shipped lane.",
+            "A runtime environment contract identifies the tools, tracked inputs, and external dependencies required to reopen one shipped lane. Unsupported combinations are present claim refusals, not an informal roadmap.",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            '    T["required tools"] --> E["declared environment"]',
+            '    I["tracked inputs"] --> E',
+            '    D["external dependencies"] --> E',
+            '    E --> S["supported combinations"]',
+            '    E --> U["unsupported combinations"]',
+            "```",
+            "",
+            "## Contract Fields",
+            "",
+            "| field | interpretation |",
+            "| --- | --- |",
+            "| required tools | minimum repository-owned execution lane |",
+            "| external dependencies | systems or imported evidence outside that lane |",
+            "| supported combinations | environment combinations defended by retained evidence |",
+            "| unsupported combinations | stronger combinations the current release refuses |",
+            "",
+            "## Family Contracts",
             "",
         ]
     )
     for row in rows:
         lines.extend(
             [
-                f"## `{row.workflow_family}`",
+                f"### `{row.workflow_family}`",
                 "",
                 f"- runtime package id: `{row.runtime_package_id}`",
                 f"- required tools: {', '.join(f'`{tool}`' for tool in row.required_tools)}",
                 f"- external dependencies: {', '.join(row.external_dependencies)}",
                 f"- supported combinations: {', '.join(row.supported_combinations)}",
                 f"- unsupported combinations: {', '.join(row.unsupported_combinations)}",
-                f"- note: {row.note}",
                 "",
             ]
         )
-    return "\n".join(lines)
+    lines.extend(
+        [
+            "## Review Rule",
+            "",
+            "An environment claim may expand only when required tools, external",
+            "dependencies, replay evidence, and failure behavior expand together. A green",
+            "repository execution lane does not erase the unsupported combinations listed",
+            "for that family.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _render_runtime_artifact_stability() -> str:
@@ -248,24 +390,54 @@ def _render_runtime_artifact_stability() -> str:
         [
             "# Runtime Artifact Stability",
             "",
-            "This page states what must remain bit-stable, value-stable, or review-stable across repeated flagship reruns. It also names the environment-bound drift that is allowed without pretending the rerun changed meaningfully.",
+            "Artifact stability separates exact bytes, semantic values, reviewer interpretation, and permitted environment metadata. Treating all drift alike would either reject harmless run identity changes or conceal meaningful contract movement.",
+            "",
+            "| stability class | required invariant |",
+            "| --- | --- |",
+            "| bit stable | governed fixture bytes remain identical |",
+            "| value stable | named semantic values retain the same meaning |",
+            "| review stable | authorized claim scope and interpretation remain unchanged |",
+            "| permitted environment drift | named execution metadata may vary without changing the proof surface |",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            '    R["repeated run"] --> B["byte comparison"]',
+            '    R --> V["semantic value comparison"]',
+            '    R --> Q["review interpretation"]',
+            '    R --> E["environment metadata"]',
+            '    E --> P["allow only declared drift"]',
+            "```",
+            "",
+            "## Family Stability Contracts",
             "",
         ]
     )
     for row in rows:
         lines.extend(
             [
-                f"## `{row.workflow_family}`",
+                f"### `{row.workflow_family}`",
                 "",
                 f"- bit-stable paths: {', '.join(f'`{path}`' for path in row.bit_stable_paths)}",
                 f"- value-stable surfaces: {', '.join(row.value_stable_surfaces)}",
                 f"- review-stable surfaces: {', '.join(row.review_stable_surfaces)}",
                 f"- permitted environment drift: {', '.join(f'`{item}`' for item in row.permitted_environment_drift)}",
-                f"- note: {row.note}",
                 "",
             ]
         )
-    return "\n".join(lines)
+    lines.extend(
+        [
+            "## Change Rule",
+            "",
+            "A bit-stable path changes only through an intentional governed fixture update.",
+            "Value-stable or review-stable surfaces change only when the underlying runtime",
+            "or scientific boundary changes in the same reviewable edit. Permitted",
+            "environment drift never authorizes a claim, blocker, or lineage change.",
+            "",
+            "Stable execution protects rerun honesty; it does not enlarge biological,",
+            "analytical, vendor-parity, recommendation, or lab authority.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _render_runtime_rerun_refusals() -> str:
