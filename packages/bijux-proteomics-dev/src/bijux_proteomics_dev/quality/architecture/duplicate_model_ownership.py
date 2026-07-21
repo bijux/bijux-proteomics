@@ -244,7 +244,10 @@ def _csv_text(definitions: tuple[DuplicateModelDefinition, ...]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _summary_text(definitions: tuple[DuplicateModelDefinition, ...]) -> str:
+def _summary_text(
+    definitions: tuple[DuplicateModelDefinition, ...],
+    issues: tuple[DuplicateModelOwnershipIssue, ...],
+) -> str:
     package_counts: dict[str, int] = {}
     kind_counts: dict[str, int] = {}
     for definition in definitions:
@@ -262,46 +265,87 @@ def _summary_text(definitions: tuple[DuplicateModelDefinition, ...]) -> str:
         "type: reference",
         "status: canonical",
         "owner: bijux-proteomics-dev",
-        "last_reviewed: 2026-05-05",
+        "last_reviewed: 2026-07-21",
         "---",
         "",
-        "# duplicate model ownership",
+        "# Duplicate Model Ownership",
         "",
-        "This report tracks structured model names across the six real product packages. "
-        "A tracked model name must belong to exactly one canonical package.",
+        "This generated report inventories public structured-model definitions across "
+        "the six canonical product packages. A repeated model name is a release blocker "
+        "unless the exact package and module pair is an explicitly governed exception.",
         "",
-        "## Current Counts",
+        "```mermaid",
+        "flowchart LR",
+        '    S["canonical package sources"] --> I["AST model inventory"]',
+        '    I --> N["group by model name"]',
+        '    N --> E["exact governed exceptions"]',
+        '    E --> V{"single canonical owner?"}',
+        '    V -->|yes| C["ownership clean"]',
+        '    V -->|no| B["release blocker"]',
+        "```",
         "",
-        f"- tracked model definitions: {len(definitions)}",
+        "## Current Assessment",
+        "",
+        f"- tracked definitions: **{len(definitions)}**",
+        f"- canonical packages: **{len(package_counts)}**",
+        f"- unresolved ownership conflicts: **{len(issues)}**",
+        f"- release posture: **{'blocked' if issues else 'clean'}**",
+        "",
+        "## Model Kinds",
+        "",
+        "| model kind | definitions |",
+        "| --- | ---: |",
     ]
     for model_kind, count in sorted(kind_counts.items()):
-        lines.append(f"- `{model_kind}`: {count}")
-    lines.extend(["", "## Package Distribution", ""])
-    for package_name, count in sorted(
-        package_counts.items(), key=lambda item: (-item[1], item[0])
-    ):
-        lines.append(f"- `{package_name}`: {count}")
+        lines.append(f"| `{model_kind}` | {count} |")
     lines.extend(
         [
             "",
-            "## Release Rule",
+            "## Package Distribution",
             "",
-            "- tracked structured model names must be unique across canonical product packages",
-            "- duplicate model ownership is release-blocking because it hides SSOT drift behind similar class shapes",
-            f"- current duplicate model issues: {len(validate_duplicate_model_ownership(REPO_ROOT))}",
+            "| canonical package | definitions |",
+            "| --- | ---: |",
+        ]
+    )
+    for package_name, count in sorted(
+        package_counts.items(), key=lambda item: (-item[1], item[0])
+    ):
+        lines.append(f"| `{package_name}` | {count} |")
+    lines.extend(["", "## Blocking Conflicts", ""])
+    if issues:
+        lines.extend(f"- {issue.detail}" for issue in issues)
+    else:
+        lines.append("No unresolved duplicate ownership conflicts were detected.")
+    lines.extend(
+        [
             "",
-            "## First Proof Check",
+            "## Interpretation",
             "",
-            f"- `{DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            f"- `{DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            "- `packages/bijux-proteomics-dev/tests/quality/architecture/test_duplicate_model_ownership.py`",
+            "A matching class name is not harmless duplication. Separate owners can diverge "
+            "in validation, serialization, defaults, or meaning while callers continue to "
+            "treat them as one concept. Resolve a blocker by choosing one canonical owner and "
+            "migrating consumers, or by governing the exact shared owner set when duplication "
+            "is intentional and semantically identical.",
+            "",
+            "The exception registry is exact by design: a module move invalidates an exception "
+            "until maintainers re-establish that the new owner pair still represents the same "
+            "contract.",
+            "",
+            "## Evidence And Validation",
+            "",
+            f"- inventory: `{DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`",
+            "- generator: `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/architecture/duplicate_model_ownership.py`",
+            "- validation: `packages/bijux-proteomics-dev/tests/quality/architecture/test_duplicate_model_ownership.py`",
             "",
         ]
     )
     return "\n".join(lines)
 
 
-def _is_up_to_date(definitions: tuple[DuplicateModelDefinition, ...]) -> bool:
+def _is_up_to_date(
+    definitions: tuple[DuplicateModelDefinition, ...],
+    issues: tuple[DuplicateModelOwnershipIssue, ...],
+) -> bool:
     if not DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.exists():
         return False
     if not DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.exists():
@@ -312,37 +356,38 @@ def _is_up_to_date(definitions: tuple[DuplicateModelDefinition, ...]) -> bool:
         "\r\n", "\n"
     ) and DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.read_text(
         encoding="utf-8"
-    ) == _summary_text(definitions)
+    ) == _summary_text(definitions, issues)
 
 
 def run(check: bool = False) -> int:
     definitions = build_duplicate_model_inventory(REPO_ROOT)
     issues = validate_duplicate_model_ownership(REPO_ROOT)
+    if check:
+        if _is_up_to_date(definitions, issues):
+            print(
+                f"duplicate model ownership report is up to date for {len(definitions)} definitions"
+            )
+        else:
+            print("duplicate model ownership report is stale; regenerate it")
+            return 1
+    else:
+        DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+        DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.write_text(
+            _csv_text(definitions),
+            encoding="utf-8",
+            newline="",
+        )
+        DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.write_text(
+            _summary_text(definitions, issues),
+            encoding="utf-8",
+        )
+        print(
+            f"generated duplicate model ownership report for {len(definitions)} definitions"
+        )
     if issues:
         for issue in issues:
             print(f"{issue.code}: {issue.detail}")
         return 1
-    if check:
-        if _is_up_to_date(definitions):
-            print(
-                f"duplicate model ownership report is up to date for {len(definitions)} definitions"
-            )
-            return 0
-        print("duplicate model ownership report is stale; regenerate it")
-        return 1
-    DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.write_text(
-        _csv_text(definitions),
-        encoding="utf-8",
-        newline="",
-    )
-    DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.write_text(
-        _summary_text(definitions),
-        encoding="utf-8",
-    )
-    print(
-        f"generated duplicate model ownership report for {len(definitions)} definitions"
-    )
     return 0
 
 
