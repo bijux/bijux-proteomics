@@ -4,43 +4,55 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Documentation Standards
+# Documentation standards
 
-Documentation standards should protect the reader from filler, drift, and false confidence.
+Public compatibility guidance must let an existing caller answer three
+questions without reading implementation history: what still works, which
+Runtime surface owns the behavior, and what must change before the bridge can
+be removed.
 
-For `agentic-proteins`, documentation should treat the package as a compatibility bridge, point readers toward canonical runtime ownership, and keep retirement language concrete.
+## Required claim shape
 
-## Documentation Model
+| Public statement | Required context | Misleading form |
+| --- | --- | --- |
+| “supported” | named legacy surface, canonical destination, and tested behavior | implying new development should start on the bridge |
+| “equivalent” | observable fields or object identity and the comparison test | treating similar output as full semantic parity |
+| “deprecated” or “retiring” | remaining callers, migration route, and removal condition | announcing removal without measurable exit evidence |
+| “provider available” | dependency extra, isolation boundary, and failure behavior | implying every installation can use the provider |
+| “run succeeded” | terminal state, retained artifacts, and warnings or refusals | reducing success to a zero exit code |
+
+## Reader route
 
 ```mermaid
-flowchart TB
-    legacy["legacy path or caller"]
-    bridge["bridge explanation and compatibility promise"]
-    runtime["canonical runtime owner"]
-    retirement["retirement and migration path stays explicit"]
-
-    legacy --> bridge
-    bridge --> runtime
-    runtime --> retirement
+flowchart LR
+    L["legacy name in an application"] --> C["compatibility promise"]
+    C --> O["Runtime owner"]
+    O --> P["comparison proof"]
+    P --> X["migration and removal condition"]
 ```
 
-This page should keep the bridge docs from sounding like a product center. Good documentation here teaches readers where the real owner lives and how the old path is supposed to disappear.
+Examples begin with a real legacy import, CLI command, or HTTP request and end
+at the corresponding Runtime surface. They identify differences explicitly;
+they do not present two equivalent-looking tutorials that force the reader to
+infer ownership.
 
-## Review Rules
+Use Runtime terminology for agents, tools, providers, runs, state, and
+artifacts. Use bridge terminology only for forwarding, caller compatibility,
+migration, and retirement. A bridge path may expose a concept without becoming
+the authority for that concept.
 
-- docs should treat the package as a compatibility bridge, not a product center
-- examples should point readers toward canonical runtime ownership
-- retirement and migration language must stay concrete
+## Evidence references
 
-## First Proof Check
+Claims about forwarding point to the relevant package contract tests. Claims
+about CLI or HTTP behavior point to interface tests. Provider statements name
+the required extra and negative-path evidence. Retirement statements point to
+the compatibility contract and caller inventory rather than a date or vague
+future intent.
 
-- `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
-- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
-
-## Design Pressure
-
-The easy failure is to document the bridge so generously that readers stop feeling the pull toward the canonical runtime surface.
+The [compatibility contract](../foundation/compatibility-contract.md) owns the
+public promise. [Known limitations](known-limitations.md) bounds its present
+coverage, and [definition of done](definition-of-done.md) states what must be
+true after a change.

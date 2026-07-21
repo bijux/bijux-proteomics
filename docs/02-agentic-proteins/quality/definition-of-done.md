@@ -4,48 +4,59 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Definition of Done
+# Definition of done
 
-Done means the package is easier to trust after the change, not just that the diff merged.
+A compatibility change is complete only when an established caller still sees
+the promised behavior, the canonical Runtime owner remains visible, and the
+change does not create a new reason to depend on `agentic-proteins`.
 
-For `agentic-proteins`, done means a legacy surface still forwards correctly, becomes easier to retire, and does not quietly grow into a second runtime.
+## Completion gate
 
-## Completion Model
+| Changed surface | Completion evidence | Blocking result |
+| --- | --- | --- |
+| top-level import | forwarded objects retain identity with the Runtime export | a copied or independently implemented object replaces forwarding |
+| CLI or HTTP route | request, response, exit, and error behavior agree with Runtime | the bridge invents a default, status, or error translation |
+| execution or orchestration alias | state transitions and artifacts remain equivalent | bridge-only lifecycle or artifact meaning appears |
+| provider or tool path | capability, isolation, and failure behavior remain explicit | optional provider failure changes the canonical run contract |
+| public signature | legacy callers remain compatible and the Runtime alternative is documented | compatibility is preserved only through an undocumented coercion |
+| retirement record | remaining callers and removal conditions are still measurable | the change adds an unowned permanent obligation |
+
+## Evidence path
 
 ```mermaid
-flowchart TB
-    change["change lands on a legacy CLI, API, or import path"]
-    forwarding{"bridge still forwards correctly?"}
-    migration{"migration story is clearer afterward?"}
-    retirement{"no new permanent bridge obligation added?"}
-    done["change is done"]
-
-    change --> forwarding
-    forwarding -->|yes| migration
-    forwarding -->|no| block1["not done"]
-    migration -->|yes| retirement
-    migration -->|no| block2["not done"]
-    retirement -->|yes| done
-    retirement -->|no| block3["not done"]
+flowchart LR
+    C["legacy caller"] --> B["agentic-proteins bridge"]
+    B --> R["canonical Runtime object or behavior"]
+    R --> E["identity or behavioral equivalence proof"]
+    E --> M["migration route and retirement record"]
+    M --> D{"complete?"}
+    D -->|equivalent and narrower| Y["yes"]
+    D -->|divergent or broader| N["no"]
 ```
 
-This page should make completion feel stricter than “legacy path still works.” The bridge is only safer after a change when the runtime handoff and retirement pressure are both easier to explain.
+Start with the proof closest to the changed promise:
 
-## Review Rules
+- `tests/package/test_runtime_forwarding_import_contract.py` for top-level
+  Runtime identity;
+- `tests/package/test_import_forwarding.py` and
+  `test_bridge_contracts.py` for forwarding and retirement contracts;
+- `tests/interfaces/` and `tests/integration/test_cli.py` for public transport
+  behavior;
+- `tests/orchestration/test_run_invariants.py` and
+  `tests/integration/test_artifact_first.py` for run and artifact meaning;
+- `tests/providers/` for optional-provider isolation and failure semantics.
 
-- the edited legacy surface still forwards correctly
-- the migration story is clearer than before the change
-- no new permanent bridge obligation was added by accident
+Run package checks after focused proof. A green package suite cannot justify a
+new bridge-owned policy; it only shows that the tested compatibility surface
+still behaves as declared.
 
-## First Proof Check
+## Not complete
 
-- `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
-- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
-
-## Design Pressure
-
-The easy failure is to declare success once a legacy entrypoint still runs, even though the bridge just became broader or harder to retire.
+A change is not complete when it keeps an old entry point running by duplicating
+Runtime behavior, makes the migration destination less obvious, converts an
+explicit Runtime refusal into bridge fallback, or leaves removal dependent on
+an unnamed caller. Compatibility is a bounded obligation, not permission to
+grow a parallel product.
