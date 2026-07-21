@@ -4,67 +4,106 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Architecture
+# Shared contract architecture
 
-`bijux-proteomics-foundation` architecture is deliberately small, and that is
-the point. This section explains how the package preserves stable meaning
-across ids, schemas, serialization, and migrations without quietly absorbing
-package-specific policy.
+`bijux-proteomics-foundation` is a dependency-light kernel for meaning that must
+survive package, process, artifact, and version boundaries. It owns typed
+identity, strict JSON models, document metadata, canonical representation,
+stable hashes, schema compatibility, declared migration, and portable outcome
+vocabulary.
 
 ```mermaid
 flowchart LR
-    ids["identity/identifiers.py<br/>stable identifiers"]
-    schema["serialization/document_schema.py<br/>shared payload shape"]
-    serialization["serialization/<br/>transport form"]
-    migrations["compatibility/schema_migrations.py<br/>version continuity"]
-    errors["outcomes/exceptions.py<br/>shared failure vocabulary"]
-    consumers["all higher packages"]
-
-    ids --> schema --> serialization --> migrations --> consumers
-    errors --> schema
-    errors --> serialization
-    errors --> migrations
+    I["typed identity"] --> M["strict JSON model"]
+    M --> D["document schema and lineage"]
+    D --> C["canonical representation"]
+    C --> H["stable hash or fingerprint"]
+    D --> A["compatibility assessment"]
+    A --> G["declared migration"]
+    M --> O["result · failure · refusal"]
+    H --> P["portable artifact"]
+    G --> P
+    O --> P
 ```
 
-## Architectural Promise
+## Architectural families
 
-- the same object should keep the same meaning while it moves between packages,
-  artifacts, and versions
-- version repair belongs here, but domain judgment does not
-- the owner paths should stay explicit enough that a reviewer can find them
-  without relying on wrapper history
+| Family | Responsibility | Boundary |
+| --- | --- | --- |
+| `identity` | constrained identifiers and recognized kinds | identity syntax, not biological resolution |
+| `serialization` | strict JSON models, document schema, canonical JSON, fingerprints, stable values and hashes | deterministic representation, not scientific truth |
+| `compatibility` | schema versions, evolution assessment, migration registry, import migration support | declared transformation, not silent coercion |
+| `outcomes` | results, error envelopes, refusals, optional-dependency failures | portable disposition, not domain recovery policy |
+| `support` | provenance, lifecycle state, package charter and public API helpers | shared vocabulary, not product workflow state |
+| `testing` | reusable repository contract checks | test infrastructure, not runtime product behavior |
 
-## Start With
+The [module map](module-map.md) resolves these families to their exact owners.
 
-- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/)
-  when the question is how shared meaning survives transport and version change
-- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/)
-  when a proposed helper starts to smell like package-specific policy
-- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/)
-  when you need the exact owner quickly because the package is intentionally
-  compact
+## Dependency direction
 
-## Reading Map
+```mermaid
+flowchart TD
+    F["Foundation"] --> C["Core"]
+    F --> R["Runtime"]
+    F --> K["Knowledge"]
+    F --> I["Intelligence"]
+    F --> L["Lab"]
+```
 
-- [State and Persistence](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/state-and-persistence/)
-  for what is allowed to become durable
-- [Dependency Direction](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/dependency-direction/)
-  and [Extensibility Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/extensibility-model/)
-  for the rules that keep the package minimal
-- [Error Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/error-model/)
-  and [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
-  for the places hidden policy often tries to enter
+The arrows represent allowed consumption of shared contracts. Foundation has
+no outbound dependency on another product package. A downstream type does not
+become foundational merely because several packages use similarly named
+fields; the meaning must be neutral and identical without importing consumer
+policy.
 
-## First Proof Check
+[Dependency direction](dependency-direction.md) and
+[integration seams](integration-seams.md) define this boundary in detail.
 
-- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py` for stable shared meaning
-- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py` for transport and compatibility structure
-- `src/bijux_proteomics_foundation/outcomes/exceptions.py` for shared failure vocabulary
+## Representation and meaning
 
-## Boundary Test
+Canonical JSON normalizes supported values into deterministic bytes. A named
+hash policy derives content identity from that representation. These guarantees
+support equality checks, caches, manifests, and review lineage, but they do not
+establish authenticity, provenance, semantic equivalence, or biological
+validity.
 
-If a new helper needs package-specific nouns to justify itself, it probably does
-not belong in this architecture.
+Unsupported or ambiguous scientific values fail at the contract boundary
+instead of acquiring a convenient string representation that may not round
+trip. [State and persistence](state-and-persistence.md) documents durable
+representation.
+
+## Compatibility before migration
+
+Schema identity is separate from package and import identity. Compatibility
+assessment determines whether two document versions can interact. A migration
+registry applies explicit, directional transformations and records failure when
+no declared path exists. Import migrations handle renamed Python surfaces and
+must not be confused with document evolution.
+
+```mermaid
+flowchart LR
+    S["stored document"] --> V["read schema version"]
+    V --> A{"assess compatibility"}
+    A -->|compatible| U["consume under declared rules"]
+    A -->|migration exists| M["apply named migration"]
+    A -->|no path| F["fail explicitly"]
+    M --> N["validate new schema"]
+```
+
+[Execution model](execution-model.md) follows this contract path;
+[error model](error-model.md) distinguishes assessment, migration, validation,
+and optional-dependency failures.
+
+## Extension rules
+
+A shared primitive is admitted only when multiple packages need identical
+neutral meaning, Foundation can define it without a consumer dependency, and
+central ownership prevents real semantic drift. Every new public contract needs
+validation, serialization, compatibility, negative-path, and consumer evidence.
+
+[Extensibility model](extensibility-model.md) provides the admission route.
+[Architecture risks](architecture-risks.md) covers kernel expansion, convenience
+exports, duplicate contracts, hidden policy, and migration shortcuts.
