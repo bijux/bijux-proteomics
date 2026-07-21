@@ -52,6 +52,36 @@ stand in for scientific validity; evidence support cannot stand in for a
 decision policy; and a recommendation cannot stand in for an observed lab
 outcome.
 
+## Follow one result across the system
+
+Use identifiers and artifact references to cross a boundary; do not reconstruct
+state from filenames or narrative reports.
+
+| Review question | Artifact to inspect | Evidence that must remain visible |
+| --- | --- | --- |
+| what scientific input was accepted? | core parse or analysis result | policy, accepted records, rejections, source identity |
+| what actually ran? | runtime run bundle | resolved configuration, provider, state transitions, checkpoints, artifact digests |
+| why is the result supportable? | knowledge review bundle | sources, contexts, supporting and contradicting evidence, freshness |
+| why was this action proposed? | intelligence recommendation record | ranking policy, scenarios, falsifiers, downgrade chain, human-review flag |
+| what happened after the decision? | lab consequence record | readiness, instructions, observations, QC, deviations, evidence promotion |
+
+```mermaid
+sequenceDiagram
+    participant C as Core
+    participant R as Runtime
+    participant K as Knowledge
+    participant I as Intelligence
+    participant L as Lab
+    C->>R: workflow request and scientific contract
+    R->>K: run bundle and artifact ledger
+    K->>I: grounded claims and contradictions
+    I->>L: advisory recommendation or refusal
+    L-->>K: observed outcome as new evidence
+```
+
+The return arrow creates a new evidence record. It does not retroactively
+change the run, claim, or recommendation that preceded the experiment.
+
 ## Navigate by concern
 
 - [Product architecture](foundation/product-architecture.md) — end-to-end data,
@@ -90,3 +120,16 @@ automatic biological truth. Confidence is bounded by the workflow-family
 benchmark, recorded execution conditions, source quality, contradiction state,
 decision sensitivity, and feasibility of downstream validation. Each package
 can refuse work when its part of that chain is under-specified.
+
+## Reader checkpoints
+
+Before accepting a cross-package conclusion, confirm that:
+
+1. the scientific result retains rejected inputs and its active policy;
+2. the execution record identifies configuration, provider, artifacts, and
+   terminal state;
+3. evidence references resolve to contextual records rather than unsupported
+   prose;
+4. contradiction, uncertainty, and refusal paths remain present;
+5. an advisory recommendation is not represented as laboratory authority;
+6. observed outcomes append to, rather than overwrite, the decision history.

@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # Bijux Proteomics
@@ -110,6 +110,40 @@ explains the exact evidence ceiling.
 | evolve schemas and stable identifiers | [Foundation](03-bijux-proteomics-foundation/index.md) |
 | migrate historical execution callers | [agentic-proteins](02-agentic-proteins/index.md) |
 | develop, validate, or release the repository | [Maintainer handbook](08-bijux-proteomics-maintain/index.md) |
+
+## Start with a visible contract
+
+Install the scientific core and parse one FASTA record:
+
+```bash
+python -m pip install bijux-proteomics-core
+```
+
+```python
+from bijux_proteomics import parse_fasta_document
+
+report = parse_fasta_document(
+    ">sp|P31749|AKT1_HUMAN AKT serine/threonine kinase 1\nMPEPTIDEK\n"
+)
+assert len(report.accepted_records) == 1
+assert not report.rejected_records
+print(report.accepted_records[0].sequence_checksum)
+```
+
+This is intentionally a report rather than a list. Scientific inputs can be
+partly valid, and the rejected portion is evidence about what the calculation
+did not use. The same design recurs across format intake, FDR review, protein
+inference, quantification, knowledge grounding, recommendation, and laboratory
+follow-up.
+
+```mermaid
+flowchart LR
+    call["Python or CLI call"] --> result["typed result"]
+    result --> accepted["accepted records"]
+    result --> rejected["rejections and diagnostics"]
+    result --> policy["policy and provenance"]
+    result --> rendering["JSON, JSONL, TSV, report"]
+```
 
 ## Trust model
 

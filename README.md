@@ -117,6 +117,42 @@ The packages require Python 3.11 or newer. Runtime and scientific extras are
 declared by their owning distributions; consult the relevant package handbook
 before enabling provider-backed or external-tool workflows.
 
+## First auditable operation
+
+The smallest useful example parses a FASTA document without discarding rejected
+records:
+
+```python
+from bijux_proteomics import parse_fasta_document
+from bijux_proteomics.sequences import FastaParseMode
+
+report = parse_fasta_document(
+    ">sp|P31749|AKT1_HUMAN AKT serine/threonine kinase 1\nMPEPTIDEK\n",
+    mode=FastaParseMode.STRICT,
+)
+
+for protein in report.accepted_records:
+    print(protein.source_identifier, protein.sequence_checksum)
+for rejected in report.rejected_records:
+    print(rejected.source_identifier, [issue.code for issue in rejected.issues])
+```
+
+The report shape illustrates the platform's contract: accepted data, rejected
+data, normalization decisions, and diagnostics remain available together.
+Larger workflows retain the same evidence discipline through run manifests,
+artifact ledgers, grounded claims, recommendation records, and lab outcomes.
+
+For file-oriented use, the equivalent core command is:
+
+```bash
+bijux-proteomics fasta-parse proteins.fasta --mode strict
+```
+
+Use the [core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+for scientific workflows and the
+[runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+when execution must be checkpointed, resumed, compared, or replayed.
+
 ## Where to begin
 
 - [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
@@ -130,7 +166,7 @@ before enabling provider-backed or external-tool workflows.
 - [Maintainer handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
   covers local validation, releases, and repository governance.
 
-## Maintainer Quick Start
+## Maintainer quick start
 
 - `make help` to list repository automation
 - `make ensure-venv` to sync the shared root check environment
@@ -146,7 +182,7 @@ Package-specific commands and checks are documented in their respective
 handbooks. Generated reports, logs, and local run products belong under
 `artifacts/`.
 
-## Repository Operating Model
+## Repository operating model
 
 This repository keeps product code, repository automation, and transient local
 state separate on purpose:
