@@ -196,6 +196,9 @@ for the current evidence gates.
 
 ## Public interfaces
 
+<code>bijux-proteomics-runtime</code> governs execution and replay.
+<code>agentic-proteins</code> preserves compatibility entrypoints.
+
 - `bijux-proteomics` exposes the core scientific CLI.
 - `bijux-proteomics-runtime` exposes canonical execution through a CLI and
   HTTP application.

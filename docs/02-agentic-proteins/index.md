@@ -15,6 +15,9 @@ the original execution package. It preserves historical imports, the
 implementation lives in `bijux-proteomics-runtime` and, for scientific report
 surfaces, `bijux-proteomics-core`.
 
+`agentic-proteins` is the strict compatibility package: it does not compete
+with Runtime for ownership of new execution behavior.
+
 Install it only when an existing caller still depends on those names:
 
 ```bash
@@ -24,6 +27,20 @@ agentic-proteins --help
 
 New applications should install `bijux-proteomics-runtime` and use the
 `bijux-proteomics-runtime` command.
+
+## Do you need this package?
+
+| Caller condition | Install | Migration action |
+| --- | --- | --- |
+| code imports `agentic_proteins` | `agentic-proteins` and the canonical owner during migration | replace each import using the generated migration guide |
+| automation invokes `agentic-proteins` | `agentic-proteins` | compare command output and exit behavior with `bijux-proteomics-runtime` |
+| a service imports a historical HTTP module | `agentic-proteins` | move routes and request models to `bijux_proteomics_runtime.api` |
+| new code needs execution, providers, replay, or run evidence | `bijux-proteomics-runtime` | use the canonical API directly |
+| new code needs scientific report models | `bijux-proteomics-core` | use the Core owner directly |
+
+Compatibility is a caller property, not a second product mode. A deployment
+may need the bridge while one historical dependency remains; new components in
+that deployment can still use canonical packages directly.
 
 ## Compatibility flow
 
@@ -87,6 +104,24 @@ Its durable promise is a visible, testable migration route. See the
 [public imports](interfaces/public-imports.md), and
 [known limitations](quality/known-limitations.md) before relying on an
 historical surface.
+
+## Migration evidence
+
+Migration is complete only when all depended-on surfaces have been checked:
+
+```mermaid
+flowchart LR
+    I["imports"] --> C["CLI"] --> H["HTTP"] --> G["configuration"]
+    G --> S["serialized state"] --> R["replay behavior"]
+    R --> D{"equivalent?"}
+    D -->|yes| M["caller uses canonical owner"]
+    D -->|no| B["compatibility blocker remains"]
+```
+
+The migration ledger records module disposition and the validation suite checks
+forwarding, command parity, route behavior, configuration, and replay. A module
+marked dead has no canonical substitute; remove the dependency rather than
+inventing a new bridge.
 
 ## Documentation map
 

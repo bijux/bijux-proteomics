@@ -57,6 +57,19 @@ ambiguous values fail rather than being converted silently. A stable hash can
 prove equality of canonical content, but not the scientific truth of that
 content.
 
+```python
+from bijux_proteomics_foundation import hash_payload, to_canonical_json
+
+payload = {"target": "target-mapk1", "scores": [0.91, 0.87]}
+canonical = to_canonical_json(payload)
+digest = hash_payload(payload)
+```
+
+`canonical` is a deterministic representation and `digest` identifies that
+representation. Neither value establishes whether the target assignment or
+scores are scientifically correct; that judgment remains with the producing
+domain and its evidence.
+
 ## Compatibility model
 
 Versioned documents carry schema identity separately from domain data.
@@ -80,6 +93,17 @@ own sequence models, spectrum processing, execution state machines, evidence
 truth, ranking policy, or assay planning. A type belongs here only when all
 consumers need the same meaning and that meaning remains valid without a
 specific proteomics workflow.
+
+## Choose the contract deliberately
+
+| Need | Foundation contract | Do not substitute |
+| --- | --- | --- |
+| distinguish entities across packages | typed identifier | an unvalidated filename or display label |
+| serialize a durable document | `JsonModel` and `DocumentSchema` | an arbitrary dictionary with implicit metadata |
+| compare canonical content | canonical JSON and a named hash policy | object identity or default `repr` output |
+| evaluate document evolution | schema assessment and declared migration | import aliasing |
+| report why no value exists | typed failure or refusal | `None`, an empty collection, or a swallowed exception |
+| handle an unavailable extra | optional-dependency outcome | unconditional heavyweight imports |
 
 Continue with [package overview](foundation/package-overview.md),
 [public imports](interfaces/public-imports.md),
