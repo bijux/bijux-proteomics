@@ -4,43 +4,44 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Risk Register
+# Risk register
 
-A risk register should name the structural and behavioral failures that deserve ongoing attention.
+The compatibility package’s central risk is permanent divergence disguised as
+helpful backward compatibility. The register below names observable signals and
+the evidence required to reduce each risk.
 
-For `agentic-proteins`, the structural risks are the ones that turn a temporary bridge into a second permanent runtime surface.
-
-## Risk Model
+| Risk | Early signal | Consequence | Required control |
+| --- | --- | --- | --- |
+| second Runtime | new lifecycle, provider, tool, state, or transport logic lands locally | two canonical behaviors emerge | move policy to Runtime and retain only forwarding |
+| undocumented caller dependence | nested import or error behavior appears in applications but not the contract | removal breaks consumers that tests do not represent | caller inventory and path-specific contract test |
+| parity drift | identity, state, error, warning, ordering, or artifact differs | migration changes behavior | direct legacy-to-Runtime comparison including a negative path |
+| optional-dependency leak | base import loads provider dependencies or credentials | minimal installs fail or behave differently | provider isolation and unavailable-extra tests |
+| durable-state coupling | old snapshots require bridge code to reopen | bridge becomes permanent storage infrastructure | Runtime-owned schema and decoder proof |
+| circular dependency | canonical package imports the legacy namespace | ownership cannot be unwound | import-boundary guard and dependency correction |
+| retirement without evidence | deprecation is date-driven or based only on repository search | external callers lose supported access | canonical replacement, caller evidence, release communication |
+| compatibility growth | additions outpace retired surfaces | bridge burden increases despite migration intent | retirement budget and review of every added export |
 
 ```mermaid
-flowchart TB
-    compatibility["legacy compatibility stays broad"]
-    undocumented["callers depend on undocumented bridge behavior"]
-    debt["migration debt outruns retirement proof"]
-    hardening["bridge hardens into a second runtime"]
-
-    compatibility --> undocumented
-    undocumented --> debt
-    debt --> hardening
+flowchart LR
+    C["compatibility growth"] --> U["undocumented callers"]
+    U --> D["behavioral divergence"]
+    D --> S["second Runtime"]
+    S --> P["bridge cannot retire"]
 ```
 
-This page should keep the danger chain visible. The serious risk is not one isolated failing path; it is the gradual hardening of the bridge into something the system no longer knows how to retire.
+## Release posture
 
-## Review Rules
+A package-local green suite does not close caller or retirement risk. Release
+review needs the surface inventory, canonical destination, parity evidence,
+remaining caller evidence, and an explicit removal condition. Unknown callers
+keep the affected surface supported; they do not justify new behavior.
 
-- legacy compatibility hardens into a second permanent runtime
-- callers depend on undocumented bridge behavior
-- migration debt grows faster than retirement proof
+## Escalation
 
-## First Proof Check
-
-- `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
-- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
-
-## Design Pressure
-
-The common drift is to track breakages one by one while missing the higher-order risk that the bridge is becoming permanent by habit.
+Treat canonical reverse imports, bridge-owned policy, incompatible durable
+state, and silent failure translation as release-blocking. Track broader
+historical surface and incomplete caller inventory as active risks with named
+evidence, not as generic technical debt.

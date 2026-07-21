@@ -7,52 +7,60 @@ owner: agentic-proteins-docs
 last_reviewed: 2026-07-21
 ---
 
-# Extensibility Model
+# Extensibility model
 
-Agentic Proteins extends by preserving migration paths, not by accumulating new
-capabilities. A proposed feature should almost always be implemented in the
-canonical runtime or the package that owns its scientific meaning, then exposed
-here only when an existing legacy import must continue to resolve.
+`agentic-proteins` extends only by preserving an established caller while the
+canonical owner evolves. New execution, provider, state, transport, or
+scientific behavior belongs in Runtime or the package that owns its meaning.
 
 ## Admission decision
 
-| Proposed change | Correct owner | Agentic Proteins work |
+```mermaid
+flowchart TD
+    P["proposed bridge change"] --> C{"existing supported caller?"}
+    C -->|no| O["implement only in canonical owner"]
+    C -->|yes| R{"canonical behavior already exists?"}
+    R -->|no| O
+    R -->|yes| E{"identity or observable parity provable?"}
+    E -->|no| B["blocked: resolve contract difference"]
+    E -->|yes| F["add narrow forwarding and migration evidence"]
+    F --> T["record retirement condition"]
+```
+
+| Capability | Canonical owner | Permitted compatibility work |
 | --- | --- | --- |
-| New CLI command or HTTP endpoint | runtime `api` | Add forwarding only if an existing compatibility contract requires it |
-| New run lifecycle, checkpoint, or artifact | runtime `runs` or `state` | Preserve a documented legacy name when necessary |
-| New agent, planner, verifier, or tool | runtime `execution` | Provide a narrow alias only for supported old imports |
-| New provider or capability policy | runtime `providers` | Forward legacy provider paths; do not duplicate selection logic |
-| New scientific model or algorithm | core, intelligence, knowledge, or lab | No local implementation |
-| Retirement of a legacy surface | Agentic compatibility governance | Remove only after migration evidence and release communication exist |
+| CLI command or HTTP route | Runtime interfaces | preserve a named legacy transport contract |
+| lifecycle, checkpoint, workspace, or artifact | Runtime runs and state | forward an established import or request path |
+| agent, planner, verifier, or tool | Runtime execution | expose a narrow alias for a proven caller |
+| provider or capability policy | Runtime providers | preserve names and capability queries without local selection logic |
+| scientific model or transformation | Core | no bridge implementation |
+| evidence model or source resolution | Knowledge | no bridge implementation |
+| ranking or recommendation policy | Intelligence | no bridge implementation |
+| assay design, readiness, or outcome | Lab | no bridge implementation |
 
-## A valid compatibility extension
+## Forwarding contract
 
-A new forwarding module is justified only when all of the following hold:
+A compatibility addition records the caller, legacy path, canonical path,
+identity or behavioral comparison, optional dependencies, failure parity, and
+removal condition. Prefer explicit imports and `__all__` for small surfaces.
+Wildcard forwarding is acceptable only when the contract intentionally mirrors
+the canonical module and export-drift tests protect it.
 
-1. A supported legacy import exists in real consumers.
-2. The canonical runtime object already owns the behavior.
-3. The forwarding path preserves identity or documented observable semantics.
-4. Tests exercise legacy and canonical paths together.
-5. The compatibility inventory records the surface and its retirement posture.
+Wrappers require exceptional scrutiny. Changing exceptions, defaults, status,
+serialization, credentials, provider selection, or artifact fields creates
+bridge-owned behavior even if the happy-path result looks similar.
 
-Prefer explicit imports and `__all__` declarations when the promised surface is
-small. Wildcard forwarding is acceptable only where the compatibility contract
-intentionally tracks a canonical module and tests detect export drift. Avoid
-wrappers that translate exceptions, mutate defaults, copy models, or manage
-credentials; each creates behavior that canonical callers do not share.
+## Rejection signals
 
-## Extension smells
+- implementation exists in both bridge and Runtime;
+- a provider is registered only under the legacy namespace;
+- CLI or HTTP validation differs from Runtime;
+- `execution` and `orchestration` expose different objects for one promise;
+- a bridge-only option has no canonical destination;
+- compatibility is justified by hypothetical users rather than an observed
+  caller; or
+- removal depends on a date rather than caller and parity evidence.
 
-- a class has implementation in both Agentic Proteins and runtime;
-- a provider is registered locally but absent from the runtime catalog;
-- the legacy HTTP route has different validation or error behavior;
-- `execution/` and `orchestration/` aliases resolve to different objects;
-- a scientific contract is introduced to avoid depending on its owning package;
-- a bridge-only option has no migration target; or
-- a compatibility module is retained without an observed consumer or removal
-  criterion.
-
-The extension is complete when the canonical path is documented first, legacy
-and canonical tests agree, dependency direction remains one-way into runtime,
-and the bridge exposes no new authority. Compatibility should make migration
-boring while steadily reducing the amount of architecture readers must learn.
+An extension is complete only when the canonical documentation leads, the
+legacy path compares directly with it, dependency direction remains one-way,
+and the retirement budget becomes no worse.
