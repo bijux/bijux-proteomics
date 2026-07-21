@@ -4,130 +4,106 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
-# Foundation
+# Laboratory foundations
 
-The lab foundation section exists to answer one downstream question honestly:
-what assay consequence is justified, what burden and controls does that impose,
-and what observed outcomes should feed back into later review. If a page here
-describes generic orchestration without naming assay burden or outcome learning,
-it is not yet using the right owner language.
-
-That honesty matters more now because upstream workflow, grounding, and
-recommendation surfaces are stronger than before. Better signal creates sharper
-assay consequence decisions, more explicit control demands, and more queue or
-material burden that has to be named before the repository can claim the next
-step is practical.
-
-## Why This Section Is More Important Now
-
-- it is where stronger upstream science gets translated into actual assay
-  burden rather than optimistic follow-up prose
-- it names the practical limits that keep recommendation surfaces honest when
-  controls, staffing, material, or instrument time become the real bottleneck
-- it makes observed outcomes part of the scientific story instead of letting
-  them disappear after execution
+Lab owns the boundary where an advisory scientific action becomes an
+operational assay, incurs material and opportunity cost, and produces an
+observed consequence. It protects that boundary with readiness, controls,
+explicit handoff, QC, reconciliation, and refusal.
 
 ```mermaid
 flowchart LR
-    recommendation["recommendations"]
-    assay_plan["assay plan"]
-    execution["experiment execution"]
-    outcome["captured outcomes"]
-    lab["lab foundation"]
-    knowledge["knowledge update"]
-
-    recommendation --> lab
-    assay_plan --> lab
-    lab --> execution
-    execution --> outcome
-    outcome --> lab
-    lab --> knowledge
+    R["advisory recommendation"] --> D["assay design"]
+    D --> G["readiness gates"]
+    G -->|pass| H["authorized handoff"]
+    G -->|fail| F["refuse or revise"]
+    H --> E["experiment"]
+    E --> O["observation and QC"]
+    O --> C["reconciliation"]
+    C --> K["new Knowledge evidence"]
+    C --> I["new policy feedback"]
 ```
 
-## What This Section Protects
+## Laboratory routes
 
-- assay-readiness and control demands that stay explicit before spend is
-  committed
-- burden-aware handoff honesty instead of optimistic downstream wording
-- observed-outcome learning that stays tied to real requested follow-up
+| Question | Guide | Governing record |
+| --- | --- | --- |
+| What does Lab own? | [Package overview](package-overview.md) | design, readiness, handoff, observation, and reconciliation |
+| Is a proposal a lab concern? | [Ownership boundary](ownership-boundary.md) | operational assay consequence rather than upstream policy |
+| Which planning surfaces exist? | [Capability map](capability-map.md) | plans, queues, batches, schedules, handoffs, outcomes |
+| What remains outside? | [Scope and non-goals](scope-and-non-goals.md) | scientific truth, recommendation ranking, and general runtime execution |
+| What burden does follow-up impose? | [Lab consequence](lab-consequence.md) | controls, materials, capacity, risk, and opportunity cost |
+| Why did a plan stop? | [Workflow refusal handbook](workflow-refusal-handbook.md) | reason code, blocking evidence, and safe next action |
+| How do outcomes change future work? | [Outcome learning loops](outcome-learning-loops.md) | reconciliation and versioned feedback |
 
-## What This Section Now Carries
+[This package does not own](../this-package-does-not-own.md) resolves cases
+where recommendation policy or generic orchestration is being mislabeled as
+laboratory ownership.
 
-- assay consequence framing that distinguishes compelling follow-up from costly
-  but weak curiosity
-- queue or material burden that must stay visible before downstream spend is
-  normalized
-- observed outcomes that feed back into later evidence and recommendation
-  review
+## Readiness protocol
 
-## Start With
+An executable assay requires more than a plausible recommendation:
 
-- Open [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/) for the shortest statement of
-  the package role.
-- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/) when the question is
-  whether a change belongs here or in a neighbor.
-- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/this-package-does-not-own/)
-  when the question is whether a proposal is trying to smuggle recommendation,
-  scientific law, or runtime control into lab consequence.
-- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/scope-and-non-goals/) when a proposed change
-  risks broadening the package.
-- Open [Capability Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/capability-map/) when you need the concrete work
-  the package is allowed to do.
+1. The biological question and measurable endpoint are explicit.
+2. The upstream evidence and recommendation records resolve by identity and
+   version.
+3. Positive, negative, process, and interpretation controls are sufficient for
+   the stated question.
+4. Protocol, materials, samples, instrument requirements, acceptance criteria,
+   and failure handling are complete.
+5. Capacity, batching, scheduling, safety, and opportunity-cost constraints are
+   acceptable.
+6. Ownership and handoff custody are unambiguous.
+7. The outcome can be reconciled back to the requested measurement.
 
-## Section Pages
+An advisory plan may identify missing items. Only an executable plan has
+cleared the stronger operational gate.
 
-- [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)
-- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/scope-and-non-goals/)
-- [Ownership Boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)
-- [This Package Does Not Own](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/this-package-does-not-own/)
-- [Capability Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/capability-map/)
-- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/dependencies-and-adjacencies/)
-- [Repository Fit](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/repository-fit/)
-- [Lifecycle Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lifecycle-overview/)
-- [Domain Language](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/domain-language/)
-- [Change Principles](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/change-principles/)
+## Consequence, burden, and refusal
 
-## What This Section Settles
+The [lab consequence](lab-consequence.md) route makes downstream cost visible
+before work is normalized into a queue. Burden includes scarce sample,
+reagents, instrument time, operator time, controls, competing assays, and the
+risk of producing an uninterpretable result.
 
-- when a change truly affects assay consequence instead of only upstream
-  recommendation or runtime delivery
-- which control demands, material limits, and burden signals must remain visible
-- how observed outcomes should feed back into later evidence and recommendation
-  review
+```mermaid
+flowchart TD
+    A["advisory plan"] --> Q{"question and endpoint clear?"}
+    Q -->|no| R["refuse: resolve scientific premise"]
+    Q -->|yes| C{"controls and protocol complete?"}
+    C -->|no| V["revise design"]
+    C -->|yes| B{"burden and capacity acceptable?"}
+    B -->|no| N["narrow, queue, or refuse"]
+    B -->|yes| E["executable plan"]
+```
 
-## Reader Questions This Section Can Answer Well
+Refusal preserves the reason work is unsafe, wasteful, under-specified, or
+unable to answer the question. It also identifies a valid next action. A lab
+refusal is not an execution crash and does not invalidate the upstream result;
+it bounds what may happen next.
 
-- why a downstream step is still exploratory even when the recommendation page
-  sounds strong
-- which control demands or queue limits keep a family below operational
-  confidence
-- how a requested follow-up should be re-read once the observed assay outcome
-  arrives
+## Handoff and observation
 
-## Strongest Lab Proof
+An authorized handoff binds stable assay, batch, sample, material, protocol,
+control, and acceptance identities to an operator and schedule. Deviations are
+recorded rather than absorbed into narrative notes.
 
-- start with
-  [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)
-  when the question is whether a downstream step is truly lab-owned
-- continue to
-  [This Package Does Not Own](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/this-package-does-not-own/)
-  when someone is trying to hide recommendation posture or workflow law inside
-  lab consequence language
-- open refusal and outcome-learning pages once the real question becomes
-  whether to spend, queue, narrow, rerun, or stop
+Observation records facts: measurements, QC, missingness, deviations, and
+operational failures. Reconciliation compares those observations with the
+requested endpoint and classifies the follow-up as supported, weakened,
+rejected, inconclusive, or requiring another cycle. The
+[outcome learning loop](outcome-learning-loops.md) then creates new Knowledge
+evidence and, when appropriate, a new Intelligence calibration record.
 
-## First Proof Check
+## Evolution rules
 
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab`
-- `packages/bijux-proteomics-lab/tests`
-- neighboring handbooks once the change crosses the local boundary
-
-## Neighbors
-
-- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  when the question leaves assay planning, outcome handling, and lab-facing loop control.
-- Open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  when the issue is clearly outside this package's local role.
+The [domain language](domain-language.md) stabilizes advisory, executable,
+readiness, handoff, observation, reconciliation, and consequence. The
+[change principles](change-principles.md) protect append-only history and
+authority boundaries when plans or policies evolve. [Dependencies and adjacencies](dependencies-and-adjacencies.md),
+[repository fit](repository-fit.md), and [lifecycle overview](lifecycle-overview.md)
+connect the lab loop to neighboring packages without granting Lab ownership of
+their scientific, evidential, or execution state.

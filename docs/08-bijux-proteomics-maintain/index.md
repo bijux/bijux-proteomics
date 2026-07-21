@@ -66,6 +66,34 @@ coverage output, caches, or ad hoc run products.
 | release metadata | builds, SBOMs, badge checks, license assets, release preflight |
 | security-sensitive code | static security, vulnerability gates, dependency allowlist |
 
+## Interpret gate results
+
+```mermaid
+flowchart TD
+    G["named gate"] --> R{"result"}
+    R -->|pass| E["record evidence and continue"]
+    R -->|fail| O{"change caused failure?"}
+    O -->|yes| C["correct implementation or narrow claim"]
+    O -->|no| B["record existing blocker with exact output"]
+    C --> G
+    B --> P["keep blocker visible in review and release posture"]
+```
+
+A pre-existing failure is still a failure. Distinguishing it from the current
+change preserves scope; it does not make the repository green. Do not exclude,
+mute, reclassify, or regenerate evidence merely to make a gate pass.
+
+Verification output supports different claims:
+
+| Evidence | Supports | Does not establish |
+| --- | --- | --- |
+| package unit tests | local behavior under covered cases | cross-package compatibility or scientific validity |
+| type and quality gates | static contracts and repository policy | runtime success or publication readiness |
+| documentation build | links, navigation, syntax, and configured rendering | truth of every scientific statement |
+| migration validation | declared compatibility surfaces and equivalence checks | absence of undeclared consumers |
+| release preflight | the ordered release policy at one revision | universal workflow validity |
+| built-wheel installation | package contents and installability | end-to-end scientific readiness |
+
 ## Repository owners
 
 - [`bijux-proteomics-dev`](bijux-proteomics-dev/index.md) implements quality,
@@ -101,3 +129,6 @@ green build is necessary but does not prove scientific readiness. Release
 review also checks workflow-family evidence, runtime replay, grounding,
 recommendation posture, lab consequence, package compatibility, and the
 accuracy of public claims.
+
+Release evidence is revision-specific. Preserve the exact source identity,
+environment, commands, and failure output needed to review or repeat it.

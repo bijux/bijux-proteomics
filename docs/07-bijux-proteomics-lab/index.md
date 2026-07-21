@@ -70,6 +70,17 @@ An executable plan requires the stronger readiness and handoff information
 needed to act. Batch planning groups ready work under declared constraints; it
 does not make an unready assay executable.
 
+## Plan and record types
+
+| Artifact | Meaning | Authority |
+| --- | --- | --- |
+| advisory assay plan | scientifically relevant follow-up with unresolved operational detail | supports review and refinement only |
+| executable assay plan | protocol, controls, materials, acceptance, and ownership satisfy readiness policy | eligible for scheduling and authorized handoff |
+| batch plan | ready assays grouped under capacity and compatibility constraints | allocates work; does not change assay readiness |
+| handoff record | exact instructions, identities, materials, risks, and acceptance criteria transferred to an operator | binds the planned work to execution custody |
+| observation record | what was measured, including QC, deviations, missingness, and failures | records fact without interpreting upstream consequence |
+| reconciliation record | requested-versus-observed comparison and disposition | feeds new evidence into scientific review |
+
 ## Readiness and refusal
 
 Readiness evaluates scientific inputs, controls, materials, protocol detail,
@@ -81,6 +92,21 @@ The refusal record should identify the blocking condition and a valid next
 action such as narrowing the assay, adding controls, resolving an upstream
 contradiction, rerunning analysis, or waiting for capacity. It must not be
 rendered as a generic runtime failure.
+
+```mermaid
+flowchart TD
+    P["proposed assay"] --> S{"scientific question answerable?"}
+    S -->|no| U["return upstream"]
+    S -->|yes| C{"controls and acceptance complete?"}
+    C -->|no| N["revise plan"]
+    C -->|yes| M{"materials, capacity, and risk acceptable?"}
+    M -->|no| Q["queue, narrow, or refuse"]
+    M -->|yes| H["authorize executable handoff"]
+```
+
+Readiness is evaluated at the declared stage. Passing design review does not
+imply material availability, scheduling approval, execution success, or an
+interpretable outcome.
 
 ## Outcome feedback
 
