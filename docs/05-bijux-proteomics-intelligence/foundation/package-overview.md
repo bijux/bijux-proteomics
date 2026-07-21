@@ -1,114 +1,97 @@
 ---
-title: Package Overview
+title: Decision Intelligence Map
 audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Package Overview
+# Decision intelligence map
 
-`bijux-proteomics-intelligence` exists to turn evidence and program constraints
-into scores, scenarios, recommendations, and explanations. The package is
-useful only when that role stays narrow enough that a reviewer can say why it
-exists without naming several different owners at once.
+The intelligence package is a collection of explicit decision stages. It
+keeps ranking mechanics, scientific interpretation, skeptical challenge,
+policy judgment, and learning separate so a change in one can be reviewed
+without silently changing the others.
 
-The package is more concrete now than this overview used to imply. It owns
-several distinct analytical families: candidate ranking, interpretation,
-judgment, recommendation posture, benchmark review, and learning refinement.
-Those families now expose real public surfaces instead of one vague
-"decision" layer.
+## Candidate construction
 
-## Why This Package Feels More Real Now
+`candidates` defines candidate records and schemas, validation, transformations,
+filters, quality signals, fingerprints, lifecycle state, persistent stores,
+ranking, and final selection. A ranking is meaningful only relative to the
+candidate set it considered; excluded and invalid candidates remain part of the
+audit trail.
 
-- the package now exposes challenge, confidence, regret, and bounded
-  recommendation surfaces that outsiders can inspect directly
-- recommendation posture is no longer hidden inside one summary judgment; it is
-  broken into candidate pressure, scenario reading, review packets, and
-  follow-up learning loops
-- the analytical layer now has enough public shape that readers can tell where
-  intelligence adds judgment and where it must still defer to truth owners
+## Interpretation
 
-## Concrete Analytical Families
+`interpretation` provides bounded readings of runs, quantitative results,
+contrasts, pathways, PTMs, contaminants, and structures. These modules translate
+scientific outputs into features and statements suitable for decisions. They
+do not replace core calculations or knowledge grounding.
 
-| owner surface | current substance | why it matters |
-| --- | --- | --- |
-| `candidates` | ranking, shortlist pressure, and falsifier-aware selection | recommendation starts from explicit competitive pressure instead of soft preference |
-| `claims` | recommendation-facing claim shaping and policy-bearing summaries | public analytical language stays inspectable |
-| `interpretation` | typed run summaries, differential-abundance reading, PTM interpretation, and workflow-review synthesis | biological outputs become bounded analytical narratives |
-| `judgment` | review-board decision paths, escalation rules, and disposition logic | a recommendation can be challenged as policy, not mistaken for truth |
-| `posture` | evidence readiness, downgrade pressure, regret, and refusal posture | overconfidence becomes a first-class artifact |
-| `reviews` | benchmark-backed analytical review packets | outsiders can inspect where recommendation language came from |
-| `learning` | refinement loops based on review and observed follow-up | the package can change because of outcomes instead of only argumentation |
+## Skeptical pressure
 
-## Why This Package Exists Separately
+`claims` evaluates support, `contradictions` finds incompatible assertions, and
+`falsifiers` formulates evidence that could overturn a position. `posture`
+records whether the assembled evidence is strong, weak, conflicting, or
+otherwise unsuitable for a decisive recommendation.
 
-- knowledge can own grounded evidence and contradiction state without also
-  owning ranking or recommendation policy
-- core can own scientific truth and workflow contracts without collapsing into
-  product-facing review posture
-- lab can own assay consequence without pretending it owns analytical ranking
-  or review-board judgment
+```mermaid
+flowchart TD
+    interpretation["bounded interpretation"]
+    support["claim support"]
+    contradiction["contradictions"]
+    falsifier["falsifiers"]
+    posture["evidence posture"]
+    interpretation --> support --> posture
+    interpretation --> contradiction --> posture
+    interpretation --> falsifier --> posture
+```
 
-## What It Owns
+## Judgment
 
-- score and rank candidates
-- evaluate scenarios, review-board paths, and challenge loops
-- render explanations and reports for decisions
-- publish bounded recommendation posture, downgrade evidence, and review
-  surfaces without claiming scientific truth
-- preserve analytical regret and refusal state when the next sentence should be
-  weaker rather than smoother
+`judgment` contains the policy-bearing surface: scenarios, recommendation
+rules, benchmark policies, confidence, decision packets, blinded challenges,
+counterfactuals, sensitivity, quality, and regret. The output is a
+recommendation record with enough context to explain why another policy or
+scenario could produce a different answer.
 
-## What Readers Commonly Underestimate
+`reviews` exposes that reasoning for scrutiny through workflow-specific
+benchmark reviews, boards, candidate reviews, independent-rerun checks,
+decision briefs, external review kits, outsider packets, release candidates,
+and public-scrutiny reports.
 
-- this package is not just a recommendation button; it owns the public record
-  of where analytical confidence breaks
-- this package names regret and overconfidence explicitly, which means public
-  recommendation authority can now be challenged with its own artifacts
-- this package is where benchmark evidence turns into bounded policy language,
-  not where benchmark evidence becomes truth
+## Learning without rewriting history
 
-## What A Serious Reader Can Verify
+`learning` adapts future policy from review and outcome signals. Refinement
+tracks convergence and stagnation explicitly. Historical evidence,
+recommendations, and outcomes remain immutable inputs to the later learning
+record; learning must not retroactively make an earlier decision appear better
+calibrated than it was.
 
-- whether the current recommendation survived candidate pressure or only one
-  plausible route was examined
-- whether the repository shipped confidence-sounding language without a visible
-  downgrade or regret surface
-- whether interpretation and judgment were kept separate from grounded
-  evidence, contradiction, and lab consequence
-- whether follow-up learning loops can actually narrow the next
-  recommendation instead of merely annotating the old one
+## Public surface
 
-## What It Refuses
+The root package exposes module families rather than a broad collection of
+functions:
 
-- evidence truth and contradiction state
-- durable program contracts
-- execution orchestration
+```python
+from bijux_proteomics_intelligence import (
+    candidates,
+    interpretation,
+    judgment,
+    posture,
+    refusal,
+    reviews,
+)
+```
 
-## Strongest First Checks
+This is a library package without a standalone CLI or HTTP service. Runtime can
+expose intelligence-backed routes while retaining ownership of transport and
+execution behavior.
 
-- start in `candidates`, `judgment`, and `posture` when the question is why
-  one recommendation survived and another was downgraded
-- start in `interpretation` and `reviews` when the question is how a workflow
-  result becomes a bounded analytical reading
-- hand off to knowledge when the missing argument is grounding or
-  contradiction, not recommendation logic
+## Non-goals
 
-## Best Reader Route
-
-- start here when the question is whether `bijux-proteomics` has a real
-  analytical layer or only careful prose around benchmark packets
-- continue to [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/)
-  when you need to see how recommendations behaved under hidden evidence
-- continue to [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-  when you need to see where current posture is still too easy to overstate
-
-## First Proof Check
-
-- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
-- `packages/bijux-proteomics-intelligence/tests`
-- confidence, challenge, and review artifacts once a claim narrows to one
-  decision surface
-- neighboring handbook branches once a change crosses the local role
+Intelligence does not curate literature, resolve biological identifiers, run
+mass-spectrometry workflows, or schedule assays. It consumes those owned
+artifacts and returns a policy decision. When evidence, reproducibility, or lab
+feasibility is insufficient, the correct result is a downgrade or refusal.
