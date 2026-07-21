@@ -171,12 +171,42 @@ flowchart TD
 Runtime comparison establishes operational equivalence only. Scientific
 equivalence still requires the Core acceptance contract and domain evidence.
 
+## Benchmark execution evidence
+
+| Review surface | Question answered |
+| --- | --- |
+| [Benchmark Rerun Kits](benchmark-rerun-kits.md) | are the inputs, environment contract, entrypoint, and expected artifacts sufficient for another run? |
+| [Benchmark Comparability Matrix](benchmark-comparability-matrix.md) | which workflow families and execution postures can be compared under a declared rule? |
+| [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) | did the public execution lane pass rerun, refusal, artifact, and comparison checks? |
+| [Flagship Run Registry](flagship-run-registry.md) | which run and artifact identities anchor the published evidence? |
+
+These surfaces establish Runtime evidence only. Their verdicts constrain
+workflow claims but do not replace Core acceptance, grounding, recommendation
+challenge, or laboratory consequence.
+
+The execution evidence can be audited from the boundary inward:
+
+- [Runtime Execution Boundary](runtime-execution-boundary.md) identifies the
+  canonical manifest-producing routes;
+- [Black-Box Run Verification](black-box-run-verification.md) checks installed
+  entrypoints and observable output;
+- [Raw Versus Import Execution](raw-versus-import-execution.md) separates
+  native computation from external-result custody;
+- [Runtime Replay Challenges](runtime-replay-challenges.md) applies state,
+  environment, and artifact pressure;
+- [Runtime Environment Contracts](runtime-environment-contracts.md) records
+  provider and system assumptions;
+- [Runtime Artifact Stability](runtime-artifact-stability.md) defines identity
+  and comparison guarantees;
+- [Runtime Rerun Refusals](runtime-rerun-refusals.md) states when rerun language
+  is unsupported.
+
 ## Documentation map
 
 - [Execution overview](execution-overview.md) — execution model and run record.
 - [Operator rerun journey](operator-rerun-journey.md) — reopen a workflow from
   public evidence.
-- [Benchmark rerun kits](benchmark-rerun-kits.md) — inputs and instructions for
+- [Benchmark Rerun Kits](benchmark-rerun-kits.md) — inputs and instructions for
   benchmark replay.
 - [Raw versus import execution](raw-versus-import-execution.md) — provenance
   difference between native and external results.
