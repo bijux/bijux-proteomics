@@ -4,41 +4,63 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Documentation Integrity
+# Documentation integrity
 
-Documentation integrity is a repository rule here because public handbooks fail quickly when links, structure, and consistency drift.
+Documentation integrity joins rendering, navigation, source paths, public claim
+proof, package topology, and generated-page freshness. A successful MkDocs
+build is one layer, not the complete truth contract.
 
-## Integrity Model
+## Gate architecture
 
 ```mermaid
-flowchart TB
-    change["docs or navigation change"]
-    links["link and structure checks"]
-    consistency["consistency and design-debt checks"]
-    verdict["docs integrity holds or fails"]
-
-    change --> links
-    links --> consistency
-    consistency --> verdict
+flowchart LR
+    M["Markdown and navigation"] --> B["strict build and hygiene"]
+    B --> L["links and source paths"]
+    L --> C["cross-page consistency"]
+    C --> P["claim-to-proof contracts"]
+    P --> T["package topology and generated freshness"]
+    T --> V{"publishable documentation?"}
 ```
 
-This page should make docs integrity feel like executable publishing policy, not just tidy handbook upkeep. The repository stays readable only while broken links, structure drift, and design debt stay automatically visible.
+| Gate | Detects | Does not prove |
+| --- | --- | --- |
+| `make docs-check` | synchronized source, configured build, hygiene, strict rendering | scientific accuracy of every sentence |
+| `make quality-docs-links` | broken Markdown and configured link targets | that the destination supports the claim |
+| `make quality-docs-consistency` | governed cross-page and vocabulary drift | runtime behavior |
+| claim-proof guards | missing package evidence for governed public claims | quality of evidence outside the configured contract |
+| source-path integrity | references to missing or invalid repository paths | semantic correctness of referenced source |
+| topology guards | package/section ownership and navigation mismatches | completeness of every page |
+| generated-doc checks | handwritten output drift from its generator | correctness of generator inputs |
 
-## Integrity Rules
+## Reader-facing rules
 
-- keep link, structure, and consistency checks automatic and reviewable
-- prefer a failing docs rule over silent handbook decay
-- treat docs debt as repository-health debt, not optional polish
+- describe released behavior and current limits, not intended documentation;
+- route every behavioral claim to its package owner and proof surface;
+- distinguish imported, native, executable, accepted, grounded, recommended,
+  ready, observed, and promoted states;
+- keep failures and blocked release posture visible;
+- use diagrams for ownership, flow, lifecycle, and evidence relationships;
+- avoid copy-pasted package templates that conceal domain differences; and
+- update generators rather than hand-editing governed outputs.
 
-## First Proof Check
+## Validation route
 
-- `src/bijux_proteomics_dev/docs/markdown_links.py`
-- `src/bijux_proteomics_dev/docs/consistency.py`
-- `src/bijux_proteomics_dev/docs/design_debt.py`
+```bash
+make docs-check
+make quality-docs-links
+make quality-docs-consistency
+uv run --project packages/bijux-proteomics-dev \
+  pytest -q packages/bijux-proteomics-dev/tests/docs
+```
 
-## Design Pressure
+Inspect the worktree after commands that synchronize or generate docs. A clean
+check must not leave unreviewed output behind.
 
-The common drift is to tolerate small docs inconsistencies until the public handbook stops behaving like one coherent site.
+## Failure record
+
+Record the failing path, rule, command, and whether the defect is syntax,
+navigation, stale generation, source ownership, or unsupported claim. Narrow
+the claim when evidence is absent; do not weaken the guard to preserve prose.

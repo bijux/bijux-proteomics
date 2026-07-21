@@ -61,6 +61,9 @@ evidence and rationale intact.
   exposes challenge, calibration, overconfidence, and regret.
 - [Workflow Consequence Maps](workflow-consequence-maps.md) connects every
   family to downstream burden and its weakest permitted posture.
+- [What Changed The Recommendation](what-changed-the-recommendation.md)
+  compares evidence, policy, burden, and outcome changes against the retained
+  prior decision.
 - [Lab Consequence](../../07-bijux-proteomics-lab/foundation/lab-consequence.md)
   evaluates whether follow-up is feasible and informative.
 - [Outcome Learning Loops](../../07-bijux-proteomics-lab/foundation/outcome-learning-loops.md)
