@@ -183,7 +183,16 @@ stateDiagram-v2
 whole compatibility distribution. Repository-wide retirement still requires
 the complete consumer inventory and release evidence.
 
-## Choose the next document
+## Shared Reader Routes
+
+| Question | Authority |
+| --- | --- |
+| which packages own new scientific and execution work? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
+| which workflow claims are currently supportable? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
+| where should a historical execution caller migrate? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
+| which checks govern compatibility and retirement? | [Maintenance](../08-bijux-proteomics-maintain/index.md) |
+
+## Start Inside
 
 | Need | Read next |
 | --- | --- |
