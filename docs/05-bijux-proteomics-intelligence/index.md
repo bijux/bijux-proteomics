@@ -35,9 +35,10 @@ flowchart LR
     result -->|no| refuse
 ```
 
-Every recommendation is a policy output, not a fact. The record should make
-the candidate set, policy, evidence posture, sensitivity, alternatives, and
-reason codes recoverable.
+Every recommendation is a policy output, not a fact. Its candidate set,
+policy, evidence posture, sensitivity, alternatives, and reason codes remain
+recoverable so a reviewer can reproduce the judgment without treating the
+result as new evidence.
 
 ## Recommendation record anatomy
 
@@ -86,6 +87,20 @@ workflow families. Their existence does not grant equal authority to every
 family; the recommendation record inherits the evidence ceiling of the input
 benchmark and review packet.
 
+## Decision stability
+
+| Observed behavior | Interpretation | Required posture |
+| --- | --- | --- |
+| ordering survives plausible thresholds and evidence removal | locally stable under tested pressure | bounded recommendation with tested conditions |
+| top candidates exchange rank under small changes | policy-sensitive | expose alternatives and require review |
+| recommendation depends on one contested source | evidence-fragile | downgrade until contradiction is resolved |
+| feasible action changes when assay burden is included | consequence-sensitive | return cost and burden to the decision record |
+| no candidate satisfies hard constraints | unsupported action | refuse with unmet conditions |
+
+Stability applies only to the tested candidate universe, evidence snapshot,
+policy, and scenario set. It does not imply that an omitted candidate or future
+evidence could not change the result.
+
 ## Challenge before action
 
 ```mermaid
@@ -116,6 +131,23 @@ under challenge.
 Intelligence may consume all of those signals, but it must not rewrite them.
 Outcome-aware learning creates a new policy or calibration record rather than
 editing the historical recommendation.
+
+## Human authority boundary
+
+Intelligence can rank, challenge, downgrade, or refuse an action. It does not
+approve clinical use, spend resources, authorize an executable laboratory
+handoff, or override biosafety and operational custody. A `human_review` flag
+is a required decision state, not a claim that human review has occurred.
+
+```mermaid
+flowchart LR
+    R["recommendation record"] --> H{"human and domain review"}
+    H -->|revise| I["new policy or evidence input"]
+    H -->|reject| X["closed or refused action"]
+    H -->|accept advisory| L["Lab readiness assessment"]
+    L -->|not ready| N["revised or refused plan"]
+    L -->|ready and authorized| E["executable handoff"]
+```
 
 ## Documentation map
 

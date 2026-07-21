@@ -36,6 +36,20 @@ The package preserves disagreement. Contradictory evidence is not averaged
 away, and missing context is not treated as negative evidence. Resolution
 decisions retain their source and rule so they can be revisited.
 
+## Evidence identity
+
+A normalized evidence record keeps source identity separate from the claim it
+may support. At minimum, durable evidence preserves:
+
+| Dimension | Examples | Why it cannot be inferred later |
+| --- | --- | --- |
+| source identity | DOI, accession, database record, run artifact | titles and labels are not stable keys |
+| source version | release, revision, retrieval time, content digest | databases and documents change |
+| biological context | organism, tissue, condition, perturbation, cohort | the same observation can reverse meaning across contexts |
+| analytical context | workflow, instrument, threshold, model, comparator | technical assumptions bound the claim |
+| relationship | supports, contradicts, qualifies, mentions | co-occurrence is not support |
+| lineage | ingestion, normalization, resolution, review parents | a summary cannot reconstruct its derivation |
+
 ## Public biological grounding
 
 The curated root API exposes typed resolution reports and functions for:
@@ -114,6 +128,28 @@ flowchart TD
 
 New evidence appends to memory and may change the current review. It does not
 erase the evidence or review state available to an earlier recommendation.
+
+## Reconciliation outcomes
+
+Reconciliation does not force one winner. It can identify exact duplicates,
+retain context-specific variants, mark unresolved identity, connect support and
+contradiction edges, or supersede a record while preserving its history.
+
+```mermaid
+flowchart TD
+    A["incoming record"] --> I{"identity resolved?"}
+    I -->|no| U["unresolved evidence"]
+    I -->|yes| D{"same content and context?"}
+    D -->|yes| X["duplicate lineage"]
+    D -->|no| R{"relationship to active claim"}
+    R --> S["support"]
+    R --> C["contradiction"]
+    R --> Q["qualification"]
+    R --> N["not relevant in context"]
+```
+
+Retrieval success, identifier resolution, and source reputation are necessary
+inputs to grounding; none alone makes a claim true.
 
 ## Ownership boundary
 

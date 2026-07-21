@@ -42,6 +42,24 @@ scientifically plausible but operationally unready; an executed assay can be
 technically successful but inconclusive; and an unexpected outcome can weaken
 the upstream evidence or decision policy.
 
+## Custody chain
+
+An executable handoff crosses from analytical advice into material and
+operational consequence. Custody therefore remains explicit at every stage:
+
+| Stage | Accountable record | Required evidence before progression |
+| --- | --- | --- |
+| requested | recommendation and scientific question | target, rationale, uncertainty, requested measurement |
+| designed | assay plan | protocol, controls, materials, acceptance criteria, known risks |
+| ready | readiness decision | answerability, completeness, capacity, ownership, refusal checks |
+| scheduled | batch and schedule | compatibility, priority, resources, timing, assigned operator |
+| handed off | immutable handoff record | exact instructions, identities, custody acknowledgement |
+| observed | observation record | raw and processed measurements, QC, deviations, failures |
+| reconciled | consequence record | requested-versus-observed comparison and disposition |
+
+A later record references its parents. It does not rewrite a recommendation,
+plan, or observation to make the history appear more certain.
+
 ## Operational capabilities
 
 | Surface | Responsibility |
@@ -121,6 +139,25 @@ acceptance criteria. The resulting consequence record can:
 
 History is append-only in meaning: later evidence can supersede a conclusion
 without erasing the recommendation and assumptions that led to the experiment.
+
+## Observation is not interpretation
+
+Lab owns what was requested, executed, measured, and observed under the assay
+contract. Knowledge owns how the observation supports or contradicts a claim;
+Intelligence owns whether the new evidence changes a ranking or action. This
+separation prevents a technically clean measurement from being promoted
+directly into biological certainty.
+
+```mermaid
+sequenceDiagram
+    participant L as Lab observation
+    participant K as Knowledge review
+    participant I as Intelligence judgment
+    L->>K: append measurement, QC, deviations, lineage
+    K->>K: reconcile support and contradiction
+    K->>I: versioned evidence bundle
+    I->>I: rerank, downgrade, or refuse
+```
 
 ## Documentation map
 
