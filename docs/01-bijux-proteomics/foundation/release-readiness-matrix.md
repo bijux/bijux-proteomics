@@ -4,92 +4,81 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
 # Release Readiness Matrix
 
-This repository does not earn stronger release language by collecting more
-governance prose. It earns stronger language only when a hostile reviewer can
-challenge the product across a small set of decisive categories and the checked
-evidence survives.
+Release readiness is conjunctive: every category needed by a public claim must
+be ready. Strength in one package cannot compensate for a blocked runtime,
+benchmark, documentation, ownership, artifact, or consequence boundary.
 
-The machine-readable matrix lives in
+The current machine-readable assessment is
 `configs/package-governance/release-readiness-matrix.toml`. It is generated
-from live package-boundary, workflow, runtime, evidence, and consequence
-validators so the root wording cannot drift ahead of the actual repository.
+from repository validators and retains both blocker codes and human-readable
+details.
 
-The matrix matters more now because the repository has stronger scientific and
-runtime substance than before. Once that happens, the real risk is not only
-missing capability. It is overclaiming from one strong surface while another
-surface still narrows the release boundary.
+```mermaid
+flowchart LR
+    W["workflow evidence"] --> G{"all applicable categories ready?"}
+    R["black-box rerun"] --> G
+    B["benchmark assets"] --> G
+    D["documentation truth"] --> G
+    P["package boundaries"] --> G
+    A["artifact hygiene"] --> G
+    C["consequence realism"] --> G
+    G -->|yes| E["claim eligible for release review"]
+    G -->|no| N["narrow or refuse the claim"]
+```
 
-This page is the smallest release-control surface that still sees the whole
-product. It exists so root wording, package depth, runtime proof, benchmark
-substance, and consequence realism all have to agree before the released
-sentence widens.
+## Current Assessment
 
-## Matrix Categories
-
-| Category | What it asks | Primary evidence |
+| Category | Status | Current evidence or blocker |
 | --- | --- | --- |
-| Workflow-family product evidence | Does the root promise stay behind the checked workflow manifest and package-family readiness evidence? | flagship workflow manifest, release family manifest, product architecture |
-| Black-box rerunability | Can an outsider challenge the flagship runtime lane without maintainers narrating around missing artifacts? | runtime execution boundary, black-box run verification, flagship release candidate, public artifact index |
-| Benchmark asset quality | Are benchmark-backed claims grounded by the release dossier and workflow claim checks? | scientific release manifest, benchmark asset docs, claim grounding checks |
-| Docs clarity | Do root docs route readers to real evidence without stronger trust language than the evidence supports? | README, docs home, product architecture, cross-package ownership |
-| Package-boundary stability | Do dependency directions, public imports, and package README routing still describe the same owner model? | package dependency policy, repository product shape, cross-package ownership |
-| Artifact hygiene | Does the repo stay free of cache spillover, package-local artifact roots, and duplicate owner surfaces on disk? | repository file ownership matrix, drift audit, artifact governance |
-| Consequence realism | Does recommendation posture stay behind the weakest downstream lab consequence boundary? | intelligence confidence docs, lab docs, capability limits |
+| Workflow-family product evidence | ready | flagship workflow and release-family manifests agree with product architecture |
+| Black-box rerunability | blocked | DDA stops at imported engine exports; DIA stops before chromatogram-native replay; Multiplex remains below outsider-auditable trust |
+| Benchmark asset quality | blocked | duplicate belief-audit model ownership and Core package-substance findings block the scientific release dossier |
+| Documentation clarity | blocked | DDA requests stronger outsider-facing language than the black-box dashboard currently defends |
+| Package-boundary stability | ready | dependency policy, product shape, and ownership routes agree |
+| Artifact hygiene | ready | file ownership, drift audit, and package-root hygiene checks are clean |
+| Consequence realism | ready | recommendation posture remains bounded by Lab consequence and refusal surfaces |
 
-## Current Use
+This table summarizes the generated matrix; the TOML record is authoritative
+for exact blocker codes, evidence paths, and details.
 
-Use this page when someone asks whether the repository is ready for stronger
-public claims. The answer should begin with the matrix categories above, not
-with badges, package count, or handbook volume.
+## Decision Rule
 
-## Why These Categories Are The Right Ceiling
+For a proposed release sentence:
 
-- they force the review to cross package boundaries instead of staying inside
-  the strongest owner
-- they keep benchmark, runtime, docs, and consequence pressure visible as
-  separate reasons to narrow language
-- they are small enough to stay legible but broad enough to stop cosmetic
-  readiness stories
+1. Identify every category the sentence depends on.
+2. Open the named evidence paths rather than inferring readiness from badges or
+   package count.
+3. Treat each blocker as an upper bound on the sentence.
+4. Narrow or refuse the sentence when any applicable category is blocked.
+5. Regenerate the matrix only after the underlying validator evidence changes.
 
-## What This Matrix Is Protecting
+Readiness does not use majority voting. A green runtime result cannot erase a
+benchmark blocker, and a strong benchmark cannot erase an unreviewable
+consequence path.
 
-- it keeps one strong family packet from being mistaken for repository-wide
-  readiness
-- it keeps runtime proof from outrunning benchmark, grounding, or consequence
-  weakness
-- it keeps docs from sounding cleaner than the checked release evidence
-- it keeps package-boundary drift from quietly eroding the owner model
+## Evidence Routes
 
-## How To Read A Failure Honestly
+- [Flagship Release Candidate](flagship-release-candidate.md) identifies the
+  strongest currently assembled release bundle.
+- [Why This Repository Is Not Ready Yet](why-this-repository-is-not-ready-yet.md)
+  explains the active release ceilings.
+- [What Would Make This Repository Ready](what-would-make-this-repository-ready.md)
+  defines closure evidence for those ceilings.
+- [Runtime Execution Boundary](../../09-bijux-proteomics-runtime/runtime-execution-boundary.md)
+  begins the hostile rerun route.
+- [Duplicate Model Ownership](duplicate-model-ownership.md) exposes current
+  single-source-of-truth conflicts.
 
-- a blocked category is not a documentation nuisance; it is a release-language
-  boundary
-- one green category does not compensate for a red category in another owner
-  surface
-- if the matrix still blocks a category, the stronger sentence is not earned
+## Validation Contract
 
-## Strongest Companion Routes
-
-- [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
-  for the strongest currently released bundle sentence
-- [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
-  for the blocked release bars in plain language
-- [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
-  for the closure conditions that would move the matrix
-
-## First Proof Check
-
-- `configs/package-governance/release-readiness-matrix.toml`
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/release_readiness_matrix.py`
-- `README.md`
-
-## Design Pressure
-
-The easy failure is to describe readiness in broad adjectives while the real
-review blockers still live in scattered validators. The matrix exists so the
-blockers stay small, named, and hard to soften.
+The generator is
+`packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/release_readiness_matrix.py`.
+Its tests require the matrix to cover all hostile-review categories, retain
+human-readable blockers, and remain internally consistent. Passing those tests
+proves that the assessment is current and structurally valid; it does not turn
+a blocked category green.
