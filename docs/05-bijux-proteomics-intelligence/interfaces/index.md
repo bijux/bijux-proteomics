@@ -7,82 +7,96 @@ owner: bijux-proteomics-intelligence-docs
 last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Decision interfaces
 
-Intelligence turns assembled scientific evidence into explicit questions,
-rankings, challenges, scenario evaluations, recommendations, and review
-artifacts. Its interface contract preserves the reasoning around a decision:
-the policy applied, evidence posture, contradictions, uncertainty, refusal
-conditions, escalation flags, and required human review.
+Intelligence interfaces expose candidate evaluation, ranking, skeptical
+challenge, recommendation posture, and review artifacts. Their contract is to
+preserve how a decision was produced: the candidate universe, evidence
+revision, policy, score components, alternatives, sensitivity, and refusal or
+human-review conditions.
 
 ```mermaid
 flowchart LR
-    evidence["Claims, evidence,<br/>QC, candidates"]
-    interrogate["Query and validate"]
-    challenge["Contradictions,<br/>falsifiers, refusal"]
-    judge["Policies and scenarios"]
-    explain["Decision support<br/>and review contract"]
-    human{"Human decision"}
-    advance["Advance"]
-    hold["Hold"]
-    redesign["Redesign"]
-
-    evidence --> interrogate --> challenge --> judge --> explain --> human
-    human --> advance
-    human --> hold
-    human --> redesign
+    E["evidence and scientific records"] --> D["decision context"]
+    D --> R["ranking result"]
+    R --> C["challenge record"]
+    C --> P["posture"]
+    P --> B["decision brief"]
+    B --> H["human or Lab handoff"]
 ```
 
-## Interface families
+## Choose an owner interface
 
-| Family | Reads | Produces | Does not claim |
-| --- | --- | --- | --- |
-| `candidates` | candidate records, metrics, confidence, provenance | filtered sets, scores, Pareto frontier, selection | that a rank authorizes progression |
-| `claims`, `contradictions`, `falsifiers`, `refusal` | claims and linked evidence | support status, conflicts, challenge tests, refusal reasons | that absence of a detected conflict proves truth |
-| `interpretation`, `query` | analytical results and context | bounded interpretations and question answers | causal or universal biological meaning |
-| `judgment`, `posture` | policies, scenarios, evidence posture | recommendations, confidence spread, escalation and hold pressure | autonomous decision authority |
-| `reviews`, `belief_audit` | assembled outputs and claim lineage | review contracts, decision briefs, outsider packets, audits | that report completeness equals evidence sufficiency |
-| `learning`, `next_steps` | outcomes, unresolved questions, QC failures | adaptation records and follow-up recommendations | permission to run an experiment |
+| Need | Owner module | Expected output |
+| --- | --- | --- |
+| validate or compare candidates | `candidates` | validated set, exclusions, quality and fingerprints |
+| rank or select candidates | `candidates.ranking` and selection owners | component scores, ordering, ties, policy identity |
+| interrogate claim support | `claims`, `contradictions`, `falsifiers` | support and challenge findings with evidence references |
+| interpret scientific results | `interpretation` | bounded interpretation with assumptions and caveats |
+| evaluate scenarios or recommendations | `judgment` | scenario, counterfactual, sensitivity, confidence, regret, recommendation |
+| determine evidence posture | `posture` and `refusal` | advisory, downgrade, escalation, hold, or refusal reasons |
+| assemble external review | `reviews` | report contract, decision brief, outsider packet, scrutiny record |
+| propose follow-up | `next_steps` and `learning` | evidence request or policy-learning record, not execution authority |
 
-## Public entry model
-
-The package root exports 14 lazy-loaded owner modules rather than a flat list
-of hundreds of symbols:
+The package root exposes 14 lazy-loaded owner modules:
 
 ```python
-from bijux_proteomics_intelligence import candidates, claims, reviews
+from bijux_proteomics_intelligence import candidates, judgment, reviews
 ```
 
-Symbols are imported from the owner module:
+Import domain symbols from their owner module. [API surface](api-surface.md)
+maps supported paths and [public imports](public-imports.md) distinguishes the
+candidate representations exposed for different responsibilities.
 
-```python
-from bijux_proteomics_intelligence.claims import validate_claim_support
-from bijux_proteomics_intelligence.reviews import build_intelligence_report_contract
+## Decision record
+
+A portable recommendation or refusal identifies:
+
+- decision and candidate-set identity;
+- the exact Core, Runtime, and Knowledge artifact references evaluated;
+- candidate exclusions and validation findings;
+- policy name, version, objectives, constraints, thresholds, and tie-breaking;
+- score components, ordering, alternatives, and Pareto relationships;
+- contradictions, falsifiers, scenarios, and counterfactual results;
+- sensitivity, calibration, confidence, and expected regret;
+- advisory, downgrade, escalation, hold, refusal, and human-review posture;
+- proposed next evidence without implying permission to execute it.
+
+[Data contracts](data-contracts.md) defines these semantics and
+[artifact contracts](artifact-contracts.md) defines portable review forms.
+
+## Questions and explanations
+
+Query and interpretation interfaces answer questions against a fixed decision
+context. Explanation reports the declared reasoning path; it must not invent
+missing evidence or conceal policy-sensitive alternatives.
+
+```mermaid
+flowchart TD
+    Q["review question"] --> X["resolve decision context"]
+    X --> E["retrieve evidence and policy"]
+    E --> A["answer with lineage"]
+    E --> U["unresolved or unsupported"]
 ```
 
-Use [API surface](api-surface.md) for the owner map and output guarantees. Use
-[Public imports](public-imports.md) for path choice, including the two distinct
-candidate representations intentionally exposed by the `candidates` facade.
+An unsupported question produces an explicit limitation or refusal. It is not
+answered by extrapolating beyond the available evidence.
 
-## Review-critical output
+## Configuration and compatibility
 
-An intelligence artifact is decision-useful only when a reviewer can recover:
+Weights, objectives, constraints, thresholds, missing-value handling,
+tie-breaking, challenge sets, and posture rules are public decision
+configuration. Their normalized identity belongs in every result. See
+[configuration surface](configuration-surface.md).
 
-- the evidence and claims evaluated;
-- the ranking or progression policy and its lineage;
-- the assumptions, missing support, and contradictions;
-- uncertainty and sensitivity across plausible scenarios;
-- refusal, hold, or escalation conditions;
-- the human decision boundary and next evidence request.
-
-That information belongs in the interface, not in logs or undocumented
-operator memory. See [Data contracts](data-contracts.md) for field semantics and
-[Artifact contracts](artifact-contracts.md) for portable review forms.
+Candidate fields, policy identifiers, score orientation, posture enums, reason
+codes, artifact schemas, and default behavior are compatibility surfaces.
+[Compatibility commitments](compatibility-commitments.md) defines comparison
+and migration requirements when they change.
 
 ## Authority boundary
 
-Intelligence can recommend, challenge, refuse unsupported claims, and identify
-the next discriminating check. It does not execute core analyses, rewrite
-knowledge provenance, schedule runtime work, authorize candidate progression,
-or approve laboratory activity. Those handoffs remain explicit so an
-explainable recommendation cannot quietly become an automated decision.
+Intelligence can advise, challenge, request evidence, or refuse. It does not
+rewrite Knowledge provenance, execute Runtime work, authorize candidate
+progression, or approve laboratory activity. [Operator workflows](operator-workflows.md)
+shows how those handoffs remain explicit.

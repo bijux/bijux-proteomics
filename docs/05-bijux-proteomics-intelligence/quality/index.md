@@ -4,61 +4,81 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Quality
+# Decision quality
 
-`bijux-proteomics-intelligence` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
-
-## Trust Model
+Intelligence quality is the ability to reproduce, challenge, and bound a
+recommendation. It requires more than a stable ranking: evidence lineage,
+candidate completeness, policy identity, alternative actions, sensitivity,
+calibration, regret, refusal, and authority must all remain reviewable.
 
 ```mermaid
 flowchart LR
-    invariants["invariants"]
-    tests["test strategy"]
-    validation["change validation"]
-    risks["risk register and limitations"]
-    decision["trust or block the change"]
-
-    invariants --> tests --> validation --> risks --> decision
+    I["input integrity"] --> P["policy reproducibility"]
+    P --> C["challenge coverage"]
+    C --> S["sensitivity"]
+    S --> A["calibration and regret"]
+    A --> B["authority boundary"]
+    B --> D{"decision posture"}
+    D --> R["recommend, downgrade, or refuse"]
 ```
 
-This page should make intelligence quality about explainability pressure. The
-package earns trust when recommendation behavior can still be justified through
-candidate ranking, judgment paths, decision briefs, and recommendation outputs
-instead of opaque drift.
+## Quality dimensions
 
-## Start With
+| Dimension | Evidence | Blocking failure |
+| --- | --- | --- |
+| candidate integrity | complete universe, validation, exclusions, fingerprints | winning candidate shown without excluded alternatives |
+| evidence fidelity | immutable artifact references and revision | copied or altered evidence inside the decision model |
+| policy reproducibility | normalized policy, components, ordering, tie-breaking | same context produces unexplained rank drift |
+| challenge strength | contradictions, falsifiers, blinded and counterfactual cases | recommendation survives only because adverse cases were omitted |
+| stability | threshold, weight, scenario, and missing-data sensitivity | plausible change reverses action without downgrade |
+| calibration | predicted confidence versus benchmark and outcome behavior | systematic overconfidence remains unreported |
+| regret | cost of selected versus plausible alternative actions | recommendation hides material downside |
+| authority | posture, refusal, escalation, human and Lab handoff | advisory output is treated as autonomous approval |
 
-- open [Invariants](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/invariants/) before changing package meaning
-- open [Change Validation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/change-validation/) when you need the minimum proof for a real edit
-- open [Risk Register](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/risk-register/) when the package boundary feels under pressure
+## Proof by change type
 
-## Section Pages
+| Change | Minimum proof |
+| --- | --- |
+| candidate model or filter | valid, invalid, missing, duplicate, exclusion, fingerprint cases |
+| metric or scoring component | orientation, scale, boundary values, missingness, explanation |
+| ranking policy | fixed corpus, ties, constraints, alternatives, deterministic order |
+| recommendation posture | support, contradiction, downgrade, escalation, hold, refusal |
+| confidence or learning | calibration corpus, outcome lineage, before-and-after regret |
+| review artifact | complete input lineage, challenge findings, round trip, consumer boundary |
 
-- [Invariants](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/invariants/)
-- [Test Strategy](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/test-strategy/)
-- [Change Validation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/change-validation/)
-- [Definition of Done](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/definition-of-done/)
-- [Dependency Governance](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/dependency-governance/)
-- [Documentation Standards](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/documentation-standards/)
-- [Known Limitations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/known-limitations/)
-- [Review Checklist](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/review-checklist/)
-- [Risk Register](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/risk-register/)
+[Test strategy](test-strategy.md) and [change validation](change-validation.md)
+map these obligations to executable checks.
 
-## What Quality Means Here
+## Invariants
 
-- proving that recommendation changes remain explainable, reviewable, and bounded by decision ownership
+- a decision references, rather than rewrites, upstream evidence;
+- the candidate universe and exclusions are recoverable;
+- policy and normalized configuration identify the behavior applied;
+- component scores, alternatives, and tie-breaking remain inspectable;
+- contradiction and instability can weaken or stop a recommendation;
+- learning creates a new policy record and preserves historical decisions;
+- an advisory artifact never grants execution or laboratory authority.
 
-## First Proof Check
+See [invariants](invariants.md) for the complete set.
 
-- `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
+## Honest negative outcomes
 
-## Design Pressure
+Downgrade, escalation, hold, and refusal are successful outputs when evidence or
+stability is inadequate. Tests must exercise these paths directly. A fallback
+that always returns a winner is not robust decision support; it is a hidden
+policy that prevents the system from admitting uncertainty.
 
-Intelligence quality breaks down when recommendation changes look plausible but
-stop being explainable. The section has to force proof that behavior changed on
-purpose and remains reviewable.
+Known evidence ceilings, calibration gaps, and workflow-family limits remain in
+[known limitations](known-limitations.md). Ownership and decision risks remain
+in the [risk register](risk-register.md).
+
+## Review route
+
+Use [dependency governance](dependency-governance.md) for upstream model and
+optional analysis dependencies, [documentation standards](documentation-standards.md)
+for recommendation language, and [review checklist](review-checklist.md) before
+handoff. [Definition of done](definition-of-done.md) requires explicit results
+for challenge, sensitivity, calibration, and remaining blockers.
