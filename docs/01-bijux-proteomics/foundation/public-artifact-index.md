@@ -9,23 +9,9 @@ last_reviewed: 2026-07-21
 
 # Public Artifact Index
 
-Public claims in Bijux Proteomics are backed by different artifact classes.
-Each artifact has an owner package, a review question it can answer, and a
-boundary beyond which it provides no authority. Review starts with the claim,
-opens the strongest relevant evidence, and follows its identifiers back to the
-underlying source and run records.
+Public claims in Bijux Proteomics are backed by different artifact classes. Each artifact has an owner package, a review question it can answer, and a boundary beyond which it provides no authority. Review starts with the claim, opens the strongest relevant evidence, and follows its identifiers back to the underlying source and run records.
 
-## Repository Evidence
-
-| Artifact | Owner package | Establishes | Does not establish |
-| --- | --- | --- | --- |
-| [Flagship Release Candidate](flagship-release-candidate.md) | `bijux-proteomics-dev` with all product owners | candidate scope, required evidence, and active vetoes | that every required gate passes |
-| [Release Readiness Matrix](release-readiness-matrix.md) | `bijux-proteomics-dev` | required proof categories and current gate results | scientific truth outside the referenced evidence |
-| [Current Capability Limits](current-capability-limits.md) | product owners | missing or bounded evidence that narrows public language | a schedule or promise that the gap will close |
-| [Hostile Review Kit](hostile-review-kit.md) | `bijux-proteomics-dev` | whole-repository challenge route and negative paths | authority to waive a failed challenge |
-| [What Would Make This Repository Ready](what-would-make-this-repository-ready.md) | product and governance owners | concrete closure evidence for active blockers | readiness before that evidence exists |
-
-## Workflow-Family Evidence
+## Evidence Flow
 
 ```mermaid
 flowchart LR
@@ -36,54 +22,54 @@ flowchart LR
     lab --> release["release candidate evidence"]
 ```
 
-| Artifact role | Owner package | Review question |
-| --- | --- | --- |
-| benchmark manifest, quality sheet, and lineage | `bijux-proteomics-core` | which source, corpus, acceptance policy, and limitation define the scientific result? |
-| primary and companion run bundles | `bijux-proteomics-runtime` | what executed, under which environment, and can stable fields be replayed? |
-| claim and contradiction bundle | `bijux-proteomics-knowledge` | which contextual evidence supports, qualifies, or contradicts the claim? |
-| recommendation and challenge record | `bijux-proteomics-intelligence` | why did an action rank, and how stable is it under pressure? |
-| readiness, handoff, and outcome dossier | `bijux-proteomics-lab` | is the follow-up controlled, feasible, informative, and observed as requested? |
+## Governed Artifact Registry
 
-The outsider-facing family packet set covers `dda`, `dia`, `lfq`, `ptm`, and
-`targeted`. Multiplex artifacts remain inspectable, but their public posture is
-`internal_support_only`; artifact availability does not grant outsider-facing
-authority.
+The registry contains `20` artifacts under a governed budget of `20`.
+
+| Artifact id | Owner package | Audience | Question answered | Evidence locator |
+| --- | --- | --- | --- | --- |
+| `artifact-index:release-candidate` | `bijux-proteomics-docs` | `scientist` | Which workflow families can the repository defend today? | `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md` |
+| `artifact-index:elite-readiness-scorecard` | `bijux-proteomics-docs` | `maintainer` | How far may repository-wide language go today? | `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md` |
+| `artifact-index:hostile-review-kit` | `bijux-proteomics-docs` | `skeptical outsider` | What is the shortest whole-repository challenge route? | `docs/01-bijux-proteomics/foundation/hostile-review-kit.md` |
+| `artifact-index:why-not-ready` | `bijux-proteomics-docs` | `reviewer` | Which blocked release bars still fail right now? | `docs/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet.md` |
+| `artifact-index:what-makes-ready` | `bijux-proteomics-docs` | `maintainer` | What concrete evidence would move the release boundary next? | `docs/01-bijux-proteomics/foundation/what-would-make-this-repository-ready.md` |
+| `artifact-index:dda:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does dda still earn bounded outsider-auditable language today? | `docs/01-bijux-proteomics/foundation/why-trust-dda.md` |
+| `artifact-index:dda:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can dda survive a second checked rerun challenge? | `artifacts/intelligence/independent-reruns/dda_independent_rerun_dossier.json` |
+| `artifact-index:dda:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the dda sentence? | `artifacts/intelligence/external-review-kits/dda_external_review_kit.json` |
+| `artifact-index:dia:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does dia still earn bounded outsider-auditable language today? | `docs/01-bijux-proteomics/foundation/why-trust-dia.md` |
+| `artifact-index:dia:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can dia survive a second checked rerun challenge? | `artifacts/intelligence/independent-reruns/dia_independent_rerun_dossier.json` |
+| `artifact-index:dia:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the dia sentence? | `artifacts/intelligence/external-review-kits/dia_external_review_kit.json` |
+| `artifact-index:lfq:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does lfq still earn bounded outsider-auditable language today? | `docs/01-bijux-proteomics/foundation/why-trust-lfq.md` |
+| `artifact-index:lfq:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can lfq survive a second checked rerun challenge? | `artifacts/intelligence/independent-reruns/lfq_independent_rerun_dossier.json` |
+| `artifact-index:lfq:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the lfq sentence? | `artifacts/intelligence/external-review-kits/lfq_external_review_kit.json` |
+| `artifact-index:ptm:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does ptm still earn bounded outsider-auditable language today? | `docs/01-bijux-proteomics/foundation/why-trust-ptm.md` |
+| `artifact-index:ptm:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can ptm survive a second checked rerun challenge? | `artifacts/intelligence/independent-reruns/ptm_independent_rerun_dossier.json` |
+| `artifact-index:ptm:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the ptm sentence? | `artifacts/intelligence/external-review-kits/ptm_external_review_kit.json` |
+| `artifact-index:targeted:trust-page` | `bijux-proteomics-docs` | `scientist` | Why does targeted still earn bounded outsider-auditable language today? | `docs/01-bijux-proteomics/foundation/why-trust-targeted.md` |
+| `artifact-index:targeted:independent-rerun` | `bijux-proteomics-intelligence` | `operator` | Can targeted survive a second checked rerun challenge? | `artifacts/intelligence/independent-reruns/targeted_independent_rerun_dossier.json` |
+| `artifact-index:targeted:external-review-kit` | `bijux-proteomics-intelligence` | `skeptical outsider` | What should an outsider open to challenge the targeted sentence? | `artifacts/intelligence/external-review-kits/targeted_external_review_kit.json` |
 
 ## Open Evidence In Order
 
-1. identify the exact family and proposed sentence in
-   [Workflow Families](workflow-families.md);
-2. open the primary and companion benchmark manifests and family lineage;
-3. verify Runtime entrypoint, environment, run identity, artifacts, and
-   comparison policy;
-4. inspect support, contradiction, and unresolved context;
-5. inspect recommendation sensitivity, downgrade, refusal, and human-review
-   state;
-6. inspect laboratory readiness, burden, controls, and observed outcome;
-7. compare the surviving sentence with the current release claim limit.
+1. Identify the exact workflow family and proposed public sentence.
+2. Open its benchmark manifest, companion package, and Core lineage.
+3. Verify Runtime entrypoints, environment, run identity, artifacts, and comparison policy.
+4. Inspect support, contradiction, and unresolved context in Knowledge.
+5. Inspect recommendation sensitivity, downgrade, refusal, and human-review state.
+6. Inspect laboratory readiness, burden, controls, and observed outcome.
+7. Compare the surviving sentence with the current release claim limit.
 
-An [independent rerun dossier](independent-rerun-dossiers.md) gives the runtime
-and comparison opening path. An [external review kit](external-review-kits.md)
-adds scientific, decision, and consequence pressure without requiring private
-maintainer context.
+An [independent rerun dossier](independent-rerun-dossiers.md) gives the runtime and comparison opening path. An [external review kit](external-review-kits.md) adds scientific, decision, and consequence pressure without requiring private maintainer context.
 
 ## Artifact Coexistence
 
-The coexistence rationale is evidence diversity, not volume. Two artifacts may
-coexist when they answer different review questions or preserve different
-authority layers. A benchmark manifest and a run bundle coexist because one
-defines scientific inputs while the other records execution. A generated
-summary and its source evidence coexist because the summary gives navigation
-while the source carries the proof.
+The index exists so a hostile reader can open the strongest current surfaces in a stable order instead of reverse-engineering the repository by package structure.
 
-Coexistence is not justified when two pages repeat the same conclusion, a
-generated view has no freshness check, or a weaker artifact can be mistaken for
-the stronger authority surface. In those cases, consolidate the duplicate or
-make the authority difference explicit.
+The coexistence rationale must identify the distinct review question or authority layer preserved by each artifact. A benchmark manifest defines scientific inputs; a run bundle records execution. A generated summary provides navigation; its source records carry the proof.
 
-Use the [Public Artifact Role Matrix](public-artifact-role-matrix.md) to compare
-the stronger artifact, weaker artifact, coexistence rule, and removal pressure
-for each public evidence class.
+Coexistence is not justified when two pages repeat the same conclusion, a generated view has no freshness check, or readers can mistake a weaker artifact for the stronger authority. In those cases, consolidate the duplicate or make the authority difference explicit.
+
+Use the [Public Artifact Role Matrix](public-artifact-role-matrix.md) to compare stronger and weaker neighbors for every governed artifact.
 
 ## Integrity Rules
 

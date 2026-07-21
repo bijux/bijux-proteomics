@@ -18,7 +18,6 @@ from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
     build_benchmark_licensing_matrix,
 )
 from bijux_proteomics_dev.release.governance.benchmark_review_support import (
-    LAST_REVIEWED,
     RUNTIME_DIR,
     BenchmarkPackageBundle,
     build_generalization_report_map,
@@ -62,6 +61,7 @@ __all__ = [
 BENCHMARK_RERUN_KITS_PATH = RUNTIME_DIR / "benchmark-rerun-kits.md"
 BENCHMARK_COMPARABILITY_MATRIX_PATH = RUNTIME_DIR / "benchmark-comparability-matrix.md"
 BLACK_BOX_BENCHMARK_DASHBOARD_PATH = RUNTIME_DIR / "black-box-benchmark-dashboard.md"
+GENERATED_DOCS_LAST_REVIEWED = "2026-07-21"
 
 
 @dataclass(frozen=True)
@@ -410,21 +410,73 @@ def _render_rerun_kits(entries: tuple[BenchmarkRerunKitEntry, ...]) -> str:
         "---",
         "title: Benchmark Rerun Kits",
         "audience: mixed",
-        "type: explanation",
+        "type: how-to",
         "status: canonical",
         "owner: bijux-proteomics-runtime",
-        f"last_reviewed: {LAST_REVIEWED}",
+        f"last_reviewed: {GENERATED_DOCS_LAST_REVIEWED}",
         "---",
         "",
         "# Benchmark Rerun Kits",
         "",
-        "These rerun kits are the shortest path through the shipped package roots and runtime entrypoints for each workflow family. Each kit names the primary package, the companion package, the exact runtime entrypoints, and the review surfaces that still keep the family bounded.",
+        "A benchmark rerun kit connects three independently reviewable things: a governed Core asset, a public Runtime entrypoint, and a recorded result bundle. A manifest without execution is only an inspectable corpus; an execution without a manifest is an unattributed run; a run bundle without comparison policy cannot support a parity claim.",
         "",
+        "```mermaid",
+        "flowchart LR",
+        '    manifest["Core package manifest"] --> input["identified benchmark inputs"]',
+        '    input --> entry["Runtime entrypoint"]',
+        '    entry --> run["run bundle + artifact inventory"]',
+        '    run --> compare["declared comparison policy"]',
+        '    compare --> posture{"claim posture"}',
+        '    posture -->|accepted| bounded["bounded family evidence"]',
+        '    posture -->|failed| refusal["failure or refusal record"]',
+        "```",
+        "",
+        "## Family Rerun Routes",
+        "",
+        "All entrypoints below are importable from `bijux_proteomics_runtime.workflows`. The primary lane reopens the flagship package; the companion lane applies transfer or stress pressure from a distinct governed package.",
+        "",
+        "| Family | Primary package | Primary entrypoint | Primary mode | Companion package | Companion entrypoint | Companion mode |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
+    for entry in entries:
+        primary_entrypoint = entry.primary_spec.canonical_entrypoint.removeprefix(
+            "bijux_proteomics_runtime.workflows."
+        )
+        companion_entrypoint = entry.companion_spec.canonical_entrypoint.removeprefix(
+            "bijux_proteomics_runtime.workflows."
+        )
+        lines.append(
+            f"| `{entry.workflow_family.value}` | `{Path(entry.primary_package_root).name}` | `{primary_entrypoint}` | `{entry.primary_spec.run_mode.value}` | `{Path(entry.companion_package_root).name}` | `{companion_entrypoint}` | `{entry.companion_spec.run_mode.value}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "If a future family has no governed companion lane, its entry must say `not published for this family`; a primary rerun must never imply generalization evidence.",
+            "",
+            "DDA is deliberately different from the other lanes. Its primary route imports a checked MaxQuant result rather than running an in-repository search engine. Its companion imports a distinct Comet/Sage comparison package, adding cross-engine pressure without turning imported execution into a native-search claim.",
+            "",
+            "## Open A Kit",
+            "",
+            "From a clean checkout and installed workspace environment:",
+            "",
+            "1. Open the package `package_manifest.json` and identify its scientific family, source locator, expected inventory, and declared run mode.",
+            "2. Verify the files named by `artifact_inventory.json` and their checksums.",
+            "3. Call the family's primary entrypoint and write its result below `artifacts/bijux-proteomics-runtime/`.",
+            "4. Preserve the resolved configuration, input identities, provider, terminal state, diagnostics, and output hashes.",
+            "5. Call the companion entrypoint independently.",
+            "6. Compare the results only under the rule in the [Benchmark Comparability Matrix](benchmark-comparability-matrix.md).",
+            "7. Inspect the family refusal before writing a stronger claim.",
+            "",
+            "Do not overwrite tracked fixtures beneath `packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/`. They are governed test evidence; a new run remains under `artifacts/` until promotion is explicitly reviewed.",
+            "",
+            "## Family Evidence",
+            "",
+        ]
+    )
     for entry in entries:
         lines.extend(
             [
-                f"## `{entry.workflow_family.value}`",
+                f"### `{entry.workflow_family.value}`",
                 "",
                 f"- public release language: `{entry.public_release_language}`",
                 f"- primary package root: `{entry.primary_package_root}`",
@@ -462,6 +514,46 @@ def _render_rerun_kits(entries: tuple[BenchmarkRerunKitEntry, ...]) -> str:
         for item in entry.remaining_limits:
             lines.append(f"- {item}")
         lines.extend(["", entry.note, ""])
+    lines.extend(
+        [
+            "## Read The Result Bundle",
+            "",
+            "| Evidence | Question it answers | Question it cannot answer alone |",
+            "| --- | --- | --- |",
+            "| benchmark manifest | which corpus and family contract were requested? | did execution complete? |",
+            "| runtime state history | which states and refusals occurred? | are the scientific outputs acceptable? |",
+            "| artifact inventory and hashes | which outputs were produced without substitution? | are two outputs scientifically equivalent? |",
+            "| environment record | which provider and dependencies shaped execution? | will another environment behave identically? |",
+            "| comparison report | which declared fields remained stable? | does the result generalize outside the corpus? |",
+            "| Core acceptance result | did the output meet family-specific bars? | is the biological interpretation grounded? |",
+            "",
+            "The [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) summarizes installed-entrypoint checks. The [Flagship Run Registry](flagship-run-registry.md) binds published run identities to artifacts. Neither replaces the underlying bundle.",
+            "",
+            "## Current Claim Ceilings",
+            "",
+            "| Family | Primary mode | Public language | Limits that remain visible |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for entry in entries:
+        visible_limits = "; ".join(entry.remaining_limits[:2])
+        lines.append(
+            f"| `{entry.workflow_family.value}` | `{entry.primary_spec.run_mode.value}` | `{entry.public_release_language}` | {visible_limits} |"
+        )
+    lines.extend(
+        [
+            "",
+            "Runtime completion proves operational execution under recorded inputs and environment. It does not prove source authenticity, scientific acceptance, grounded biological truth, recommendation authority, or laboratory value.",
+            "",
+            "## Continue The Audit",
+            "",
+            "- [Runtime Execution Boundary](runtime-execution-boundary.md) gives the manifest, entrypoint, fixture, and refusal for every primary lane.",
+            "- [Runtime Replay Challenges](runtime-replay-challenges.md) applies state, environment, and artifact perturbations.",
+            "- [Raw Versus Import Execution](raw-versus-import-execution.md) distinguishes native computation from custody of external results.",
+            "- [Runtime Rerun Refusals](runtime-rerun-refusals.md) states the evidence needed before each claim can widen.",
+            "- [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md) covers provenance, redistribution, freshness, and incompleteness.",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -470,17 +562,31 @@ def _render_comparability_matrix(rows: tuple[BenchmarkComparabilityRow, ...]) ->
         "---",
         "title: Benchmark Comparability Matrix",
         "audience: mixed",
-        "type: explanation",
+        "type: reference",
         "status: canonical",
         "owner: bijux-proteomics-runtime",
-        f"last_reviewed: {LAST_REVIEWED}",
+        f"last_reviewed: {GENERATED_DOCS_LAST_REVIEWED}",
         "---",
         "",
         "# Benchmark Comparability Matrix",
         "",
-        "This matrix states how each workflow family behaves when the public sentence has to survive both the primary flagship package and the companion generalization package.",
+        "This matrix tests whether a workflow-family statement survives both its primary flagship package and a companion package with a materially different pressure profile. It reports survival, weakening, and collapse separately so a stable aggregate score cannot conceal a failed claim.",
         "",
-        "| workflow family | public language | primary run mode | companion run mode | stability score | surviving claims | weakened claims | collapsed claims |",
+        "```mermaid",
+        "flowchart LR",
+        '    primary["primary flagship run"] --> compare["family comparison"]',
+        '    companion["companion pressure run"] --> compare',
+        '    compare --> survive["surviving claims"]',
+        '    compare --> weaken["weakened claims"]',
+        '    compare --> collapse["collapsed claims"]',
+        '    survive --> boundary["bounded public language"]',
+        "    weaken --> boundary",
+        '    collapse --> refusal["narrow or refuse"]',
+        "```",
+        "",
+        "## Family Comparison",
+        "",
+        "| Workflow family | Public language | Primary run mode | Companion run mode | Stability score | Surviving claims | Weakened claims | Collapsed claims |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in rows:
@@ -491,7 +597,21 @@ def _render_comparability_matrix(rows: tuple[BenchmarkComparabilityRow, ...]) ->
             f"`{row.family_stability_score}` | `{row.surviving_claim_count}` | "
             f"`{row.weakened_claim_count}` | `{row.collapsed_claim_count}` |"
         )
-    lines.extend(["", "## Family Notes", ""])
+    lines.extend(
+        [
+            "",
+            "## Read The Matrix",
+            "",
+            "- `surviving` means the declared claim remains supported in both packages under the recorded comparison policy;",
+            "- `weakened` means the direction survives but scope, certainty, or transfer language must narrow;",
+            "- `collapsed` means the companion evidence does not support the claim and release language must exclude it;",
+            "- the stability score summarizes the governed findings but never overrides a collapsed claim;",
+            "- run mode distinguishes native Runtime computation from custody of imported external-engine results.",
+            "",
+            "## Family Notes",
+            "",
+        ]
+    )
     for row in rows:
         lines.extend(
             [
@@ -507,6 +627,13 @@ def _render_comparability_matrix(rows: tuple[BenchmarkComparabilityRow, ...]) ->
         for note in row.comparison_notes:
             lines.append(f"- {note}")
         lines.append("")
+    lines.extend(
+        [
+            "## Decision Rule",
+            "",
+            "A family may keep only the language that survives its primary and companion packages, their declared comparison policy, and all visible collapsed findings. Evidence from another family cannot repair a failure here.",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -517,17 +644,32 @@ def _render_black_box_dashboard(
         "---",
         "title: Black-Box Benchmark Dashboard",
         "audience: mixed",
-        "type: explanation",
+        "type: reference",
         "status: canonical",
         "owner: bijux-proteomics-runtime",
-        f"last_reviewed: {LAST_REVIEWED}",
+        f"last_reviewed: {GENERATED_DOCS_LAST_REVIEWED}",
         "---",
         "",
         "# Black-Box Benchmark Dashboard",
         "",
-        "This dashboard states what the runtime and public benchmark evidence can defend without maintainer narration. It lists every workflow family by current public language, black-box-allowed language, run mode, drift visibility, artifact completeness, and remaining rerun blockers.",
+        "This dashboard states what installed Runtime entrypoints and public benchmark evidence can defend without maintainer narration. Requested language is only an input; allowed language is the ceiling after execution mode, drift, artifact completeness, independent rerun evidence, and family blockers are applied.",
         "",
-        "| workflow family | requested language | allowed language | primary run mode | companion run mode | drift status | artifact completeness |",
+        "```mermaid",
+        "flowchart LR",
+        '    request["requested language"] --> mode{"execution mode sufficient?"}',
+        '    mode --> drift{"companion drift acceptable?"}',
+        '    drift --> assets{"artifacts complete?"}',
+        '    assets --> review{"independent review route?"}',
+        '    review --> allowed["allowed language"]',
+        '    mode -. no .-> narrow["narrow or refuse"]',
+        "    drift -. no .-> narrow",
+        "    assets -. no .-> narrow",
+        "    review -. no .-> narrow",
+        "```",
+        "",
+        "## Workflow Dashboard",
+        "",
+        "| Workflow family | Requested language | Allowed language | Primary run mode | Companion run mode | Drift status | Artifact completeness |",
         "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in rows:
@@ -538,12 +680,35 @@ def _render_black_box_dashboard(
             f"`{row.companion_run_mode}` | `{row.drift_status}` | "
             f"`{row.artifact_completeness}` |"
         )
-    lines.extend(["", "## Remaining Independent-Rerun Blockers", ""])
+    lines.extend(
+        [
+            "",
+            "## Read The Columns",
+            "",
+            "`requested language` records the upstream workflow claim. `allowed language` is the black-box ceiling and may only remain equal or become narrower. `import_only` identifies custody and validation of external-engine output; it is not native search execution. Drift and completeness describe the checked companion comparison and governed asset inventory, not universal platform behavior.",
+            "",
+            "## Remaining Independent-Rerun Blockers",
+            "",
+        ]
+    )
     for row in rows:
         lines.extend([f"### `{row.workflow_family.value}`", ""])
         for blocker in row.remaining_blockers:
             lines.append(f"- {blocker}")
         lines.append("")
+    lines.extend(
+        [
+            "## Release Rule",
+            "",
+            "A public sentence must not exceed `allowed language`. Any missing artifact, collapsed comparison, absent rerun route, or stronger execution request remains a release blocker until new governed evidence changes the dashboard.",
+            "",
+            "## Continue The Review",
+            "",
+            "- Open [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) to identify the proposed family-level sentence and its authority ceiling.",
+            "- Open [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md) to inspect provenance, redistribution, freshness, and incompleteness.",
+            "- Open [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) to follow accepted evidence into recommendation, refusal, and laboratory consequence.",
+        ]
+    )
     return "\n".join(lines)
 
 
