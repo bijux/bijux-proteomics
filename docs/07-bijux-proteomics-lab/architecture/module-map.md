@@ -4,21 +4,42 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Module Map
 
-`bijux-proteomics-lab` stays reviewable only when its structural families remain easy to name and defend. The package owns lab-facing planning, outcome promotion, and assay-state handling, so its modules should read like one coherent argument for that role.
+`bijux-proteomics-lab` converts evidence needs into governed experimental work and returns observations to the evidence system. It distinguishes scientific advice, operational readiness, execution handoff, observed outcome, and evidence promotion so that none of those states is mistaken for another.
 
-## Owned Module Families
+```mermaid
+flowchart LR
+    P[planning] --> D[design]
+    D --> R[readiness]
+    R --> H[handoffs]
+    H --> O[outcomes]
+    O --> C[reconciliation]
+    C --> P
+    L[lifecycle] --> R
+    L --> C
+    B[benchmarks] -. challenges .-> P
+    B -. challenges .-> O
+```
 
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py` own the lab-facing control flow
-- `src/bijux_proteomics_lab/design/protocols.py`, `handoffs/artifacts.py`, and `handoffs/serialization.py` own the lab contract boundary
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` owns durable storage seams for plans and outcomes
+## Owner families
 
-## First Proof Check
+| Family | Responsibility |
+| --- | --- |
+| `planning` | Advisory and executable assay plans, priorities, dependencies, batches, queues, capacity, materials, and schedules |
+| `design` | Experiment and protocol contracts |
+| `readiness` | Operational gates across capacity, instruments, materials, staffing, budget, controls, provenance, evidence, and backlog |
+| `handoffs` | Serialized artifacts, explanations, PTM context, QC feedback, risks, exports, and explicit transitions |
+| `outcomes` | Observations, acceptance rules, normalized outcome states, failure classes, rerun policy, and feedback records |
+| `lifecycle` | Review-queue transitions, assay progression, promotion state, and transition-history audits |
+| `reconciliation` | Follow-up selection and the connection between observed outcomes and open evidence needs |
+| `benchmarks` | Claims, rehearsals, follow-up, outcome dossiers, and learning-oriented challenge cases |
 
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab`
-- the matching package tests
-- neighboring handbook branches when a module starts to look shared
+The root API exposes `build_advisory_assay_plan`, `build_executable_assay_plan`, and `plan_experiment_batches`. That narrow surface makes the critical distinction visible at import time: advice can guide planning, while executable work requires additional operational evidence.
+
+## Scope boundary
+
+Lab models laboratory intent and state; it does not drive instruments or operate job infrastructure. A plan marked ready is a reviewed contract for execution, not proof that work ran. An outcome records what was observed, not automatic permission to promote a claim into durable knowledge.
