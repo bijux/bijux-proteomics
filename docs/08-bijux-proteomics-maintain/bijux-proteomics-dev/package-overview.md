@@ -4,41 +4,65 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Package Overview
+# Maintainer toolkit package
 
-`bijux-proteomics-dev` exists so repository-health behavior is reviewable in code instead of being hidden inside workflow YAML and shell fragments.
+`bijux-proteomics-dev` is the tested implementation layer for repository
+governance. It turns rules about documentation, package boundaries, contracts,
+artifacts, dependencies, security, and release readiness into named Python
+checks that local Make targets and CI workflows can share.
 
-## Package Model
+The package is not installed as part of a scientific or runtime deployment. It
+exists for contributors, reviewers, CI, and release operators working on the
+monorepo.
 
 ```mermaid
-flowchart TB
-    policy["repository-health policy"]
-    code["code-bearing maintainer package"]
-    tests["maintainer tests"]
-    workflows["make and workflow callers"]
-
-    policy --> code
-    code --> tests
-    code --> workflows
+flowchart LR
+    rule["repository policy"]
+    helper["typed maintainer helper"]
+    tests["focused policy tests"]
+    make["stable Make target"]
+    ci["CI or release workflow"]
+    evidence["named verdict and artifacts"]
+    rule --> helper --> tests
+    helper --> make --> ci
+    make --> evidence
 ```
 
-This page should give the shortest honest reason for the package to exist: repository policy is more reviewable when it lives in tested code instead of being smeared across YAML and shell entrypoints.
+## Owned capabilities
 
-## What It Owns
+| Capability | Source family | Typical root entrypoint |
+| --- | --- | --- |
+| documentation links, consistency, architecture, badges, and debt | `docs/` | `quality-docs-links`, `quality-docs-consistency`, `architecture-check`, `check-badges` |
+| API freeze and contract drift | `governance/contracts/` | `api-freeze`, `openapi-drift`, `quality-public-api-types` |
+| package ownership and topology | `governance/` | architecture and package-tree quality targets |
+| dependency, artifact, benchmark, and graph quality | `quality/` | repository `quality` post-gates |
+| dependency audit and trusted subprocess execution | `security/` | `security`, `security-dependency-allowlist` |
+| versioning, licensing, publication, and hostile review | `release/` | `release-preflight` and publication targets |
+| managed examples and models | `tools/` | `manage_examples`, `manage_models` |
+| generated-output placement | `workspace/` | repository environment and artifact setup |
 
-- documentation checks and sync helpers under `docs/`
-- contract-freeze and API drift helpers under `api/`
-- release, security, and quality gates under `release/`, `security/`, and `quality/`
-- maintainer tools and trusted-process helpers under `tools/` and `trusted_process.py`
+## What belongs elsewhere
 
-## First Proof Check
+Scientific calculations and contracts belong to Core. Execution and replay
+belong to Runtime. Evidence, advisory, and laboratory behavior belong to their
+canonical product packages. Make files own command composition, while GitHub
+workflows own event and permission context.
 
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`
-- `packages/bijux-proteomics-dev/tests`
+A maintainer helper may inspect product packages and enforce cross-package
+policy. It must not become a hidden implementation of product behavior or a
+second source of scientific truth.
 
-## Design Pressure
+## Invocation model
 
-The easy failure is to treat the maintainer package as a convenience bundle instead of the explicit code owner for repository-health rules.
+Prefer documented root Make targets over direct module execution. Root targets
+prepare the shared check environment, set repository paths, and keep local and
+CI behavior aligned. Direct `python -m bijux_proteomics_dev...` execution is
+appropriate when developing the helper itself and should use the same inputs
+as its Make wrapper.
+
+Every gate must have a clear policy statement, deterministic inputs, actionable
+failure output, tests for pass and fail paths, and a stable caller. A gate that
+only says “repository invalid” has not made governance reviewable.
