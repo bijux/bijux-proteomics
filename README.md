@@ -1,10 +1,10 @@
 # bijux-proteomics
 
 `bijux-proteomics` is a Python package family for proteomics work that must
-remain inspectable from scientific input to downstream consequence. It combines
+remain inspectable after it leaves the process that produced it. It connects
 sequence and mass-spectrometry analysis, reproducible execution, evidence
-grounding, recommendation review, and laboratory follow-up without collapsing
-those responsibilities into one opaque pipeline.
+grounding, recommendation review, and laboratory follow-up while keeping each
+kind of authority separate.
 
 ## Product Scope
 
@@ -14,11 +14,19 @@ replays work. Knowledge records why a claim is supportable or contradicted.
 Intelligence ranks and challenges possible actions. Lab records whether an
 accepted action was feasible and what happened next.
 
-The result is an evidence chain, not a promise that every workflow is equally
-mature. Packages can be installed independently, and every cross-package
-handoff has an identifiable owner. The
+The result is an evidence chain, not one opaque pipeline and not a promise that
+every workflow is equally mature. Packages can be installed independently, and
+every cross-package handoff has an identifiable owner. The
 [product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 traces the full data and decision path.
+
+| If your immediate need is… | Begin with | You receive |
+| --- | --- | --- |
+| parse, normalize, identify, infer, quantify, or review proteomics data | `bijux-proteomics-core` | typed scientific result, rejections, diagnostics, and active policy |
+| execute, resume, compare, or replay configured work | `bijux-proteomics-runtime` | run state, environment, checkpoints, artifact ledger, and terminal disposition |
+| ground a result against literature, databases, or biological context | `bijux-proteomics-knowledge` | versioned evidence, provenance, support, contradiction, and gaps |
+| rank candidates or challenge an action | `bijux-proteomics-intelligence` | policy-bound recommendation, sensitivity, alternatives, or refusal |
+| turn an accepted action into a controlled experiment | `bijux-proteomics-lab` | readiness decision, handoff, observation, and consequence record |
 
 ## Current Credible Workflow Families
 
@@ -33,10 +41,16 @@ Internal-support-only workflow families today: `multiplex`.
 These sets answer different questions. A complete outsider-readable packet
 means the evidence can be inspected end to end; it does not automatically earn
 the stronger outsider-auditable classification. LFQ remains review-grade
-bounded, and all families retain the limitations declared by their benchmark,
-runtime, grounding, recommendation, and consequence records. The current
-repository preflight passes, but that operational result does not widen any
-scientific claim by itself.
+bounded. DDA is also limited by a black-box evidence mismatch: its requested
+language is outsider-auditable, while its imported primary and companion lanes
+currently defend only review-grade bounded language.
+
+The current repository preflight blocks publication. Active blockers include
+that DDA authority mismatch, stale hostile-review and Runtime black-box
+surfaces, duplicate ownership of belief-audit models, thin Core ownership
+boundaries, and insufficient rerun strength for DDA, DIA, and multiplex. These
+failures narrow public language; they are not converted into a passing status
+by the presence of documentation or benchmark files.
 
 Read [what one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
 for the evidence chain and
@@ -58,6 +72,14 @@ This repository does not yet claim:
 These are release boundaries, not disclaimers attached after stronger marketing
 language. Public wording must remain behind the weakest live benchmark, runtime,
 grounding, recommendation, or lab-consequence gate.
+
+| Evidence state | Required public response |
+| --- | --- |
+| artifact or generated surface is stale | stop and refresh it from its owner before relying on the derived view |
+| execution is import-only | describe custody and validation of external results, not native engine execution |
+| companion evidence weakens or collapses a claim | narrow or refuse the claim for that workflow family |
+| ownership is duplicated or ambiguous | treat the release dossier as blocked until one canonical owner remains |
+| consequence evidence is absent | keep the recommendation advisory and state the missing downstream evidence |
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
@@ -120,6 +142,14 @@ flowchart LR
 The packages can be used independently, but their contracts form one review
 chain. A scientific result is useful only when its inputs, transformations,
 evidence, decision policy, and downstream consequence remain distinguishable.
+
+| Layer | Durable artifact | Stop condition |
+| --- | --- | --- |
+| Core | scientific report and benchmark acceptance | rejected input, failed acceptance bar, or unsupported transfer |
+| Runtime | run bundle, state history, and artifact inventory | refused capability, failed execution, or irreproducible environment |
+| Knowledge | evidence bundle and contradiction ledger | unresolved identity, missing context, or insufficient support |
+| Intelligence | challenged recommendation record | unstable ranking, unacceptable regret, or required human review |
+| Lab | readiness, handoff, and consequence dossier | incomplete controls, unacceptable burden, unsafe execution, or inconclusive outcome |
 
 ## Scientific and Operational Capabilities
 
@@ -258,6 +288,11 @@ when execution must be checkpointed, resumed, compared, or replayed.
   package-root spillover early
 - `make quality-architecture-regression` after architecture-facing changes
 - `make release-preflight` before cutting a release candidate
+
+These commands are evidence-producing checks, not ceremonial completion
+steps. At the current revision, release preflight and broader quality checks
+still expose known blockers. Preserve their exact failure output and resolve
+the owning contract rather than weakening the gate.
 
 Package-specific commands and checks are documented in their respective
 handbooks. Generated reports, logs, and local run products belong under

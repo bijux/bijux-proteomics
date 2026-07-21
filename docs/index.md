@@ -11,8 +11,9 @@ last_reviewed: 2026-07-21
 
 `bijux-proteomics` is a composable Python platform for proteomics analysis,
 reproducible execution, evidence-aware interpretation, and laboratory
-follow-up. It is designed for work that must remain inspectable after a result
-leaves the process that produced it.
+follow-up. A reader can trace a result from accepted and rejected scientific
+inputs through execution, grounding, recommendation, and observed consequence
+without treating any one layer as authority for all the others.
 
 ## Product Scope
 
@@ -21,6 +22,14 @@ contracts, Core owns scientific computation, Runtime owns execution, Knowledge
 owns evidence memory, Intelligence owns decision policy, and Lab owns
 experimental consequence. A compatibility distribution preserves historical
 Runtime entrypoints without becoming a second owner.
+
+| Question | Authority to open first | What it can establish |
+| --- | --- | --- |
+| What scientific calculation ran? | Core report and benchmark lineage | inputs, assumptions, output, rejection, QC, and family acceptance |
+| What actually executed? | Runtime run bundle | configuration, provider, state, artifacts, comparison, and replay evidence |
+| Why is the claim supportable? | Knowledge review bundle | source identity, context, support, contradiction, and unresolved gaps |
+| Why did this action rank? | Intelligence recommendation record | candidate universe, policy, sensitivity, alternatives, confidence, and refusal |
+| What did the follow-up cost and observe? | Lab consequence dossier | controls, readiness, custody, deviations, outcome, and feedback |
 
 ## Current Credible Workflow Families
 
@@ -32,8 +41,14 @@ Internal-support-only workflow families today: `multiplex`.
 
 Packet completeness and workflow authority are intentionally separate. LFQ has
 an outsider-readable packet while its strongest honest sentence remains
-review-grade bounded. Passing repository preflight establishes that governed
-release checks agree; it does not establish universal scientific validity.
+review-grade bounded. DDA currently requests outsider-auditable language but
+its import-only black-box lanes defend only review-grade bounded language.
+
+Repository preflight currently blocks publication on that mismatch, stale
+hostile-review and Runtime black-box surfaces, duplicate belief-audit ownership,
+thin Core package boundaries, and insufficient rerun evidence. A future passing
+preflight would establish agreement among governed release checks; it would not
+establish universal scientific validity.
 
 ## Forbidden Claims
 
@@ -90,6 +105,10 @@ records the live repository gates.
 - **Maintainer:** use [Maintainer Safe Change](08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md) before editing an owned surface.
 - **Reviewer:** begin with [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) and the [Public Artifact Index](01-bijux-proteomics/foundation/public-artifact-index.md).
 
+Choose a route by the decision you need to make, then stop at the first missing
+owner record. Do not substitute a later summary for an absent benchmark,
+execution, evidence, recommendation, or consequence artifact.
+
 ## One result, six accountable layers
 
 ```mermaid
@@ -114,6 +133,14 @@ The architecture separates computation from execution and separates evidence
 from judgment. This matters when a run is repeated, a source is contradicted,
 or a recommendation reaches the laboratory: each change has an identifiable
 owner and can be reviewed without reconstructing hidden state.
+
+| Boundary crossing | Required record | What must remain visible |
+| --- | --- | --- |
+| scientific request → execution | typed request and acceptance policy | input identities, assumptions, expected outputs, and refusal conditions |
+| execution → grounding | run bundle and artifact ledger | terminal state, environment, diagnostics, and output hashes |
+| grounding → decision | versioned scientific review bundle | support, contradiction, uncertainty, and unresolved gaps |
+| decision → laboratory | advisory recommendation and rationale | alternatives, sensitivity, human-review state, and allowed action |
+| laboratory → evidence | requested-versus-observed consequence | controls, deviations, QC, disposition, and parent identities |
 
 ## Scientific coverage
 
