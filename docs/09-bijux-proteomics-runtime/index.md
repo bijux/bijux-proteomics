@@ -40,6 +40,17 @@ Runtime records execution truth: what was requested, selected, attempted,
 produced, refused, or failed. It does not convert operational success into a
 scientific or biological claim.
 
+## Run contract
+
+| Stage | Runtime records | Review question |
+| --- | --- | --- |
+| preflight | request identity, validation, capability and environment checks | was the work executable under declared conditions? |
+| planning | resolved configuration, graph, tools, provider decision, fallbacks | what did Runtime intend to execute? |
+| running | state transitions, structured logs, telemetry, checkpoints | what actually happened and where can it resume? |
+| termination | completion, refusal, or governed failure | why did execution stop? |
+| custody | artifact ledger, hashes, cache decisions, handoff archive | which bytes belong to this run? |
+| review | comparison, rerun, replay, and provenance results | what is equivalent, different, or not reproducible? |
+
 ## Operator surfaces
 
 - The `bijux-proteomics-runtime` CLI starts, resumes, compares, reproduces,
@@ -87,6 +98,44 @@ Imported results have a distinct provenance route. Supplying an external
 engine name, version, source file, and sequence creates an import-backed run
 record; it does not make the external computation native or independently
 reproducible.
+
+## Read a run without overclaiming
+
+```mermaid
+flowchart TD
+    R["run bundle"] --> I["identity and configuration"]
+    R --> P["provider and environment"]
+    R --> S["state transitions"]
+    R --> A["artifact ledger"]
+    R --> F["failure or refusal"]
+    I --> E{"execution claim supported?"}
+    P --> E
+    S --> E
+    A --> E
+    F --> E
+    E -->|yes| X["bounded execution statement"]
+    E -->|no| N["rerun claim refused"]
+```
+
+Runtime can establish that a particular request executed under recorded
+conditions and produced identified artifacts. Core determines scientific
+acceptance. Knowledge determines evidential grounding. Intelligence determines
+recommendation posture. Lab determines readiness and records experimental
+consequence.
+
+## Reproduction levels
+
+| Statement | Minimum evidence |
+| --- | --- |
+| rerunnable | inputs, environment contract, provider availability, configuration, and instructions are complete |
+| rerun | a new run bundle records execution of the same declared request |
+| replay-compatible | persisted state and events can be consumed under the declared compatibility contract |
+| comparable | a comparison record explains relevant identity, configuration, environment, and artifact differences |
+| scientifically reproduced | Core acceptance and domain evidence support equivalence; runtime equality alone is insufficient |
+
+See [artifact stability](runtime-artifact-stability.md),
+[environment contracts](runtime-environment-contracts.md), and
+[rerun refusals](runtime-rerun-refusals.md) before using reproduction language.
 
 ## Documentation map
 

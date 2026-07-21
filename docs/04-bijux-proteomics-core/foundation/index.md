@@ -4,163 +4,130 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
-# Foundation
+# Scientific foundations
 
-The core foundation section is where the repository names its durable
-scientific law: workflow contracts, lifecycle transitions, review gates,
-runtime-agnostic request shapes, and benchmark acceptance logic. If a page here
-needs recommendation posture or operator transport to justify itself, the
-boundary is already drifting.
-
-This section now carries far more real scientific weight than an abstract
-workflow charter. Public benchmark evidence, workflow-family trust, and release
-scrutiny all depend on core continuing to state runtime-agnostic workflow
-contracts, benchmark-acceptance bars, and lifecycle transitions in terms that
-remain inspectable outside execution code.
-
-## Why Readers Should Start Here More Often
-
-- core is where the repository proves it has scientific law instead of only
-  opinionated runtime wrappers
-- benchmark trust, family transfer, and package lineage all depend on the
-  contracts named here staying explicit and reviewable
-- the deeper chemistry, sequence, identification, quantification, PTM, DIA,
-  and targeted surfaces only become trustworthy when their workflow contracts
-  and acceptance bars stay visible before downstream interpretation begins
+Core defines proteomics contracts that remain valid regardless of how they are
+executed or interpreted downstream. It owns scientific input validation,
+workflow request shapes, algorithmic semantics, QC, benchmark acceptance, and
+typed scientific outputs. Runtime may execute a Core request; Knowledge may
+ground its claims; Intelligence may rank actions from it; Lab may test its
+consequences. None of those packages can redefine the original scientific
+contract.
 
 ```mermaid
 flowchart LR
-    lifecycle["lifecycle states"]
-    gates["gate semantics"]
-    workflows["workflow contracts"]
-    core["core foundation"]
-    intelligence["intelligence"]
-    runtime["runtime"]
-    lab["lab"]
-
-    lifecycle --> core
-    gates --> core
-    workflows --> core
-    core --> intelligence
-    core --> runtime
-    core --> lab
+    I["scientific inputs"] --> V["validation policy"]
+    V --> W["workflow contract"]
+    W --> A["algorithm and QC"]
+    A --> O["typed output"]
+    O --> B["benchmark acceptance"]
+    B --> H["downstream handoff"]
+    V -. rejected inputs .-> O
+    A -. assumptions and diagnostics .-> O
 ```
 
-## What This Section Protects
+## Find the scientific owner
 
-- one canonical workflow grammar before downstream packages add policy or
-  transport
-- review-gate and lifecycle truth that stays inspectable outside runtime code
-- scientific contracts that remain distinct from evidence memory and lab burden
+| Concern | Core owner surface | Begin with |
+| --- | --- | --- |
+| package scope and domain boundaries | package foundation | [Package overview](package-overview.md) and [ownership boundary](ownership-boundary.md) |
+| sequence, chemistry, spectra, identification, inference, or quantification | domain modules and typed contracts | [Capability map](capability-map.md) |
+| benchmark provenance and redistribution | benchmark asset governance | [Benchmark assets](benchmark-assets.md) and [licensing](benchmark-licensing-and-redistribution.md) |
+| workflow-family validation | lineage, corpus, and acceptance records | the family lineage and [acceptance bars](flagship-acceptance-bars.md) |
+| execution state, provider selection, or replay | Runtime | [Runtime execution boundary](../../09-bijux-proteomics-runtime/runtime-execution-boundary.md) |
+| evidence truth or contradiction | Knowledge | [Knowledge handbook](../../06-bijux-proteomics-knowledge/index.md) |
+| ranking or recommendation posture | Intelligence | [Intelligence handbook](../../05-bijux-proteomics-intelligence/index.md) |
+| assay readiness or observed outcome | Lab | [Lab handbook](../../07-bijux-proteomics-lab/index.md) |
 
-## What Makes This Section Scientifically Heavy
+[This package does not own](../this-package-does-not-own.md) gives concrete
+counterexamples for boundaries that are easy to blur.
 
-- it names the repository's scientific law before downstream judgment begins
-- benchmark-backed workflow families must clear benchmark-acceptance scrutiny
-  here before they earn broader trust language
-- runtime, knowledge, intelligence, and lab all inherit these lifecycle
-  transitions and workflow contracts before they add local owner logic
+## Workflow contract anatomy
 
-## Start With
+A reviewable workflow contract identifies:
 
-- Ownership and scope:
-  open [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/),
-  [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/),
-  [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/),
-  and [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/)
-  when the question is whether a scientific workflow concern really belongs in
-  core.
-- Benchmark evidence:
-  open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/),
-  [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/),
-  [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/),
-  and [Benchmark Asset Audit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-asset-audit/)
-  when the question is what public benchmark roots exist and how they were
-  governed into the repository.
-- Workflow trust:
-  open [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/),
-  [Benchmark Incompleteness Ledger](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger/),
-  [Benchmark Flagship Status](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-flagship-status/),
-  and [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
-  when the question is whether benchmark evidence still earns a public
-  workflow sentence.
-- Family transfer:
-  open the family lineage pages plus the
-  [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
-  when the dispute is whether one workflow family survives blinded holdouts,
-  perturbations, and companion-package generalization.
+1. accepted input formats, identifier rules, and validation strictness;
+2. active scientific policies and defaults;
+3. algorithm or adapter identity, including external-engine provenance;
+4. expected outputs, rejected-input records, diagnostics, and QC;
+5. refusal and failure conditions;
+6. benchmark corpus, acceptance criteria, and transfer limits;
+7. the typed handoff to execution or downstream interpretation.
 
-## Section Pages
+The contract does not promise that all inputs will succeed. Refusal is the
+correct result when the requested capability, evidence, or scientific premise
+is unavailable.
 
-- [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/)
-- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/)
-- [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
-- [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
-- [Capability Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/capability-map/)
-- [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
-- [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/)
-- [Benchmark Asset Audit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-asset-audit/)
-- [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/)
-- [Benchmark Licensing and Redistribution](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-licensing-and-redistribution/)
-- [Benchmark Incompleteness Ledger](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger/)
-- [Benchmark Flagship Status](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-flagship-status/)
-- [DDA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dda-benchmark-lineage/)
-- [DIA Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dia-benchmark-lineage/)
-- [LFQ Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lfq-benchmark-lineage/)
-- [Multiplex Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/multiplex-benchmark-lineage/)
-- [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/)
-- [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/)
-- [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
-- [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
-- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dependencies-and-adjacencies/)
-- [Repository Fit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/repository-fit/)
-- [Lifecycle Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lifecycle-overview/)
-- [Domain Language](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/domain-language/)
-- [Change Principles](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/change-principles/)
+## From asset to acceptance
 
-## What This Section Settles
+```mermaid
+flowchart LR
+    S["source asset"] --> L["license and provenance"]
+    L --> C["curated benchmark corpus"]
+    C --> Q["challenge cases"]
+    Q --> A["acceptance bars"]
+    A --> F["family-specific posture"]
+    F --> R["release claim"]
+    L -. unresolved .-> X["incompleteness ledger"]
+    Q -. regression .-> X
+    A -. missed .-> X
+```
 
-- whether a rule changes canonical scientific workflow truth or only downstream
-  interpretation
-- which benchmark-acceptance and lifecycle surfaces are still owned here
-- when a proposed change is really evidence policy, runtime delivery, or lab
-  consequence and should leave this package
+The [public benchmark catalog](flagship-public-benchmark-catalog.md) lists the
+roots intended for external inspection. [Flagship benchmark assets](flagship-benchmark-assets.md)
+records the governed bundle, while the [asset audit](benchmark-asset-audit.md)
+and [freshness review](benchmark-freshness-review.md) check provenance and age.
+Missing, restricted, or weak material remains visible in the
+[incompleteness ledger](benchmark-incompleteness-ledger.md).
 
-## Reader Questions This Section Can Answer Well
+## Workflow-family evidence
 
-- where does the repository define workflow truth before benchmark prose or
-  recommendation prose starts narrowing it
-- which public benchmark roots actually anchor the current flagship families
-- why a workflow family can look benchmark-rich and still stay bounded by
-  transfer, acceptance, or lifecycle limits
-- which neighboring package is allowed to add judgment, grounding, or
-  consequence only after core has named the scientific contract clearly
+Each family has its own lineage because validation cannot be inherited merely
+from sharing a package:
 
-## Strongest Core Proof
+- [DDA](dda-benchmark-lineage.md) covers search, PSM review, FDR, inference, and
+  downstream artifacts under its declared corpus.
+- [DIA](dia-benchmark-lineage.md) covers library and import paths, run QC,
+  quantification, and family-specific comparisons.
+- [LFQ](lfq-benchmark-lineage.md) covers normalization, missingness,
+  reproducibility, and bounded review-grade claims.
+- [PTM](ptm-benchmark-lineage.md) covers localization, ambiguity, and
+  modification-specific review.
+- [Targeted](targeted-benchmark-lineage.md) covers panels, transitions,
+  feasibility, and targeted evidence.
+- [Multiplex](multiplex-benchmark-lineage.md) records the current internal
+  support boundary rather than borrowing maturity from other families.
 
-- start with
-  [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-  when the question is whether the repository has real public scientific roots
-- continue to
-  [Flagship Acceptance Bars](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-acceptance-bars/)
-  when the dispute is whether a family still earns benchmark-backed trust
-- open
-  [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
-  when a proposal is trying to turn scientific law into evidence policy,
-  recommendation posture, or operator transport
+The [challenge corpus catalog](flagship-challenge-corpus-catalog.md) exposes
+holdouts, perturbations, and cross-package cases. The
+[benchmark status](benchmark-flagship-status.md) summarizes the current posture
+without replacing the underlying lineage and acceptance evidence.
 
-## First Proof Check
+## Acceptance and transfer
 
-- `packages/bijux-proteomics-core/src/bijux_proteomics`
-- `packages/bijux-proteomics-core/tests`
-- neighboring handbooks once the change crosses the local boundary
+An acceptance bar states a measurable condition and the consequence of missing
+it. Passing the in-distribution corpus is necessary but not sufficient for a
+broad claim. Review also considers:
 
-## Neighbors
+- blinded or held-out cases;
+- changes in instrument, acquisition, search engine, and preprocessing;
+- threshold and parameter sensitivity;
+- incomplete, ambiguous, and adversarial inputs;
+- transfer into Runtime, Knowledge, Intelligence, and Lab artifacts;
+- whether failure and refusal remain visible after each handoff.
 
-- Open [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
-  when the question leaves program contracts, lifecycle rules, and gate semantics.
-- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  when the issue is clearly outside this package's local role.
+The result is a bounded workflow-family posture, not a universal statement
+about proteomics.
+
+## Package evolution
+
+The [scope and non-goals](scope-and-non-goals.md) protect Core from absorbing
+execution and decision policy. [Dependencies and adjacencies](dependencies-and-adjacencies.md)
+govern imports, [domain language](domain-language.md) stabilizes scientific
+terms, and [change principles](change-principles.md) require contract and
+benchmark evidence when behavior moves. [Lifecycle overview](lifecycle-overview.md)
+connects workflow states and review gates without assigning operator transport
+to Core.

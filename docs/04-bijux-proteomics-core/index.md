@@ -39,6 +39,22 @@ require every analysis to traverse the entire diagram: FASTA operations,
 spectrum review, search-result normalization, quantification, and targeted
 assay review can be used as independent workflows.
 
+## A result is more than a value
+
+Core artifacts retain the context needed to challenge a scientific result:
+
+| Review question | Required context |
+| --- | --- |
+| What was accepted? | parsed records, schema identity, validation policy, and source digest |
+| What was rejected? | rejected records, reason codes, thresholds, and strictness mode |
+| Which scientific assumptions were active? | digestion, modification, mass-tolerance, FDR, inference, normalization, and workflow policy |
+| How stable is the conclusion? | QC metrics, ambiguity, missingness, sensitivity, benchmark acceptance, and known limits |
+| Can another system execute it? | typed workflow request, deterministic inputs, expected artifacts, and refusal conditions |
+
+Dropping rejected inputs or active policy makes a concise report easier to
+read but weaker to audit. Core keeps these details in machine-readable
+artifacts so summaries never become the only surviving record.
+
 ## Capability map
 
 | Domain | Implemented surfaces |
@@ -86,6 +102,41 @@ outsider-auditable routes. LFQ is review-grade with explicit limits. Multiplex
 remains an internal support surface. Start with the
 [public benchmark catalog](foundation/flagship-public-benchmark-catalog.md)
 and follow the family-specific lineage before making a scientific claim.
+
+```mermaid
+flowchart LR
+    A["algorithm exists"] --> C["contract tests"]
+    C --> B["benchmark corpus"]
+    B --> H["holdouts and perturbations"]
+    H --> T["transfer evidence"]
+    T --> P{"public claim burden met?"}
+    P -->|yes| E["bounded evidence posture"]
+    P -->|no| N["narrow or internal support"]
+```
+
+Benchmark evidence is evaluated per workflow family. Success in one family
+does not transfer automatically to another instrument, acquisition method,
+quantification regime, modification context, or laboratory consequence.
+
+## Handoff to Runtime
+
+Core defines scientific meaning and the runtime-agnostic request. Runtime owns
+provider selection, execution state, checkpoints, artifacts, and replay.
+
+```mermaid
+sequenceDiagram
+    participant C as Core contract
+    participant R as Runtime
+    participant P as Provider
+    C->>R: validated workflow request and acceptance policy
+    R->>P: resolved execution plan
+    P-->>R: outputs, diagnostics, or governed failure
+    R-->>C: run bundle with artifact identities
+```
+
+A completed run proves that the resolved plan reached a terminal operational
+state. Core’s scientific acceptance logic determines whether the outputs meet
+the workflow contract.
 
 ## Documentation map
 
