@@ -4,42 +4,52 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Invariants
 
-Invariants are the claims that must remain true for the package to stay worth trusting.
+Foundation contracts allow independently owned packages to exchange identity,
+outcomes, provenance, and serialized documents without negotiating meaning at
+every call site.
 
-## Invariant Model
+## Shared-contract invariants
+
+| Invariant | What must remain true | Observable violation |
+| --- | --- | --- |
+| identity is explicit | identifiers retain namespace, validation, equality, and canonical representation | two spellings compare equal accidentally or one spelling changes identity after round trip |
+| outcome classes stay distinct | success, failure, refusal, absence, and optional-dependency failure remain distinguishable | a consumer must inspect text to recover outcome class |
+| canonical serialization is deterministic | supported normalized values produce the same ordered JSON bytes | map order, unsupported values, or environment changes alter bytes silently |
+| documents declare schema version | every governed document can be routed to validation or migration deliberately | a reader guesses version from fields |
+| migration is explicit | source, target, transformation, and loss behavior are registered and tested | coercion accepts an old payload while changing meaning silently |
+| fingerprints follow canonical meaning | equal canonical inputs hash equally and semantic changes alter the fingerprint | formatting alone changes identity or changed meaning reuses a fingerprint |
+| provenance survives transformation | source identity and declared transformations remain attached | normalized output cannot be traced to its source |
+| Foundation remains policy-free | shared primitives do not choose scientific, recommendation, execution, or laboratory policy | a shared type embeds one consumer’s decision rule |
 
 ```mermaid
 flowchart LR
-    meaning["shared identifiers and schema meaning"]
-    migration["serialization and migration behavior"]
-    boundary["foundation stays out of downstream policy"]
-
-    meaning --> migration --> boundary
+    I["identity and outcome"] --> J["canonical document"]
+    J --> V["schema version"]
+    V --> M["explicit migration"]
+    M --> F["stable fingerprint"]
+    J --> P["preserved provenance"]
+    F --> C["consumer interpretation"]
 ```
 
-This page should make foundation invariants feel like the rules that let other
-packages share one canonical language. If these claims blur, downstream reuse
-starts relying on coincidence instead of stable meaning.
+## Stability dimensions
 
-## Review Rules
+Byte stability, value stability, schema compatibility, and import stability are
+separate promises. A canonical JSON test establishes bytes only for supported
+values. A migration test establishes one registered version path. A public API
+guard establishes imports, not downstream interpretation.
 
-- shared identifiers and schema meanings remain canonical across consuming packages
-- serialization and migration paths stay explicit and reviewable
-- foundation never absorbs downstream policy just because many packages use it
+## Boundary invariant
 
-## First Proof Check
+Foundation may define the shared representation of a reason code, refusal, or
+provenance record. It does not decide when Core accepts a scientific result,
+when Intelligence recommends an action, when Runtime executes, when Knowledge
+resolves evidence, or when Lab authorizes work.
 
-- `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
-- `src/bijux_proteomics_foundation/serialization/`
-
-## Design Pressure
-
-Foundation invariants break when migration convenience starts redefining shared
-meaning. The package has to keep canonical identifiers, schemas, and durable
-transforms visibly aligned.
+When an invariant fails, repair the canonical contract or introduce an explicit
+version and migration. Do not add consumer-specific aliases or permissive
+coercion that makes incompatible meanings look compatible.
