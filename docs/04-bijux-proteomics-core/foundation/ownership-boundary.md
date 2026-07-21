@@ -4,29 +4,56 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Ownership Boundary
 
-Durable scientific workflow rules belong here before evidence state, ranking
-policy, or runtime delivery layers act on them.
+Core owns deterministic proteomics computation and the scientific contracts
+needed to review it. Inputs, policies, accepted and rejected material,
+diagnostics, ambiguity, and limitations must remain visible independently of
+the caller or execution environment.
 
-## Keep It Here When
+```mermaid
+flowchart LR
+    I["scientific inputs"] --> C["Core operation"]
+    P["explicit method policy"] --> C
+    C --> A["accepted results"]
+    C --> X["rejections and ambiguity"]
+    C --> Q["QC and limitations"]
+    A --> R["Runtime execution"]
+    A --> K["Knowledge grounding"]
+```
 
-- the change alters canonical entities, lifecycle transitions, review gates, or
-  runtime-agnostic workflow contracts
-- the best proof lives in this package's source tree and tests
-- neighboring packages would otherwise become shadow owners of scientific law
+## Owned Scientific Surfaces
 
-## Move It Elsewhere When
+| Surface | Core authority |
+| --- | --- |
+| formats and intake | FASTA, spectra, mzML, tables, search-engine exports, normalized bundles |
+| sequence and chemistry | digestion, modifications, masses, fragments, target-decoy construction |
+| identification | PSM normalization, score orientation, FDR, protein inference, ambiguity |
+| quantification | normalization, missingness, differential analysis, protein and peptide summaries |
+| workflow families | DDA, DIA, LFQ, multiplex, PTM, targeted scientific contracts |
+| interpretation | enrichment and biological-context computations over explicit inputs |
+| benchmarks | fixtures, reference cases, comparators, acceptance, challenge corpora |
+| scientific artifacts | typed reports, QC, rejected rows, policy, provenance, limitations |
 
-- the change mainly alters evidence truth, recommendation posture, runtime
-  transport, or assay consequence
-- the package becomes a convenience layer for review or operator delivery logic
-- the proof surface is mostly outside scientific contracts already
+## Refused Ownership
 
-## First Proof Check
+Core does not own process state, providers, retries, scheduling, replay,
+evidence custody, citation truth, recommendation policy, laboratory readiness,
+or repository governance. A Core result can be executed by Runtime, grounded by
+Knowledge, judged by Intelligence, and acted on by Lab without transferring
+those authorities into the scientific operation.
 
-- `packages/bijux-proteomics-core/src/bijux_proteomics`
-- `packages/bijux-proteomics-core/tests`
+## Placement Test
+
+Keep a change in Core when the same scientific inputs and policy should produce
+the same reviewable result regardless of process environment. Move it to
+Runtime when it concerns when, where, or how work executes; to Knowledge when
+it concerns claim support; to Intelligence when it selects or recommends; and
+to Lab when it concerns practical follow-up or outcomes.
+
+Scientific convenience is not enough. A helper belongs here only when it
+preserves an owned scientific invariant and exposes the evidence required to
+challenge it.
