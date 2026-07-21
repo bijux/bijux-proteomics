@@ -1,56 +1,81 @@
 ---
 title: API and Schema Governance
 audience: mixed
-type: explanation
+type: runbook
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# API and Schema Governance
+# API and schema governance
 
-API and schema governance matters because tracked contracts can drift away from
-the code that claims to implement them. The repository owns how those artifacts
-are stored, validated, and reviewed across packages.
+Tracked API artifacts under `apis/<package>/v1/` are reviewed public contracts.
+They must describe the behavior shipped by the owning package and carry a
+versioned route when compatibility is intentionally broken.
 
-## Governance Model
+## Contract change sequence
 
 ```mermaid
-flowchart TB
-    change["api or schema change"]
-    artifact["tracked artifact under apis/*/v1"]
-    checks["freeze and drift checks"]
-    behavior["consuming package behavior"]
-    verdict["compatibility event or routine change"]
-
-    change --> artifact
-    artifact --> checks
-    checks --> behavior
-    behavior --> verdict
+flowchart LR
+    owner["owning package behavior"]
+    generate["generated contract candidate"]
+    compare["freeze and drift comparison"]
+    classify["additive · narrowing · breaking"]
+    consumers["consumer and migration proof"]
+    tracked["reviewed tracked artifact"]
+    owner --> generate --> compare --> classify --> consumers --> tracked
 ```
 
-This page should make API and schema review feel like contract governance, not file maintenance. If the artifact, the checks, and the behavior do not move together, the repository has already lost the contract story.
+Change the owning implementation first. Generate the contract candidate through
+the repository command, review its semantic diff, and update the tracked
+artifact only when it accurately represents intended behavior. Do not edit a
+generated OpenAPI document to make a drift check pass while leaving runtime
+behavior unchanged.
 
-## Governing Surfaces
+## Run the contract gates
 
-- tracked artifacts under `apis/*/v1`
-- canonical runtime API artifacts under `apis/bijux-proteomics-runtime/v1/`
-- freeze and drift checks in `bijux-proteomics-dev`
-- workflow and make surfaces that run those checks before release
+```bash
+make api-freeze
+make openapi-drift
+make api
+```
 
-## Compatibility Threshold
+- `api-freeze` enforces the governed snapshot contract.
+- `openapi-drift` detects breaking schema movement without a corresponding
+  version decision.
+- `api` runs package API checks for packages registered with API capability.
 
-A schema or API change becomes a compatibility event when the tracked artifact,
-its contract checks, and the consuming package behavior no longer move together.
-At that point the change is no longer bookkeeping and should be reviewed as a
-public contract shift.
+Use `make api PACKAGE=<package-name>` while working on one package, then run the
+repository gates before release.
 
-## First Proof Check
+## Classify compatibility
 
-- `apis/*/v1`
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts`
-- workflow or make callers that enforce the checks
+| Change | Default classification |
+| --- | --- |
+| new optional response field | additive if old clients may ignore it |
+| new required request field | breaking |
+| narrower enum, pattern, range, or validation | narrowing or breaking |
+| renamed path, operation, field, or error code | breaking |
+| changed nullability or default | semantic compatibility event |
+| clarification with identical generated schema and behavior | documentation-only |
 
-## Design Pressure
+Schema equality alone cannot prove behavioral compatibility. Validate request
+handling, response serialization, status codes, error bodies, and authentication
+or authorization behavior where applicable. Conversely, a code change that
+alters behavior without moving the tracked artifact is contract drift.
 
-The common drift is to review tracked artifacts as generated output even when they are the public contract surface that should be driving release scrutiny.
+## Canonical and compatibility APIs
+
+The canonical execution API belongs to
+`apis/bijux-proteomics-runtime/v1/`. The Agentic Proteins API is a compatibility
+mirror and must remain traceable to Runtime rather than becoming a second API
+owner. A bridge change requires canonical-schema comparison plus compatibility
+route tests.
+
+## Review record
+
+The change description identifies the owning package, affected operations or
+schemas, compatibility class, migration route, regenerated files, and commands
+run. If a tracked artifact changes without a consumer-visible effect, explain
+why the representation moved. If behavior changes without an artifact diff,
+explain which non-schema contract moved and how it is tested.
