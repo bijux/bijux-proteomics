@@ -15,10 +15,10 @@ Intelligence ranks and challenges possible actions. Lab records whether an
 accepted action was feasible and what happened next.
 
 The result is an evidence chain, not a promise that every workflow is equally
-mature. Packages can be installed independently, and every cross-package handoff
-has an identifiable owner. Start with the
+mature. Packages can be installed independently, and every cross-package
+handoff has an identifiable owner. The
 [product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
-for the full data and decision path.
+traces the full data and decision path.
 
 ## Current Credible Workflow Families
 
@@ -26,13 +26,17 @@ The checked family matrix currently records these public classifications:
 
 Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
 
+Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+
 Internal-support-only workflow families today: `multiplex`.
 
-LFQ is review-grade bounded. More importantly, the live black-box rerun gate
-currently narrows DDA to review-grade bounded because the repository does not
-own a raw DDA search execution lane. The declared family matrix therefore runs
-ahead of the strict release preflight for DDA; a release must follow the weaker
-live result until those surfaces agree.
+These sets answer different questions. A complete outsider-readable packet
+means the evidence can be inspected end to end; it does not automatically earn
+the stronger outsider-auditable classification. LFQ remains review-grade
+bounded, and all families retain the limitations declared by their benchmark,
+runtime, grounding, recommendation, and consequence records. The current
+repository preflight passes, but that operational result does not widen any
+scientific claim by itself.
 
 Read [what one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
 for the evidence chain and
@@ -94,18 +98,10 @@ grounding, recommendation, or lab-consequence gate.
 
 ## Reader Paths
 
-- [Repository handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
-  explains package selection, ownership, and system boundaries.
-- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-  identifies the canonical owner of each durable contract.
-- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
-  gives reviewers the shortest route to checked evidence.
-- [Runtime migration validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
-  distinguishes canonical runtime behavior from compatibility imports.
-- [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-  covers scientific models, algorithms, adapters, and benchmark assets.
-- [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  covers execution, providers, checkpoints, replay, and run evidence.
+- **Scientist: start with** the [scientist journey](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientist-journey/), then inspect the [workflow families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/) and [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/).
+- **Operator: start with the** [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) and [operator rerun journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/).
+- **Maintainer: start with** the [safe-change guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/) and [runtime migration validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/).
+- **Reviewer: start with** [cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/) and follow each claim to its benchmark, run, evidence, decision, and consequence records.
 
 ## Evidence Chain
 
@@ -164,9 +160,17 @@ callers move to `bijux-proteomics-runtime`. The `bijux-proteomics`,
 `proteomics`, and `proteomics-*` distributions are install/import aliases;
 they do not define competing implementations.
 
-## Installation
+## Install Aliases
 
-Install the narrowest canonical package that owns the behavior you need:
+Install the narrowest canonical distribution that owns the behavior. Alias and
+compatibility distributions preserve historical installation surfaces; they do
+not create additional product owners.
+
+| Install surface | Resolves to |
+| --- | --- |
+| `bijux-proteomics` | `bijux-proteomics-core` through the canonical `bijux_proteomics` import root |
+| `proteomics` and `proteomics-*` | corresponding canonical `bijux-proteomics-*` distributions |
+| `agentic-proteins` | `bijux-proteomics-runtime` plus legacy compatibility submodules |
 
 ```bash
 python -m pip install bijux-proteomics-core
@@ -176,6 +180,21 @@ python -m pip install bijux-proteomics-runtime
 The packages require Python 3.11 or newer. Runtime and scientific extras are
 declared by their owning distributions; consult the relevant package handbook
 before enabling provider-backed or external-tool workflows.
+
+## Common Commands
+
+The Core CLI operates directly on scientific inputs and reports. The Runtime
+CLI owns configured execution, checkpoints, resume, comparison, and replay.
+
+```bash
+bijux-proteomics --help
+bijux-proteomics-runtime --help
+```
+
+Treat `bijux-proteomics-runtime` as canonical and `agentic-proteins` as compatibility.
+Before changing or removing a legacy entrypoint, run
+`make quality-runtime-migration-validation` and inspect the generated module
+and compatibility ledgers.
 
 ## First auditable operation
 
@@ -253,8 +272,11 @@ state separate on purpose:
 - repository-owned automation lives under [`makes/`](makes),
   [`configs/`](configs), [`apis/`](apis), [`docs/`](docs), and
   [`.github/workflows/`](.github/workflows)
-- transient local outputs belong under [`artifacts/`](artifacts), not as
-  root-level cache directories or package-local spillover
+- transient local outputs belong under `artifacts/`; the shared check
+  environment is `artifacts/root/check-venv/` and the rendered site is
+  `artifacts/root/docs/site/`
+- package roots must stay free of local `artifacts/`, `.venv`, caches, logs,
+  and generated run products
 - package `CHANGELOG.md` files own package release notes, while the root
   [`CHANGELOG.md`](CHANGELOG.md) is only for repository-wide changes
 - publishing is tag-driven and fans out into GitHub Release, PyPI, GHCR, and
@@ -262,6 +284,28 @@ state separate on purpose:
 
 This separation keeps scientific ownership visible and makes transient state
 safe to remove without confusing it with source or governed evidence.
+
+## Repository Extension Contract
+
+New package surfaces must enter through the same governed mechanisms as the
+existing repository:
+
+- add dependency groups and package extras deliberately; supported extras
+  include `api`, `local-esmfold`, `local-rosettafold`, `nl`, and `test`;
+- use `uv sync --group test` for a test-capable development environment rather
+  than creating package-local environments;
+- extend the shared quality and security gates, including `interrogate` and `bandit`,
+  instead of adding an untracked package-only check;
+- update `api-freeze` and `openapi-drift` evidence when public Python or HTTP
+  contracts change;
+- preserve the distinct `ensure-venv` and `nlenv` environment routes;
+- register governed examples and model assets through `manage_examples` and `manage_models`;
+- run `make quality-artifact-governance`,
+  `make quality-architecture-regression`, and `make release-preflight` before
+  treating an extension as repository-complete.
+
+The [maintainer handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+maps each extension surface to its owner and gate.
 
 ## License
 

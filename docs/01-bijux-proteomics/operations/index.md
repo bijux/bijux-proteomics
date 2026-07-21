@@ -38,7 +38,7 @@ documentation, security, package-boundary, migration, or publication checks.
 | change a public model or endpoint | [API and schema governance](api-and-schema-governance.md) | compatibility diff, schema evidence, consumer impact |
 | add or regenerate evidence | [Artifact governance](artifact-governance.md) | provenance, deterministic location, validation, retention decision |
 | alter automation | [Automation surfaces](automation-surfaces.md) | local equivalent, workflow ownership, failure visibility |
-| migrate historical runtime users | [Runtime migration validation](runtime-migration-validation.md) | import, CLI, route, configuration, replay, and sunset evidence |
+| migrate historical runtime users | [Runtime Migration Validation](runtime-migration-validation.md) | import, CLI, route, configuration, replay, and sunset evidence |
 | prepare a release | [Release and versioning](release-and-versioning.md) | package identity, build, install, documentation, and preflight results |
 
 ## Validation is layered

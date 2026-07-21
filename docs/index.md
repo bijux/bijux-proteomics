@@ -14,22 +14,37 @@ reproducible execution, evidence-aware interpretation, and laboratory
 follow-up. It is designed for work that must remain inspectable after a result
 leaves the process that produced it.
 
-## Evidence Status
+## Product Scope
 
-The platform contains substantial scientific and operational machinery, but
-the repository does not currently pass its full release preflight. The declared
-workflow matrix lists DDA, DIA, PTM, and targeted analysis as
-outsider-auditable; LFQ remains review-grade bounded and multiplex remains
-internal support only. The live black-box gate narrows DDA to review-grade
-bounded because its strongest path still begins with imported search-engine
-outputs rather than an in-repository raw search execution lane.
+Six canonical packages divide responsibility: Foundation owns portable
+contracts, Core owns scientific computation, Runtime owns execution, Knowledge
+owns evidence memory, Intelligence owns decision policy, and Lab owns
+experimental consequence. A compatibility distribution preserves historical
+Runtime entrypoints without becoming a second owner.
 
-That disagreement is visible by design. Readers should use the weakest live
-result, not the strongest adjacent label. See
-[workflow claim limits](01-bijux-proteomics/foundation/workflow-claim-limits.md)
-for the family matrix and
-[release readiness](01-bijux-proteomics/foundation/release-readiness-matrix.md)
-for repository-wide blockers.
+## Current Credible Workflow Families
+
+Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+
+Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+
+Internal-support-only workflow families today: `multiplex`.
+
+Packet completeness and workflow authority are intentionally separate. LFQ has
+an outsider-readable packet while its strongest honest sentence remains
+review-grade bounded. Passing repository preflight establishes that governed
+release checks agree; it does not establish universal scientific validity.
+
+## Forbidden Claims
+
+The platform does not claim universal transfer across cohorts, instruments,
+search engines, acquisition modes, or experimental designs. Successful
+execution does not prove biological truth. Grounding does not authorize a
+recommendation, and a recommendation does not establish laboratory value.
+
+[Workflow claim limits](01-bijux-proteomics/foundation/workflow-claim-limits.md)
+defines the family ceilings. [Release readiness](01-bijux-proteomics/foundation/release-readiness-matrix.md)
+records the live repository gates.
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
@@ -67,6 +82,13 @@ for repository-wide blockers.
 [![bijux-proteomics-knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
+
+## Reader Paths
+
+- **Scientist:** follow the [Scientist Journey](01-bijux-proteomics/foundation/scientist-journey.md) from input through consequence.
+- **Operator:** use the [Operator Rerun Journey](09-bijux-proteomics-runtime/operator-rerun-journey.md) for execution, resume, comparison, and replay.
+- **Maintainer:** use [Maintainer Safe Change](08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md) before editing an owned surface.
+- **Reviewer:** begin with [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) and the [Public Artifact Index](01-bijux-proteomics/foundation/public-artifact-index.md).
 
 ## One result, six accountable layers
 
@@ -114,11 +136,15 @@ execution, and a public benchmark packet answer different questions. The
 shows the evidence for each family; the claim-limit page records where that
 evidence must stop.
 
-## Choose a route
+## Reader-First Sections
 
 | You need to… | Start here |
 | --- | --- |
-| understand the system and its data flow | [Product architecture](01-bijux-proteomics/foundation/product-architecture.md) |
+| understand the product boundary | [Product Overview](01-bijux-proteomics/foundation/product-overview.md) |
+| trace system data and decisions | [Product Architecture](01-bijux-proteomics/foundation/product-architecture.md) |
+| resolve canonical ownership | [Cross-Package Ownership](01-bijux-proteomics/foundation/cross-package-ownership.md) |
+| compare evidence by workflow | [Workflow Families](01-bijux-proteomics/foundation/workflow-families.md) |
+| inspect grounding, ranking, and consequence | [Decision Support](01-bijux-proteomics/foundation/decision-support.md) |
 | inspect scientific algorithms and benchmark assets | [Core](04-bijux-proteomics-core/index.md) |
 | run, resume, compare, or replay work | [Runtime](09-bijux-proteomics-runtime/index.md) |
 | trace a claim to evidence and contradictions | [Knowledge](06-bijux-proteomics-knowledge/index.md) |
