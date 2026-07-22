@@ -18,6 +18,23 @@ records into a recommendation policy.
 python -m pip install bijux-proteomics-knowledge
 ```
 
+## Keep grounding separate from action
+
+A source record, a grounded claim, an evidence-sufficiency decision, and a
+recommendation are different artifacts with different owners.
+
+| Question | Owning decision | Result |
+| --- | --- | --- |
+| was the source identified and represented correctly? | Knowledge ingestion and normalization | versioned evidence record or unresolved identity |
+| what relationship does the source have to this precise claim and context? | Knowledge grounding and reconciliation | support, contradiction, qualification, context-only, or unresolved edge |
+| does the assembled evidence meet the burden for this declared use? | Knowledge sufficiency policy | bounded review bundle, limitation, or knowledge gap |
+| which candidate or action should be preferred under declared constraints? | Intelligence ranking and challenge | recommendation, condition, downgrade, escalation, hold, or refusal |
+| did the authorized follow-up produce an accepted consequence? | Lab readiness, observation, and reconciliation | consequence record returned as evidence without rewriting the earlier claim |
+
+A “yes” in one row does not imply a “yes” in the next. In particular, correct
+identifier resolution cannot establish claim support, and sufficient evidence
+for description may remain insufficient for prioritization or experiment.
+
 ## Evidence lifecycle
 
 ```mermaid
@@ -88,13 +105,9 @@ positions and failures, contradiction dossiers, evidence-sufficiency checks,
 knowledge-deficit reports, scientific thresholds, reading packs, replay proof,
 and release-facing narratives.
 
-These workflows distinguish three questions:
-
-1. **Was a source identified and represented correctly?**
-2. **Does it support the claim in the declared context?**
-3. **Is the assembled evidence sufficient for the intended use?**
-
-A “yes” at one level does not imply a “yes” at the next.
+These workflows preserve the identities and decisions needed to answer the
+grounding and sufficiency questions above without collapsing them into a source
+count or narrative confidence label.
 
 ## Claim anatomy
 

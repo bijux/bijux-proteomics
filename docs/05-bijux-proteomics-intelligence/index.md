@@ -18,6 +18,25 @@ own the evidence it evaluates.
 python -m pip install bijux-proteomics-intelligence
 ```
 
+## Diagnose recommendation movement
+
+Two recommendation records can disagree without either being corrupt. Compare
+the dimension that moved before interpreting the decision change.
+
+| Changed dimension | Record to inspect | Defensible interpretation |
+| --- | --- | --- |
+| evidence snapshot | Knowledge bundle identities, source versions, contradictions, and sufficiency decision | the decision responded to different scientific support; do not describe this as policy learning |
+| candidate universe | included, excluded, invalid, and unavailable candidate identities | the winner changed inside a different choice set; rankings are not directly comparable until the shared set is isolated |
+| decision policy | objectives, hard constraints, thresholds, weights, tie-breakers, and policy version | the value judgment changed; evidence did not become stronger merely because the ranking moved |
+| scenario burden | counterfactuals, perturbations, sensitivity ranges, and falsifiers | the recommendation faced a different challenge envelope |
+| feasibility or lab burden | capacity, assay readiness, cost, safety, and consequence assumptions | an analytically attractive action became operationally weaker or stronger |
+| authority state | human review, escalation owner, approval, hold, or refusal | the permission to act changed; the scientific inputs may be identical |
+
+Record multiple causes separately when they move together. A later
+recommendation supersedes a prior decision only for its declared evidence,
+candidate, policy, scenario, and authority context; it does not rewrite why the
+earlier record was produced.
+
 ## Decision pipeline
 
 ```mermaid
