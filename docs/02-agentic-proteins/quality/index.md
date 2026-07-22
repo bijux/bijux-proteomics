@@ -4,12 +4,14 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-22
 ---
 
 # Quality
 
-`agentic-proteins` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
+Quality for `agentic-proteins` is compatibility evidence plus retirement
+discipline. A change is acceptable only when existing callers retain their
+declared observable behavior and the bridge does not regain product ownership.
 
 ## Trust Model
 
@@ -24,9 +26,30 @@ flowchart LR
     invariants --> tests --> validation --> risks --> decision
 ```
 
-This page should show quality as a trust path rather than a page list. For the
-legacy bridge package, trust means proving the bridge still forwards correctly
-and stays easier to retire instead of becoming a second product surface.
+The bridge is trusted for forwarding, not for independent behavior. Import,
+CLI, HTTP, state, and replay contracts are checked against canonical owners;
+new scientific or execution behavior belongs in those owners first.
+
+## Compatibility proof by surface
+
+| Surface | Evidence required | Blocking failure |
+| --- | --- | --- |
+| Python imports | legacy symbol resolves to the declared canonical owner with equivalent public type and failure behavior | bridge defines or mutates product behavior |
+| CLI | arguments, exit status, stdout or stderr contract, and artifacts match the canonical command | wrapper accepts an unsupported option or hides a canonical failure |
+| HTTP | route, schema, status, and error envelope match the canonical application | bridge exposes an independently evolving protocol |
+| persisted state | supported historical records reopen through a declared compatibility path | migration guesses at unknown state or loses lineage |
+| replay | stable fields match under a named comparison policy | ignored divergence has no explicit normalization rule |
+| retirement | caller inventory, replacement route, and absence test are current | a path is removed from memory rather than evidence |
+
+```mermaid
+flowchart TD
+    change["bridge change"] --> surface["identify affected observable surface"]
+    surface --> canonical["resolve canonical owner"]
+    canonical --> compare["run compatibility comparison"]
+    compare --> ownership{"bridge still forwarding only?"}
+    ownership -->|yes| retirement["record caller and retirement effect"]
+    ownership -->|no| block["move behavior to canonical owner or refuse change"]
+```
 
 ## Start With
 
@@ -46,18 +69,19 @@ and stays easier to retire instead of becoming a second product surface.
 - [Review Checklist](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/review-checklist/)
 - [Risk Register](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/risk-register/)
 
-## What Quality Means Here
+## First proof route
 
-- proving that the legacy bridge still forwards correctly and becomes easier to retire over time
-
-## First Proof Check
-
-- `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
-- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
+1. Identify the canonical owner in the migration ledger.
+2. Run the surface-specific compatibility tests under
+   `packages/agentic-proteins/tests`.
+3. Inspect forwarding in `src/agentic_proteins/interfaces/`, `execution/`, or
+   `state/` and confirm it introduces no independent policy.
+4. Record whether the caller inventory shrinks, stays bounded, or expands.
+5. Block any change that expands ownership without an explicit canonical
+   package change.
 
 ## Design Pressure
 
-If the quality section reads like generic reassurance instead of a concrete
-bridge-proof path, the legacy package will linger on habit instead of staying
-reviewable and intentionally temporary.
+The highest-risk failure is a green compatibility test around behavior that
+now belongs only to the bridge. Parity is insufficient when ownership has
+already drifted.
