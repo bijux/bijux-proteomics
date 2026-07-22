@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Error Model
@@ -33,3 +33,18 @@ flowchart TD
 ```
 
 The absence of a recommendation is not a crash, and a completed calculation is not necessarily decision success. Errors must not be “handled” by substituting neutral scores, dropping candidates, resolving ties arbitrarily, or suppressing missing evidence. Those behaviors would turn uncertainty into false precision.
+
+## Route the outcome to its authority
+
+| Outcome | Accountable response | Closure evidence |
+| --- | --- | --- |
+| invalid candidate, policy, scenario, or evidence contract | data or policy owner corrects the named contract | corrected identity plus validation result; unchanged retry is not closure |
+| evidence refusal | Knowledge or scientific owner supplies the missing burden or accepts a narrower claim | new evidence-bundle identity, sufficiency decision, or explicit refusal acceptance |
+| hold | decision owner waits for the named resolving event | hold condition, expiry or review trigger, and resulting disposition |
+| human escalation | named domain, safety, cost, or operational authority decides the contested dimension | competing outcomes, owner, rationale, conditions, and decision time |
+| degraded recommendation | consumer preserves caveats and satisfies required review before use | accepted limitations, allowed use, reviewer, and downstream restrictions |
+| recommendation | accountable human or governed promotion policy decides whether action may proceed | recommendation identity, authority decision, conditions, and handoff target |
+
+No row authorizes Intelligence to manufacture missing evidence or operational
+approval. If the named authority does not respond, the durable state remains a
+hold, escalation, or refusal rather than silently aging into approval.

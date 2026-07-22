@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Architecture Risks
@@ -35,3 +35,20 @@ flowchart LR
 ```
 
 A sophisticated ranking is still bounded decision support. Review quality depends on seeing where the result is sensitive, conflicted, incomplete, or contingent—not only why the leading candidate scored well.
+
+## Require an explicit promotion record
+
+Advisory output becomes enforceable only through a separate authority decision.
+The promotion record must retain:
+
+- the exact recommendation, evidence snapshot, candidate cohort, and policy;
+- the action surface, scope, and consumers covered by enforcement;
+- the accountable promoter and the authority under which they act;
+- every prerequisite, stop condition, review interval, and expiry;
+- the monitored failure, contradiction, drift, and consequence signals;
+- rollback or suspension behavior that does not erase actions already taken.
+
+Promotion cannot repair a refused evidence gate, unstable candidate universe,
+or absent Lab readiness decision. When those inputs change, enforcement returns
+to review against a new recommendation record instead of inheriting authority
+from the earlier promotion.

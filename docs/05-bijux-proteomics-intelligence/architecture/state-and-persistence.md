@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # State and Persistence
@@ -38,3 +38,19 @@ flowchart LR
 Candidate stores and artifact records support package workflows, but service persistence remains a runtime concern. Knowledge evidence is referenced rather than copied into an intelligence-owned source of truth. Lab outcomes can be linked for learning without becoming retroactive inputs to an older recommendation.
 
 Decision records should be append-only in meaning: corrections or new evidence create a superseding evaluation. Keeping old policy and evidence snapshots allows reviewers to distinguish a changed world from a changed model.
+
+## Record supersession explicitly
+
+| Supersession cause | New record must identify | Historical record retains |
+| --- | --- | --- |
+| corrected candidate data | corrected fields, source, affected candidates, and validation | original cohort, exclusions, and scores |
+| changed evidence | prior and current Knowledge bundle identities plus relationship changes | evidence snapshot and sufficiency state used at decision time |
+| changed policy | prior and current policy identities, changed constraints or weights, and approval | original objectives, thresholds, tie-breakers, and rationale |
+| expanded scenario burden | added or removed scenarios, falsifiers, and sensitivity ranges | outcomes under the earlier challenge envelope |
+| human override | accountable actor, authority, rationale, conditions, and expiry | computed recommendation and required review state |
+| observed consequence | linked Lab consequence and declared learning rule | recommendation as issued before the outcome existed |
+
+A “latest” projection may select the active record, but it must remain possible
+to reconstruct the chain and compare like-for-like dimensions. Deleting an
+earlier recommendation destroys evidence about calibration, policy drift, and
+the cost of past decisions.
