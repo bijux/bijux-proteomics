@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Runtime Environment Contracts
@@ -19,6 +19,17 @@ flowchart LR
     E --> S["supported combinations"]
     E --> U["unsupported combinations"]
 ```
+
+## Qualify an environment
+
+| Decision | Evidence to inspect | Refusal condition |
+| --- | --- | --- |
+| identify the lane | workflow family, runtime package ID, execution mode, and benchmark manifest | the request does not match one governed lane |
+| resolve required tools | tool name, version, configuration, and availability | a required tool or declared capability is absent |
+| bind tracked inputs | source paths, digests, schema identities, and benchmark revision | an input is missing, mutable, or does not match the retained contract |
+| disclose external dependencies | imported engine outputs, remote services, credentials, licenses, and network assumptions | an external dependency is implicit or cannot be reconstructed |
+| compare the supported envelope | operating system, Python and package versions, extras, providers, and checked combinations | the requested combination lies outside retained evidence |
+| execute invalidation cases | unavailable provider, changed input, incompatible schema, missing artifact, and other lane-specific challenges | a challenged condition succeeds silently or produces an ambiguous result |
 
 ## Contract Fields
 
@@ -85,3 +96,17 @@ An environment claim may expand only when required tools, external
 dependencies, replay evidence, and failure behavior expand together. A green
 repository execution lane does not erase the unsupported combinations listed
 for that family.
+
+## Record the qualification
+
+A reviewable environment decision retains the workflow family, runtime
+package ID, request fingerprint, input inventory, required and observed tool
+versions, package lock or environment identity, external dependencies,
+provider decisions, invalidation results, and final disposition.
+
+| Disposition | Meaning | Operator response |
+| --- | --- | --- |
+| qualified | the exact declared combination is backed by retained replay evidence | proceed and bind the environment record to the run |
+| degraded | execution is possible but one non-blocking environmental property differs | record the difference and keep claims inside the reviewed envelope |
+| unsupported | the combination lies outside the retained contract | refuse the stronger environment claim; select a supported lane or add evidence |
+| irreproducible | required inputs, tools, or external dependencies cannot be reconstructed | stop replay and preserve the missing dependency as the blocker |

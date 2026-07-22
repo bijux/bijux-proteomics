@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Runtime Artifact Stability
@@ -117,3 +117,19 @@ analytical, vendor-parity, recommendation, or lab authority.
 A stability verdict must retain both run identities, the comparison contract,
 artifact inventories, classified differences, comparison-tool identity, and
 the final disposition. A bare “same” or “changed” result is not reviewable.
+
+## Minimum comparison record
+
+| Record field | Why it is required |
+| --- | --- |
+| baseline and candidate identities | prevents comparison against the wrong run or contract |
+| artifact inventories | exposes missing, added, and role-changed outputs before value comparison |
+| stability policy revision | fixes which paths, fields, meanings, and environment values were governed |
+| classified differences | separates byte, value, review, permitted-environment, and unresolved drift |
+| comparator identity and tolerances | makes numeric and semantic equivalence reproducible |
+| disposition and authority | records who accepted, refused, or escalated the comparison and why |
+
+Comparison is refused when either run identity is unresolved, a required
+artifact is absent, a governed difference has no class, or review meaning
+moves without an explicit contract decision. Permitted environment drift
+never absorbs a changed result, blocker, or claim.
