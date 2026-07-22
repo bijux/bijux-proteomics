@@ -22,17 +22,28 @@ python -m pip install bijux-proteomics-intelligence
 
 ```mermaid
 flowchart LR
-    evidence["evidence and execution records"]
+    evidence["versioned evidence bundle"]
+    snapshot["evidence fingerprint"]
     candidates["candidate set\nfilter · validate · fingerprint"]
+    policy["declared policy\nconstraints · objectives · thresholds"]
+    burden["feasibility and lab burden"]
     rank["ranking\npolicy · quality · selection"]
     challenge["challenge\ncontradictions · falsifiers · scenarios"]
     judgment["judgment\nsensitivity · confidence · regret"]
     result{"supported?"}
     recommend["recommendation record"]
     refuse["refusal with reasons"]
-    evidence --> candidates --> rank --> challenge --> judgment --> result
+    review["human and domain review"]
+    evidence --> snapshot --> challenge
+    candidates --> rank
+    policy --> rank
+    rank --> challenge
+    burden --> challenge
+    challenge --> judgment --> result
     result -->|yes| recommend
     result -->|no| refuse
+    recommend --> review
+    refuse --> review
 ```
 
 Every recommendation is a policy output, not a fact. Its candidate set,
@@ -233,11 +244,11 @@ for operational authority.
 
 ## Continue By Decision Question
 
-| Need | Read next |
-| --- | --- |
-| understand module ownership and artifact flow | [package overview](foundation/package-overview.md) |
-| pressure-test a ranking | [recommendation challenges](foundation/workflow-recommendation-challenges.md) |
-| interpret confidence, calibration, or regret | [recommendation confidence](foundation/workflow-recommendation-confidence.md) |
-| inspect policy and dependency boundaries | [architecture](architecture/index.md) |
-| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) |
-| determine when Intelligence must downgrade or refuse | [known limitations](quality/known-limitations.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| understand module ownership and artifact flow | [package overview](foundation/package-overview.md) | candidates, evidence, policy, challenge, disposition, and next authority resolve separately |
+| pressure-test a ranking | [recommendation challenges](foundation/workflow-recommendation-challenges.md) | leave-one-source-out, counterfactual, threshold, and burden pressure expose every rank reversal |
+| interpret confidence, calibration, or regret | [recommendation confidence](foundation/workflow-recommendation-confidence.md) | confidence language matches the tested evidence snapshot and cost-of-error record |
+| inspect policy and dependency boundaries | [architecture](architecture/index.md) | Intelligence consumes owner records without rewriting scientific, execution, evidence, or laboratory truth |
+| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) | the recommendation can be reproduced from identified candidates, evidence, policy, and scenarios |
+| determine when Intelligence must downgrade or refuse | [known limitations](quality/known-limitations.md) | every unsupported action ends in a named downgrade, escalation, hold, or refusal |

@@ -24,12 +24,23 @@ python -m pip install bijux-proteomics-knowledge
 flowchart LR
     source["literature · ontology · database · run artifact"]
     normalize["normalize\nidentity · context · provenance"]
+    resolved{"identity and context resolved?"}
     memory["evidence memory\nrecords · claims · bundles"]
-    reconcile["reconcile\nduplicates · conflicts · contradictions"]
+    reconcile{"relationship to claim"}
     ground["ground\nprotein · pathway · feature · disease · drug"]
-    assess["assess\ncoverage · sufficiency · risk"]
+    assess{"use-specific burden met?"}
     brief["scientific review bundle"]
-    source --> normalize --> memory --> reconcile --> ground --> assess --> brief
+    gap["knowledge gap or unresolved record"]
+    contradiction["contradiction or qualification edge"]
+    source --> normalize --> resolved
+    resolved -->|no| gap
+    resolved -->|yes| memory --> reconcile
+    reconcile -->|support| ground
+    reconcile -->|contradict or qualify| contradiction --> ground
+    reconcile -->|unresolved| gap
+    ground --> assess
+    assess -->|yes| brief
+    assess -->|no| gap
 ```
 
 The package preserves disagreement. Contradictory evidence is not averaged
@@ -257,11 +268,11 @@ after the review bundle has a declared sufficiency posture.
 
 ## Continue By Evidence Question
 
-| Need | Read next |
-| --- | --- |
-| understand memory, grounding, and review ownership | [package overview](foundation/package-overview.md) |
-| trace a public claim to support and contradiction | [workflow claim grounding](foundation/workflow-claim-grounding.md) |
-| evaluate curated literature pressure | [workflow literature audits](foundation/workflow-literature-audits.md) |
-| inspect memory and reconciliation boundaries | [architecture](architecture/index.md) |
-| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) |
-| review source, coverage, and inference limits | [known limitations](quality/known-limitations.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| understand memory, grounding, and review ownership | [package overview](foundation/package-overview.md) | source, normalized evidence, claim relationship, review bundle, and consumer authority remain distinct |
+| trace a public claim to support and contradiction | [workflow claim grounding](foundation/workflow-claim-grounding.md) | every relationship resolves to source version, subject, context, proposition, and limitation |
+| evaluate curated literature pressure | [workflow literature audits](foundation/workflow-literature-audits.md) | freshness, bibliography identity, benchmark gaps, and comparator gaps have explicit dispositions |
+| inspect memory and reconciliation boundaries | [architecture](architecture/index.md) | new evidence appends relationships and review versions without overwriting history |
+| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) | an independent consumer can reopen the evidence identity, provenance, relationship, and sufficiency record |
+| review source, coverage, and inference limits | [known limitations](quality/known-limitations.md) | missing context, contradiction, indirectness, and coverage gaps remain visible to downstream consumers |
