@@ -4,7 +4,7 @@ audience: maintainer
 type: reference
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Module map
@@ -77,3 +77,32 @@ shell behavior for its policy semantics.
 Tests mirror the owned family under `packages/bijux-proteomics-dev/tests/`.
 Place fixtures with the narrowest test owner and keep generated reports beneath
 `artifacts/` unless the helper intentionally governs a tracked output.
+
+## Trace a failing gate
+
+```mermaid
+flowchart TD
+    target["failing root target"] --> caller["Make recipe and package command"]
+    caller --> finding["stable finding code"]
+    finding --> evaluator["owning module family"]
+    evaluator --> input["governed input or retained baseline"]
+    evaluator --> test["positive and negative policy tests"]
+    input --> repair["repair owning source"]
+    test --> repair
+    repair --> rerun["rerun the same public target"]
+```
+
+| Failure concerns | Inspect first | Repair authority |
+| --- | --- | --- |
+| documentation topology, links, generated pages, or public language | `docs/` evaluator and governed documentation source | owning documentation or generator source |
+| package owner, import direction, API lock, or duplicate contract | `governance/` finding and policy manifest | canonical product or shared-contract owner |
+| artifacts, benchmark inventory, dependency graph, or architecture | `quality/` finding and retained report | source package or governed asset owner |
+| dependency risk or subprocess trust | `security/` policy and command evidence | dependency, allowlist, or trusted-execution owner |
+| version, license, publication, or release readiness | `release/` dossier and prerequisite findings | the prerequisite owner; release code does not waive it |
+| example, model, or repository asset operation | named `tools/` workflow | workflow-owned source and governed destination |
+
+Start from the stable public target because it establishes the same environment
+and inputs used by CI. Continue to the finding code, not to the first helper
+whose name resembles the symptom. Repair the source of truth, regenerate owned
+evidence when required, and rerun the original target so the closure path
+remains reproducible.

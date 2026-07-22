@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Maintainer toolkit package
@@ -66,3 +66,38 @@ as its Make wrapper.
 Every gate must have a clear policy statement, deterministic inputs, actionable
 failure output, tests for pass and fail paths, and a stable caller. A gate that
 only says “repository invalid” has not made governance reviewable.
+
+## Anatomy of a trustworthy gate
+
+| Gate element | Required content | Failure if absent |
+| --- | --- | --- |
+| policy | exact invariant, scope, owner, and severity | a check exists without an accountable rule |
+| governed input | paths, manifests, baselines, versions, or reference identities | the verdict depends on implicit local state |
+| evaluator | deterministic typed logic with explicit outcomes | shell composition becomes the hidden policy owner |
+| negative evidence | fixture or test that proves the gate rejects a real violation | a permanently green check cannot be trusted |
+| finding | stable code, affected object, evidence, and repair direction | maintainers cannot distinguish or route failures |
+| retained output | report or governed file when the verdict must survive the process | release review depends on terminal history |
+| caller | root Make target and CI or release consumer | local and hosted validation can silently diverge |
+
+```mermaid
+flowchart LR
+    policy["repository policy"] --> input["governed input"]
+    input --> evaluator["typed evaluator"]
+    evaluator --> finding["named findings"]
+    finding --> make["root Make contract"]
+    make --> ci["CI or release decision"]
+    evaluator --> tests["positive and negative tests"]
+```
+
+## Interpret a verdict
+
+Passing means only that the named policy held for the inspected revision and
+inputs. It does not prove scientific correctness, operational fitness, or
+release readiness outside that gate. Failing means the owning invariant is
+unresolved; rerunning, hiding output, or weakening the caller does not close
+the finding.
+
+When a gate depends on generated evidence, the generator and its freshness
+check are part of the contract. When it depends on another package’s behavior,
+the maintainer package may verify the boundary but must not duplicate that
+behavior to make the check pass.
