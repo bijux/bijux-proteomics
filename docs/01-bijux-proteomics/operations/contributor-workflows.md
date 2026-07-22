@@ -12,6 +12,26 @@ last_reviewed: 2026-07-21
 A complete contribution changes one owned behavior, carries its public contract
 and proof with it, and leaves generated and unrelated work outside the commit.
 
+## Resolve Ownership Before Editing
+
+```mermaid
+flowchart LR
+    intent["requested behavior or contract"]
+    owner{"canonical owner?"}
+    local["change owner implementation"]
+    contract["change shared contract first"]
+    consumer["update narrow consumers"]
+    compatibility["update compatibility and migration evidence"]
+    intent --> owner
+    owner -->|one package| local --> consumer
+    owner -->|cross-package model| contract --> consumer
+    consumer --> compatibility
+```
+
+If ownership is ambiguous, the contribution is not ready for implementation.
+Adding another model, helper, or wrapper to avoid resolving ownership increases
+the ambiguity and makes later compatibility claims weaker.
+
 ## Scientific behavior
 
 For a model, parser, algorithm, policy, or report:
@@ -80,6 +100,21 @@ For dependencies, versioning, workflows, package metadata, or publication:
 4. validate generated governance and documentation state;
 5. run `make release-preflight` without bypassing a failing stage.
 
+## Contribution Evidence Packet
+
+| Evidence | Required content |
+| --- | --- |
+| intent and owner | affected invariant, canonical package, public consumers, explicit non-goals |
+| behavior | valid, invalid, ambiguous, refusal, and boundary cases appropriate to the change |
+| contract movement | before/after API or schema, compatibility assessment, migration, deprecation impact |
+| scientific impact | changed assumptions, acceptance bar, caveats, benchmark or claim consequences |
+| operational impact | environment, state, artifacts, retry/resume, provider, and failure consequences |
+| public explanation | reader-facing capability, limitation, example, and authority boundary |
+| verification | exact revision, commands, environment, results, retained diagnostics and outputs |
+
+Reviewers should be able to reconstruct why the change belongs where it does,
+which promises moved, and what evidence would falsify the claimed completion.
+
 ## Commit boundary
 
 A commit is ready when its intent is complete, its affected checks have passed
@@ -87,3 +122,8 @@ or have an exact recorded blocker, and its staged diff contains only the owned
 change. Use scoped Conventional Commit subjects that describe the durable
 surface and result. Keep generated synchronization separate from handwritten
 behavior unless correctness requires them to move together.
+
+Do not split a contract change from the migration or consumer update required
+to keep the repository coherent. Conversely, do not combine scientifically,
+operationally, and editorially unrelated changes merely because one broad gate
+can exercise them together.

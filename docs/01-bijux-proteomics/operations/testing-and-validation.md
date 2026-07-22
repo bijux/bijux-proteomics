@@ -28,6 +28,27 @@ flowchart LR
 Run every layer whose governed surface changed; passing a broader command does
 not make a skipped contract-specific check irrelevant.
 
+## What Makes A Test Result Reviewable
+
+```mermaid
+flowchart LR
+    revision["source revision and worktree"]
+    environment["toolchain and dependency environment"]
+    command["target, arguments, selectors"]
+    inputs["fixtures, manifests, policies, schemas"]
+    result["pass · fail · skipped · blocked"]
+    outputs["diagnostics, reports, artifacts"]
+    revision --> result
+    environment --> result
+    command --> result
+    inputs --> result
+    result --> outputs
+```
+
+A copied summary without these identities cannot be combined safely with
+another gate or another revision. Generated reports belong with the command
+that produced them and must retain their governed input identity.
+
 ## Change-to-check matrix
 
 | Change | Minimum focused proof | Required broader proof |
@@ -101,3 +122,17 @@ whether the failure belongs to the change, an existing repository defect, the
 environment, or generated drift. Record the exact command, failing package or
 artifact, and diagnostic. A known failure remains a failure until its owning
 surface is corrected.
+
+| Result | Interpretation | Required handling |
+| --- | --- | --- |
+| pass | covered contract held for the identified run | retain scope; do not generalize beyond the gate |
+| assertion failure | behavior or evidence contradicted the contract | preserve diagnostic, identify owner, correct cause, rerun narrow and affected broader gates |
+| collection or import failure | the suite did not reach governed behavior | treat as failure, not zero tested cases |
+| skipped test | declared precondition prevented evaluation | justify the precondition and exclude the test from pass claims |
+| expected failure | a known defect remains executable and visible | retain defect ownership and closure condition; do not count it as support |
+| environment blocked | required tool, service, credential, or governed input was unavailable | record blocker and withhold the corresponding verdict |
+| flaky or non-deterministic result | the evidence cannot be reproduced reliably | investigate instability; repeated green runs do not establish deterministic correctness |
+
+After correcting a failure, retain both the failed and passing revision
+identities when the failure is material to review. The passing rerun proves the
+corrected state; it does not make the original diagnostic disappear.

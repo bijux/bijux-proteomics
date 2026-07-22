@@ -46,6 +46,26 @@ The four release workflows have distinct ownership:
 These are parallel delivery channels for one release identity, not independent
 definitions of the version.
 
+```mermaid
+flowchart TD
+    candidate["identified release candidate"] --> stage["staged immutable artifacts"]
+    stage --> pypi["PyPI publication"]
+    stage --> ghcr["GHCR publication"]
+    stage --> github["GitHub Release"]
+    stage --> docs["documentation publication"]
+    pypi --> verify["consumer-side verification ledger"]
+    ghcr --> verify
+    github --> verify
+    docs --> verify
+    verify --> complete{"all intended channels coherent?"}
+    complete -->|yes| released["release recorded complete"]
+    complete -->|no| stop["stop promotion; retain partial publication state"]
+```
+
+The shared staged artifact identity prevents each channel from rebuilding its
+own interpretation of the tag. A partial publication is a visible release
+state, not permission to rebuild or retag silently.
+
 ## Release Identity Contract
 
 Before building, verify that:
@@ -110,6 +130,31 @@ when the published artifact—not the source checkout—passes that check.
 Record the published filenames, checksums, target channels, source revision,
 and clean-environment verification result. If one channel publishes a different
 artifact identity, stop promotion until the release set is coherent.
+
+## Partial Publication And Supersession
+
+Published artifacts may be immutable even when another channel fails. The
+release record must therefore distinguish staged, published, verified, failed,
+and intentionally omitted channels. Recovery must reuse the reviewed artifact
+when the channel permits it; rebuilding creates a new artifact identity and
+requires renewed distribution review.
+
+Do not delete release history or reuse a version to conceal a defective
+artifact. If a published distribution cannot be repaired under its immutable
+identity, issue a governed successor release, link the superseded release, and
+state the affected package, channel, consumer risk, and migration or upgrade
+route.
+
+| Channel evidence | Completion condition |
+| --- | --- |
+| PyPI | exact wheel/sdist hashes published; clean install, imports, metadata, and representative workflow pass |
+| GHCR | image digest, provenance, SBOM, startup, and representative command verified from the registry |
+| GitHub Release | tag, release body, staged assets, checksums, and source archive relationship agree |
+| documentation | deployed revision, navigation, examples, limitations, and package/version references match the release candidate |
+
+Repository completion requires every intended channel to reach its declared
+condition or be recorded as withheld. One successful channel cannot stand in
+for the others.
 
 ## Compatibility Is Part of the Release
 
