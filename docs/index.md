@@ -15,6 +15,11 @@ follow-up. A reader can trace a result from accepted and rejected scientific
 inputs through execution, grounding, recommendation, and observed consequence
 without treating any one layer as authority for all the others.
 
+Use this handbook to inspect ownership, evidence, limitations, and handoffs.
+For installation commands, package badges, and the smallest executable
+example, begin with the
+[repository README](https://github.com/bijux/bijux-proteomics#readme).
+
 ## Product Scope
 
 Six canonical packages divide responsibility: Foundation owns portable
@@ -32,6 +37,7 @@ Runtime entrypoints without becoming a second owner.
 | Why did this action rank? | Intelligence recommendation record | candidate universe, policy, sensitivity, alternatives, confidence, and refusal | recommendations remain advisory until human and operational review |
 | What did the follow-up cost and observe? | Lab consequence dossier | controls, readiness, custody, deviations, outcome, and feedback | observations do not rewrite earlier analytical or decision records |
 | Why does an old import or command still work? | `agentic-proteins` compatibility record | forwarded owner, parity evidence, migration target, and retirement state | compatibility does not create a second implementation owner |
+| Can this repository candidate be published? | maintainer release decision | revision-specific gates, governed outputs, package artifacts, channel scope, and blockers | a passing repository gate does not strengthen a scientific claim |
 
 ## Current Credible Workflow Families
 

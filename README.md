@@ -6,6 +6,12 @@ sequence and mass-spectrometry analysis, reproducible execution, evidence
 grounding, recommendation review, and laboratory follow-up while keeping each
 kind of authority separate.
 
+Use this README to choose an install surface, run a first operation, and locate
+repository commands. Use the
+[published handbook](https://bijux.io/bijux-proteomics/) when the question is
+which evidence supports a scientific, execution, recommendation, or release
+claim.
+
 ## Product Scope
 
 The repository owns six canonical layers. Foundation defines stable document
@@ -28,6 +34,8 @@ traces the full data and decision path.
 | ground a result against literature, databases, or biological context | `bijux-proteomics-knowledge` | versioned evidence, provenance, support, contradiction, and gaps | candidate ranking or permission to act |
 | rank candidates or challenge an action | `bijux-proteomics-intelligence` | policy-bound recommendation, sensitivity, alternatives, or refusal | resource commitment or laboratory execution |
 | turn an accepted action into a controlled experiment | `bijux-proteomics-lab` | readiness decision, handoff, observation, and consequence record | retroactive changes to analytical or decision history |
+| keep a historical execution caller working while it migrates | `agentic-proteins` | explicit forwarding, parity evidence, canonical destination, and caller disposition | new runtime behavior or proof that every external caller migrated |
+| validate repository policy or assemble release evidence | `bijux-proteomics-dev` | named gate result, governed output, candidate record, and publication disposition | scientific truth or permission to ignore a failing owner contract |
 
 ## Current Credible Workflow Families
 
