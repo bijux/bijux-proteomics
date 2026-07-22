@@ -116,7 +116,7 @@ not mean the evidence passes.
 
 | Failure | Required response |
 | --- | --- |
-| unresolved or placeholder version | stop; establish release identity |
+| unresolved release identity | stop; establish the source version and tag relationship |
 | wheel or sdist version differs from source | reject the artifact and rebuild from the tagged revision |
 | duplicate canonical ownership | resolve the owner; do not waive the SSOT gate |
 | stale generated governance | correct the generator or input and regenerate |
@@ -128,3 +128,23 @@ not mean the evidence passes.
 Do not weaken a validator, hand-edit generated evidence, or discard failure
 output to unblock publication. Resolve the owner-level cause, rerun the narrow
 gate, and then repeat `make release-preflight` from a clean repository state.
+
+## Release Decision Record
+
+A release decision is reconstructable only when the record binds the following
+fields to the same candidate:
+
+| field | required evidence |
+| --- | --- |
+| source identity | commit, clean-worktree result, tag, and source version |
+| distribution identity | wheel and sdist names, versions, hashes, metadata validation, and package inventory |
+| validation identity | exact commands, environment, timestamps, results, and retained failure output |
+| generated authority | generator inputs, checked outputs, and freshness results |
+| scientific authority | workflow dossier, primary and companion benchmark identities, runtime mode, and acceptance result |
+| public authority | requested and allowed language, consequence posture, and unresolved vetoes |
+| publication action | published, withheld, or refused; reviewer; reason; and supersession link |
+
+Passing results from different commits or environments cannot be assembled
+into one release decision unless the record demonstrates that the candidate
+inputs are identical. A rebuilt artifact receives new hashes and a new
+distribution review even when its version string is unchanged.

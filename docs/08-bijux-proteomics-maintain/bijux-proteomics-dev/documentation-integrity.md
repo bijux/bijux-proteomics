@@ -35,6 +35,45 @@ flowchart LR
 | topology guards | package/section ownership and navigation mismatches | completeness of every page |
 | generated-doc checks | handwritten output drift from its generator | correctness of generator inputs |
 
+## Documentation Truth Hierarchy
+
+Later layers depend on earlier layers and may only narrow their conclusion:
+
+```mermaid
+flowchart TD
+    source["released source and package contracts"] --> behavior["checked behavior and scientific evidence"]
+    behavior --> records["generated governance and evidence records"]
+    records --> claims["reader-facing claims and limits"]
+    claims --> render["navigation, links, and rendered site"]
+    source -. mismatch .-> refuse["withhold or narrow"]
+    behavior -. insufficient .-> refuse
+    records -. stale .-> refuse
+    claims -. overstates .-> refuse
+    render -. broken .-> refuse
+```
+
+A successful render establishes only that the final representation is
+well-formed. It cannot repair a stale generated record, an unsupported claim,
+or a missing runtime artifact. Conversely, a strong evidence packet is not
+publicly usable when navigation or source-path integrity prevents independent
+inspection.
+
+## Audit One Claim
+
+For every claim that can change a user's scientific or operational decision:
+
+1. quote the exact sentence and identify its owning workflow or package;
+2. classify the claim as behavior, execution, scientific acceptance,
+   grounding, recommendation, consequence, or release language;
+3. resolve the named proof artifact and confirm that its revision matches the
+   documented candidate;
+4. inspect contradictory and limiting records, not only supporting evidence;
+5. compare the sentence with the permitted machine-readable status;
+6. narrow or remove the sentence when any required link is missing.
+
+Links establish reachability, not entailment. The destination must support the
+exact proposition at the documented scope and strength.
+
 ## Reader-facing rules
 
 - describe released behavior and current limits, not intended documentation;

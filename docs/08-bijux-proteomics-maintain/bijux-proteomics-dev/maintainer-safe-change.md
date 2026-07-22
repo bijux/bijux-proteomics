@@ -66,6 +66,25 @@ Use [Testing And Validation](../../01-bijux-proteomics/operations/testing-and-va
 to select package and repository checks. A broad aggregate command does not
 replace the narrow test that proves the changed invariant.
 
+## Example: Change LFQ Missingness Semantics
+
+An LFQ missingness-policy change is not confined to the function that computes
+a value. Its review boundary depends on what the change means:
+
+| affected surface | required maintainer decision | evidence to retain |
+| --- | --- | --- |
+| Core scientific behavior | whether classification, normalization, or acceptance semantics changed | focused success, malformed-input, and boundary tests plus the sparse-contrast benchmark result |
+| Foundation contract | whether a serialized policy or outcome changed meaning | schema diff, compatibility decision, and round-trip or migration test |
+| Runtime | whether configuration identity, artifact fields, or replay comparison changed | run bundle, configuration identity, stability classification, and primary/companion diff |
+| Knowledge | whether an existing abundance sentence has different support or contradiction | revised evidence bundle and retained prior grounding record |
+| Intelligence | whether the recommendation changes under the revised missingness result | challenged decision record and counterfactual comparison |
+| Lab | whether replicate, batch-bridge, or assay-worth assumptions changed | revised consequence packet or explicit unchanged-consequence rationale |
+| public documentation | whether workflow status, limitations, or rerun interpretation changed | claim-to-proof link and generated-doc freshness result |
+
+If only implementation mechanics change, the higher layers can record “no
+contract change” with evidence. Silence is not evidence that the effect stopped
+at Core.
+
 ## Regenerate From The Owner
 
 Do not hand-edit a generated contract to make a check pass. Change the source
