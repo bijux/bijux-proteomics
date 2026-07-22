@@ -69,6 +69,33 @@ The [Runtime Execution Boundary](runtime-execution-boundary.md) gives the exact
 manifest, entrypoint, tracked run bundle, and refusal statement for each
 primary family lane.
 
+### Run and serialize the DIA primary lane
+
+The published DIA wrapper resolves its governed package inputs internally and
+returns a typed run report. From the repository root:
+
+```python
+from pathlib import Path
+
+from bijux_proteomics_runtime.workflows.benchmark_runs import (
+    run_benchmark_dia_review_path,
+)
+
+report = run_benchmark_dia_review_path()
+output_dir = Path("artifacts/bijux-proteomics-runtime/dia-library-review")
+output_dir.mkdir(parents=True, exist_ok=True)
+(output_dir / "run-report.json").write_text(
+    report.model_dump_json(indent=2) + "\n",
+    encoding="utf-8",
+)
+```
+
+This executes the checked report-based DIA transformation. It is
+`raw_executable` over the packaged report inputs; it does not process
+vendor-native raw chromatograms. Run the matrix-shift companion through
+`run_benchmark_dia_generalization_review_path()` before making a family-level
+transfer statement.
+
 ## Inspect The Run Bundle
 
 | Check | Acceptable evidence | Reject or downgrade when |
@@ -94,6 +121,16 @@ or family-specific transfer pressure.
 Read the result in the [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md).
 A dashboard downgrade is evidence, not a documentation inconvenience. The
 allowed language is the maximum statement defended by the black-box packet.
+
+## Classify The Comparison
+
+| comparison outcome | required record | permitted interpretation |
+| --- | --- | --- |
+| stable fields match under the named policy | primary and companion reports, policy identifier, field-level diff | the declared runtime behavior is repeatable for the checked package pair |
+| direction survives but scope or coverage weakens | weakened-claim rows and affected artifacts | transfer is bounded; narrow the family statement |
+| a declared claim collapses | collapsed-claim row and refusal or downgrade | exclude that claim even if the aggregate stability score is high |
+| fields differ because they are intentionally variable | stability class and observed values | report variation; do not call it failure or parity |
+| policy, environment, or input identity is missing | preflight refusal | no comparison claim is available |
 
 ## Separate Runtime From Scientific Acceptance
 

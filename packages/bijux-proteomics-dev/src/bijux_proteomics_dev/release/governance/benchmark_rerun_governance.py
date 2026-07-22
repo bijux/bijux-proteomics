@@ -405,7 +405,13 @@ def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow
     return tuple(rows)
 
 
-def _render_rerun_kits(entries: tuple[BenchmarkRerunKitEntry, ...]) -> str:
+def _render_rerun_kits(
+    entries: tuple[BenchmarkRerunKitEntry, ...],
+    dashboard_rows: tuple[BenchmarkBlackBoxDashboardRow, ...],
+) -> str:
+    allowed_language_by_family = {
+        row.workflow_family: row.allowed_language for row in dashboard_rows
+    }
     lines = [
         "---",
         "title: Benchmark Rerun Kits",
@@ -478,7 +484,8 @@ def _render_rerun_kits(entries: tuple[BenchmarkRerunKitEntry, ...]) -> str:
             [
                 f"### `{entry.workflow_family.value}`",
                 "",
-                f"- public release language: `{entry.public_release_language}`",
+                f"- requested public language: `{entry.public_release_language}`",
+                f"- black-box allowed language: `{allowed_language_by_family[entry.workflow_family]}`",
                 f"- primary package root: `{entry.primary_package_root}`",
                 f"- companion package root: `{entry.companion_package_root}`",
                 f"- primary runtime entrypoint: `{entry.primary_spec.canonical_entrypoint}`",
@@ -529,16 +536,16 @@ def _render_rerun_kits(entries: tuple[BenchmarkRerunKitEntry, ...]) -> str:
             "",
             "The [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) summarizes installed-entrypoint checks. The [Flagship Run Registry](flagship-run-registry.md) binds published run identities to artifacts. Neither replaces the underlying bundle.",
             "",
-            "## Current Claim Ceilings",
+            "## Requested And Allowed Language",
             "",
-            "| Family | Primary mode | Public language | Limits that remain visible |",
-            "| --- | --- | --- | --- |",
+            "| Family | Primary mode | Requested language | Black-box allowed language | Limits that remain visible |",
+            "| --- | --- | --- | --- | --- |",
         ]
     )
     for entry in entries:
         visible_limits = "; ".join(entry.remaining_limits[:2])
         lines.append(
-            f"| `{entry.workflow_family.value}` | `{entry.primary_spec.run_mode.value}` | `{entry.public_release_language}` | {visible_limits} |"
+            f"| `{entry.workflow_family.value}` | `{entry.primary_spec.run_mode.value}` | `{entry.public_release_language}` | `{allowed_language_by_family[entry.workflow_family]}` | {visible_limits} |"
         )
     lines.extend(
         [
@@ -743,13 +750,16 @@ def _write_text(path: Path, text: str) -> int:
 def run(*, check: bool = False) -> int:
     """Write or verify runtime-facing benchmark rerun and comparability pages."""
 
+    dashboard_rows = build_black_box_benchmark_dashboard()
     rendered = {
-        BENCHMARK_RERUN_KITS_PATH: _render_rerun_kits(build_benchmark_rerun_kits()),
+        BENCHMARK_RERUN_KITS_PATH: _render_rerun_kits(
+            build_benchmark_rerun_kits(), dashboard_rows
+        ),
         BENCHMARK_COMPARABILITY_MATRIX_PATH: _render_comparability_matrix(
             build_benchmark_comparability_matrix()
         ),
         BLACK_BOX_BENCHMARK_DASHBOARD_PATH: _render_black_box_dashboard(
-            build_black_box_benchmark_dashboard()
+            dashboard_rows
         ),
     }
     changed = 0

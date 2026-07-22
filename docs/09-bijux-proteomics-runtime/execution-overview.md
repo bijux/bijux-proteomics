@@ -4,14 +4,14 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # Execution
 
-This route answers the operator and outsider question: how does a public
-benchmark package become reviewable runtime evidence without maintainer
-storytelling in the middle.
+Execution turns an identified public benchmark package into a run bundle that
+can be rerun, compared, refused, and inspected without private operational
+knowledge.
 
 `bijux-proteomics-runtime` owns this route because runtime proof is not only a
 CLI matter anymore. It now includes run-mode honesty, replay, rerun kits,
@@ -40,14 +40,24 @@ convenient demo:
 | `ptm` | `raw_executable` | localization and rerun evidence survive public replay | consequence confidence remains narrower than execution strength |
 | `targeted` | `raw_executable` | public rerun and artifact verification are real | calibration and interference limits still narrow the broader sentence |
 
-## What Is Materially Stronger In 0.3.8
+## Runtime Evidence Flow
 
-- runtime proof now covers replay, rerun kits, and explicit artifact-boundary
-  expectations instead of implying them
-- refusal surfaces are public now, so degraded or invalid rerun lanes are part
-  of the evidence chain rather than hidden maintainer context
-- runtime evidence now fits visibly into the larger chain from benchmark root
-  to grounded interpretation to downstream consequence
+```mermaid
+flowchart LR
+    package["identified benchmark package"] --> preflight["input and environment preflight"]
+    preflight --> entrypoint["public Runtime entrypoint"]
+    entrypoint --> state["state history and diagnostics"]
+    state --> bundle["artifact inventory and checksums"]
+    bundle --> replay["replay and companion comparison"]
+    replay --> verdict["accepted, degraded, or refused"]
+    preflight -. unmet .-> refusal["structured refusal"]
+    replay -. unstable .-> refusal
+```
+
+Every arrow has a durable record. A command transcript without input identity
+cannot establish which benchmark ran. Output files without state history and
+an artifact inventory cannot establish a run bundle. Similar values without a
+declared comparison policy cannot establish replay or parity.
 
 ## Concrete Runtime Proof Surfaces
 
@@ -105,7 +115,7 @@ convenient demo:
   when the question becomes whether grounded contradiction or consequence
   burden still narrows the sentence after runtime proof looks strong.
 
-## Common Misreads This Page Should Stop
+## Interpretation Boundaries
 
 - a raw-executable lane is stronger than an import-only lane, but neither lane
   automatically widens scientific trust on its own
@@ -118,6 +128,7 @@ convenient demo:
 
 ## Boundary
 
-This route should answer how runtime evidence works and where execution stops.
-It should not quietly absorb benchmark ownership, recommendation truth, or lab
-meaning just because those later surfaces consume runtime artifacts.
+Runtime evidence settles how an identified lane executed, what it emitted, and
+whether it survived the declared replay pressure. Benchmark authenticity,
+scientific acceptance, recommendation authority, and laboratory meaning remain
+separate contracts.

@@ -57,7 +57,8 @@ Do not overwrite tracked fixtures beneath `packages/bijux-proteomics-runtime/tes
 
 ### `dda`
 
-- public release language: `outsider_auditable_bounded`
+- requested public language: `outsider_auditable_bounded`
+- black-box allowed language: `review_grade_bounded`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run`
 - companion package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package`
 - primary runtime entrypoint: `bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path`
@@ -97,7 +98,8 @@ Open the primary package first, then the companion package, then the rerun dossi
 
 ### `dia`
 
-- public release language: `outsider_auditable_bounded`
+- requested public language: `outsider_auditable_bounded`
+- black-box allowed language: `outsider_auditable_bounded`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package`
 - companion package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package`
 - primary runtime entrypoint: `bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_dia_review_path`
@@ -137,7 +139,8 @@ Open the primary package first, then the companion package, then the rerun dossi
 
 ### `lfq`
 
-- public release language: `outsider_auditable_bounded`
+- requested public language: `outsider_auditable_bounded`
+- black-box allowed language: `outsider_auditable_bounded`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package`
 - companion package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package`
 - primary runtime entrypoint: `bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_lfq_review_path`
@@ -177,7 +180,8 @@ Open the primary package first, then the companion package, then the rerun dossi
 
 ### `multiplex`
 
-- public release language: `internal_support_only`
+- requested public language: `internal_support_only`
+- black-box allowed language: `internal_support_only`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package`
 - companion package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package`
 - primary runtime entrypoint: `bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_multiplex_review_path`
@@ -214,7 +218,8 @@ Open the primary package first, then the companion package, then the rerun dossi
 
 ### `ptm`
 
-- public release language: `outsider_auditable_bounded`
+- requested public language: `outsider_auditable_bounded`
+- black-box allowed language: `outsider_auditable_bounded`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package`
 - companion package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package`
 - primary runtime entrypoint: `bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_ptm_review_path`
@@ -254,7 +259,8 @@ Open the primary package first, then the companion package, then the rerun dossi
 
 ### `targeted`
 
-- public release language: `outsider_auditable_bounded`
+- requested public language: `outsider_auditable_bounded`
+- black-box allowed language: `outsider_auditable_bounded`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package`
 - companion package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package`
 - primary runtime entrypoint: `bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_targeted_review_path`
@@ -305,16 +311,16 @@ Open the primary package first, then the companion package, then the rerun dossi
 
 The [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) summarizes installed-entrypoint checks. The [Flagship Run Registry](flagship-run-registry.md) binds published run identities to artifacts. Neither replaces the underlying bundle.
 
-## Current Claim Ceilings
+## Requested And Allowed Language
 
-| Family | Primary mode | Public language | Limits that remain visible |
-| --- | --- | --- | --- |
-| `dda` | `import_only` | `outsider_auditable_bounded` | no in-repo live-engine rerun parity; one-run package cannot authorize broad production-cohort DDA claims |
-| `dia` | `raw_executable` | `outsider_auditable_bounded` | no chromatogram-level vendor parity; library incompleteness and absent-peptide consequences still block broader biological confidence |
-| `lfq` | `raw_executable` | `outsider_auditable_bounded` | no stronger public truth package for accuracy beyond repeatability; generalization beyond the current cohort package remains explicitly bounded |
-| `multiplex` | `raw_executable` | `internal_support_only` | no multiplex lab packet or outsider decision brief family; multiplex authority is intentionally kept out of the outsider-facing flagship set |
-| `ptm` | `raw_executable` | `outsider_auditable_bounded` | occupancy and regulatory interpretation still remain narrower than localization evidence; PTM follow-up remains exploratory and bounded by ambiguity-aware consequence planning |
-| `targeted` | `raw_executable` | `outsider_auditable_bounded` | vendor-parity and calibration-clean authority are still outside the current proof boundary; targeted follow-up remains exploratory and cannot authorize calibration-perfect biological certainty |
+| Family | Primary mode | Requested language | Black-box allowed language | Limits that remain visible |
+| --- | --- | --- | --- | --- |
+| `dda` | `import_only` | `outsider_auditable_bounded` | `review_grade_bounded` | no in-repo live-engine rerun parity; one-run package cannot authorize broad production-cohort DDA claims |
+| `dia` | `raw_executable` | `outsider_auditable_bounded` | `outsider_auditable_bounded` | no chromatogram-level vendor parity; library incompleteness and absent-peptide consequences still block broader biological confidence |
+| `lfq` | `raw_executable` | `outsider_auditable_bounded` | `outsider_auditable_bounded` | no stronger public truth package for accuracy beyond repeatability; generalization beyond the current cohort package remains explicitly bounded |
+| `multiplex` | `raw_executable` | `internal_support_only` | `internal_support_only` | no multiplex lab packet or outsider decision brief family; multiplex authority is intentionally kept out of the outsider-facing flagship set |
+| `ptm` | `raw_executable` | `outsider_auditable_bounded` | `outsider_auditable_bounded` | occupancy and regulatory interpretation still remain narrower than localization evidence; PTM follow-up remains exploratory and bounded by ambiguity-aware consequence planning |
+| `targeted` | `raw_executable` | `outsider_auditable_bounded` | `outsider_auditable_bounded` | vendor-parity and calibration-clean authority are still outside the current proof boundary; targeted follow-up remains exploratory and cannot authorize calibration-perfect biological certainty |
 
 Runtime completion proves operational execution under recorded inputs and environment. It does not prove source authenticity, scientific acceptance, grounded biological truth, recommendation authority, or laboratory value.
 
