@@ -45,6 +45,43 @@ directly, knowledge can ground external evidence, and lab can manage a supplied
 recommendation. The handoff contracts become important when provenance must
 survive across those independent uses.
 
+## Dependency direction and evidence direction
+
+The evidence chain and Python dependency graph solve different problems. The
+evidence chain can move from a Lab observation back into Knowledge; the import
+graph must not point from lower-level contracts into higher-level policy.
+
+```mermaid
+flowchart LR
+    subgraph imports["allowed dependency direction"]
+        F1["Foundation"] --> C1["Core"]
+        F1 --> K1["Knowledge"]
+        F1 --> I1["Intelligence"]
+        F1 --> L1["Lab"]
+        F1 --> R1["Runtime"]
+        C1 --> K1 --> I1 --> L1
+        C1 --> R1
+    end
+    subgraph evidence["record and evidence direction"]
+        C2["Core result"] --> R2["Runtime bundle"] --> K2["Knowledge review"]
+        K2 --> I2["Intelligence decision"] --> L2["Lab consequence"]
+        L2 -. append observation .-> K2
+    end
+```
+
+Feedback is expressed through typed records and stable references rather than a
+reverse import. This preserves historical decisions: a new outcome can create
+a new review and recommendation without mutating the source run or importing
+Lab policy into Knowledge.
+
+| Cross-boundary need | Durable mechanism | Coupling to reject |
+| --- | --- | --- |
+| share identity and serialization | Foundation contract | duplicated identifiers or package-local canonicalization |
+| request execution | Core-owned workflow request consumed by Runtime | provider logic inside scientific models |
+| ground a result | stable result or artifact reference consumed by Knowledge | Knowledge importing Runtime state to infer scientific meaning |
+| rank an action | versioned evidence bundle consumed by Intelligence | Intelligence rewriting claims or source records |
+| return an observation | consequence record ingested as new evidence | Lab mutating an earlier recommendation in place |
+
 ## Responsibility layers
 
 ### Stable meaning

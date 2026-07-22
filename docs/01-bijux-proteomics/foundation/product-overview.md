@@ -89,6 +89,26 @@ These labels describe the strongest claim supported by the corresponding
 benchmark, runtime, grounding, recommendation, and consequence records. They
 are not rankings of scientific importance.
 
+## Choose the unit of trust
+
+Evidence applies to a named unit. A valid record can support one run without
+supporting the workflow family, and a well-supported family can remain blocked
+from release by packaging, security, ownership, or stale generated evidence.
+
+| Unit | Question it answers | Evidence required | Invalid promotion |
+| --- | --- | --- | --- |
+| document | are these the governed bytes under the declared schema? | canonical representation, digest, schema, lineage | content identity to source authenticity |
+| scientific result | did this input and policy produce an accepted result? | inputs, rejections, assumptions, QC, acceptance | one accepted result to family-wide validity |
+| run | what executed under these conditions? | request, environment, provider, state, artifacts | completion to scientific acceptance |
+| workflow family | what bounded class of claims survives family pressure? | benchmark corpus, challenge cases, rerun evidence, transfer limits | one family’s posture to another family |
+| recommendation | which action survives the declared evidence and policy? | candidate universe, contradictions, sensitivity, regret | advisory ranking to authority to act |
+| release | may this repository revision publish the declared surfaces? | complete release inventory and all governing gates | green category to overall release readiness |
+
+When two statements appear to disagree, first check whether they describe the
+same unit, revision, workflow family, and evidence posture. Apparent conflict
+often comes from promoting a narrower result beyond the boundary it was built
+to defend.
+
 ## Trust model
 
 A defensible workflow retains five linked records:

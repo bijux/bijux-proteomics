@@ -30,6 +30,25 @@ Record these fields before opening an artifact:
 meets its declared precursor and protein acceptance bars on the checked library
 package and remains stable on the matrix-shift companion” is reviewable.
 
+## Work one claim through the chain
+
+Consider the claim: “Protein P11111 is more abundant in treated samples and is
+a suitable targeted follow-up candidate.” The sentence contains an analytical
+result and an action. They earn support independently.
+
+| Review boundary | Question for this claim | Possible narrowing |
+| --- | --- | --- |
+| study design | are treated and control samples, covariates, exclusions, and contrasts identified? | describe the observed cohort without generalizing the condition effect |
+| quantitative evidence | do accepted peptides, protein inference, normalization, missingness, and uncertainty support P11111? | report peptide-level or ambiguous-group evidence instead of protein abundance |
+| execution | can the request, environment, provider posture, and artifacts be reopened? | describe review of imported results rather than native rerun |
+| grounding | does contextual evidence support the protein, direction, tissue, and mechanism? | keep the statement analytical and omit the biological interpretation |
+| recommendation | does P11111 remain preferred under contradictions, alternative policies, and burden? | expose alternatives, require review, or refuse prioritization |
+| laboratory consequence | are transitions, controls, calibration, materials, and capacity ready? | retain an advisory follow-up without executable handoff |
+
+The analytical clause may remain valid when the action clause fails. Split the
+sentence at the first unsupported conjunction instead of discarding a valid
+result or promoting an unsupported next step.
+
 ## Trace One Result
 
 ```mermaid
