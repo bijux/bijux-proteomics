@@ -190,7 +190,9 @@ review bundle; lab observations can be ingested as new evidence through an
 explicit handoff. None of those consumers may mutate evidence history through
 their own policy or operational state.
 
-## Audit a contradiction
+## Shared Reader Routes
+
+### Audit a contradiction
 
 Conflicting observations are not necessarily inconsistent records. They may
 refer to different species, tissues, perturbations, analytical policies, time

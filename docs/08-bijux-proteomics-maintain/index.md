@@ -195,7 +195,9 @@ A release decision is reviewable only when it preserves:
 No failure disappears because it predates a change. No green category offsets
 a red category that protects a different contract.
 
-## Resolve disagreement between gates
+## Shared Reader Routes
+
+### Resolve disagreement between gates
 
 Two green checks can protect different contracts, and a generated dashboard can
 lag the evidence that feeds it. Resolve disagreement by ownership and evidence

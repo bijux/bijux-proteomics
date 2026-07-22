@@ -118,7 +118,9 @@ Stop at the first missing identity, unresolved artifact, stale generated
 surface, or weaker-than-declared evidence class. A narrative summary never
 repairs a broken evidence chain.
 
-## Choose the governing question
+## Shared Reader Routes
+
+### Choose the governing question
 
 Do not begin a cross-package investigation by searching every source tree.
 First identify the kind of authority in dispute, then follow that owner’s

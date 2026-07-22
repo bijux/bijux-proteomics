@@ -221,7 +221,9 @@ The execution evidence can be audited from the boundary inward:
 - [Runtime Rerun Refusals](runtime-rerun-refusals.md) states when rerun language
   is unsupported.
 
-## Diagnose a claimed rerun
+## Shared Reader Routes
+
+### Diagnose a claimed rerun
 
 A new terminal `completed` state is not enough to call work reproduced. Compare
 the new run with the reference at the request, environment, provider, event,

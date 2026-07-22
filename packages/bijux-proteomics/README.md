@@ -77,7 +77,7 @@ scientific package boundary.
 | --- | --- | --- |
 | `bijux-proteomics` | install and publication name | this alias package only when dependency or distribution metadata changes |
 | `bijux_proteomics` | public Python import namespace | `bijux-proteomics-core` |
-| `bijux-proteomics-core` | canonical scientific distribution | Core source, tests, API exports, benchmark evidence, and scientific docs |
+| `bijux-proteomics-core` | canonical scientific distribution | Core source, tests, API exports, scientific evidence, and scientific docs |
 
 A consumer may install the flagship name and import the canonical namespace;
 that does not make this directory the implementation owner. Review the

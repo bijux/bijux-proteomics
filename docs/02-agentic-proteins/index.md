@@ -183,7 +183,9 @@ stateDiagram-v2
 whole compatibility distribution. Repository-wide retirement still requires
 the complete consumer inventory and release evidence.
 
-## Prove a caller has migrated
+## Shared Reader Routes
+
+### Prove a caller has migrated
 
 Replacing an import is necessary but not sufficient. Close the migration at
 the caller boundary, where defaults, persisted state, operator-visible output,

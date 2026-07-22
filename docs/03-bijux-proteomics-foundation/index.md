@@ -155,7 +155,9 @@ The consumer may trust a matching digest as evidence of content equality. It
 must obtain scientific authority, source authenticity, and acceptance policy
 from the package that owns the domain record.
 
-## Know what identity can prove
+## Shared Reader Routes
+
+### Know what identity can prove
 
 Foundation answers whether two delivered records have the same canonical
 content under a declared contract. Other authorities are required for source

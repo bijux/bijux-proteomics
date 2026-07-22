@@ -80,7 +80,7 @@ has migrated.
 | --- | --- | --- |
 | forwarding test | the legacy path reaches the declared owner | whether a caller depends on different defaults or side effects |
 | repository import scan | checked-in source no longer imports the path | external and generated consumers |
-| CLI or HTTP parity test | selected observable behavior agrees | persistence and replay compatibility outside the fixture |
+| CLI or HTTP parity test | selected observable behavior agrees | persistence and recovery compatibility outside the fixture |
 | caller acceptance record | one named consumer accepts the canonical contract | readiness of every other supported consumer |
 | complete consumer inventory | the retirement decision covers the declared support set | undeclared consumers outside that support boundary |
 

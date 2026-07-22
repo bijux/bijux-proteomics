@@ -191,7 +191,9 @@ the workflow contract.
 | acceptance policy | logs, diagnostics, and refusal | thresholds, QC, ambiguity, and known limits |
 | expected artifact contract | artifact ledger and hashes | family-specific acceptance result |
 
-## Trace a quantitative statement
+## Shared Reader Routes
+
+### Trace a quantitative statement
 
 “Protein abundance changed” is the end of a scientific argument, not a raw
 output. Review the statement backward until every selection, aggregation, and

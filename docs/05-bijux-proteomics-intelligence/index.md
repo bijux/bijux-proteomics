@@ -178,7 +178,9 @@ flowchart LR
     L -->|ready and authorized| E["executable handoff"]
 ```
 
-## Cross-examine a recommendation
+## Shared Reader Routes
+
+### Cross-examine a recommendation
 
 Review a recommendation as an argument that can fail. Begin with the action,
 then recover the alternatives, evidence snapshot, policy, challenge burden, and
