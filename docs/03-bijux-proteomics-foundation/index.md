@@ -28,11 +28,14 @@ flowchart LR
     model --> document
     document --> canonical["canonical JSON"]
     canonical --> digest["stable digest"]
-    document --> compatibility["version assessment"]
-    compatibility --> migration["declared migration"]
+    document --> compatibility{"version assessment"}
+    compatibility -->|directly readable| consumer["portable consumer artifact"]
+    compatibility -->|declared path| migration["declared migration"]
+    migration --> validate["target-schema validation"]
+    validate --> consumer
+    compatibility -->|unknown or unsupported| incompatible["typed incompatibility"]
     document --> outcome["result · failure · refusal"]
-    digest --> consumer["portable consumer artifact"]
-    migration --> consumer
+    digest --> consumer
     outcome --> consumer
 ```
 
@@ -218,11 +221,11 @@ governance.
 
 ## Continue By Contract Question
 
-| Need | Read next |
-| --- | --- |
-| establish ownership and non-goals | [package overview](foundation/package-overview.md) |
-| choose a supported Python route | [public imports](interfaces/public-imports.md) |
-| define identifiers and document models | [data contracts](interfaces/data-contracts.md) |
-| persist or exchange an artifact | [artifact contracts](interfaces/artifact-contracts.md) |
-| assess a version or migration | [compatibility commitments](interfaces/compatibility-commitments.md) |
-| review invariants and known limits | [quality](quality/index.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| establish ownership and non-goals | [package overview](foundation/package-overview.md) | the contract remains meaningful without a workflow-specific scientific policy |
+| choose a supported Python route | [public imports](interfaces/public-imports.md) | the symbol is public, dependency-light, and owned by one stable module |
+| define identifiers and document models | [data contracts](interfaces/data-contracts.md) | subject identity, schema, content representation, and disposition are explicit |
+| persist or exchange an artifact | [artifact contracts](interfaces/artifact-contracts.md) | an independent consumer can validate schema and reproduce the content digest |
+| assess a version or migration | [compatibility commitments](interfaces/compatibility-commitments.md) | the document is accepted, migrated through a declared path, or refused explicitly |
+| review invariants and known limits | [quality](quality/index.md) | structural proof is not presented as source, scientific, or action authority |

@@ -30,8 +30,24 @@ flowchart LR
     infer["protein inference\ngroups · parsimony · ambiguity"]
     quantify["quantification\nLFQ · DIA · multiplex"]
     review["review\nPTM · targeted · QC · biology"]
-    benchmark["benchmark contracts\ncorpora · acceptance · evidence cards"]
-    sequence --> chemistry --> signal --> identify --> infer --> quantify --> review --> benchmark
+    report["typed scientific report\naccepted · rejected · policy · diagnostics"]
+    benchmark["family acceptance\ncorpora · perturbations · limits"]
+    sequence --> chemistry
+    chemistry --> identify
+    signal --> identify
+    identify --> infer
+    identify --> quantify
+    infer --> quantify
+    chemistry --> review
+    quantify --> review
+    sequence --> report
+    chemistry --> report
+    signal --> report
+    identify --> report
+    infer --> report
+    quantify --> report
+    review --> report
+    report --> benchmark
 ```
 
 Each stage exposes its assumptions and result contracts. The package does not
@@ -256,14 +272,14 @@ begins only after the scientific statement is accepted.
 
 ## Continue By Scientific Question
 
-| Need | Read next |
-| --- | --- |
-| map scientific domains to their owners | [package overview](foundation/package-overview.md) |
-| audit benchmark provenance and redistribution | [benchmark assets](foundation/benchmark-assets.md) and the [asset audit](foundation/benchmark-asset-audit.md) |
-| inspect family-specific lineage | [DDA](foundation/dda-benchmark-lineage.md), [DIA](foundation/dia-benchmark-lineage.md), [LFQ](foundation/lfq-benchmark-lineage.md), [PTM](foundation/ptm-benchmark-lineage.md), [targeted](foundation/targeted-benchmark-lineage.md), or [multiplex](foundation/multiplex-benchmark-lineage.md) |
-| choose Python, CLI, data, or artifact interfaces | [interfaces](interfaces/index.md) |
-| execute a supported scientific route | [common workflows](operations/common-workflows.md) |
-| review scientific and implementation limits | [known limitations](quality/known-limitations.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| map scientific domains to their owners | [package overview](foundation/package-overview.md) | the input, algorithm, result, and refusal all resolve to one scientific owner |
+| audit benchmark provenance and redistribution | [benchmark assets](foundation/benchmark-assets.md) and the [asset audit](foundation/benchmark-asset-audit.md) | source, license, selection, digest, acceptance bar, and redistribution boundary resolve |
+| inspect family-specific lineage | [DDA](foundation/dda-benchmark-lineage.md), [DIA](foundation/dia-benchmark-lineage.md), [LFQ](foundation/lfq-benchmark-lineage.md), [PTM](foundation/ptm-benchmark-lineage.md), [targeted](foundation/targeted-benchmark-lineage.md), or [multiplex](foundation/multiplex-benchmark-lineage.md) | primary and companion evidence support no stronger than the recorded family posture |
+| choose Python, CLI, data, or artifact interfaces | [interfaces](interfaces/index.md) | the route preserves accepted inputs, rejections, policy, diagnostics, and renderable output |
+| execute a supported scientific route | [common workflows](operations/common-workflows.md) | the scientific result and Runtime custody record remain distinct and joinable |
+| review scientific and implementation limits | [known limitations](quality/known-limitations.md) | every unsupported transfer, ambiguity, and evidence ceiling remains attached to the result |
 
 Core does not own run orchestration, evidence reconciliation, recommendation
 policy, or lab scheduling. Those responsibilities belong to runtime,
