@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # State and Persistence
@@ -41,3 +41,19 @@ flowchart LR
 Runtime may persist and transport these documents, but lab owns their operational meaning. Knowledge owns the normalized evidence after successful promotion. A later plan, rerun, or interpretation supersedes earlier state through linked records; it does not overwrite the approved handoff or original observation.
 
 This separation allows a reviewer to reconstruct what was proposed, what was authorized, what was performed, what was observed, and what was finally accepted as evidence.
+
+## Preserve custody at every handoff
+
+| Record | Write authority | Becomes immutable when | Later changes appear as |
+| --- | --- | --- | --- |
+| advisory plan | scientific planning owner | cited by a readiness or decision record | superseding plan with rationale |
+| executable plan | assay owner and required approvers | authorized for scheduling or handoff | revision linked to the prior plan; never an in-place protocol rewrite |
+| readiness decision | named scientific, operational, and safety authorities | work is released, held, or refused | reevaluation against a new resource and risk snapshot |
+| handoff | releasing and receiving custody owners | custody is acknowledged | deviation, amendment, cancellation, or replacement handoff |
+| observation | operator and measurement system under the declared protocol | raw evidence and acquisition metadata are sealed | correction or derived record linked to original bytes |
+| interpretation and failure classification | accountable reviewer | disposition is issued | superseding review with new evidence or policy identity |
+| promotion decision | evidence authority | observation is accepted, qualified, rejected, or held for Knowledge | new promotion review; the observation remains unchanged |
+
+Storage administrators may move or replicate these records without changing
+their domain identity. Any transformation that changes content, units,
+relationships, or interpretation creates a new artifact with explicit lineage.

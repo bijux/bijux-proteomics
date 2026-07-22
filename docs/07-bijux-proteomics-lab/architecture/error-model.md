@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Error Model
@@ -37,3 +37,21 @@ flowchart TD
 ```
 
 A failed acceptance rule does not identify the failure class by itself. QC, replicate behavior, controls, material state, censoring, and protocol context determine whether the correct response is rerun, redesign, adverse-evidence promotion, or refusal to interpret.
+
+## Build a failure-classification packet
+
+| Evidence | Question it answers |
+| --- | --- |
+| approved plan and handoff | what question, protocol, controls, materials, and acceptance criteria were authorized? |
+| custody and execution record | which samples, batches, instruments, operators, timings, and deviations belong to the observation? |
+| raw and processed measurements | what was observed before and after declared transformation? |
+| control and QC outcomes | did positive, negative, process, reference, and system controls behave as required? |
+| replicate and batch behavior | is the result repeatable, dispersed, censored, or associated with one batch? |
+| material and protocol state | were identity, integrity, storage, preparation, and procedural requirements satisfied? |
+| detection and acceptance limits | was absence distinguishable from below-detection, saturation, or an invalid measurement? |
+| classification and authority | who assigned technical, reproducibility, biological, inconclusive, or uninterpretable status, and under which policy? |
+
+The packet supports one response: rerun unchanged, repair and rerun, redesign,
+accept adverse biological evidence, hold, or refuse interpretation. A rerun is
+not the default for biological failure, and promotion is not available while
+technical validity or provenance remains unresolved.

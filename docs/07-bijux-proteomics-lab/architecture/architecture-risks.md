@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Architecture Risks
@@ -35,3 +35,19 @@ flowchart LR
 ```
 
 The gates deliberately repeat validation at changing boundaries. A scientifically justified assay can remain operationally irresponsible, and a well-executed assay can remain evidentially inconclusive.
+
+## Review before evidence promotion
+
+| Promotion question | Required evidence | Blocking outcome |
+| --- | --- | --- |
+| did authorized work produce this observation? | plan, handoff, custody, operator, sample, batch, and artifact lineage | missing or conflicting provenance |
+| was the measurement technically valid? | controls, QC, calibration, detection limits, censoring, deviations, and acceptance policy | technical or uninterpretable failure |
+| is the result repeatable enough for its intended use? | replicate, batch, dispersion, missingness, and reproducibility assessment | unresolved reproducibility failure |
+| what proposition can the observation address? | requested question, measured entity, direction, magnitude, context, and granularity | observation does not answer the claim being promoted |
+| how should adverse or null evidence be represented? | failure class, uncertainty, context, and relationship to the requested result | pressure to omit a valid non-confirming outcome |
+| who accepts the evidence relationship? | named reviewer, promotion policy, decision, limitations, and destination Knowledge identity | no accountable evidence authority |
+
+Promotion may accept, qualify, contradict, reject, or hold an observation. It
+must not convert technical failure into biological evidence, hide a valid null
+result, or strengthen the original recommendation merely because the assay was
+completed.
