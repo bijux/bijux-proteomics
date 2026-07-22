@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Lifecycle Overview
@@ -34,3 +34,34 @@ The command and HTTP paths must converge on the same runtime behavior as canonic
 A runtime contract change is reviewed against both canonical and compatibility surfaces. If forwarding remains exact, the bridge changes only where the historical path requires it. If exact compatibility is impossible, the migration must be documented as a consumer-visible break; the bridge must not silently reinterpret arguments, results, state, or artifacts.
 
 The desired endpoint is direct use of `bijux_proteomics_runtime`. Historical access can remain available for supported releases, but new applications should not build fresh dependencies on the compatibility namespace.
+
+## Evidence at each transition
+
+| Transition | Required record | Stop condition |
+| --- | --- | --- |
+| historical use to forwarded | surface inventory and canonical destination | no canonical owner or undocumented translation |
+| forwarded to verified | identity or adapter contract, positive path, negative path, and retained artifact comparison | different defaults, outcomes, state, errors, or artifacts |
+| verified to canonical use | consumer change, consumer integration result, and canonical run evidence | caller still depends on historical import, executable, extra, or transport behavior |
+| canonical use to retirement-ready | remaining-caller inventory, supported release decision, and removal impact | unknown callers or retained data still require bridge code |
+| retirement-ready to removed | synchronized package, documentation, test, build, and release changes | any historical surface remains accidentally importable or advertised |
+
+Verification is surface-specific. Root object identity does not prove nested
+HTTP behavior; help parity does not prove state or artifact parity; a clean
+repository search does not prove external caller migration.
+
+## Retirement closure
+
+```mermaid
+flowchart TD
+    inventory["surface and caller inventory"] --> replacement{"canonical replacement complete?"}
+    replacement -->|no| supported["keep the affected surface supported"]
+    replacement -->|yes| parity{"consumer and retained-state evidence complete?"}
+    parity -->|no| supported
+    parity -->|yes| decision["record removal decision and release window"]
+    decision --> remove["remove package surface, tests, docs, and packaging contract together"]
+    remove --> negative["prove historical access is absent"]
+```
+
+Closure means the caller no longer needs the bridge and the canonical record
+can be interpreted without it. A warning, deprecation date, or successful
+canonical smoke test is not closure evidence by itself.

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Domain Language
@@ -17,10 +17,14 @@ Compatibility terminology distinguishes a historical route from the behavior it 
 | **compatibility bridge** | Code that preserves a historical surface by resolving it to its canonical owner |
 | **canonical owner** | The package where behavior, tests, and future development live; for runtime behavior, `bijux-proteomics-runtime` |
 | **forwarded symbol** | A public object obtained from the canonical module through a historical import path |
+| **alias contract** | A promise that historical and canonical imports resolve to the same object without translation |
+| **adapter contract** | A documented conversion used only when a historical call cannot be represented as a direct alias |
 | **object identity** | The requirement that historical and canonical imports resolve to the same class or callable when that is part of compatibility |
-| **behavioral parity** | Equivalent inputs, outputs, exceptions, side effects, and artifacts across historical and canonical entrypoints |
+| **behavioral parity** | Equivalent declared inputs, outputs, exceptions, side effects, state transitions, and artifacts across historical and canonical entrypoints |
+| **caller evidence** | A named consumer, surface used, observed compatibility result, and migration disposition |
 | **migration** | A consumer change from a historical surface to the canonical surface |
 | **compatibility break** | A historical contract that can no longer be preserved exactly and therefore requires explicit consumer action |
+| **retirement-ready** | Every supported caller and retained-state dependency has a canonical replacement and recorded disposition |
 
 ## Names in use
 
@@ -30,6 +34,20 @@ Compatibility terminology distinguishes a historical route from the behavior it 
 - Canonical runtime distribution: `bijux-proteomics-runtime`
 - Canonical import root: `bijux_proteomics_runtime`
 
-“Agent,” “tool,” “provider,” “run,” and “artifact” describe runtime concepts even when accessed through an `agentic_proteins` path. Documentation should attribute their semantics to runtime and use compatibility language only for the forwarding boundary.
+“Agent,” “tool,” “provider,” “run,” and “artifact” remain Runtime concepts even
+when reached through an `agentic_proteins` path. The historical package owns
+access compatibility; Runtime owns their semantics and future behavior.
 
-The bridge is not a fork, facade with independent policy, or deprecated placeholder. It is a supported migration surface with a narrow contract: preserve established access without dividing ownership.
+## Interpret compatibility claims precisely
+
+| Claim | Evidence required | What it does not establish |
+| --- | --- | --- |
+| “the symbol is forwarded” | historical and canonical object identity | CLI, HTTP, or durable-state parity |
+| “the command is compatible” | command discovery, options, defaults, exit status, output, error, state, and artifact comparison | every nested Python path is an alias |
+| “the adapter preserves behavior” | declared translation, loss policy, positive and negative fixtures | identity equivalence |
+| “the caller migrated” | consumer change and canonical integration evidence | all other callers migrated |
+| “the surface can retire” | caller inventory, retained-state proof, release decision, and negative removal test | permission to remove unrelated historical paths |
+
+The bridge is neither a fork nor an independent policy facade. It is a
+supported migration surface whose only durable purpose is to preserve named
+access while canonical ownership remains singular.
