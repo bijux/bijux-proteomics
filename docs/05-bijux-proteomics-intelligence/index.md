@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-intelligence
@@ -82,10 +82,29 @@ A recommendation is strongest when:
 6. confidence is calibrated against benchmark and observed outcome evidence;
 7. a refusal remains possible when the support is inadequate.
 
-Benchmark review modules cover DDA, DIA, PTM, quantification, and targeted
-workflow families. Their existence does not grant equal authority to every
-family; the recommendation record inherits the evidence ceiling of the input
-benchmark and review packet.
+Benchmark review modules cover DDA, DIA, LFQ, multiplex, PTM, and targeted
+workflow families. LFQ and multiplex review both live in the quantification
+surface, but they do not share an evidence posture: LFQ is outsider-auditable
+bounded while multiplex remains internal support only. Module existence does
+not grant authority; the recommendation inherits the weakest relevant ceiling
+in its input evidence chain.
+
+## Decision output states
+
+Intelligence returns a disposition with an explicit next authority. A score or
+rank is incomplete until this state is recorded.
+
+| Output state | Meaning | Required next authority |
+| --- | --- | --- |
+| recommend | one action remains defensible under the declared evidence, policy, and challenge set | human and domain review before commitment |
+| recommend with conditions | the action survives only inside named thresholds, prerequisites, or stop conditions | owner verifies every condition before handoff |
+| downgrade | evidence or policy sensitivity does not support the requested confidence or consequence | reviewer narrows wording, scope, or action |
+| escalate | the decision depends on unresolved expertise, safety, cost, or contradiction | named domain or operational owner decides |
+| hold | additional evidence can resolve a material gap and waiting is an admissible action | evidence owner supplies the named record or closes the route |
+| refuse | no candidate satisfies the hard constraints or support burden | requester changes the question, evidence, or constraints |
+
+These states are not confidence synonyms. A high-scoring candidate can still
+be held, escalated, or refused when the action exceeds the available authority.
 
 ## Decision stability
 

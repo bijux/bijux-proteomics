@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-knowledge
@@ -101,6 +101,35 @@ A source can be authoritative yet irrelevant to the declared context. A
 correct identifier match can still ground the wrong biological entity or
 species. Knowledge records resolution and context separately so downstream
 consumers can distinguish these failures.
+
+## Classify each source-to-claim relationship
+
+The relationship is evaluated against a precise proposition, not assigned to
+the source as a whole. The same paper, database release, or run artifact may
+support one claim and contradict, qualify, or merely contextualize another.
+
+| Relationship | Required test | Example disposition |
+| --- | --- | --- |
+| supports | the observation bears directly on the proposition in a compatible context | add a support edge with scope and limitations |
+| contradicts | a comparable observation is incompatible with the proposition | retain both records and add a contradiction edge |
+| qualifies | the record narrows population, direction, magnitude, mechanism, or conditions | attach the limiting context; do not count it as unqualified support |
+| contextual | the record explains background or plausibility without testing the proposition | retain citation value without adding claim support |
+| unresolved | identity, context, or proposition alignment cannot be established | record a knowledge gap instead of guessing a relationship |
+
+```mermaid
+flowchart LR
+    source["identified source version"] --> context["resolve subject and context"]
+    claim["precise claim"] --> relation{"relationship test"}
+    context --> relation
+    relation --> support["support"]
+    relation --> contradict["contradiction"]
+    relation --> qualify["qualification"]
+    relation --> contextual["context only"]
+    relation --> unresolved["knowledge gap"]
+```
+
+Source prestige, citation count, and identifier resolution may inform review,
+but none selects the relationship without proposition-level comparison.
 
 ## Memory integrity
 

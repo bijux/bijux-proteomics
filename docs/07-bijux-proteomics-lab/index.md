@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-lab
@@ -139,6 +139,35 @@ acceptance criteria. The resulting consequence record can:
 
 History is append-only in meaning: later evidence can supersede a conclusion
 without erasing the recommendation and assumptions that led to the experiment.
+
+## Evidence promotion contract
+
+An observation crosses three independent review boundaries before it can alter
+an action. Lab records the measurement and its assay disposition; Knowledge
+decides its relationship to a claim; Intelligence decides whether the revised
+evidence changes the recommendation.
+
+| Boundary | Record entering | Decision produced | Decision explicitly not produced |
+| --- | --- | --- | --- |
+| assay acceptance | raw and processed measurements, controls, QC, deviations | accepted, rejected, failed, or inconclusive observation | biological support or contradiction |
+| claim reconciliation | accepted observation with subject, context, and lineage | support, contradiction, qualification, context, or gap | candidate rank or permission to act |
+| decision revision | versioned evidence bundle and prior decision record | rerank, retain, downgrade, escalate, hold, or refuse | laboratory authorization |
+
+```mermaid
+sequenceDiagram
+    participant L as Lab
+    participant K as Knowledge
+    participant I as Intelligence
+    participant H as Human authority
+    L->>K: accepted observation and assay limits
+    K->>I: versioned claim relationships
+    I->>H: revised advisory disposition
+    H-->>L: authorized plan, revised question, or stop
+```
+
+Rejected and inconclusive observations remain durable records, but they do not
+skip assay acceptance by being narratively useful. A new action always returns
+through review and authorization.
 
 ## Interpret the outcome safely
 
