@@ -23,8 +23,13 @@ flowchart LR
     dev["bijux-proteomics-dev\npolicy and validation code"]
     checks["tests · lint · typing · API · security · docs · architecture"]
     ci["GitHub workflows\nclean-environment verification"]
+    candidate["identified release candidate\nsource · packages · evidence"]
+    decision{"all applicable gates pass?"}
     release["PyPI · GHCR · GitHub Release · docs"]
-    change --> make --> dev --> checks --> ci --> release
+    blocked["retain failures; repair or narrow"]
+    change --> make --> dev --> checks --> ci --> candidate --> decision
+    decision -->|yes and authorized| release
+    decision -->|no| blocked
 ```
 
 The same named Make targets are used locally and in automation. Generated API,
@@ -55,16 +60,16 @@ coverage output, caches, or ad hoc run products.
 
 ## Change-to-gate map
 
-| Changed surface | Required focus |
-| --- | --- |
-| Python behavior | package tests, lint, type checks, public API types |
-| package imports or dependencies | lock check, circular-import checks, dependency minimization, optional-dependency guards |
-| public exports | API checks, schema freeze, API lock and compatibility review |
-| runtime or compatibility bridge | runtime boundaries, migration ledger, migration validation |
-| docs or navigation | docs links, consistency, strict MkDocs build, docs hygiene |
-| architecture or package layout | canonical package tree, orphan modules, architecture regression |
-| release metadata | builds, SBOMs, badge checks, license assets, release preflight |
-| security-sensitive code | static security, vulnerability gates, dependency allowlist |
+| Changed surface | Required focus | Evidence retained for review |
+| --- | --- | --- |
+| Python behavior | package tests, lint, type checks, public API types | exact package target, test result, diagnostics, and affected contract |
+| package imports or dependencies | lock check, circular-import checks, dependency minimization, optional-dependency guards | lock diff, dependency owner, import boundary, and unavailable-extra behavior |
+| public exports | API checks, schema freeze, API lock and compatibility review | old and new public inventories, compatibility decision, and consumer impact |
+| runtime or compatibility bridge | runtime boundaries, migration ledger, migration validation | canonical target, caller parity, state or replay evidence, and unresolved consumers |
+| docs or navigation | docs links, consistency, strict MkDocs build, docs hygiene | rendered route, source link, factual owner, and build result |
+| architecture or package layout | canonical package tree, orphan modules, architecture regression | ownership decision, dependency direction, file inventory, and regression result |
+| release metadata | builds, SBOMs, badge checks, license assets, release preflight | candidate identity, distribution inventory, attestations, and publication verdict |
+| security-sensitive code | static security, vulnerability gates, dependency allowlist | finding identity, affected boundary, disposition, and closure evidence |
 
 ## Generated evidence ownership
 
@@ -239,11 +244,11 @@ collects the cross-product publication decision.
 
 ## Continue By Maintenance Question
 
-| Need | Read next |
-| --- | --- |
-| carry one owned change through verification | [Maintainer Safe Change](bijux-proteomics-dev/maintainer-safe-change.md) |
-| map checks to protected contracts | [Testing And Validation](../01-bijux-proteomics/operations/testing-and-validation.md) |
-| build and review publication evidence | [Release Support](bijux-proteomics-dev/release-support.md) |
-| interpret a gate failure without hiding it | [Quality gates](bijux-proteomics-dev/quality-gates.md) |
-| govern schemas and API locks | [Schema governance](bijux-proteomics-dev/schema-governance.md) |
-| understand documentation truth checks | [Documentation integrity](bijux-proteomics-dev/documentation-integrity.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| carry one owned change through verification | [Maintainer Safe Change](bijux-proteomics-dev/maintainer-safe-change.md) | owner, contract, implementation, tests, generated outputs, and consumer impact form one reviewable intent |
+| map checks to protected contracts | [Testing And Validation](../01-bijux-proteomics/operations/testing-and-validation.md) | each invoked gate names the behavior or repository promise it protects |
+| build and review publication evidence | [Release Support](bijux-proteomics-dev/release-support.md) | source identity, package inventory, artifacts, attestations, gate results, and approving authority agree |
+| interpret a gate failure without hiding it | [Quality gates](bijux-proteomics-dev/quality-gates.md) | the exact failure, provenance, affected claim, owner, and closure condition remain visible |
+| govern schemas and API locks | [Schema governance](bijux-proteomics-dev/schema-governance.md) | old and new contracts, compatibility assessment, migration, and consumer response are explicit |
+| understand documentation truth checks | [Documentation integrity](bijux-proteomics-dev/documentation-integrity.md) | public language resolves to current implementation or evidence and the strict site build passes |
