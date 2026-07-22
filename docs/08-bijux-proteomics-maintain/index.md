@@ -14,6 +14,25 @@ contracts, documentation, release artifacts, and scientific boundaries
 coherent. Package-local checks establish local behavior; repository gates
 establish whether that behavior still composes safely.
 
+## Interpret a pass by its scope
+
+Every pass is evidence for one revision, command, environment, policy, and
+governed input set. Use the narrowest accurate conclusion.
+
+| Passing evidence | Supported conclusion | Unsupported conclusion |
+| --- | --- | --- |
+| package unit tests | covered package behavior passed under the recorded environment | cross-package composition is valid |
+| lint and type checks | the checked static and typing policies passed | runtime paths or scientific outcomes are correct |
+| generated-contract check | governed output matches its source and generator for this revision | the contract is scientifically appropriate or backward compatible |
+| compatibility validation | declared bridge surfaces match the checked canonical targets | every external consumer migrated |
+| documentation build | configured pages, navigation, links, and rendering passed | every reader-facing claim is factually justified |
+| security gate | the configured tools found no unaccepted issue in their checked scope | the system is universally secure |
+| release preflight | the ordered release policy passed for the identified candidate | every workflow is transferable or scientifically universal |
+
+Combine results only when their candidate identity and governed inputs agree.
+A pass from another revision, generated state, dependency lock, or publication
+candidate is historical evidence, not a substitute for the current check.
+
 ## Verification architecture
 
 ```mermaid

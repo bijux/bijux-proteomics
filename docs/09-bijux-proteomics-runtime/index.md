@@ -19,6 +19,25 @@ python -m pip install bijux-proteomics-runtime
 bijux-proteomics-runtime --help
 ```
 
+## Open the record that explains the symptom
+
+Runtime failures and differences are diagnosable only when the operator starts
+from the record that owns the disputed transition.
+
+| Symptom | Open first | Evidence that resolves it |
+| --- | --- | --- |
+| work never started | preflight report | request validation, required capability, environment checks, provider availability, and typed refusal |
+| a different provider or mode ran | provider decision | requested and selected capability, fallback reason, environment, and assurance result |
+| execution stopped unexpectedly | lifecycle events and failure report | last accepted state, operation identity, diagnostics, partial artifacts, and recovery boundary |
+| resume does not continue as expected | checkpoint history and state snapshot | checkpoint identity, compatibility, parent run, restored state, and resumed transitions |
+| output is missing or changed | artifact ledger and comparison report | artifact identity, producer, hash, lineage, cache decision, stability class, and normalized difference |
+| an imported result appears equivalent to native execution | provenance and execution-posture record | external engine, source file, version, custody, normalization, and explicit import ceiling |
+| a rerun completed but cannot support reproduction | rerun closure record | source and rerun identities, environment and provider drift, comparison policy, differences, and disposition |
+
+Do not infer the cause from the terminal label alone. `Completed`, `failed`, and
+`refused` summarize a run; the owning records explain what happened and which
+claim remains supportable.
+
 ## Runtime lifecycle
 
 ```mermaid

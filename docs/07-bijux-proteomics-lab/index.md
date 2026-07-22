@@ -18,6 +18,25 @@ to scientific review.
 python -m pip install bijux-proteomics-lab
 ```
 
+## Authority before material consequence
+
+An analytical recommendation is input to laboratory planning, not permission
+to consume material or operator time. Each authority can stop progression for a
+different reason.
+
+| Authority | Decision | Required record | What it cannot override |
+| --- | --- | --- | --- |
+| Intelligence reviewer | is the proposed action defensible enough to consider? | recommendation, alternatives, conditions, uncertainty, and human-review state | assay answerability or operational capacity |
+| scientific assay owner | can the proposed measurement answer the stated question? | assay design, controls, acceptance criteria, confounders, and refusal checks | material custody, safety, or scheduling authority |
+| operational owner | can the work be executed with identified people, material, equipment, capacity, and timing? | readiness, resource, batch, schedule, and assigned-owner records | scientific sufficiency or required safety approval |
+| human or safety authority | is action permitted under the applicable risk and governance boundary? | approval, hold, escalation, or refusal with accountable owner | missing controls or an uninterpretable design |
+| measurement reviewer | did the observation satisfy QC and acceptance criteria? | raw and processed observations, QC, deviations, missingness, and disposition | the meaning of the result for the upstream claim |
+| Knowledge and Intelligence review | how should accepted consequence evidence affect claims and future action? | appended evidence, reconciliation, revised review, and policy-bound decision | historical plan, recommendation, or observation records |
+
+Progression requires every applicable authority; one approval cannot compensate
+for another authority's refusal. Holds and refusals remain first-class outputs
+with a named closure condition.
+
 ## Closed-loop validation
 
 ```mermaid
