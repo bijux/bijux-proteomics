@@ -61,6 +61,23 @@ flowchart LR
 Claims do not replace their evidence. A status change creates new decision
 state while the cited record and its original context remain inspectable.
 
+## Context Transfer Is A Separate Claim
+
+Every transfer across species, tissue, cell line, perturbation, dose,
+timepoint, assay, preparation, or endpoint introduces a new applicability
+question. A transfer record must therefore identify the source context, target
+context, governing rule, unresolved differences, and uncertainty. Copying a
+confidence value into the target context is not a valid transfer.
+
+| Source evidence | Requested statement | Required treatment |
+| --- | --- | --- |
+| protein-level abundance | site-specific PTM regulation | insufficient without localization evidence |
+| pathway membership | pathway activity | insufficient without activity evidence and policy |
+| complex membership | assembled complex in the sample | retain as membership, not assembly proof |
+| kinase–substrate annotation | causal kinase activity | retain relationship type and require causal/context evidence |
+| drug–target relationship | efficacy in a disease context | retain target relation and refuse efficacy promotion |
+| ortholog mapping | functional equivalence | retain ambiguity and require an explicit transfer rule |
+
 ## Biological resolution
 
 The package returns typed reports for protein identity, protein features,
@@ -72,6 +89,20 @@ silently dropping failures.
 Coverage-based confidence means that a configured fraction of curated members
 was resolved. It does not prove pathway activity, complex assembly, kinase
 causality, drug efficacy, disease mechanism, or cross-species equivalence.
+
+## Sufficiency And Deficit Packet
+
+A downstream decision brief should be traceable to one packet containing:
+
+- the exact claim and intended use;
+- supporting, contradicting, stale, and context-mismatched evidence identities;
+- identity-resolution and relationship-resolution outcomes;
+- coverage numerator, denominator, policy, and unresolved members;
+- the sufficiency threshold and each failed criterion;
+- a knowledge-deficit list that states what evidence could close the gap.
+
+This packet allows intelligence to narrow or refuse a recommendation without
+turning missing knowledge into a low but apparently precise confidence score.
 
 ## Contract invariants
 

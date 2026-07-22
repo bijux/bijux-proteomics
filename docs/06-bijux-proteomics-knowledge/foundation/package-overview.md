@@ -14,6 +14,23 @@ resolution. Its modules answer where an assertion came from, which context it
 applies to, what contradicts it, and which biological entities can be linked
 without exceeding the available evidence.
 
+## Four Questions That Must Stay Separate
+
+```mermaid
+flowchart LR
+    input["identifier, relationship, or claim"]
+    identity["identity resolution\nwhat entity is this?"]
+    context["context match\nwhere does it apply?"]
+    evidence["evidence reconciliation\nwhat supports or contradicts it?"]
+    sufficiency["use-specific sufficiency\nwhat may this evidence support?"]
+    input --> identity --> context --> evidence --> sufficiency
+```
+
+An exact identifier match does not establish a relationship. A curated
+relationship does not establish activity in the observed context. Supporting
+evidence does not establish sufficiency for every claim. Keeping these verdicts
+separate is the central knowledge contract.
+
 ## Evidence memory
 
 `memory.models` defines claims and evidence records. `memory.normalization`
@@ -76,6 +93,17 @@ flagship evidence summaries, and `KnowledgeDecisionBrief` objects. A brief
 communicates current evidence posture to intelligence or lab; it does not
 discard the underlying sources, open contradictions, or coverage gaps.
 
+## Choose The Evidence Surface
+
+| Reader question | Owning surface | Required review evidence |
+| --- | --- | --- |
+| Which biological entity does this value denote? | `identity`, `orthologs` | normalized input, exact/alias/ambiguous/unresolved status, candidate mappings |
+| Does a curated relationship exist? | `features`, `pathways`, `complexes`, `kinases`, `drugs`, `disease` | source, relationship type, coverage, match policy, unresolved members |
+| Which records bear on this claim? | `memory`, reference grounding | supporting and contradicting records with source and experimental context |
+| Can conflicting records be reconciled? | reconciliation and contradiction workflows | grouping rule, retained disagreements, resolution account, remaining conflict |
+| Is evidence sufficient for this use? | sufficiency, deficit, and scientific-risk workflows | requested claim, threshold policy, coverage gaps, stale or missing sources |
+| What can another package consume? | `reviews` | decision brief linked to the complete evidence bundle and provenance report |
+
 ## Public API example
 
 ```python
@@ -98,3 +126,8 @@ specificity, licensing, curation quality, and contradiction state. A successful
 lookup is not proof of completeness, and a normalized relationship is not
 automatically causal. Knowledge returns uncertainty and gaps so downstream
 decision policy can narrow or refuse a recommendation.
+
+Knowledge review is complete only when identity status, source context,
+support, contradiction, freshness, coverage, and use-specific sufficiency are
+visible together. A lookup count or aggregate confidence cannot substitute for
+that record.
