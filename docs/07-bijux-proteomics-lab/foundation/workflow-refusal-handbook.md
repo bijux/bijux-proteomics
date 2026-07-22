@@ -43,8 +43,8 @@ This handbook names when the honest next move is to stop, rerun, narrow, or refu
 - current posture: `do_not_recommend`
 - stop when: none
 - rerun when: public comparator-backed claim support is refused, biological grounding remains thin, vendor and library comparison gaps remain open, operational burden remains too high for a justified recommendation
-- narrow when: Multiplex chemistry pressure is public, but outsider authority remains blocked because the family still lacks its own outsider packet and lab consequence surface., Keep multiplex internal support only until dedicated outsider review and lab consequence packets exist.
-- refuse when: keep multiplex at internal support until the family earns its own outsider review and lab consequence closure, Multiplex chemistry pressure is public, but outsider authority remains blocked because the family still lacks its own outsider packet and lab consequence surface.
+- narrow when: Multiplex has a paired public benchmark surface, but the companion stress result defeats outsider authority and no dedicated lab consequence packet closes the downstream gap., Keep multiplex internal support only until companion pressure passes and dedicated outsider review and lab consequence packets exist.
+- refuse when: keep multiplex at internal support until the family earns its own outsider review and lab consequence closure, Multiplex has a paired public benchmark surface, but the companion stress result defeats outsider authority and no dedicated lab consequence packet closes the downstream gap.
 - evidence paths: `artifacts/intelligence/recommendation-packets/multiplex.json`, `contradiction_triage:multiplex:1`
 
 ### `ptm`

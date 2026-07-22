@@ -53,6 +53,25 @@ evidence and rationale intact.
 | escalate | the decision exceeds automated or package authority | human, domain, safety, or operational judgment is required |
 | refuse | a required precondition is violated or uncertainty is unacceptable | no responsible action exists inside the declared policy |
 
+## Attribute A Recommendation Change
+
+Two decisions are comparable only when the changed inputs are explicit. Keep
+the scientific result fixed when testing evidence or policy sensitivity; keep
+the evidence snapshot fixed when testing policy sensitivity. If several axes
+change together, record the revision as a new composite decision rather than
+claiming a single cause.
+
+| changed axis | hold constant | conclusion that can be drawn |
+| --- | --- | --- |
+| comparator or literature evidence | scientific result, policy, burden model | whether grounding pressure caused the posture change |
+| decision policy or threshold | result, evidence snapshot, burden model | whether the call is policy-sensitive |
+| assay burden or feasibility | result, evidence snapshot, policy | whether the same analytical belief still justifies action |
+| observed outcome | retained prior decision and its complete inputs | whether the next recommendation should narrow, hold, or widen |
+
+A recommendation diff must name the old and new decision identifiers, changed
+inputs, unchanged inputs, posture transition, and exact driver records. A prose
+summary without that comparison is an interpretation, not attribution.
+
 ## Follow the limiting evidence
 
 - [Workflow Claim Grounding](../../06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md)

@@ -4,19 +4,18 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # Workflow Claim Grounding
 
-This route answers a narrow but essential question: which public workflow
-sentences are actually supported by named evidence, and which still survive
-only as bounded or contradicted wording.
+Workflow claim grounding identifies which public scientific sentences are
+supported by named evidence and which remain bounded, contradicted, or
+unearned.
 
-`bijux-proteomics-knowledge` owns this because sentence grounding is still
-evidence work. It is where the repository proves that public trust language is
-anchored to explicit scientific support instead of sounding careful by style
-alone.
+`bijux-proteomics-knowledge` preserves the connection between an exact claim,
+its evidence revision, source lineage, contradiction state, and support
+policy. It does not infer support from cautious wording.
 
 ## What Ships
 
@@ -41,32 +40,50 @@ metadata field as a scientific claim.
 - move to contradiction triage when the sentence is partly supported and still
   scientifically narrowed by conflict or thin transfer
 
-The result should be one clear answer: supported, bounded, or not yet earned.
+The result is one explicit state: supported, bounded, contradicted, or not
+earned.
+
+## Ground One Claim
+
+```mermaid
+flowchart LR
+    sentence["exact claim text"] --> scope["entity, workflow, population, and strength"]
+    scope --> support["direct supporting evidence"]
+    scope --> context["contextual evidence"]
+    scope --> conflict["contradicting evidence"]
+    support --> policy["freshness and support policy"]
+    context --> policy
+    conflict --> policy
+    policy --> state["supported, bounded, contradicted, or unearned"]
+    state --> decision["decision input"]
+```
+
+Direct support must entail the scoped sentence at the stated strength.
+Contextual evidence can explain plausibility or mechanism but cannot substitute
+for direct support. Contradiction remains attached even when supporting
+evidence exists; support and conflict are not mutually exclusive tallies.
+
+| grounding field | required question |
+| --- | --- |
+| exact claim | What proposition would be false if the claim failed? |
+| scope | Which entity, workflow, population, comparator, and confidence are asserted? |
+| support | Which named source directly supports that proposition? |
+| contradiction | Which named source or checked result narrows it? |
+| freshness | Was the evidence valid under the recorded review policy? |
+| state | Which policy rule produced the grounding state? |
 
 ## Workflow Coverage
 
 | family | grounding surface role today | likely reason a sentence still narrows |
 | --- | --- | --- |
-| `dda` | strong support for bounded outsider language | execution realism remains narrower than full live-engine parity |
+| `dda` | strong scientific support for bounded language | runtime evidence lowers the end-to-end public posture below the strongest grounding request |
 | `dia` | strong support for bounded outsider language | library incompleteness and downstream consequence still narrow broader wording |
-| `lfq` | real support for review-grade language | missingness, normalization, and transfer pressure still block stronger wording |
+| `lfq` | direct support for bounded outsider-auditable language | missingness, normalization, and transfer pressure still block stronger wording |
 | `ptm` | strong support for localization and bounded trust language | consequence confidence remains weaker than localization evidence |
 | `targeted` | strong support for bounded outsider language | calibration, interference, and follow-up burden still narrow broader certainty |
 | `multiplex` | support for internal-support-only language | the current stress packet still defeats outsider trust |
 
-## Why This Surface Matters More Now
-
-The repository now has enough product depth that wording can fail in more
-interesting ways:
-
-- core can be scientifically stronger than the release sentence
-- runtime can be reproducible while the claim language is still too broad
-- recommendation posture can be cautious while one sentence still sounds too
-  smooth
-
-Grounding keeps those mismatches visible.
-
-## What This Surface Still Does Not Decide
+## Decisions Grounding Does Not Make
 
 - final recommendation posture by itself
 - downstream assay worth by itself
@@ -76,7 +93,7 @@ Grounding answers whether the sentence is scientifically supported. The next
 layers decide whether it still deserves to sound that strong after judgment and
 consequence pressure are included.
 
-## Best Next Routes
+## Continue From Grounding
 
 - Open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
   when the question becomes whether supported wording is still too confident.
@@ -88,6 +105,5 @@ consequence pressure are included.
 
 ## Boundary
 
-This page owns scientific sentence support. It should hand off before
-pretending that grounded support alone settles recommendation strength or lab
-meaning.
+Grounding settles scientific sentence support. It does not settle
+recommendation strength, runtime realism, or laboratory meaning.
