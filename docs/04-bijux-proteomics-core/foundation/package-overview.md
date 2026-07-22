@@ -16,6 +16,32 @@ steps without moving their scientific ownership.
 
 ## From molecules to evidence
 
+```mermaid
+flowchart LR
+    sequence["sequence and study design"]
+    signal["spectra and chromatography"]
+    chemistry["chemistry and modifications"]
+    identify["identification and inference"]
+    quantify["quantification and statistics"]
+    specialized["DIA · multiplex · PTM\ntargeted · proteoforms"]
+    interpret["interpretation and review"]
+    benchmark["family benchmark evidence"]
+    sequence --> identify
+    signal --> identify
+    chemistry --> identify
+    identify --> quantify
+    identify --> specialized
+    quantify --> specialized
+    quantify --> interpret
+    specialized --> interpret
+    interpret --> benchmark
+```
+
+The arrows describe evidence dependencies, not a mandatory monolithic run.
+Targeted validation can begin from transition evidence; PTM review can retain
+site-localization ambiguity without waiting for pathway interpretation; a
+benchmark can pressure one owned contract without exercising every module.
+
 ### Sequences and experimental context
 
 `sequences` handles FASTA records, validation, decoys, contaminants, digestion,
@@ -96,6 +122,21 @@ replacement for the normalized or reviewed artifact that supports it.
   coverage, and family-specific acceptance evidence.
 - Keep execution providers, checkpoints, and replay in runtime; keep evidence
   reconciliation and recommendation policy in their owning packages.
+
+## Find The Scientific Owner
+
+| Review question | Owning surface | Evidence that closes the question |
+| --- | --- | --- |
+| Was the search space constructed as declared? | `sequences`, `study`, `chemistry` | source lineage, digestion or modification policy, accepted and rejected records |
+| Were identifications controlled under an explicit error policy? | `identification` | ranked target-decoy state, tie policy, q-values, exclusions, inference ambiguity |
+| Can the quantitative contrast be reconstructed? | `quantification` | matrix lineage, normalization, missingness, roll-up, statistical policy, diagnostics |
+| Does a family-specific conclusion survive its own failure modes? | `dia`, `multiplex`, `ptm`, `targeted`, `proteoforms` | family contract, specialized QC, caveats, pressure evidence |
+| What scientific sentence does the result support? | `interpretation`, `review` | typed claim, supporting and limiting evidence, explanation, unresolved uncertainty |
+| Does the implementation meet a published family bar? | `benchmarks`, `workflow` | licensed asset, request, governed result, acceptance report, reproducibility identity |
+
+Core review ends at scientific computation and family acceptance. Scheduling,
+evidence-source truth, recommendation policy, and permission to act belong to
+runtime, knowledge, intelligence, and lab respectively.
 
 For executable entry points, continue with the
 [API and CLI surface](../interfaces/api-surface.md). For the evidence boundary,

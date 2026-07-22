@@ -80,6 +80,40 @@ biological interpretation follow the same pattern: typed inputs, an explicit
 policy, structured results, diagnostics, and caveats. Downstream consumers
 should preserve the result model and policy together.
 
+## A Reviewable Scientific Packet
+
+The smallest trustworthy exchange is not a result table by itself. It is the
+connected packet that lets another reader reconstruct why each row exists:
+
+```mermaid
+flowchart LR
+    source["source identities and checksums"]
+    normalized["typed normalized records"]
+    policy["explicit scientific policies"]
+    result["accepted result records"]
+    rejected["rejections, exclusions, diagnostics"]
+    lineage["derivation and reproducibility identity"]
+    source --> normalized
+    normalized --> result
+    policy --> result
+    normalized --> rejected
+    policy --> rejected
+    result --> lineage
+    rejected --> lineage
+```
+
+| Packet member | Minimum review question |
+| --- | --- |
+| source identity | Can the exact inputs and their origin be resolved? |
+| normalized record | Which information was preserved, normalized, or lost? |
+| policy | Which thresholds, ordering rules, and scientific assumptions governed the calculation? |
+| accepted result | Which typed evidence survived the declared gates? |
+| rejected evidence | Which rows or claims failed, and for what structured reason? |
+| lineage identity | Can the derivation be compared across implementations or reruns? |
+
+If accepted results are portable but rejections or policy are not, the packet
+cannot support an independent audit of selection effects.
+
 ## Contract invariants
 
 - Unknown fields are rejected on governed exchange models.
@@ -90,6 +124,10 @@ should preserve the result model and policy together.
   scientific validity or provenance.
 - Rendered tables and reports are views of typed records, not alternate sources
   of truth.
+
+These invariants establish inspectability, not universal validity. Family
+acceptance still depends on the benchmark and pressure evidence appropriate to
+DDA, DIA, LFQ, multiplex, PTM, or targeted analysis.
 
 See [artifact contracts](artifact-contracts.md) for the files that carry these
 records across workflow boundaries.
