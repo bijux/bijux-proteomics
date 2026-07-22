@@ -30,13 +30,13 @@ New applications should install `bijux-proteomics-runtime` and use the
 
 ## Do you need this package?
 
-| Caller condition | Install | Migration action |
-| --- | --- | --- |
-| code imports `agentic_proteins` | `agentic-proteins` and the canonical owner during migration | replace each import using the generated migration guide |
-| automation invokes `agentic-proteins` | `agentic-proteins` | compare command output and exit behavior with `bijux-proteomics-runtime` |
-| a service imports a historical HTTP module | `agentic-proteins` | move routes and request models to `bijux_proteomics_runtime.api` |
-| new code needs execution, providers, replay, or run evidence | `bijux-proteomics-runtime` | use the canonical API directly |
-| new code needs scientific report models | `bijux-proteomics-core` | use the Core owner directly |
+| Caller condition | Install | Migration action | Closure evidence |
+| --- | --- | --- | --- |
+| code imports `agentic_proteins` | `agentic-proteins` and the canonical owner during migration | replace each import using the generated migration guide | caller tests exercise the canonical public symbol and no depended-on legacy import remains |
+| automation invokes `agentic-proteins` | `agentic-proteins` | compare command output and exit behavior with `bijux-proteomics-runtime` | canonical invocation satisfies arguments, exit status, streams, and artifact expectations |
+| a service imports a historical HTTP module | `agentic-proteins` | move routes and request models to `bijux_proteomics_runtime.api` | consumer contract tests pass for routes, schemas, statuses, and error envelopes |
+| new code needs execution, providers, replay, or run evidence | `bijux-proteomics-runtime` | use the canonical API directly | dependency inventory contains no compatibility path |
+| new code needs scientific report models | `bijux-proteomics-core` | use the Core owner directly | report imports and serialization contracts resolve to Core |
 
 Compatibility is a caller property, not a second product mode. A deployment
 may need the bridge while one historical dependency remains; new components in
@@ -237,11 +237,11 @@ and repository-wide retirement is governed by
 
 ## Continue By Migration Question
 
-| Need | Read next |
-| --- | --- |
-| understand what the bridge owns | [package foundation](foundation/index.md) and the [compatibility contract](foundation/compatibility-contract.md) |
-| inspect forwarding boundaries | [architecture](architecture/index.md) |
-| migrate Python, CLI, HTTP, data, or artifact surfaces | [interfaces](interfaces/index.md) and the [canonical migration guide](../09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md) |
-| install, diagnose, or release the package | [operations](operations/index.md) |
-| evaluate risk or retirement readiness | [quality](quality/index.md) and the [maintenance handbook](../08-bijux-proteomics-maintain/index.md) |
-| build new execution behavior | [Runtime](../09-bijux-proteomics-runtime/index.md), the canonical owner |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| understand what the bridge owns | [package foundation](foundation/index.md) and the [compatibility contract](foundation/compatibility-contract.md) | the legacy surface, canonical owner, promise, and non-goal are explicit |
+| inspect forwarding boundaries | [architecture](architecture/index.md) | every wrapper resolves to one owner and no independent implementation remains |
+| migrate Python, CLI, HTTP, data, or artifact surfaces | [interfaces](interfaces/index.md) and the [canonical migration guide](../09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md) | the named caller passes observable parity checks on every depended-on surface |
+| install, diagnose, or release the package | [operations](operations/index.md) | installation, failure recovery, and release evidence match the compatibility contract |
+| evaluate risk or retirement readiness | [quality](quality/index.md) and the [maintenance handbook](../08-bijux-proteomics-maintain/index.md) | consumer inventory and removal evidence justify either retention or retirement |
+| build new execution behavior | [Runtime](../09-bijux-proteomics-runtime/index.md), the canonical owner | the behavior and its public tests live only in Runtime |

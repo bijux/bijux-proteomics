@@ -144,9 +144,7 @@ belong to an internal-support family. An outsider-auditable family can exist in
 a repository whose release candidate is blocked. Neither situation makes the
 underlying result false.
 
-## Shared Reader Routes
-
-### Choose the governing question
+## Resolve The Governing Authority
 
 Do not begin a cross-package investigation by searching every source tree.
 First identify the kind of authority in dispute, then follow that owner’s
@@ -177,7 +175,7 @@ flowchart LR
     lab --> proof
 ```
 
-## Reader Routes
+## Continue By Objective
 
 Choose a route by the question you need to answer:
 
@@ -225,13 +223,18 @@ can refuse work when its part of that chain is under-specified.
 
 ## Review protocol
 
-Before accepting a cross-package conclusion, confirm that:
+A cross-package conclusion is acceptable only when each boundary has an
+identified record and its refusal route remains visible.
 
-1. the scientific result retains rejected inputs and its active policy;
-2. the execution record identifies configuration, provider, artifacts, and
-   terminal state;
-3. evidence references resolve to contextual records rather than unsupported
-   prose;
-4. contradiction, uncertainty, and refusal paths remain present;
-5. an advisory recommendation is not represented as laboratory authority;
-6. observed outcomes append to, rather than overwrite, the decision history.
+| Review boundary | Accept only when | Refuse or narrow when |
+| --- | --- | --- |
+| scientific result | accepted and rejected inputs, active policy, diagnostics, and family acceptance remain attached | exclusions, assumptions, ambiguity, or workflow family cannot be reconstructed |
+| execution custody | configuration, selected provider, state transitions, artifacts, and terminal disposition resolve to one run | completion is asserted from terminal output without the run bundle |
+| evidence grounding | every support or contradiction reference resolves to a versioned source and compatible context | prose summarizes support that cannot be reopened or conflict has been omitted |
+| recommendation | candidate universe, policy, sensitivity, alternatives, and human-review state are explicit | a score is presented as an authorized action or instability is hidden |
+| laboratory consequence | readiness, controls, handoff, deviations, observation, and disposition share custody | an advisory plan is presented as executed or an observation as biological truth |
+| history | later reviews and outcomes append records linked to their predecessors | an earlier result, evidence bundle, or recommendation must be overwritten to explain the current state |
+
+The first unresolved row controls the strongest defensible conclusion. A
+complete record later in the chain cannot compensate for an absent owner or
+failed contract earlier in it.
