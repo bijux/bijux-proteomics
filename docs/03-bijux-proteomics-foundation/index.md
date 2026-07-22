@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-foundation
@@ -88,6 +88,35 @@ scientific data evolution.
 | version is unknown | return an explicit incompatibility | do not coerce or guess |
 | import path moved | use the import-migration contract | keep document evolution separate |
 | supported value cannot canonicalize | fail at serialization | define an explicit representation before persistence |
+
+## Preserve identity across schema change
+
+Schema evolution creates several identities that must not be collapsed into
+one checksum. A migration can preserve the subject while intentionally
+changing the document bytes; a matching digest can prove byte-stable content
+without proving that two records describe the same biological subject.
+
+| Identity | Stable question | Change that is allowed | Evidence that must remain |
+| --- | --- | --- | --- |
+| subject identifier | which assay, claim, candidate, or evidence record is this? | representation and schema may evolve | typed identifier and namespace |
+| content digest | are these canonical payload bytes equal? | any semantic edit creates a new digest | hash policy and canonical payload |
+| schema identity | which structural contract interprets the document? | declared version migration | source version, target version, and migration name |
+| lineage identity | where did this representation come from? | new transformations append custody | parent references, producer, and transformation record |
+| scientific equivalence | did the transformation preserve domain meaning? | only changes accepted by the domain owner | domain validation outside Foundation |
+
+```mermaid
+flowchart LR
+    old["subject S · schema A · digest X"] --> migration["declared A-to-B migration"]
+    migration --> new["subject S · schema B · digest Y"]
+    old --> lineage["migration lineage"]
+    new --> lineage
+    lineage --> structural["structural continuity established"]
+    structural -. requires domain review .-> semantic["scientific equivalence"]
+```
+
+Foundation can establish that the declared transformation ran and the target
+document validates. The package that owns the scientific record must establish
+whether meaning survived that transformation.
 
 ## Typed outcomes
 

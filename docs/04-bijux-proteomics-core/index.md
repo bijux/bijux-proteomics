@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-core
@@ -112,10 +112,13 @@ operators. HTTP execution belongs to `bijux-proteomics-runtime`.
 ## Evidence posture
 
 Core ships benchmark assets and acceptance logic, but capability breadth is not
-equivalent to uniform validation. DDA, DIA, PTM, and targeted families have
-outsider-auditable classifications. DDA, DIA, LFQ, PTM, and targeted also have
-full outsider-readable packets, but packet completeness does not promote LFQ
-beyond review-grade bounded. Multiplex remains internal support only. The
+equivalent to uniform validation. DIA, LFQ, PTM, and targeted have
+`outsider_auditable_bounded` classifications over checked raw-executable lanes.
+DDA is `review_grade_bounded` because its strongest black-box lane begins at
+governed search-result import rather than repository-owned raw search
+execution. Multiplex remains `internal_support_only`: its checked feature lane
+is executable, but transfer is fragile and outsider review and laboratory
+consequence are not closed. The
 [public benchmark catalog](foundation/flagship-public-benchmark-catalog.md)
 links each family to its lineage, comparisons, and limitations.
 
@@ -163,6 +166,33 @@ flowchart TD
 
 An acceptance result is not a universal quality label. It applies to the named
 family, corpus, policy, and evidence version recorded with the result.
+
+## Read one result against the family ceiling
+
+Core acceptance answers whether one invocation met its declared scientific
+contract. Public authority is a second judgment over the complete workflow
+family. The weaker judgment controls the sentence that leaves the system.
+
+| Result-level finding | Family posture | Permitted interpretation |
+| --- | --- | --- |
+| accepted | outsider-auditable bounded | report the accepted result within the family limits and named execution lane |
+| accepted | review-grade bounded | retain and review the result; do not describe the family as raw-executable or outsider-auditable |
+| accepted | internal support only | use the result for governed internal support; withhold an outsider-facing family claim |
+| refused or failed | any posture | preserve the refusal or failure; family evidence cannot turn it into a successful result |
+
+```mermaid
+flowchart LR
+    invocation["one invocation"] --> acceptance{"scientific contract met?"}
+    acceptance -->|no| disposition["refusal · failure · narrowed result"]
+    acceptance -->|yes| accepted["accepted result"]
+    accepted --> family["family evidence ceiling"]
+    family --> public["bounded public statement"]
+    family --> internal["review-grade or internal-only use"]
+```
+
+Packet readability, execution depth, companion pressure, and consequence
+closure belong to the family judgment. They are not properties inferred from
+a successful individual run.
 
 ## Handoff to Runtime
 
