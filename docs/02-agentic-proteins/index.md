@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # agentic-proteins
@@ -104,6 +104,24 @@ Its durable promise is a visible, testable migration route. See the
 [public imports](interfaces/public-imports.md), and
 [known limitations](quality/known-limitations.md) before relying on an
 historical surface.
+
+## What Compatibility Evidence Proves
+
+A compatibility check compares observable caller behavior. It does not repeat
+the scientific validation owned by Core or the workflow-family authority
+review owned by the product evidence chain.
+
+| Observed result | Supported conclusion | Unsupported conclusion |
+| --- | --- | --- |
+| legacy and canonical imports resolve to the declared public owner | the caller can use the canonical symbol path | every undocumented internal import remains supported |
+| commands match arguments, exit status, output, and artifacts | the recorded command contract is compatible | scientific equivalence outside the command’s checked inputs |
+| HTTP routes match schemas, statuses, and error envelopes | the consumer-facing protocol is compatible | identical deployment, provider, or performance behavior |
+| historical state reopens under the canonical runtime | the recorded persistence and resume contract is compatible | arbitrary older or corrupted state can migrate |
+| replay results match under a named comparison policy | the declared stable fields are equivalent | byte identity, vendor parity, or general scientific transfer |
+
+Compatibility can therefore be green while a workflow claim remains bounded,
+or blocked while the canonical scientific route remains valid. Report those
+verdicts separately.
 
 ## Observable parity
 

@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Repository handbook
@@ -117,6 +117,32 @@ externally inspectable evidence.
 Stop at the first missing identity, unresolved artifact, stale generated
 surface, or weaker-than-declared evidence class. A narrative summary never
 repairs a broken evidence chain.
+
+## Keep Three Verdicts Separate
+
+The same word—“passed”—can refer to three different review scopes. Every
+public statement must name which scope it means.
+
+| Verdict scope | Unit under review | Governing evidence | Valid conclusion |
+| --- | --- | --- | --- |
+| result disposition | one identified scientific invocation | inputs, policy, accepted and rejected outputs, diagnostics, and Core acceptance | this result met or failed its declared scientific contract |
+| workflow-family posture | a primary package, companion pressure package, execution lanes, grounding, challenge, and consequence | family matrix and its named records | this family supports no more than the recorded bounded public language |
+| repository release readiness | one source candidate and every required release category | generated readiness matrix and exact gate output | this candidate may publish only when every applicable category passes |
+
+```mermaid
+flowchart TD
+    result["one scientific result passes"] --> family{"family evidence chain passes?"}
+    family -->|no| bounded["retain result; narrow family claim"]
+    family -->|yes| posture["bounded family posture"]
+    posture --> release{"all repository release categories pass?"}
+    release -->|no| withheld["family evidence remains inspectable; release withheld"]
+    release -->|yes| eligible["candidate eligible for publication review"]
+```
+
+These verdicts are nested constraints, not promotions. A valid result can
+belong to an internal-support family. An outsider-auditable family can exist in
+a repository whose release candidate is blocked. Neither situation makes the
+underlying result false.
 
 ## Shared Reader Routes
 
