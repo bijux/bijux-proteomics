@@ -67,6 +67,23 @@ flowchart LR
 There is no parallel implementation in this distribution. Scientific fixes,
 new exports, tests, and release evidence belong to the Core owner.
 
+## Resolve the three names
+
+Python packaging exposes three related names here, but only one implementation
+owner. Keeping them distinct prevents alias metadata from being mistaken for a
+scientific package boundary.
+
+| Name | Meaning | Where a change belongs |
+| --- | --- | --- |
+| `bijux-proteomics` | install and publication name | this alias package only when dependency or distribution metadata changes |
+| `bijux_proteomics` | public Python import namespace | `bijux-proteomics-core` |
+| `bijux-proteomics-core` | canonical scientific distribution | Core source, tests, API exports, benchmark evidence, and scientific docs |
+
+A consumer may install the flagship name and import the canonical namespace;
+that does not make this directory the implementation owner. Review the
+installed dependency edge and the Core export before attributing behavior to
+the alias.
+
 ## Installation
 
 ```bash

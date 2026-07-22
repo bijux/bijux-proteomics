@@ -118,19 +118,36 @@ Stop at the first missing identity, unresolved artifact, stale generated
 surface, or weaker-than-declared evidence class. A narrative summary never
 repairs a broken evidence chain.
 
-## Shared Reader Routes
+## Choose the governing question
 
-Four documents establish the repository-wide frame before a reader descends
-into package evidence:
+Do not begin a cross-package investigation by searching every source tree.
+First identify the kind of authority in dispute, then follow that owner’s
+record into implementation and evidence.
 
-- [Product Architecture](foundation/product-architecture.md) defines the
-  end-to-end data, execution, evidence, decision, and feedback boundaries.
-- [Cross-Package Ownership](foundation/cross-package-ownership.md) identifies
-  the owner of every shared contract and handoff.
-- [Repository Shape Rationale](foundation/repository-shape-rationale.md)
-  explains why those responsibilities remain separate distributions.
-- [Release Readiness Matrix](foundation/release-readiness-matrix.md) binds
-  public claims to their current evidence and blockers.
+| Dispute | Governing route | Resolution evidence |
+| --- | --- | --- |
+| package or handoff ownership | [Product Architecture](foundation/product-architecture.md) and [Cross-Package Ownership](foundation/cross-package-ownership.md) | one canonical owner, dependency direction, and consumer contract |
+| why responsibilities are separate | [Repository Shape Rationale](foundation/repository-shape-rationale.md) | explicit package boundary and the cost of collapsing it |
+| strength of a workflow claim | [Workflow Families](foundation/workflow-families.md) | family packet, execution posture, benchmark verdict, and claim ceiling |
+| whether evidence is independently inspectable | [Public Artifact Index](foundation/public-artifact-index.md) | resolvable artifact identity, provenance, digest, and reproduction route |
+| whether the repository may publish | [Release Readiness Matrix](foundation/release-readiness-matrix.md) | revision-specific gate verdict and closure evidence for every blocker |
+
+```mermaid
+flowchart LR
+    dispute["disputed statement"] --> kind{"which authority?"}
+    kind -->|meaning or identity| foundation["Foundation contract"]
+    kind -->|scientific result| core["Core evidence"]
+    kind -->|execution history| runtime["Runtime bundle"]
+    kind -->|support or contradiction| knowledge["Knowledge review"]
+    kind -->|ranking or refusal| intelligence["Intelligence decision"]
+    kind -->|feasibility or outcome| lab["Lab consequence"]
+    foundation --> proof["implementation · tests · retained artifact"]
+    core --> proof
+    runtime --> proof
+    knowledge --> proof
+    intelligence --> proof
+    lab --> proof
+```
 
 ## Reader Routes
 

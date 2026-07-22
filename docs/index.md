@@ -113,6 +113,26 @@ Choose a route by the decision you need to make, then stop at the first missing
 owner record. Do not substitute a later summary for an absent scientific,
 execution, evidence, recommendation, or consequence artifact.
 
+## Read a claim as a ledger
+
+An outsider should be able to move from a sentence to the records that permit
+that sentence. The chain is intentionally asymmetric: evidence can narrow a
+claim at any layer, while success in a later layer cannot promote a weaker
+earlier result.
+
+| Ledger entry | Accountable package | Keep visible |
+| --- | --- | --- |
+| subject and payload identity | Foundation | canonical bytes, digest, schema, producer, and compatibility decision |
+| analytical result | Core | source observations, exclusions, assumptions, QC, family acceptance, and limitations |
+| execution history | Runtime | requested and selected capability, environment, events, artifacts, and terminal state |
+| evidential interpretation | Knowledge | source versions, biological context, support, contradiction, freshness, and gaps |
+| proposed action | Intelligence | alternatives, ranking policy, sensitivity, confidence posture, and refusal conditions |
+| experimental consequence | Lab | readiness, controls, custody, deviation, observation, and feedback record |
+
+The stable join is a typed identity or artifact reference. A filename, display
+label, dashboard color, or prose summary is a view; none is sufficient to join
+records across packages or revisions.
+
 ## One result, six accountable layers
 
 ```mermaid

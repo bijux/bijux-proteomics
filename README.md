@@ -164,6 +164,42 @@ evidence, decision policy, and downstream consequence remain distinguishable.
 | Intelligence | challenged recommendation record | unstable ranking, unacceptable regret, or required human review |
 | Lab | readiness, handoff, and consequence dossier | incomplete controls, unacceptable burden, unsafe execution, or inconclusive outcome |
 
+## Audit one claim end to end
+
+Start with the public sentence you want to defend, not with the package that is
+most familiar. A claim such as “this protein group changed under condition B”
+crosses several contracts, and each contract can narrow the sentence without
+invalidating the records produced earlier in the chain.
+
+| Audit question | Record to open | Evidence that closes the question |
+| --- | --- | --- |
+| which observations entered the calculation? | Core scientific report | accepted inputs, rejected inputs, normalization policy, workflow family, and benchmark lineage |
+| which computation actually produced the artifacts? | Runtime run bundle | resolved request, provider posture, environment, state history, and artifact digests |
+| what supports or contradicts the biological interpretation? | Knowledge review bundle | versioned sources, context match, contradiction ledger, and unresolved gaps |
+| why did an action outrank its alternatives? | Intelligence recommendation record | candidate universe, policy, sensitivity, falsifiers, downgrade path, and human-review state |
+| was the proposed follow-up executable, and what happened? | Lab consequence dossier | readiness decision, controls, deviations, observed outcome, and evidence feedback |
+
+```mermaid
+flowchart TD
+    claim["public claim"] --> scientific{"scientific record complete?"}
+    scientific -->|no| narrow["narrow or refuse the claim"]
+    scientific -->|yes| execution{"execution custody complete?"}
+    execution -->|no| narrow
+    execution -->|yes| grounding{"contextual evidence sufficient?"}
+    grounding -->|no| narrow
+    grounding -->|yes| decision{"decision stable and reviewable?"}
+    decision -->|no| narrow
+    decision -->|yes| consequence{"downstream consequence required?"}
+    consequence -->|no| bounded["publish a bounded analytical claim"]
+    consequence -->|yes| observed{"controlled outcome recorded?"}
+    observed -->|no| advisory["keep the action advisory"]
+    observed -->|yes| reviewed["publish the reviewed consequence"]
+```
+
+The audit stops at the first missing or contradictory record. Later layers may
+add context or consequence, but they cannot repair an absent input identity,
+an unrecorded provider fallback, or a failed scientific acceptance rule.
+
 ## Scientific and Operational Capabilities
 
 The core package covers FASTA parsing, enzymatic digestion, peptide and
