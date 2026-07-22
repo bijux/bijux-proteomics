@@ -561,7 +561,11 @@ def build_workflow_refusal_guidance_family() -> tuple[WorkflowRefusalGuidance, .
                 dict.fromkeys(
                     (
                         *lab_packet.stop_reasons[:2],
-                        *lab_packet.decision_grade_boundary[:2],
+                        *(
+                            "decision-grade condition is not satisfied: "
+                            f"{condition}"
+                            for condition in lab_packet.decision_grade_boundary[:2]
+                        ),
                     )
                 )
             )

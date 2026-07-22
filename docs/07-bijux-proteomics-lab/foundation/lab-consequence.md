@@ -76,6 +76,20 @@ Use the [Workflow Refusal Handbook](workflow-refusal-handbook.md) to distinguish
 stop, rerun, narrow, and refuse decisions. A refusal is an auditable outcome;
 it should name the failed condition and the evidence required to reconsider.
 
+## Classify The Outcome Without Promoting It
+
+| observed outcome | consequence record | effect on the next decision |
+| --- | --- | --- |
+| controls fail or custody is unresolved | invalid outcome with failure class and preserved diagnostics | refuse interpretation; correct the precondition before a new run |
+| execution is technically clean but the question remains unresolved | valid observation with insufficient information gain | retain or narrow the prior posture; do not promote from cleanliness |
+| observation contradicts the expected direction | valid contradiction with QC and deviation context | return contradiction to Knowledge and rerun decision challenge |
+| observation supports the bounded question | direct support at the assay's declared scope | reconsider only the scoped recommendation, not broader family authority |
+| requested assay is blocked or omitted | requested-versus-observed gap with reason | include the missing assay as downgrade evidence |
+
+An observed assay changes a recommendation only through a versioned evidence
+revision. It never edits the original result, recommendation, or approved
+handoff in place.
+
 ## Compare Requested And Observed Work
 
 After execution, record the requested and observed assay, controls, samples,

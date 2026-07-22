@@ -220,22 +220,41 @@ def _render_recommendation_changes() -> str:
 
 
 def _render_learning_loop(entry: WorkflowOutcomeLearningLoop) -> list[str]:
-    return [
+    requested_assays = (
+        ", ".join(f"`{assay}`" for assay in entry.requested_assay_ids)
+        if entry.requested_assay_ids
+        else "none recorded"
+    )
+    observed_assays = (
+        ", ".join(f"`{assay}`" for assay in entry.observed_assay_ids)
+        if entry.observed_assay_ids
+        else "none recorded"
+    )
+    lines = [
         f"### `{entry.workflow_family.value}`",
         "",
         f"- initial posture: `{entry.initial_strength.value}`",
         f"- revised posture after outcome: `{entry.revised_strength.value}`",
         f"- worth the assay spend: {'yes' if entry.worth_it else 'no'}",
-        f"- requested assays: {', '.join(f'`{assay}`' for assay in entry.requested_assay_ids)}",
-        f"- observed assays: {', '.join(f'`{assay}`' for assay in entry.observed_assay_ids)}",
+        f"- requested assays: {requested_assays}",
+        f"- observed assays: {observed_assays}",
         f"- matched assays: {', '.join(f'`{assay}`' for assay in entry.matched_assay_ids) if entry.matched_assay_ids else 'none'}",
         f"- blocked assays: {', '.join(f'`{assay}`' for assay in entry.blocked_assay_ids) if entry.blocked_assay_ids else 'none'}",
         f"- weakened assays: {', '.join(f'`{assay}`' for assay in entry.weakened_assay_ids) if entry.weakened_assay_ids else 'none'}",
-        f"- learning points: {', '.join(entry.learning_points)}",
-        f"- next adjustments: {', '.join(entry.next_adjustments)}",
-        f"- evidence paths: {', '.join(f'`{path}`' for path in entry.evidence_paths)}",
         "",
     ]
+    for label, values, code_values in (
+        ("learning points", entry.learning_points, False),
+        ("next adjustments", entry.next_adjustments, False),
+        ("evidence paths", entry.evidence_paths, True),
+    ):
+        lines.extend([f"#### {label}", ""])
+        lines.extend(
+            f"- `{value}`" if code_values else f"- {value}"
+            for value in values
+        )
+        lines.append("")
+    return lines
 
 
 def _render_outcome_learning_loops() -> str:
@@ -248,9 +267,7 @@ def _render_outcome_learning_loops() -> str:
         [
             "# Outcome Learning Loops",
             "",
-            "These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation.",
-            "",
-            "They exist because downstream consequence should not be memoryless. Once the repository has asked for assays, observed only part of them, or learned that the information gain was weaker than expected, the next recommendation should change in public.",
+            "Outcome loops compare requested follow-up with observed work and carry the difference into the next recommendation. The prior recommendation, approved handoff, and observation remain separate immutable records.",
             "",
             "## What One Loop Tells You",
             "",
@@ -261,6 +278,17 @@ def _render_outcome_learning_loops() -> str:
             "- what assays actually happened",
             "- whether the loop was worth the assay spend",
             "- how the observed result should narrow or strengthen the next recommendation",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            '    request["requested assays and expected information"] --> observation["observed assays, QC, and deviations"]',
+            '    observation --> reconcile["match, block, weaken, or contradict"]',
+            '    reconcile --> worth{"information justified burden?"}',
+            '    worth -->|yes| revise["versioned evidence and decision revision"]',
+            '    worth -->|no| narrow["narrow, hold, or refuse"]',
+            '    revise --> preserve["retain prior records for calibration"]',
+            '    narrow --> preserve',
+            "```",
             "",
             "## Cross-Family Snapshot",
             "",
@@ -290,24 +318,40 @@ def _render_outcome_learning_loops() -> str:
         [
             "## Boundary",
             "",
-            "A recommendation that changes after one shipped follow-up loop should not keep its old public sentence by inertia.",
+            "An outcome loop can revise the next recommendation only at the scope supported by its controls and observed assays. Missing assays, failed controls, and weak information gain are evidence for narrowing; they are not silently discarded operational details.",
         ]
     )
     return "\n".join(lines)
 
 
 def _render_refusal_guidance(entry: WorkflowRefusalGuidance) -> list[str]:
-    return [
+    lines = [
         f"### `{entry.workflow_family.value}`",
         "",
         f"- current posture: `{entry.current_strength.value}`",
-        f"- stop when: {', '.join(entry.stop_when) if entry.stop_when else 'none'}",
-        f"- rerun when: {', '.join(entry.rerun_when) if entry.rerun_when else 'none'}",
-        f"- narrow when: {', '.join(entry.narrow_when) if entry.narrow_when else 'none'}",
-        f"- refuse when: {', '.join(entry.refuse_when) if entry.refuse_when else 'none'}",
-        f"- evidence paths: {', '.join(f'`{path}`' for path in entry.evidence_paths)}",
         "",
     ]
+    for label, conditions in (
+        ("stop when", entry.stop_when),
+        ("rerun when", entry.rerun_when),
+        ("narrow when", entry.narrow_when),
+        ("refuse when", entry.refuse_when),
+    ):
+        lines.extend([f"#### {label}", ""])
+        if conditions:
+            lines.extend(f"- {condition}" for condition in conditions)
+        else:
+            lines.append("- no additional family-specific condition is published")
+        lines.append("")
+    lines.extend(
+        [
+            "#### evidence paths",
+            "",
+            *(f"- `{path}`" for path in entry.evidence_paths),
+            "",
+        ]
+    )
+    return lines
 
 
 def _render_refusal_handbook() -> str:
@@ -320,7 +364,14 @@ def _render_refusal_handbook() -> str:
         [
             "# Workflow Refusal Handbook",
             "",
-            "This handbook names when the honest next move is to stop, rerun, narrow, or refuse. It exists so workflow-family consequence stays inspectable in operational language instead of being hidden inside a confident recommendation sentence.",
+            "A refusal record distinguishes four operational responses. Each response preserves the current evidence and names what can happen next.",
+            "",
+            "| response | meaning | next admissible action |",
+            "| --- | --- | --- |",
+            "| stop | the current handoff must not proceed | preserve state and inspect the named blocking condition |",
+            "| rerun | the question remains valid and recoverable evidence is missing or invalid | correct the declared condition and create a new run record |",
+            "| narrow | a weaker scope remains supported | issue a revised bounded question or recommendation |",
+            "| refuse | no responsible action exists inside the current policy or authority | retain the refusal until new evidence or authority changes the precondition |",
             "",
         ]
     )
@@ -330,7 +381,7 @@ def _render_refusal_handbook() -> str:
         [
             "## Rule",
             "",
-            "If the best downstream action is still stop, rerun, narrow, or refuse, the public recommendation must stay weaker than a full recommendation.",
+            "If the best downstream action is stop, rerun, narrow, or refuse, the public recommendation remains weaker than a full recommendation. A retry creates a new run or decision record; it does not erase the refusal that justified it.",
         ]
     )
     return "\n".join(lines)
