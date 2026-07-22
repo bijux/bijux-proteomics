@@ -4,18 +4,16 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # What One Workflow Family Supports Today
 
-This page explains what a workflow family has to contain before the repository
-can give it a serious public sentence.
-
-The question is no longer whether one family has a convenient demo. The real
-question is whether one family now has enough benchmark, runtime, grounding,
-recommendation, and consequence depth that outsiders can challenge it end to
-end without relying on maintainer memory.
+A workflow family earns a serious public sentence only when its benchmark,
+runtime, grounding, recommendation, and consequence records form an
+inspectable chain. A convenient demonstration is not enough: an outside
+reviewer must be able to challenge the chain end to end without relying on
+maintainer memory.
 
 ## The Minimum Family Packet
 
@@ -31,6 +29,23 @@ has all of the following:
 
 If one of those pieces is missing, the family may still be useful, but the
 sentence has to narrow.
+
+```mermaid
+flowchart LR
+    primary["flagship benchmark"] --> runtime["declared runtime lane"]
+    companion["companion pressure package"] --> runtime
+    runtime --> grounding["support and contradiction"]
+    grounding --> recommendation["recommendation pressure"]
+    recommendation --> consequence["consequence or refusal"]
+    consequence --> sentence["bounded family sentence"]
+    missing["missing or failed contract"] -.-> narrow["narrow or withhold the sentence"]
+    primary -. missing .-> missing
+    companion -. missing .-> missing
+    runtime -. missing .-> missing
+    grounding -. missing .-> missing
+    recommendation -. missing .-> missing
+    consequence -. missing .-> missing
+```
 
 ## Why DDA Still Works As The Clearest Example
 
@@ -64,12 +79,12 @@ consequence through tracked owner surfaces.
 
 | family | current family packet status | main reason the sentence still narrows |
 | --- | --- | --- |
-| `dda` | full bounded public packet | runtime remains `import_only` |
-| `dia` | full bounded public packet | library and consequence pressure still narrow the broader sentence |
-| `lfq` | full review-grade packet | missingness and transfer pressure still block stronger public language |
-| `ptm` | full bounded public packet | localization evidence still outruns consequence confidence |
-| `targeted` | full bounded public packet | calibration, interference, and burden still narrow broader certainty |
-| `multiplex` | real packet, internal-support only | outsider trust still collapses under stress |
+| `dda` | `review_grade_bounded` | runtime remains `import_only`; external engines and parameters bound parity |
+| `dia` | `outsider_auditable_bounded` | chromatogram-native replay, library completeness, and absent-peptide consequences remain bounded |
+| `lfq` | `outsider_auditable_bounded` | cohort transfer and external quantitative truth beyond repeatability remain bounded |
+| `ptm` | `outsider_auditable_bounded` | localization evidence is stronger than function, occupancy, and regulatory consequence evidence |
+| `targeted` | `outsider_auditable_bounded` | vendor parity, calibration transfer, matrix interference, and assay burden remain bounded |
+| `multiplex` | `internal_support_only` | companion pressure exposes fragile transfer; outsider review and laboratory consequence are incomplete |
 
 ## Strongest Companion Routes
 
@@ -82,8 +97,9 @@ consequence through tracked owner surfaces.
 - [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   for the combined grounding, recommendation, and consequence route
 
-## Boundary
+## Authority Boundary
 
-This page explains what one serious family packet now means. It should not be
-read as a shortcut to broader repository claims than the current family and
-capability-limit pages can defend.
+A complete packet authorizes only the bounded sentence for that workflow
+family. It does not authorize repository-wide readiness, transfer evidence to
+another family, or turn analytical support into decision-grade authority. The
+family status and capability limits remain the controlling public records.

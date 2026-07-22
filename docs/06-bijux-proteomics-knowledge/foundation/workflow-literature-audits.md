@@ -4,29 +4,23 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # Workflow Literature Audits
 
-`bijux-proteomics-knowledge` owns the point where scientific reading pressure
-meets the shipped benchmark sentence.
-
-These audits exist because the repository now does more than publish benchmark
-packages and recommendation prose. It also keeps a visible record of where the
-curated literature:
+`bijux-proteomics-knowledge` compares curated scientific reading with each
+shipped benchmark sentence. The audit preserves where the literature:
 
 - still supports the shipped workflow-family sentence
 - is aging and needs recheck discipline
 - already outruns the benchmark or comparator packet we currently ship
 - should slow recommendation posture instead of silently being assumed
 
-## What This Surface Answers
+## Audit Questions
 
-Use this page when the question is not whether a rerun lane executes, but
-whether the repository is still grounded honestly in the current reading.
-
-The literature audit stack answers four direct questions:
+The literature audit stack answers four direct questions independently of
+whether a Runtime lane executes:
 
 - which citations currently ground this workflow family
 - when those citations were last rechecked in the curated registry
@@ -44,6 +38,19 @@ These are knowledge surfaces, not runtime or intelligence surfaces. They do not
 decide execution readiness, recommendation posture, or lab consequence. They
 keep the scientific reading state inspectable so those downstream packages
 cannot widen language on stale or selectively remembered grounding.
+
+```mermaid
+flowchart LR
+    registry["curated citation registry"] --> freshness["freshness audit"]
+    registry --> bibliography["bibliography export"]
+    bibliography --> benchmark_gap["benchmark gap matrix"]
+    bibliography --> comparator_gap["comparator gap matrix"]
+    freshness --> grounding["claim-grounding review"]
+    benchmark_gap --> grounding
+    comparator_gap --> grounding
+    grounding --> boundary["bounded downstream input"]
+    boundary -. no direct promotion .-> recommendation["recommendation posture"]
+```
 
 ## Opening Order
 
@@ -107,16 +114,17 @@ The two gap matrices answer different questions:
 That separation matters because one family can look well cited and still remain
 weak in benchmark breadth, comparator stress, or both.
 
-## What This Surface Proves
+## Audit Dispositions
 
-- the repository now carries explicit literature-review state per flagship
-  workflow family
-- benchmark and comparator incompleteness can be shown against curated reading
-  instead of being argued loosely
-- downstream recommendation and release language can be challenged when the
-  reading state is stronger than the shipped proof packet
+| Audit result | Required disposition |
+| --- | --- |
+| citations are current and aligned with the benchmark sentence | retain the bounded grounding and its recheck date |
+| literature outruns benchmark or comparator pressure | record the gap and narrow downstream language until the shipped evidence catches up |
+| curated registry is stale | mark review due; do not present freshness as current scientific confirmation |
+| a material source contradicts the shipped sentence | route the contradiction explicitly rather than averaging it into supporting evidence |
+| source text cannot be redistributed | preserve citation identity and licensed metadata without copying prohibited content |
 
-## What This Surface Does Not Prove
+## Evidence Limits
 
 - that every cited study is equally strong or equally relevant
 - that literature support by itself upgrades workflow-family public wording
@@ -135,8 +143,10 @@ weak in benchmark breadth, comparator stress, or both.
   when the dispute is no longer about the reading itself but about what the
   decision layer did with it.
 
-## Boundary
+## Authority Boundary
 
-This page owns literature-audit meaning and opening order. It should not become
-a second claim-grounding page, a second benchmark catalog, or a second
-recommendation narrative.
+The literature audit owns citation freshness, bibliography identity, and the
+relationship between current reading and evidence gaps. Claim Grounding owns
+the supported sentence, Core owns benchmark evidence, Runtime owns execution,
+and Intelligence owns recommendation posture. No literature-audit result can
+promote those independent authorities by itself.
