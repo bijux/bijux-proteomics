@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # State and Persistence
@@ -37,3 +37,23 @@ flowchart LR
 Source evidence is not edited merely to make the current claim state cleaner. Corrections and superseding sources create attributable records; reconciliation changes the current interpretation while preserving the prior conflict. Review briefs, coverage reports, and TSV exports are projections and should remain regenerable from durable memory.
 
 The storage backend is not the authority. Whether records live in memory, files, or a service, their schema, identifiers, provenance, conflict history, and reference context determine their scientific meaning.
+
+## Define a current projection
+
+A “current” claim or evidence view is meaningful only when the projection is
+reproducible from durable memory.
+
+| Projection input | Required identity |
+| --- | --- |
+| evidence population | included and excluded record identities plus source releases |
+| claim version | proposition, subject, context, granularity, and parent claim |
+| relationship graph | support, contradiction, qualification, context-only, and unresolved edges |
+| reconciliation policy | comparison rules, quality burden, context compatibility, and tie or hold behavior |
+| freshness boundary | evaluation time, source-specific age policy, and expired records |
+| curation state | attributed corrections, overrides, actors, rationale, and review time |
+| output | projection identity, generated brief or index, limitations, and unresolved gaps |
+
+Changing any input produces a new projection. Consumers may use a pointer to
+the active projection, but citations and decision records must retain the exact
+projection identity they consumed rather than following that mutable pointer
+later.

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Architecture Risks
@@ -34,3 +34,19 @@ flowchart LR
 ```
 
 An evidence store is trustworthy only when absence, uncertainty, disagreement, and lineage survive normalization. More records do not compensate for weaker context.
+
+## Audit one claim under pressure
+
+| Review pass | Question | Refusal condition |
+| --- | --- | --- |
+| source | can every record be opened at the identified version and traced to its extraction? | missing, mutable, or unverifiable source identity |
+| subject | do identifiers resolve without forcing an unsupported biological mapping? | unresolved or material ambiguity hidden by normalization |
+| context | are organism, tissue, condition, assay, cohort, and analytical settings compatible with the claim? | required context absent or materially incompatible |
+| relationship | does each record support, contradict, qualify, contextualize, or fail to resolve the precise proposition? | relationship inferred from co-occurrence or citation alone |
+| independence | are repeated, derived, or shared-source observations prevented from inflating support? | support burden depends on correlated evidence presented as independent |
+| freshness | do source releases and observations satisfy the declared use-specific policy? | expired evidence is necessary for the conclusion without explicit downgrade |
+| sufficiency | does the surviving bundle meet the burden for the intended descriptive, prioritization, or experimental use? | stronger use is requested than the evidence bundle can support |
+
+The audit may end with a supported, qualified, contradicted, unresolved, or
+insufficient claim. Only the first two permit affirmative language, and both
+remain bound to the reviewed subject, context, sources, and intended use.

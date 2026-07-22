@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Error Model
@@ -36,3 +36,20 @@ flowchart TD
 ```
 
 The package must not turn these states into missing rows, empty strings, or generic exceptions. Downstream consumers need to distinguish “not found,” “not mapped,” “mapped ambiguously,” “contradicted,” “stale,” and “not sufficient.”
+
+## Preserve the resolving action
+
+| Knowledge state | Consumer response | Closure evidence |
+| --- | --- | --- |
+| not found | record the searched source, release, query, and coverage boundary | a later source version or expanded search with a distinct result identity |
+| unresolved identity | retain the source value and attempted resolver paths | a supported mapping rule, curated decision, or explicit unresolvable disposition |
+| ambiguous identity | keep all plausible matches and prevent singular downstream claims | discriminating evidence or a multi-entity claim that preserves ambiguity |
+| incomplete context | restrict use to context-independent questions or hold the claim | supplied organism, tissue, condition, assay, scale, or other named context |
+| stale evidence | exclude or downgrade according to freshness policy | refreshed source identity and a new relationship assessment |
+| contradiction | preserve both sides and compare context, quality, and independence | attributed reconciliation, qualified claim, or unresolved conflict |
+| insufficient support | narrow the intended use or obtain the named evidence burden | new sufficiency decision over an identified evidence bundle |
+| integrity failure | stop projection and repair the graph or bundle | successful integrity validation over the corrected durable records |
+
+Closure always creates or references a new record. Editing the original source,
+dropping the losing relationship, or replacing absence with a default value
+destroys the evidence needed to explain the resolution.
