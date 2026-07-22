@@ -18,6 +18,25 @@ not define proteomics algorithms or workflow policy.
 python -m pip install bijux-proteomics-foundation
 ```
 
+## Read a foundation proof precisely
+
+Foundation makes representation and compatibility claims. The producing domain
+remains responsible for scientific meaning, provenance quality, and fitness for
+use.
+
+| Observed foundation evidence | It establishes | It does not establish |
+| --- | --- | --- |
+| identifier parsed and validated | the value satisfies the declared identifier contract | the subject exists or was resolved to the correct biological entity |
+| model validated | fields, types, constraints, and declared schema are internally valid | measurements are accurate or the scientific interpretation is sound |
+| canonical bytes match | two supported values have the same canonical representation | independent provenance or equivalent experimental context |
+| digest matches | the bytes governed by the hash policy are identical | authenticity, freshness, or scientific truth |
+| schema is directly readable | the consumer can interpret the declared representation without migration | every consumer behavior remains equivalent |
+| migration succeeds | the source was transformed and validated against the declared target schema | information outside the migration contract was preserved |
+| typed success, failure, or refusal exists | the producer exposed its terminal disposition explicitly | an execution history or domain acceptance record exists |
+
+When a review question exceeds the right-hand boundary, follow the producer and
+its evidence rather than asking Foundation to certify a claim it only carries.
+
 ## Contract layers
 
 ```mermaid

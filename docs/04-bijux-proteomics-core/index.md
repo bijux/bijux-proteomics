@@ -19,6 +19,26 @@ python -m pip install bijux-proteomics-core
 bijux-proteomics --help
 ```
 
+## Interpret scientific dispositions
+
+A scientific operation can complete mechanically while rejecting records,
+narrowing its conclusion, or refusing the requested claim. Preserve the
+disposition alongside the value.
+
+| Disposition | Meaning | Evidence a consumer must retain |
+| --- | --- | --- |
+| accepted | the result satisfies the declared scientific policy for the tested input and scope | inputs, policy, diagnostics, QC, benchmark context, and limitations |
+| accepted with limitations | the result is usable only inside named assumptions, coverage, or transfer bounds | accepted result plus every limiting condition and downstream restriction |
+| partially accepted | some records satisfy policy and others do not | accepted and rejected partitions, reason codes, and aggregation consequences |
+| rejected record | one input or derived item violates a scientific or data-quality rule | subject identity, rule, observed value, and rejection reason |
+| refused workflow | prerequisites or evidence cannot support the requested scientific operation or claim | unmet conditions, requested posture, and valid recovery route |
+| failed computation | implementation or environment prevented a governed result | failure identity, diagnostics, partial artifacts, and retry boundary |
+
+`Completed` belongs to execution state, not scientific acceptance. Runtime may
+record a completed Core invocation whose scientific report contains rejections,
+limitations, or a refusal; both records are correct and neither replaces the
+other.
+
 ## Scientific pipeline
 
 ```mermaid
