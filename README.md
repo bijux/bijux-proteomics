@@ -31,32 +31,29 @@ traces the full data and decision path.
 
 ## Current Credible Workflow Families
 
-The checked family matrix currently records these public classifications:
+The checked family matrix records the strongest language currently defended by
+each complete evidence chain:
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+| Workflow family | Permitted posture | Execution mode | Limiting fact |
+| --- | --- | --- | --- |
+| DDA | `review_grade_bounded` | `import_only` | primary and companion lanes review external-engine exports rather than running a repository-owned raw search |
+| DIA | `outsider_auditable_bounded` | `raw_executable` over checked reports | library completeness, chromatogram-native replay, and consequence remain bounded |
+| LFQ | `outsider_auditable_bounded` | `raw_executable` over checked features | cohort transfer and accuracy beyond repeatability remain bounded |
+| multiplex | `internal_support_only` | `raw_executable` over checked features | the companion stress package has a collapsed claim and no outsider consequence closure |
+| PTM | `outsider_auditable_bounded` | `raw_executable` over checked localization inputs | localization evidence does not establish occupancy, function, or regulation |
+| targeted | `outsider_auditable_bounded` | `raw_executable` over checked targeted QC | calibration transfer, interference, vendor parity, and assay burden remain bounded |
 
-Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
-
-Internal-support-only workflow families today: `multiplex`.
-
-These sets answer different questions. A complete outsider-readable packet
-means the evidence can be inspected end to end; it does not automatically earn
-the stronger outsider-auditable classification. LFQ remains review-grade
-bounded. DDA is also limited by a black-box evidence mismatch: its requested
-language is outsider-auditable, while its imported primary and companion lanes
-currently defend only review-grade bounded language.
-
-The current repository preflight blocks publication. Active blockers include
-that DDA authority mismatch, stale hostile-review and Runtime black-box
-surfaces, duplicate ownership of belief-audit models, thin Core ownership
-boundaries, and insufficient rerun strength for DDA, DIA, and multiplex. These
-failures narrow public language; they are not converted into a passing status
-by the presence of documentation or benchmark files.
+Packet completeness and authority are different. DDA, DIA, LFQ, PTM, and
+targeted have full outsider-readable packets, but DDA’s black-box evidence
+lowers its requested outsider-auditable language to review-grade. A successful
+family packet also does not make the repository release-ready: repository
+readiness is conjunctive across black-box execution, benchmark quality,
+documentation truth, ownership, artifact hygiene, and consequence evidence.
 
 Read [what one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
 for the evidence chain and
 [release readiness](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
-for the active blockers.
+for the revision-specific blockers.
 
 ## Forbidden Claims
 

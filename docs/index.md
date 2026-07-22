@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Bijux Proteomics
@@ -35,22 +35,34 @@ Runtime entrypoints without becoming a second owner.
 
 ## Current Credible Workflow Families
 
-Outsider-auditable workflow families today: `dda`, `dia`, `ptm`, `targeted`.
+| Workflow family | Permitted posture | Runtime lane | Primary interpretation boundary |
+| --- | --- | --- | --- |
+| DDA | `review_grade_bounded` | imported primary and companion results | no repository-owned raw search execution |
+| DIA | `outsider_auditable_bounded` | raw-executable checked reports | no chromatogram-native or universal library transfer claim |
+| LFQ | `outsider_auditable_bounded` | raw-executable checked features | no cross-cohort or accuracy-beyond-repeatability claim |
+| multiplex | `internal_support_only` | raw-executable checked features | fragile companion transfer and no outsider consequence closure |
+| PTM | `outsider_auditable_bounded` | raw-executable localization inputs | localization is not occupancy, function, or regulation |
+| targeted | `outsider_auditable_bounded` | raw-executable targeted QC | calibration, interference, vendor parity, and assay burden remain bounded |
 
-Full outsider-readable family packets today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+These postures are not maturity labels for the repository. They are
+family-specific ceilings after the declared benchmark, execution, grounding,
+recommendation, and consequence records are considered.
 
-Internal-support-only workflow families today: `multiplex`.
+## Read The Status Vocabulary
 
-Packet completeness and workflow authority are intentionally separate. LFQ has
-an outsider-readable packet while its strongest honest sentence remains
-review-grade bounded. DDA currently requests outsider-auditable language but
-its import-only black-box lanes defend only review-grade bounded language.
+| Term | What it establishes | What it does not establish |
+| --- | --- | --- |
+| outsider-readable packet | the published evidence chain can be opened and inspected | that every gate permits outsider-auditable language |
+| `internal_support_only` | useful implementation and evidence exist inside a restricted authority boundary | a public recommendation or outsider consequence claim |
+| `review_grade_bounded` | the checked material supports scientific review under named limits | raw execution parity, general transfer, or authority to act |
+| `outsider_auditable_bounded` | an external reviewer can inspect and rerun the declared bounded chain | decision-grade, clinical, universal, or release-wide authority |
+| release-ready | every required repository-wide category passes for one source candidate | universal scientific validity |
 
-Repository preflight currently blocks publication on that mismatch, stale
-hostile-review and Runtime black-box surfaces, duplicate belief-audit ownership,
-thin Core package boundaries, and insufficient rerun evidence. A future passing
-preflight would establish agreement among governed release checks; it would not
-establish universal scientific validity.
+DDA demonstrates why the terms must remain separate: its packet is complete,
+but imported execution lowers the black-box ceiling to review-grade. LFQ
+demonstrates the converse: raw-executable primary and companion lanes defend an
+outsider-auditable bounded chain while cohort transfer and truth beyond
+repeatability remain explicitly outside scope.
 
 ## Forbidden Claims
 
