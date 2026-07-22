@@ -229,9 +229,7 @@ The execution evidence can be audited from the boundary inward:
 - [Runtime Rerun Refusals](runtime-rerun-refusals.md) states when rerun language
   is unsupported.
 
-## Shared Reader Routes
-
-### Diagnose a claimed rerun
+## Verify A Rerun Claim
 
 A new terminal `completed` state is not enough to call work reproduced. Compare
 the new run with the reference at the request, environment, provider, event,
@@ -269,7 +267,7 @@ defines the scientific inputs, and
 [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) begins
 only after execution and scientific evidence are independently acceptable.
 
-## Start Inside
+## Continue By Execution Question
 
 | Need | Read next |
 | --- | --- |

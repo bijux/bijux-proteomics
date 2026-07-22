@@ -200,9 +200,7 @@ A release decision is reviewable only when it preserves:
 No failure disappears because it predates a change. No green category offsets
 a red category that protects a different contract.
 
-## Shared Reader Routes
-
-### Resolve disagreement between gates
+## Resolve Conflicting Gate Verdicts
 
 Two green checks can protect different contracts, and a generated dashboard can
 lag the evidence that feeds it. Resolve disagreement by ownership and evidence
@@ -239,7 +237,7 @@ owns run evidence, and the
 [Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
 collects the cross-product publication decision.
 
-## Start Inside
+## Continue By Maintenance Question
 
 | Need | Read next |
 | --- | --- |

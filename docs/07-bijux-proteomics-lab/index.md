@@ -218,9 +218,7 @@ sequenceDiagram
     I->>I: rerank, downgrade, or refuse
 ```
 
-## Shared Reader Routes
-
-### Learn from work that did not confirm
+## Learn From Non-Confirming Work
 
 A closed loop does not require a positive biological result. A readiness
 refusal, execution failure, QC rejection, or inconclusive observation can still
@@ -258,7 +256,7 @@ and non-confirming outcomes to evidence and policy review. Use
 [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
 to connect those outcomes to the workflow family’s next decision burden.
 
-## Start Inside
+## Continue By Laboratory Question
 
 | Need | Read next |
 | --- | --- |

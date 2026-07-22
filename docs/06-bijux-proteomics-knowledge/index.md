@@ -219,9 +219,7 @@ review bundle; lab observations can be ingested as new evidence through an
 explicit handoff. None of those consumers may mutate evidence history through
 their own policy or operational state.
 
-## Shared Reader Routes
-
-### Audit a contradiction
+## Reconcile Conflicting Evidence
 
 Conflicting observations are not necessarily inconsistent records. They may
 refer to different species, tissues, perturbations, analytical policies, time
@@ -257,7 +255,7 @@ for decision attribution, and
 [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) only
 after the review bundle has a declared sufficiency posture.
 
-## Start Inside
+## Continue By Evidence Question
 
 | Need | Read next |
 | --- | --- |

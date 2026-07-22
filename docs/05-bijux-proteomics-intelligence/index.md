@@ -197,9 +197,7 @@ flowchart LR
     L -->|ready and authorized| E["executable handoff"]
 ```
 
-## Shared Reader Routes
-
-### Cross-examine a recommendation
+## Challenge A Recommendation
 
 Review a recommendation as an argument that can fail. Begin with the action,
 then recover the alternatives, evidence snapshot, policy, challenge burden, and
@@ -233,7 +231,7 @@ to compare decisions, and
 [Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md)
 for operational authority.
 
-## Start Inside
+## Continue By Decision Question
 
 | Need | Read next |
 | --- | --- |

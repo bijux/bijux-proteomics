@@ -201,9 +201,7 @@ stateDiagram-v2
 whole compatibility distribution. Repository-wide retirement still requires
 the complete consumer inventory and release evidence.
 
-## Shared Reader Routes
-
-### Prove a caller has migrated
+## Close A Caller Migration
 
 Replacing an import is necessary but not sufficient. Close the migration at
 the caller boundary, where defaults, persisted state, operator-visible output,
@@ -237,7 +235,7 @@ the canonical destination is [Runtime](../09-bijux-proteomics-runtime/index.md),
 and repository-wide retirement is governed by
 [Maintenance](../08-bijux-proteomics-maintain/index.md).
 
-## Start Inside
+## Continue By Migration Question
 
 | Need | Read next |
 | --- | --- |
