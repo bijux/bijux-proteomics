@@ -221,14 +221,43 @@ The execution evidence can be audited from the boundary inward:
 - [Runtime Rerun Refusals](runtime-rerun-refusals.md) states when rerun language
   is unsupported.
 
-## Shared Reader Routes
+## Diagnose a claimed rerun
 
-| Question | Authority |
-| --- | --- |
-| where does execution sit in the scientific evidence chain? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| which family posture limits the execution claim? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
-| which scientific inputs were executed? | [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md) |
-| why is a completed run not an authorized action? | [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) |
+A new terminal `completed` state is not enough to call work reproduced. Compare
+the new run with the reference at the request, environment, provider, event,
+artifact, and scientific-acceptance boundaries.
+
+| Boundary | Evidence to compare | Refuse the rerun claim when |
+| --- | --- | --- |
+| request | workflow contract, inputs, policy, expected artifacts | a required input or scientific policy changed without a declared comparison rule |
+| environment | package, tool, model, hardware, service, and configuration versions | the effective environment is unknown or incompatible |
+| provider | requested, selected, fallback, capability, and execution posture | fallback or import custody is presented as native execution |
+| lifecycle | preflight, state transitions, checkpoints, retries, and terminal disposition | the event history cannot explain how completion was reached |
+| artifacts | ledger membership, digests, lineage, cache decisions, and missing outputs | required output is absent or content identity diverges consequentially |
+| science | Core acceptance, QC, ambiguity, and known limits | operational similarity does not satisfy the family-specific scientific contract |
+
+```mermaid
+flowchart TD
+    reference["reference run bundle"] --> compare["declared comparison policy"]
+    candidate["candidate run bundle"] --> compare
+    compare --> request["request and inputs"]
+    compare --> environment["environment and provider"]
+    compare --> events["events and checkpoints"]
+    compare --> artifacts["artifact identity"]
+    request --> verdict{"consequential divergence?"}
+    environment --> verdict
+    events --> verdict
+    artifacts --> verdict
+    verdict -->|yes or unknown| refuse["refuse or narrow equivalence"]
+    verdict -->|no| operational["operational rerun supported"]
+    operational --> core["Core scientific acceptance remains separate"]
+```
+
+The [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+ledger still limits public posture, [Benchmark Assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+defines the scientific inputs, and
+[Decision Support](../01-bijux-proteomics/foundation/decision-support.md) begins
+only after execution and scientific evidence are independently acceptable.
 
 ## Start Inside
 

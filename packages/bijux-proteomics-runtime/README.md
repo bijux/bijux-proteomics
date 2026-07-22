@@ -83,6 +83,24 @@ Runtime proves what was requested, selected, executed, persisted, and reused.
 It does not turn successful execution into scientific truth. Import-only lanes
 retain their external-engine provenance and cannot claim raw execution parity.
 
+## Completion, rerun, and reproduction differ
+
+These words describe increasing evidence burdens. Use the narrowest statement
+the run records actually support.
+
+| Statement | Minimum Runtime evidence | Additional boundary |
+| --- | --- | --- |
+| completed | one run reached a successful terminal state and retained its required artifacts | says nothing about another execution |
+| rerunnable | request, inputs, environment contract, provider capability, and instructions are sufficient to attempt another run | availability may still change |
+| rerun | a new bundle records another execution of the declared request | equality has not yet been assessed |
+| operationally comparable | a named policy classifies request, environment, event, and artifact differences | does not establish scientific equivalence |
+| replay-compatible | persisted state and events can be consumed under the declared compatibility contract | does not prove identical external providers |
+| scientifically reproduced | Runtime comparison and Core acceptance both support the family-specific equivalence claim | remains bounded by the tested context |
+
+When a required environment, provider, or artifact identity cannot be
+reconstructed, emit a refusal or narrower disposition instead of treating a
+second completion as reproduction.
+
 ## Execution evidence contract
 
 Each governed run exposes a typed run context, artifact ledger, replay contract,
