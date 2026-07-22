@@ -195,14 +195,42 @@ A release decision is reviewable only when it preserves:
 No failure disappears because it predates a change. No green category offsets
 a red category that protects a different contract.
 
-## Shared Reader Routes
+## Resolve disagreement between gates
 
-| Question | Authority |
-| --- | --- |
-| which public system contracts are protected? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| which scientific posture constrains a release? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
-| what run and replay evidence exists? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
-| which cross-product category blocks publication? | [Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md) |
+Two green checks can protect different contracts, and a generated dashboard can
+lag the evidence that feeds it. Resolve disagreement by ownership and evidence
+freshness; never average verdicts or select the more convenient surface.
+
+| Disagreement | Governing response | Release consequence |
+| --- | --- | --- |
+| package test passes, repository gate fails | inspect the cross-package contract named by the repository gate | repository remains blocked |
+| generated dashboard disagrees with its source ledger | verify freshness, generator identity, and source revision; regenerate through the owner | derived dashboard is not authoritative until aligned |
+| Runtime rerun passes, Core acceptance fails | keep operational and scientific verdicts separate | execution may be reportable; scientific claim is refused |
+| documentation builds, claim-proof gate fails | correct or narrow the statement against owning evidence | rendered prose cannot ship the stronger claim |
+| current check passes, retained release evidence is stale | rerun the governed check at the candidate revision | historical green evidence cannot approve the candidate |
+| two owner records claim the same concept | stop and establish one canonical owner before publication | duplicate ownership is a release blocker |
+
+```mermaid
+flowchart TD
+    conflict["conflicting verdicts"] --> owners["identify each protected contract"]
+    owners --> revisions["compare source revision and freshness"]
+    revisions --> narrow["apply the narrowest live verdict"]
+    narrow --> root{"root cause known?"}
+    root -->|stale derived surface| regenerate["regenerate through owner"]
+    root -->|contract failure| repair["repair behavior or narrow claim"]
+    root -->|ownership conflict| assign["establish canonical owner"]
+    regenerate --> verify["rerun governed checks"]
+    repair --> verify
+    assign --> verify
+```
+
+[Product Overview](../01-bijux-proteomics/foundation/product-overview.md)
+defines protected system contracts,
+[Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+defines scientific posture, [Runtime](../09-bijux-proteomics-runtime/index.md)
+owns run evidence, and the
+[Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
+collects the cross-product publication decision.
 
 ## Start Inside
 

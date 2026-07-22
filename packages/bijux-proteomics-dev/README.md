@@ -19,6 +19,25 @@ standards; it is intentionally separate from product runtime behavior.
 - Route product behavior back to its owner package instead of adding science
   or runtime semantics here.
 
+## A gate result is revision-specific evidence
+
+A gate answers a bounded question for one source state, configuration, and
+environment. Preserve that scope when interpreting or sharing its result.
+
+| Retain with the result | Why it matters |
+| --- | --- |
+| source commit and worktree state | identifies the code and governed files that were checked |
+| exact command and configuration | identifies the policy and check mode that ran |
+| tool and dependency environment | explains reproducibility and environment-sensitive behavior |
+| generated-input freshness | prevents a passing check over stale derived evidence |
+| full failure or refusal output | preserves the violated contract and closure condition |
+| claimed conclusion | prevents a local pass from being presented as product or release readiness |
+
+The toolkit enforces contracts; it does not create scientific authority. A docs
+build proves rendering integrity, a package test proves covered package
+behavior, and release preflight proves only that its ordered repository policy
+passed for the identified candidate.
+
 ## Why teams pick this package
 
 - one toolkit for quality, security, release, docs, and API governance gates
@@ -35,7 +54,7 @@ standards; it is intentionally separate from product runtime behavior.
 - detect OpenAPI and schema drift before publication
 - automate maintainership checks for docs and repository health
 
-## 0.3.8 Release Highlights
+## Enforced repository contracts
 
 - The maintainer package now owns architecture regression, runtime-boundary,
   package-tree, orphan-module, circular-import, public-API typecheck,
