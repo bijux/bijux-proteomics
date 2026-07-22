@@ -13,10 +13,10 @@ Execution turns an identified public benchmark package into a run bundle that
 can be rerun, compared, refused, and inspected without private operational
 knowledge.
 
-`bijux-proteomics-runtime` owns this route because runtime proof is not only a
-CLI matter anymore. It now includes run-mode honesty, replay, rerun kits,
-artifact integrity, refusal boundaries, and explicit limits on what execution
-can and cannot prove.
+`bijux-proteomics-runtime` owns run-mode declaration, preflight, execution,
+state history, replay, rerun comparison, artifact integrity, and runtime
+refusal. A CLI transcript is one view of that evidence, not the execution
+contract itself.
 
 ## What Execution Means Here
 
@@ -59,6 +59,15 @@ cannot establish which benchmark ran. Output files without state history and
 an artifact inventory cannot establish a run bundle. Similar values without a
 declared comparison policy cannot establish replay or parity.
 
+| Runtime disposition | Required record | Meaning |
+| --- | --- | --- |
+| accepted | request, environment, state history, complete artifact inventory, checks, comparison verdict | the declared runtime lane completed and met its runtime contract |
+| degraded | completed output plus named instability, missing capability, or permitted narrowing | the lane produced reviewable evidence with a reduced runtime claim |
+| refused | failed prerequisite or invariant, reason code, retained partial evidence, next admissible route | the requested execution claim is unavailable |
+
+An accepted runtime disposition cannot promote scientific or experimental
+authority. A refusal can still be a complete and trustworthy runtime result.
+
 ## Concrete Runtime Proof Surfaces
 
 | runtime surface | current substance | why outsiders should care |
@@ -78,22 +87,15 @@ declared comparison policy cannot establish replay or parity.
 - which replay or invalidation challenge the lane still survives
 - which stronger sentence still remains blocked even after the rerun works
 
-## Start Here
+## Choose By Review Question
 
-- Open [Operator Rerun Journey](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/operator-rerun-journey/)
-  when the question is how to reopen one family from benchmark package to
-  checked rerun evidence.
-- Open [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/)
-  when the question is which exact package and companion package the rerun
-  should start from.
-- Open [Black-Box Run Verification](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-run-verification/)
-  when the question is which artifacts and checks must appear.
-- Open [Runtime Replay Challenges](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-replay-challenges/)
-  when the question is which invalidation or replay challenge the current lane
-  must survive.
-- Open [Runtime Rerun Refusals](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-rerun-refusals/)
-  when the question is whether the honest next move is to stop rather than
-  improvise a stronger rerun story.
+| Question | Route | Review closes when |
+| --- | --- | --- |
+| How do I reopen one family? | [Operator rerun journey](operator-rerun-journey.md) | package identity, environment, mode, command, outputs, and comparison are recorded |
+| Which public package starts the rerun? | [Benchmark rerun kits](benchmark-rerun-kits.md) | primary and companion package roles and checksums are explicit |
+| Which artifacts must a run emit? | [Black-box run verification](black-box-run-verification.md) | required, optional, absent, and invalid artifacts are classified |
+| Which replay pressure must the lane survive? | [Runtime replay challenges](runtime-replay-challenges.md) | invalidation, resume, clean-environment, and failure-replay verdicts are visible |
+| When must runtime stop? | [Runtime rerun refusals](runtime-rerun-refusals.md) | the failed condition and next admissible evidence route are named |
 
 ## What Execution Still Does Not Prove
 
@@ -103,17 +105,14 @@ declared comparison policy cannot establish replay or parity.
 - vendor-parity or universal production readiness just because one rerun lane
   is reproducible
 
-## Adjacent Routes
+## Adjacent Authority
 
-- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-  when the question is whether the public evidence root itself is strong
-  enough.
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-  when the question is which family-level sentence survives the current runtime
-  lane.
-- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the question becomes whether grounded contradiction or consequence
-  burden still narrows the sentence after runtime proof looks strong.
+- [Benchmark assets](../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+  govern whether the public evidence root is adequate.
+- [Workflow families](../01-bijux-proteomics/foundation/workflow-families.md)
+  govern which family-level scientific sentence survives.
+- [Decision support](../01-bijux-proteomics/foundation/decision-support.md)
+  governs whether contradiction or consequence burden narrows the action.
 
 ## Interpretation Boundaries
 

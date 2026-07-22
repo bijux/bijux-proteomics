@@ -11,13 +11,30 @@ last_reviewed: 2026-07-01
 
 Start here when the question is: how would an independent reviewer reopen a shipped workflow family without asking maintainers what to trust next?
 
-## How An Independent Reviewer Should Use This Route
+## Independent Review Contract
 
 - start from the public benchmark manifest, not from runtime prose
 - reopen the checked bundle before deciding whether the lane still deserves a
   stronger sentence
 - use stage lineage and failure replay to test whether the execution story is
   robust enough to survive scrutiny without maintainer narration
+
+```mermaid
+flowchart LR
+    manifest["public package manifest"]
+    source["copied-source locator and checksum"]
+    request["runtime entrypoint and declared mode"]
+    bundle["checked run bundle"]
+    lineage["stage lineage"]
+    failure["failure replay"]
+    comparison["declared comparison verdict"]
+    manifest --> source --> request --> bundle
+    bundle --> lineage --> comparison
+    bundle --> failure --> comparison
+```
+
+A reviewer should be able to resolve every node without private credentials,
+undocumented files, or a maintainer choosing which differences to ignore.
 
 ## Shortest Rerun Route
 
@@ -94,3 +111,18 @@ Start here when the question is: how would an independent reviewer reopen a ship
   recommendation, or lab authority
 - it should hand off once the question becomes whether the reopened lane still
   deserves stronger language beyond runtime traceability
+
+## Rerun Closure Record
+
+| Record | Closure condition |
+| --- | --- |
+| package identity | manifest and copied-source checksums resolve to the reviewed public package |
+| execution identity | entrypoint, runtime version, mode, provider, and environment contract are recorded |
+| run history | state transitions, retries, resume or rehydrate events, and terminal disposition are coherent |
+| artifact inventory | required outputs, fingerprints, lineage, and declared absences agree with the lane |
+| replay pressure | failure replay and invalidation challenges produce the expected governed verdict |
+| comparison | byte, value, review, and permitted-environment differences are classified |
+| authority handoff | runtime conclusion and every stronger blocked claim are named separately |
+
+The rerun closes when these records agree. Similar-looking outputs without a
+resolved package, run history, or comparison policy do not close it.

@@ -27,6 +27,39 @@ flowchart LR
     E --> P["allow only declared drift"]
 ```
 
+## Classify Drift Before Comparing Runs
+
+```mermaid
+flowchart TD
+    pair["baseline and candidate run bundles"] --> identity{"same package and comparison contract?"}
+    identity -->|no| incomparable["incomparable; explain identity mismatch"]
+    identity -->|yes| inventory["compare artifact inventories"]
+    inventory --> bytes["bit-stable paths"]
+    inventory --> values["value-stable fields"]
+    inventory --> review["review-stable interpretation"]
+    inventory --> environment["declared environment drift"]
+    bytes --> verdict{"all differences classified?"}
+    values --> verdict
+    review --> verdict
+    environment --> verdict
+    verdict -->|yes| comparable["comparable verdict"]
+    verdict -->|no| refused["stability refusal"]
+```
+
+Classification is ordered. Package or contract identity is checked before
+bytes; artifact inventory is checked before field values; review meaning is
+checked even when the numeric comparison passes. An unclassified difference
+is a failed comparison, not permitted drift.
+
+| Drift example | Class | Required response |
+| --- | --- | --- |
+| changed governed fixture byte | bit stability | fail until the fixture change and its owner are reviewed |
+| reordered representation with unchanged governed value | value stability | prove canonical value equivalence and explain byte drift |
+| changed blocker, claim scope, or invalidation reason | review stability | treat as contract movement even if result values match |
+| new run ID or artifact directory | permitted environment drift | accept only when explicitly named and non-authoritative |
+| missing required artifact | inventory failure | refuse comparison; absence cannot be normalized away |
+| new artifact with unknown role | unclassified drift | assign ownership and stability class before acceptance |
+
 ## Family Stability Contracts
 
 ### `dda`
@@ -80,3 +113,7 @@ environment drift never authorizes a claim, blocker, or lineage change.
 
 Stable execution protects rerun honesty; it does not enlarge biological,
 analytical, vendor-parity, recommendation, or lab authority.
+
+A stability verdict must retain both run identities, the comparison contract,
+artifact inventories, classified differences, comparison-tool identity, and
+the final disposition. A bare “same” or “changed” result is not reviewable.
