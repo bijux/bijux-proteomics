@@ -51,6 +51,39 @@ Schema parity does not mean permanent equality. A canonical API can add new
 behavior that is not promised through the bridge. Any intentional divergence
 requires an explicit compatibility decision and migration route.
 
+| Canonical schema change | Bridge decision | Consumer evidence |
+| --- | --- | --- |
+| additive optional field | expose only if legacy validation and clients remain compatible | OpenAPI diff, request/response parity, legacy client tests |
+| changed default or enum | treat as behavioral compatibility risk | old and new serialization cases, caller impact, migration guidance |
+| renamed or removed field | preserve with declared adaptation or refuse | mapping and loss statement, deprecation evidence, replacement route |
+| new canonical-only endpoint | leave outside the bridge unless explicitly promised | canonical documentation and no implied legacy route |
+| error-schema change | preserve status and machine-readable failure contract | status-code, body-schema, and exception parity |
+
+## Version-Skew Contract
+
+The bridge and canonical runtime are released separately, so import success
+alone cannot establish a compatible pair. A governed deployment must record
+both package versions, the imported canonical target, the API or schema digest
+where applicable, and the parity checks used for that pair.
+
+```mermaid
+flowchart LR
+    bridge["agentic-proteins version"]
+    runtime["runtime version"]
+    contract["declared preserved surface"]
+    parity["pair-specific parity evidence"]
+    usable{"compatible pair?"}
+    bridge --> usable
+    runtime --> usable
+    contract --> parity --> usable
+    usable -->|yes| consumer["supported migration window"]
+    usable -->|no| refusal["visible incompatibility"]
+```
+
+Persisted payloads remain runtime-owned. The compatibility package version can
+help reproduce an import path, but it must never replace the canonical schema
+version, runtime version, or artifact fingerprint in a durable record.
+
 ## Stability boundary
 
 - Public bridge imports must resolve to a declared canonical target.

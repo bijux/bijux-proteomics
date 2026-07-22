@@ -43,6 +43,16 @@ sequenceDiagram
   compiler, engine, evaluation, run manager, state machine, artifacts,
   telemetry, and recovery behavior.
 
+Every entrypoint follows one of three compatibility paths:
+
+| Path | Allowed bridge behavior | Required evidence |
+| --- | --- | --- |
+| identity forwarding | expose the canonical object unchanged | object identity, signature, validation, and exception parity |
+| declared adaptation | translate only a documented historical calling convention | input/output mapping, loss statement, parity cases, migration route |
+| refusal | reject behavior that has no safe canonical equivalent | stable failure, affected surface, canonical alternative or explicit absence |
+
+A hidden fourth path—independent legacy execution—is a boundary violation.
+
 ## State and artifact ownership
 
 Runtime creates and owns run identifiers, state transitions, snapshots,
@@ -65,6 +75,23 @@ Compatibility tests need to exercise more than import success. High-value
 checks compare object identity, function signatures, CLI help and exits, HTTP
 schemas and status codes, provider capability reports, state transitions, and
 serialized artifacts across the historical and canonical paths.
+
+```mermaid
+flowchart TD
+    case["same governed test case"] --> legacy["legacy entrypoint"]
+    case --> canonical["canonical entrypoint"]
+    legacy --> compare{"compare contract"}
+    canonical --> compare
+    compare --> identity["object and schema identity"]
+    compare --> behavior["return, exception, exit, status"]
+    compare --> effects["state transitions and provider calls"]
+    compare --> artifacts["serialized artifacts and fingerprints"]
+```
+
+Parity does not require identical log wording or undocumented private names.
+It does require that a preserved public contract cannot silently weaken
+validation, change side effects, or produce a differently interpretable
+artifact merely because the caller used the historical path.
 
 Use the canonical runtime documentation for execution features. Use this
 section when deciding whether an old entrypoint still forwards correctly and
