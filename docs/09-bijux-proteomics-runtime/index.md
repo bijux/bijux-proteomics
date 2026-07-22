@@ -23,6 +23,8 @@ bijux-proteomics-runtime --help
 
 ```mermaid
 stateDiagram-v2
+    state "rerun recorded" as RerunRecorded
+    state "replay compatible" as ReplayCompatible
     [*] --> Preflight
     Preflight --> Refused: invalid input or unavailable capability
     Preflight --> Planned: contract and provider accepted
@@ -31,7 +33,8 @@ stateDiagram-v2
     Checkpointed --> Running: resume
     Running --> Failed: governed execution failure
     Running --> Completed
-    Completed --> Reproduced: replay under compatible environment
+    Completed --> RerunRecorded: same declared request executed again
+    Completed --> ReplayCompatible: persisted state consumed under contract
     Completed --> Compared: compare run records
     Completed --> Archived: export and handoff
 ```
@@ -269,16 +272,16 @@ only after execution and scientific evidence are independently acceptable.
 
 ## Continue By Execution Question
 
-| Need | Read next |
-| --- | --- |
-| understand the execution model and run record | [execution overview](execution-overview.md) |
-| reopen a workflow from public evidence | [operator rerun journey](operator-rerun-journey.md) |
-| execute and compare a benchmark lane | [Benchmark Rerun Kits](benchmark-rerun-kits.md) and the [comparability matrix](benchmark-comparability-matrix.md) |
-| distinguish native execution from external-result custody | [raw versus import execution](raw-versus-import-execution.md) |
-| assess persistence and comparison guarantees | [artifact stability](runtime-artifact-stability.md) |
-| reproduce provider and system assumptions | [environment contracts](runtime-environment-contracts.md) |
-| understand why a rerun claim is refused | [rerun refusals](runtime-rerun-refusals.md) |
-| migrate a historical caller | [migration ledger](migration-ledger/README.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| understand the execution model and run record | [execution overview](execution-overview.md) | request, configuration, provider, state, artifacts, and terminal disposition resolve to one run identity |
+| reopen a workflow from public evidence | [operator rerun journey](operator-rerun-journey.md) | another operator can resolve inputs, environment, entrypoint, expected artifacts, and comparison policy |
+| execute and compare a benchmark lane | [Benchmark Rerun Kits](benchmark-rerun-kits.md) and the [comparability matrix](benchmark-comparability-matrix.md) | reference and candidate runs have a declared equivalence result with every consequential difference retained |
+| distinguish native execution from external-result custody | [raw versus import execution](raw-versus-import-execution.md) | the selected provider, fallback, import source, and external responsibility are visible |
+| assess persistence and comparison guarantees | [artifact stability](runtime-artifact-stability.md) | identity, schema, lineage, digest, and tolerated variance are declared rather than inferred |
+| reproduce provider and system assumptions | [environment contracts](runtime-environment-contracts.md) | package, tool, model, hardware, service, and configuration requirements are resolvable |
+| understand why a rerun claim is refused | [rerun refusals](runtime-rerun-refusals.md) | the missing contract, owner, evidence, and valid recovery route are named |
+| migrate a historical caller | [migration ledger](migration-ledger/README.md) | caller-specific observable parity supports direct use of the canonical Runtime owner |
 
 Runtime does not own core scientific semantics, knowledge grounding,
 recommendation policy, or laboratory readiness.

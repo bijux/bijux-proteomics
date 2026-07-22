@@ -25,16 +25,23 @@ flowchart LR
     recommendation["recommendation record"]
     design["assay design\nprotocol · controls · materials"]
     readiness{"ready?"}
+    authorize{"human and operational authority?"}
     queue["priority · batches · schedule"]
     handoff["executable lab handoff"]
     observation["observed outcome"]
+    acceptance{"measurement and controls accepted?"}
     reconcile["requested vs observed\nreconciliation"]
     feedback["new evidence and policy feedback"]
-    refusal["refusal or revised plan"]
+    refusal["refusal · hold · revised plan"]
+    rejected["rejected or failed observation record"]
 
     recommendation --> design --> readiness
-    readiness -->|yes| queue --> handoff --> observation --> reconcile --> feedback
+    readiness -->|yes| authorize
     readiness -->|no| refusal
+    authorize -->|yes| queue --> handoff --> observation --> acceptance
+    authorize -->|no| refusal
+    acceptance -->|yes| reconcile --> feedback
+    acceptance -->|no| rejected --> feedback
 ```
 
 Planning and observation are separate records. A recommendation can be
@@ -106,10 +113,10 @@ capacity, scheduling constraints, and handoff completeness. A refusal is an
 expected scientific safety result when a plan would waste material, obscure
 interpretation, or create an outcome that cannot answer the stated question.
 
-The refusal record should identify the blocking condition and a valid next
-action such as narrowing the assay, adding controls, resolving an upstream
-contradiction, rerunning analysis, or waiting for capacity. It must not be
-rendered as a generic runtime failure.
+A refusal record identifies the blocking condition and a valid next action
+such as narrowing the assay, adding controls, resolving an upstream
+contradiction, rerunning analysis, or waiting for capacity. It is an
+operational and scientific disposition, not a generic runtime failure.
 
 ```mermaid
 flowchart TD
@@ -258,14 +265,14 @@ to connect those outcomes to the workflow family’s next decision burden.
 
 ## Continue By Laboratory Question
 
-| Need | Read next |
-| --- | --- |
-| evaluate cost, controls, and downstream burden | [lab consequence](foundation/lab-consequence.md) |
-| return outcomes to evidence and policy | [outcome learning loops](foundation/outcome-learning-loops.md) |
-| map a refusal to a safe next action | [workflow refusal handbook](foundation/workflow-refusal-handbook.md) |
-| separate planning, readiness, handoff, and outcomes | [architecture](architecture/index.md) |
-| choose Python or artifact contracts | [interfaces](interfaces/index.md) |
-| review operational and scientific bounds | [known limitations](quality/known-limitations.md) |
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| evaluate cost, controls, and downstream burden | [lab consequence](foundation/lab-consequence.md) | feasibility, control burden, cost of error, and allowed action share one consequence record |
+| return outcomes to evidence and policy | [outcome learning loops](foundation/outcome-learning-loops.md) | accepted, rejected, inconclusive, and unexpected outcomes reach their correct owner without rewriting history |
+| map a refusal to a safe next action | [workflow refusal handbook](foundation/workflow-refusal-handbook.md) | the blocker, protected resource, responsible owner, and admissible next route are explicit |
+| separate planning, readiness, handoff, and outcomes | [architecture](architecture/index.md) | every stage has its own identity, parent record, authority, and terminal disposition |
+| choose Python or artifact contracts | [interfaces](interfaces/index.md) | the plan or outcome preserves controls, custody, deviations, QC, and refusal information |
+| review operational and scientific bounds | [known limitations](quality/known-limitations.md) | technical completion is not presented as answerability, biological support, or authority to act |
 
 Lab does not own upstream scientific computation, evidence truth,
 recommendation policy, or general execution orchestration.
