@@ -69,6 +69,24 @@ The bridge preserves call compatibility, not independent behavior. A forwarded
 symbol must resolve to its canonical owner, and any new implementation belongs
 in that owner before a compatibility export is considered.
 
+## Removal is a consumer claim
+
+The bridge can disappear only when supported callers no longer depend on its
+observable contracts. Repository search establishes local absence; it cannot
+establish that a deployed service, notebook collection, or automation system
+has migrated.
+
+| Evidence | What it establishes | What remains unknown |
+| --- | --- | --- |
+| forwarding test | the legacy path reaches the declared owner | whether a caller depends on different defaults or side effects |
+| repository import scan | checked-in source no longer imports the path | external and generated consumers |
+| CLI or HTTP parity test | selected observable behavior agrees | persistence and replay compatibility outside the fixture |
+| caller acceptance record | one named consumer accepts the canonical contract | readiness of every other supported consumer |
+| complete consumer inventory | the retirement decision covers the declared support set | undeclared consumers outside that support boundary |
+
+Until the inventory and caller evidence close, the honest disposition is
+`migrated for this caller` or `blocked`, not `bridge removable`.
+
 ## Compatibility contract
 
 - mirrors the canonical runtime root exports at `agentic_proteins`

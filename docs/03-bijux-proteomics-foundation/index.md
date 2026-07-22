@@ -155,14 +155,37 @@ The consumer may trust a matching digest as evidence of content equality. It
 must obtain scientific authority, source authenticity, and acceptance policy
 from the package that owns the domain record.
 
-## Shared Reader Routes
+## Know what identity can prove
 
-| Question | Authority |
-| --- | --- |
-| where does this contract sit in the system? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| which package owns the scientific meaning? | [cross-package ownership](../01-bijux-proteomics/foundation/cross-package-ownership.md) |
-| how is it used for run state, artifacts, and replay? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
-| how are schema and API changes governed? | [Maintenance](../08-bijux-proteomics-maintain/index.md) |
+Foundation answers whether two delivered records have the same canonical
+content under a declared contract. Other authorities are required for source
+authenticity, scientific validity, execution fidelity, and permission to act.
+
+| Observation | Supported conclusion | Required authority for a stronger conclusion |
+| --- | --- | --- |
+| canonical bytes match | payload representation is equal under the canonicalization policy | producer evidence for authenticity |
+| digest matches | delivered canonical content has the expected identity | custody evidence for who produced or transported it |
+| schema validates | document conforms to the declared structural contract | domain owner for semantic correctness |
+| migration succeeds | transformed document satisfies the target schema and declared migration | domain evidence that the transformation preserved scientific meaning |
+| typed outcome is `produced` | the operation returned a value under its contract | Core or another product owner for acceptance |
+| typed outcome is `refused` | the owner declined work for a recorded reason | owner policy and inputs for whether retry is appropriate |
+
+```mermaid
+flowchart LR
+    payload["delivered payload"] --> validate["schema validation"]
+    validate --> canonical["canonical bytes"]
+    canonical --> digest["content digest"]
+    digest --> equal["content equality"]
+    equal -. does not establish .-> authentic["source authenticity"]
+    equal -. does not establish .-> scientific["scientific validity"]
+    equal -. does not establish .-> action["authority to act"]
+```
+
+Use [cross-package ownership](../01-bijux-proteomics/foundation/cross-package-ownership.md)
+to find the semantic owner, [Runtime](../09-bijux-proteomics-runtime/index.md)
+for execution and artifact custody, and
+[Maintenance](../08-bijux-proteomics-maintain/index.md) for contract-change
+governance.
 
 ## Start Inside
 

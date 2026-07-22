@@ -70,6 +70,24 @@ whether a peptide assignment, recommendation, or assay plan is scientifically
 correct. Downstream packages own those meanings while reusing the same bytes,
 identifiers, failure envelopes, and migration rules.
 
+## Equality is not authority
+
+Canonicalization deliberately makes a narrow promise. It lets independent
+consumers reproduce document identity without granting the document authority
+outside its producing domain.
+
+| Foundation evidence | Safe statement | Unsafe leap |
+| --- | --- | --- |
+| valid `DocumentSchema` | the payload satisfies the declared structural version | the payload is scientifically correct |
+| canonical JSON | the same supported value has one governed representation | the source observation is authentic |
+| stable fingerprint | canonical content can be compared and referenced | matching content is biologically equivalent in every context |
+| compatible migration | a declared transformation reaches a readable target schema | the migration is scientifically lossless without domain review |
+| typed refusal | no value was produced for the recorded reason | retrying with weaker validation is acceptable |
+
+Keep the producer, parent references, schema decision, canonicalization policy,
+and outcome beside the digest. A detached hash is an identifier, not a
+provenance record.
+
 ## Why teams pick this kernel
 
 - one canonical document-contract baseline across every proteomics package

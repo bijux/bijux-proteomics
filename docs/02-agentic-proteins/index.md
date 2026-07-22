@@ -183,14 +183,39 @@ stateDiagram-v2
 whole compatibility distribution. Repository-wide retirement still requires
 the complete consumer inventory and release evidence.
 
-## Shared Reader Routes
+## Prove a caller has migrated
 
-| Question | Authority |
-| --- | --- |
-| which packages own new scientific and execution work? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| which workflow claims are currently supportable? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
-| where should a historical execution caller migrate? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
-| which checks govern compatibility and retirement? | [Maintenance](../08-bijux-proteomics-maintain/index.md) |
+Replacing an import is necessary but not sufficient. Close the migration at
+the caller boundary, where defaults, persisted state, operator-visible output,
+and recovery behavior can be compared under the conditions that matter to that
+consumer.
+
+| Caller dependency | Compare | Completion evidence |
+| --- | --- | --- |
+| Python import | symbol owner, signature, default, return, and exception | caller test imports only the canonical public path and exercises depended-on behavior |
+| shell automation | command, arguments, exit code, stdout, stderr, and artifacts | recorded canonical invocation satisfies the automation contract |
+| HTTP integration | route, schema, status, error envelope, and request context | consumer contract test passes against the canonical application |
+| persisted run | schema assessment, identifiers, state transitions, and resume | historical fixture reopens or a documented incompatibility is accepted |
+| replay workflow | provider decision, environment, events, artifacts, and comparison | canonical rerun or replay reaches the declared equivalence result |
+
+```mermaid
+flowchart TD
+    caller["named caller"] --> inventory["inventory depended-on surfaces"]
+    inventory --> canonical["map each surface to its canonical owner"]
+    canonical --> compare["compare observable behavior"]
+    compare --> verdict{"all caller contracts resolved?"}
+    verdict -->|no| blocked["retain bridge and record blocker"]
+    verdict -->|yes| direct["adopt canonical surface"]
+    direct --> evidence["retain caller-specific evidence"]
+    evidence --> retire{"all supported callers complete?"}
+    retire -->|no| bridge["bridge remains"]
+    retire -->|yes| review["retirement review"]
+```
+
+Product scope remains in the [Product Overview](../01-bijux-proteomics/foundation/product-overview.md),
+the canonical destination is [Runtime](../09-bijux-proteomics-runtime/index.md),
+and repository-wide retirement is governed by
+[Maintenance](../08-bijux-proteomics-maintain/index.md).
 
 ## Start Inside
 
