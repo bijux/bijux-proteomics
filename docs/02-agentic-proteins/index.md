@@ -18,6 +18,22 @@ surfaces, `bijux-proteomics-core`.
 `agentic-proteins` is the strict compatibility package: it does not compete
 with Runtime for ownership of new execution behavior.
 
+## Three compatibility decisions
+
+Compatibility forwarding, caller migration, and package retirement answer
+different questions. Evidence for one must not be promoted into evidence for
+another.
+
+| Decision | Required evidence | Valid conclusion | Invalid promotion |
+| --- | --- | --- | --- |
+| does this bridge surface forward correctly? | symbol identity or behavioral parity for the declared import, command, route, state, and artifact contract | the checked bridge surface matches its canonical owner under the tested contract | every caller is compatible |
+| has this caller migrated? | named consumer, legacy and canonical versions, exercised surfaces, accepted differences, and consumer-owned tests | this consumer accepts the canonical contract | the package is removable |
+| is the package removable? | complete supported-consumer inventory, caller dispositions, repository dependency closure, publication policy, and release approval | no supported consumer still requires the bridge | undeclared external consumers do not exist |
+
+A forwarding defect belongs to the bridge or canonical owner. A caller-specific
+adaptation belongs in that consumer's migration record. An incomplete inventory
+blocks retirement even when every repository test passes.
+
 Install it only when an existing caller still depends on those names:
 
 ```bash

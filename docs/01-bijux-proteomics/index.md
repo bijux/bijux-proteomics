@@ -18,6 +18,26 @@ The repository is designed so a result can cross process and package boundaries
 without losing who produced it, what assumptions were active, why it was
 accepted, or which later evidence changed its interpretation.
 
+## Locate a disputed result
+
+Start with the record that made the disputed decision. A downstream package may
+render or consume that record, but it does not inherit authority to reinterpret
+it silently.
+
+| Dispute | Open first | Decisive evidence | Do not substitute |
+| --- | --- | --- | --- |
+| two payloads appear to represent the same subject | Foundation identity and compatibility record | canonical bytes, digest, schema decision, and declared migration | matching filenames or display labels |
+| a peptide, protein, quantity, or QC result looks wrong | Core scientific report | accepted and rejected inputs, active policy, diagnostics, benchmark burden, and limits | a successful process exit |
+| a run completed differently or cannot resume | Runtime run bundle | request, environment, provider, state history, checkpoints, and artifact ledger | a scientific summary |
+| a biological claim lacks support or conflicts with another source | Knowledge review bundle | source version, context, relationship, contradiction, freshness, and gap record | rank or recommendation score |
+| a candidate was ranked, held, or refused | Intelligence recommendation record | candidate universe, policy, evidence snapshot, sensitivity, alternatives, and reasons | evidence count alone |
+| an assay was unready or produced a surprising result | Lab readiness or consequence record | plan, controls, custody, deviations, observations, acceptance, and reconciliation | the original recommendation |
+| a repository or release gate disagrees with a package check | maintainer gate and candidate records | exact command, revision, governed inputs, scope, output, and publication disposition | a pass from another revision or surface |
+
+If the decisive record is absent, the conclusion is ungrounded. Follow the
+missing identity or handoff upstream; do not infer authority from whichever
+package happened to surface the symptom.
+
 ## System map
 
 ```mermaid
