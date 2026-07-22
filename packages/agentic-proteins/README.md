@@ -87,6 +87,28 @@ has migrated.
 Until the inventory and caller evidence close, the honest disposition is
 `migrated for this caller` or `blocked`, not `bridge removable`.
 
+## Migration closure record
+
+A migration decision must be reconstructable without relying on the person who
+performed it. Retain one record per supported consumer; aggregate records only
+after every consumer was evaluated against the same declared support boundary.
+
+| Record field | Required content |
+| --- | --- |
+| consumer identity | service, workflow, notebook collection, or automation owner |
+| version pair | legacy bridge version and canonical package version under comparison |
+| exercised surfaces | imports, commands, HTTP routes, state, artifacts, and failure paths actually observed |
+| parity evidence | fixtures, commands, assertions, and retained outputs that support the conclusion |
+| declared differences | adaptations in defaults, schemas, side effects, or recovery behavior accepted by the consumer |
+| disposition | `migrated`, `migrated with declared adaptation`, `blocked`, or `unsupported` |
+| accountable owner | person or team that accepted the disposition and its remaining limits |
+
+Symbol identity alone is sufficient only for a pure alias. Commands, HTTP
+routes, and execution paths require behavioral evidence over success, refusal,
+state transition, and artifact shape. A blocked record remains evidence: it
+identifies the contract that prevents migration instead of hiding it behind a
+passing import test.
+
 ## Compatibility contract
 
 - mirrors the canonical runtime root exports at `agentic_proteins`

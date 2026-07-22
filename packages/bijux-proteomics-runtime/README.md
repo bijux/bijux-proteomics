@@ -101,6 +101,29 @@ When a required environment, provider, or artifact identity cannot be
 reconstructed, emit a refusal or narrower disposition instead of treating a
 second completion as reproduction.
 
+## Rerun closure record
+
+A rerun closes only when the new execution is linked to its source run and all
+material differences have a named interpretation. Preserve the following
+fields with the comparison rather than reducing the outcome to pass or fail.
+
+| Record field | Required content |
+| --- | --- |
+| source and rerun identities | immutable run identifiers, revisions, requests, and input fingerprints |
+| execution context | provider capability, environment contract, dependency lock, and execution mode |
+| observed differences | request, event, state, artifact, timing, and external-provider differences |
+| stability class | `identity-stable`, `semantically-stable`, `expected-drift`, or `incompatible` for each governed surface |
+| policy and evidence | comparison policy version plus retained manifests, hashes, logs, and normalized reports |
+| disposition | `accepted`, `degraded`, or `refused`, with the exact reason and accountable reviewer |
+
+Classify request and input drift before environment drift, environment drift
+before event and state drift, and event and state drift before artifact drift.
+That order preserves causality: an artifact difference should not be explained
+as numerical variation when the rerun used a different request or provider
+contract. `Degraded` is a bounded result for usable but weaker evidence;
+`refused` means the available record cannot support the requested comparison or
+reuse claim.
+
 ## Execution evidence contract
 
 Each governed run exposes a typed run context, artifact ledger, replay contract,
