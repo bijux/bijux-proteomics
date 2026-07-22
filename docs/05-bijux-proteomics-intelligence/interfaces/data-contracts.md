@@ -79,6 +79,36 @@ flowchart TD
     recommendation --> review
 ```
 
+## Recommendation Comparison Packet
+
+A decision can be compared across reruns or policy reviews only when the
+following identities travel together:
+
+| Identity | Why it matters |
+| --- | --- |
+| question and scenario | prevents results for different decisions from being compared as replicas |
+| candidate-set fingerprint | exposes additions, exclusions, and transformed alternatives |
+| evidence snapshot | separates changed evidence from changed policy |
+| policy identifier and parameters | makes weights, gates, ties, and uncertainty treatment attributable |
+| challenge results | preserves contradiction, falsifier, refusal, and missing-evidence pressure |
+| recommendation and downgrade chain | explains the chosen posture and every narrowing step |
+| sensitivity or counterfactual result | shows whether plausible assumptions reverse the choice |
+| authority state | distinguishes advice from an explicitly promoted enforced policy |
+
+```mermaid
+stateDiagram-v2
+    [*] --> Advisory
+    Advisory --> Advisory: evidence or policy comparison
+    Advisory --> Enforced: named actor + policy id + rationale
+    Advisory --> Refused: decision gate fails
+    Enforced --> Superseded: new governed decision
+    Refused --> Advisory: missing evidence closes under a new record
+```
+
+Promotion is an auditable state change, not a property inferred from a high
+score. Reconsidering a refusal likewise creates a new decision record; it does
+not erase the original failed condition.
+
 ## Invariants
 
 - Scores retain their policy, factors, and reasons.

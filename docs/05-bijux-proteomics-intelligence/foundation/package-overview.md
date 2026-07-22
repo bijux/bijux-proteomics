@@ -14,6 +14,22 @@ keeps ranking mechanics, scientific interpretation, skeptical challenge,
 policy judgment, and learning separate so a change in one can be reviewed
 without silently changing the others.
 
+```mermaid
+flowchart LR
+    question["decision question"]
+    candidates["candidate universe\nincluding exclusions"]
+    interpretation["bounded scientific interpretation"]
+    challenge["support · contradiction · falsifier"]
+    policy["named scenario and policy"]
+    disposition["recommend · hold · downgrade · refuse"]
+    review["human or explicitly promoted authority"]
+    question --> candidates --> interpretation --> challenge --> policy --> disposition --> review
+```
+
+The package owns the recorded argument between question and disposition. It
+does not own the source evidence, execute proteomics analyses, or grant the
+experimental authority shown at the right edge.
+
 ## Candidate construction
 
 `candidates` defines candidate records and schemas, validation, transformations,
@@ -61,6 +77,17 @@ benchmark reviews, boards, candidate reviews, independent-rerun checks,
 decision briefs, external review kits, outsider packets, release candidates,
 and public-scrutiny reports.
 
+## Inspect A Recommendation By Question
+
+| Question | Owning surface | Evidence to inspect |
+| --- | --- | --- |
+| Which alternatives entered or left the comparison? | `candidates` | input fingerprint, validation, exclusions, transformations, lifecycle state |
+| Which scientific meaning was extracted from the inputs? | `interpretation` | bounded feature or statement plus the source record it projects |
+| What could defeat the preferred answer? | `claims`, `contradictions`, `falsifiers`, `posture` | adverse evidence, severity, missing support, falsification condition |
+| Why did one action outrank another? | `judgment` | scenario, policy identity, weights, gates, tie handling, decisive criteria |
+| Would a plausible assumption change the answer? | counterfactual, sensitivity, and regret surfaces | alternate policy result, rank stability, observed cost |
+| Who may act on the result? | decision envelope and external authority | advisory/enforced state, promoting actor, rationale, human-review requirement |
+
 ## Learning without rewriting history
 
 `learning` adapts future policy from review and outcome signals. Refinement
@@ -95,3 +122,7 @@ Intelligence does not curate literature, resolve biological identifiers, run
 mass-spectrometry workflows, or schedule assays. It consumes those owned
 artifacts and returns a policy decision. When evidence, reproducibility, or lab
 feasibility is insufficient, the correct result is a downgrade or refusal.
+
+A review is incomplete if it reports the selected candidate without the
+candidate universe, or reports confidence without the policy, adverse
+evidence, sensitivity, and authority state that produced it.
