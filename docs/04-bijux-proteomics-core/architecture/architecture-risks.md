@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Architecture Risks
@@ -36,3 +36,22 @@ flowchart LR
 ```
 
 The strongest control is not a success flag; it is the ability to reconstruct why each retained and rejected result has its current meaning.
+
+## Diagnose a changed scientific result
+
+Compare in causal order so a downstream numerical difference is not blamed on
+the wrong surface.
+
+| Compare | Question | Owner record |
+| --- | --- | --- |
+| input and experimental design | did the eligible population, reference, grouping, or contrast change? | source and design identities |
+| parser and normalization | were rows interpreted, filtered, keyed, or normalized differently? | accepted and rejected intake reports |
+| evidence level and aggregation | did PSM, peptide, group, protein, site, or proteoform meaning change? | typed evidence-level and roll-up contracts |
+| scientific policy | did thresholds, competition, inference, missingness, imputation, or QC change? | versioned policy and parameters |
+| implementation | did the algorithm change under stable inputs and policy? | implementation revision, focused tests, and reference vectors |
+| benchmark burden | does the changed result still satisfy the family-specific acceptance and perturbation evidence? | benchmark report, challenge corpus, and limitation record |
+
+Only after the earlier rows match is an implementation regression the leading
+explanation. If the result change is intentional, its release record must name
+the affected evidence level, workflow families, consumers, and public claim
+ceiling.

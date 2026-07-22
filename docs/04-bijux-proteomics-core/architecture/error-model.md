@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Error Model
@@ -38,3 +38,20 @@ flowchart TD
 ```
 
 Empty output is not a universal error representation. “No identifications,” “all rows rejected,” “unsupported format,” “failed QC,” and “no biological effect” carry different scientific meanings and require different evidence.
+
+## Triage an empty or partial result
+
+| Observation | Scientific interpretation | Required next record |
+| --- | --- | --- |
+| parser accepted no records | input, mode, or format did not yield a valid scientific record | parse report with source identity and row-level rejection reasons |
+| identification produced no accepted PSMs | no candidate survived the declared search and confidence policy | search configuration, score distribution, decoy behavior, threshold, and rejected candidates |
+| every quantitative row failed QC | measurements existed but none satisfied the declared quality burden | per-row QC, missingness, normalization state, exclusion rule, and affected samples |
+| comparison reports no effect | the modeled contrast did not support an effect under the declared design | design matrix, estimator, uncertainty, multiplicity policy, and detectable-effect limits |
+| format or workflow is unsupported | Core cannot interpret or compose the requested contract | typed exception or refusal naming the supported alternatives |
+| backend is unavailable | a requested external capability cannot execute | backend identity, environment, missing capability, and whether import remains valid |
+| some records remain usable | the result is partial, not empty | accepted and rejected partitions plus aggregation and claim limitations |
+
+Consumers must not replace any of these outcomes with an empty dataframe or
+zero-valued summary. The distinction determines whether to correct input,
+change scientific policy, restore capability, narrow the claim, or accept a
+null result.
