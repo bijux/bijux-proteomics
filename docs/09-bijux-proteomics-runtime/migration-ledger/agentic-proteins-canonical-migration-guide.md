@@ -4,12 +4,27 @@ audience: maintainer
 type: reference
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-04-29
+last_reviewed: 2026-07-22
 ---
 
 # agentic-proteins Canonical Migration Guide
 
 This guide shows how compatibility imports map back to canonical package ownership. The point is not to preserve the bridge forever; it is to make every remaining legacy path reviewable and replaceable.
+
+## Migration Decision
+
+```mermaid
+flowchart LR
+    legacy["legacy import"] --> inventory["live compatibility inventory"]
+    inventory --> status{"classification"}
+    status -->|wrapper| canonical["move caller to canonical target"]
+    status -->|dead| absence["prove caller absence, then delete"]
+    status -->|canonical or duplicate| block["release-blocking ownership violation"]
+    canonical --> retire["retire compatibility path"]
+    absence --> retire
+```
+
+The inventory is a routing authority, not a parity claim. A canonical import still requires surface-specific compatibility evidence before a caller can move safely.
 
 ## Current Posture
 
@@ -144,4 +159,24 @@ This guide shows how compatibility imports map back to canonical package ownersh
 - `wrapper` means the compatibility module is a narrow bridge and callers should move directly to the named canonical target.
 - `dead` means the module no longer carries meaningful behavior and should be deleted once callers disappear.
 - `canonical` or `duplicate` would be release-blocking because the compatibility family is not allowed to regain original product logic.
-- this document should be regenerated whenever compatibility forwarding changes so release and retirement discussions are based on current code rather than memory.
+
+## Migration Proof
+
+| Migration state | Evidence required before progression |
+| --- | --- |
+| caller still uses a wrapper | canonical target, caller inventory, and observable compatibility comparison |
+| caller moved to canonical owner | updated import plus import, CLI, HTTP, state, or replay proof for the affected surface |
+| wrapper has no callers | repository and declared downstream absence evidence |
+| wrapper removed | compatibility inventory, generated guide, tests, and release notes agree at the same revision |
+
+A `wrapper` row authorizes migration work, not immediate deletion. A `dead` row identifies absent owned behavior, not proven absence of callers.
+
+## Freshness Contract
+
+This reference is generated from the live compatibility inventory. Validate it with:
+
+```bash
+PYTHONPATH=packages/bijux-proteomics-dev/src .venv/bin/python -m bijux_proteomics_dev.quality.architecture.compatibility_migration_guides --check
+```
+
+When forwarding changes, run the same command without `--check`, review the generator and guide together, then rerun the compatibility and migration gates. A stale guide cannot support a retirement decision.
