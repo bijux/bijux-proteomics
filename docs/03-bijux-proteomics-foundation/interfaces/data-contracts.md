@@ -91,6 +91,40 @@ identity under a named hashing policy; it does not prove provenance,
 authenticity, biological correctness, or semantic equivalence between
 different schemas.
 
+## Schema Evolution Assessment
+
+Compatibility assessment records the observed and target versions, their
+relationship, whether a migration is required, whether a registered path is
+available, whether the target is deprecated, and the reasons for the verdict.
+
+| Condition | Classification | Required caller response |
+| --- | --- | --- |
+| same compatible contract | compatible | validate without migration |
+| compatible versions with a declared path | compatible, migration required | migrate a copy and validate the target |
+| different major versions | backward incompatible | coordinate the contract change; do not coerce |
+| observed contract cannot satisfy the target | forward incompatible | stop or select an explicitly supported target |
+| target deprecated or migration absent | migration unavailable | preserve the source and return a visible refusal |
+
+## Operation Outcomes
+
+`OperationResult` keeps transport success separate from support quality. A
+successful result must use the supported state. A degraded result must carry
+stable reasons and use an ambiguous, incomplete, or lossy state. A refused
+result must carry a structured `OperationRefusal`. Provenance pointers and an
+output fingerprint can accompany the dispositions that produced output.
+
+```mermaid
+flowchart TD
+    operation["operation"] --> disposition{"disposition"}
+    disposition -->|success| supported["supported · optional fingerprint"]
+    disposition -->|degraded success| degraded["ambiguous / incomplete / lossy\nreasons required"]
+    disposition -->|refused| refused["structured refusal required"]
+```
+
+Consumers must branch on disposition and support state. Treating every
+serialized result as success discards the contract that protects downstream
+scientific and operational decisions.
+
 For version behavior, continue with
 [compatibility commitments](compatibility-commitments.md). For public imports,
 see [Python API surface](api-surface.md).

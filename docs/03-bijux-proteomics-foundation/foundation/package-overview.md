@@ -19,22 +19,32 @@ scientific product only stays coherent because every downstream owner can rely
 on one stable family of identifiers, one serialization story, and one
 compatibility discipline instead of inventing local dialects.
 
-## Why This Package Matters More Now
+## The Stability Problem It Solves
 
-- `bijux-proteomics-core` now carries far more sequence, chemistry, spectra,
-  DIA, PTM, and quantification depth, so shared-model drift costs more than it
-  did in earlier releases
-- `bijux-proteomics-runtime` now exposes replayable and auditable public runs,
-  so unstable serialization would damage public rerun proof instead of only
-  internal automation
-- `bijux-proteomics-knowledge`, `...-intelligence`, and `...-lab` now pass
-  richer claim, consequence, and outcome state, which makes identifier and
-  compatibility discipline a product concern rather than an implementation
-  detail
+A scientific object can cross five package boundaries before it becomes a
+reviewed laboratory consequence. If each boundary invents its own identifier,
+version test, or JSON rendering, two records can look interchangeable while
+referring to different content. Foundation makes those low-level questions
+answerable before any package evaluates biological meaning.
 
-## Concrete Owner Surfaces
+```mermaid
+flowchart LR
+    object["typed scientific object"]
+    identity["stable identifier"]
+    envelope["versioned document envelope"]
+    canonical["canonical representation"]
+    digest["content fingerprint"]
+    consumers["core · runtime · knowledge\nintelligence · lab"]
+    object --> identity --> envelope --> canonical --> digest --> consumers
+```
 
-| owner surface | current substance | why readers should care |
+The fingerprint closes a content-identity question. The schema version closes
+a readability question. Provenance and scientific acceptance remain separate
+questions owned by the packages that produce and interpret the record.
+
+## Owned Contract Surfaces
+
+| Owner surface | Contract | Why readers should care |
 | --- | --- | --- |
 | `identity` | stable identifiers and typed keys | downstream packages can refer to the same scientific objects without drift |
 | `compatibility` | schema profiles, version checks, and upgrade discipline | release and migration language can stay honest |
@@ -66,19 +76,17 @@ compatibility discipline instead of inventing local dialects.
 - this package owns the family contract below the biological and analytical
   story, not above it
 
-## Strongest Reader Route
+## Decide Whether Foundation Owns The Question
 
-- start here when the question is whether two packages can exchange one object
-  family without ambiguity
-- continue to the architecture and interface pages when the concern is schema
-  layout, public payloads, or compatibility commitments
-- hand off to `core`, `knowledge`, `runtime`, `intelligence`, or `lab` only
-  after the shared meaning layer is no longer the risk
+| Question | Foundation answer | Continue with |
+| --- | --- | --- |
+| Are these identifiers well formed and classifiable? | yes | [Data contracts](../interfaces/data-contracts.md) |
+| Are these documents readable under the same schema policy? | yes | [Compatibility commitments](../interfaces/compatibility-commitments.md) |
+| Did canonical content change? | yes | [Execution model](../architecture/execution-model.md) |
+| Is the content scientifically correct? | no | [Core](../../04-bijux-proteomics-core/index.md) |
+| Is the supporting evidence sufficient for a claim? | no | [Knowledge](../../06-bijux-proteomics-knowledge/index.md) |
+| Should the result change an experimental action? | no | [Intelligence](../../05-bijux-proteomics-intelligence/index.md) and [Lab](../../07-bijux-proteomics-lab/index.md) |
 
-## First Proof Check
-
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation`
-- `packages/bijux-proteomics-foundation/tests`
-- tracked APIs and schema-facing artifacts once a change reaches public
-  contracts
-- neighboring handbook branches once a change crosses the local role
+Foundation review is complete when the identifier class, schema version,
+canonical representation, compatibility verdict, and failure disposition are
+explicit. Passing that review does not promote the payload's scientific claim.
