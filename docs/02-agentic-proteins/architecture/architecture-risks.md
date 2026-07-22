@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Architecture Risks
@@ -33,3 +33,18 @@ flowchart LR
 ```
 
 Compatibility must not be “mostly equivalent.” Differences in exception type, provider availability, output layout, state identity, or side effects can invalidate automation even when a simple example still runs. If exact forwarding cannot be preserved, the consumer-visible break and canonical migration path must be explicit.
+
+## Close a detected risk
+
+| Finding | Required disposition | Closure evidence |
+| --- | --- | --- |
+| canonical identity or signature drift | block the affected compatibility release | restored forwarding or a versioned breaking-contract decision with migration guidance |
+| behavior, error, state, or artifact drift | classify as bridge defect unless the consumer contract explicitly permits adaptation | paired parity record over success, failure, side effects, and persisted output |
+| optional-extra mismatch | block the affected installation surface | resolved dependency mapping and clean-environment capability test |
+| undocumented dead namespace | stop promising a replacement | inventory classification, caller search, and removal guidance |
+| new compatibility adoption | route the caller to Runtime or Core | dependency review showing the canonical import or command |
+| incomplete external-consumer inventory | keep retirement blocked | named support boundary and caller-owned migration dispositions |
+
+Repairing a bridge defect does not prove caller migration. Migrating every
+known caller does not prove the inventory is complete. Release and retirement
+records must preserve those conclusions separately.

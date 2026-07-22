@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # State and Persistence
@@ -35,3 +35,25 @@ Historical imports can therefore rehydrate the same state as canonical imports. 
 Run identity, snapshot schema, artifact paths, hashes, event ordering, and resume behavior must be independent of which import path initiated execution. A historical caller may appear in provenance as the entry surface, but the durable record remains runtime-owned and runtime-readable.
 
 Removing a historical state path is safe only after consumers have a documented canonical replacement and compatibility tests no longer promise it. Existing durable records must remain readable through runtime; they must not require the compatibility package as their only decoder.
+
+## Test persistence without the bridge
+
+Retirement safety requires more than writing and reading a record through the
+same historical environment.
+
+```mermaid
+sequenceDiagram
+    participant H as Historical caller
+    participant R as Runtime owner
+    participant A as Durable artifact
+    participant C as Canonical-only reader
+    H->>R: create run through forwarding surface
+    R->>A: write runtime schema and lineage
+    C->>A: validate without agentic-proteins installed
+    A-->>C: runtime-owned record or explicit incompatibility
+```
+
+The check must cover run identity, schema version, snapshot compatibility,
+artifact hashes, event ordering, resume boundary, and failure state. A record
+that can be opened only while the compatibility distribution is installed is a
+state fork, even if both packages write into the same directory.

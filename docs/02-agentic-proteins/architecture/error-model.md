@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Error Model
@@ -33,3 +33,21 @@ flowchart TD
 ```
 
 The bridge may add context identifying the historical path, but it must not convert exceptions into successful empty results, rewrite stable runtime codes, or retry in ways the canonical entrypoint would not. A caller comparing historical and canonical paths should observe the same failure class for the same request.
+
+## Prove failure equivalence
+
+A parity claim needs paired observations, not two independently passing tests.
+
+| Retain | Why |
+| --- | --- |
+| legacy and canonical package versions | identifies the exact contracts compared |
+| one normalized request and environment | prevents input or capability drift from explaining the difference |
+| entry surface | distinguishes Python import, CLI, HTTP, provider, state, and artifact behavior |
+| exception or error-envelope identity | exposes class, stable code, status, message fields, retryability, and cause chain |
+| side effects | records files, state transitions, logs, retries, and partial artifacts produced before failure |
+| comparison disposition | `equivalent`, `declared adaptation`, `bridge defect`, or `unsupported` with an owner |
+
+Message text may differ when the bridge identifies the historical path, but a
+declared adaptation must state which fields consumers may rely on. A changed
+status, retry decision, state mutation, or partial artifact is behavioral drift
+even when both paths eventually raise an exception.
