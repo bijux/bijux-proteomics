@@ -34,6 +34,30 @@ test collection, benchmark assets, runtime reproducibility, consequence
 coherence, and artifact hygiene in a fixed order. Every stage reports its own
 failures; a later pass cannot erase an earlier refusal.
 
+## Candidate Assembly
+
+```mermaid
+flowchart LR
+    revision["clean source revision"]
+    version["coherent package versions"]
+    distributions["wheels · sdists · containers · docs"]
+    inventory["hashes, metadata, SBOMs, attestations"]
+    evidence["gate results and scientific dossier"]
+    language["requested and allowed public language"]
+    candidate["identified release candidate"]
+    revision --> candidate
+    version --> candidate
+    distributions --> candidate
+    inventory --> candidate
+    evidence --> candidate
+    language --> candidate
+```
+
+Publication review starts only after these identities agree. Rebuilding one
+distribution, regenerating an attestation, changing documentation, or rerunning
+a gate on another revision creates a different candidate or requires explicit
+proof that the governed inputs remained identical.
+
 ## Scientific Release Dossier
 
 `build_scientific_release_dossier()` in
@@ -128,6 +152,18 @@ not mean the evidence passes.
 Do not weaken a validator, hand-edit generated evidence, or discard failure
 output to unblock publication. Resolve the owner-level cause, rerun the narrow
 gate, and then repeat `make release-preflight` from a clean repository state.
+
+| Decision | Minimum condition | Required record |
+| --- | --- | --- |
+| publish | every applicable gate passes and publication authority approves the identified candidate | candidate identity, channel actions, reviewer, rationale, timestamps |
+| narrow | artifacts are publishable but requested public language exceeds evidence | allowed language, blocked wording, owner, replacement public surfaces |
+| withhold | candidate evidence is incomplete or temporarily blocked | missing evidence, failed prerequisite, owner, reconsideration condition |
+| refuse | a contract, security, scientific, provenance, or integrity gate fails | retained failure, affected artifact or claim, required correction |
+
+Signing and attestation prove artifact custody and build assertions; they do
+not override a scientific refusal, stale governance, or incompatible schema.
+Likewise, a publishable documentation site does not authorize package or
+container publication unless the same candidate passed its own channel gates.
 
 ## Release Decision Record
 

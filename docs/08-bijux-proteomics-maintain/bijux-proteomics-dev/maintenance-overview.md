@@ -27,6 +27,21 @@ flowchart LR
     O --> G
 ```
 
+The loop operates on an identified revision. A result cannot move to another
+commit, environment, generated input set, or policy version merely because the
+command name is unchanged.
+
+## Gate Evidence Identity
+
+| Identity member | Why it must be retained |
+| --- | --- |
+| source revision and worktree state | establishes exactly which handwritten inputs were checked |
+| command, target, and arguments | distinguishes narrow evidence from composite evidence |
+| toolchain and environment | exposes interpreter, dependency, platform, and optional-capability differences |
+| policy and governed inputs | identifies thresholds, locks, manifests, schemas, and allowlists used for the verdict |
+| generated outputs and fingerprints | proves freshness and prevents evidence from another revision being substituted |
+| diagnostics and disposition | preserves pass, failure, refusal, or blocked execution without narrative reinterpretation |
+
 ## Route changes to gates
 
 | Changed surface | Focused evidence | Repository gate |
@@ -51,12 +66,27 @@ flowchart LR
 | replay gate | declared run can be reopened under its contract | independent scientific replication |
 | release preflight | release policy for one revision | universal workflow authority |
 
+Composite success means that each included gate passed for the same identified
+candidate. It does not allow a broad gate to replace missing owner-level
+evidence, or a later green rerun to erase an earlier failure without a recorded
+cause and corrected revision.
+
 ## Failure handling
 
 A pre-existing failure remains a failure. Record the exact command, revision,
 affected contract, owner, whether the current change caused it, and evidence
 required to close it. Do not exclude, mute, regenerate, or relabel the failing
 surface merely to make a gate green.
+
+```mermaid
+flowchart LR
+    failure["retained gate failure"] --> classify["caused · exposed · pre-existing · environment-blocked"]
+    classify --> owner["named owning surface"]
+    owner --> correction["source, policy, input, or environment correction"]
+    correction --> narrow["rerun narrow failing gate"]
+    narrow --> composite["rerun affected composite gate"]
+    composite --> decision["new revision-specific verdict"]
+```
 
 Start with [Maintainer Safe Change](maintainer-safe-change.md) for an owned edit,
 [Documentation Integrity](documentation-integrity.md) for the public site,
