@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Architecture Risks
@@ -33,3 +33,19 @@ flowchart TD
 ```
 
 The highest-risk change is one that appears backward compatible in Python but changes serialized meaning. Compatibility must be evaluated against persisted documents and downstream consumers, not import success alone.
+
+## Match proof to the contract change
+
+| Changed surface | Minimum review evidence |
+| --- | --- |
+| identifier validation or normalization | accepted and rejected stable vectors, collision analysis, and every consumer that persists the identifier |
+| canonical serialization | byte-for-byte fixtures across key order, supported value types, processes, and supported releases |
+| hash or fingerprint policy | old and proposed digests, field-boundary declaration, collision assumptions, and migration or coexistence plan |
+| strict model or document schema | compatibility assessment, unknown-field behavior, persisted fixtures, migration validation, and round-trip evidence |
+| error, refusal, or disposition contract | producer and consumer handling over success, failure, degraded, and unsupported paths |
+| public root export | ownership decision, dependency impact, import-cost check, and evidence that the concept is genuinely shared |
+
+Passing the new implementation's unit tests is insufficient when old bytes or
+downstream readers are affected. The review closes only when persisted records
+and declared consumers have an explicit readable, migratable, or incompatible
+disposition.
