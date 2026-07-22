@@ -81,6 +81,24 @@ Knowledge preserves why a claim is supported, contradicted, stale, or
 unresolved. It does not rank candidates or convert evidence availability into a
 recommendation; those decisions belong to Intelligence.
 
+## Evidence is a relationship
+
+A citation, database row, or run artifact is a source record. It becomes
+evidence only in relation to a precise claim and context. Preserve these as
+separate identities so one source can support one proposition, qualify another,
+and remain irrelevant to a third.
+
+| Record | Answers | Must not be inferred from it |
+| --- | --- | --- |
+| source | where did the material originate, and which version was reviewed? | that the source addresses the current claim |
+| claim | what proposition is under review? | that any attached source supports it |
+| context | under which biological and analytical conditions? | that a nearby context transfers |
+| relationship | support, contradiction, qualification, mention, or unresolved | that support is sufficient for action |
+| sufficiency assessment | is this versioned bundle adequate for a named use? | that it is adequate for every stronger use |
+
+This model prevents source reputation, identifier resolution, or citation count
+from being promoted into evidence strength without a reviewed relationship.
+
 ## Memory invariants
 
 - source identity, source version, retrieval time, and content digest remain

@@ -189,14 +189,41 @@ sequenceDiagram
     I->>I: rerank, downgrade, or refuse
 ```
 
-## Shared Reader Routes
+## Learn from work that did not confirm
 
-| Question | Authority |
-| --- | --- |
-| where does experimental consequence sit in the product? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| which follow-up is appropriate for a workflow family? | [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md) |
-| how does an observation return to evidence and decision review? | [Outcome Learning Loops](foundation/outcome-learning-loops.md) |
-| why was a handoff refused, and what can happen next? | [Workflow Refusal Handbook](foundation/workflow-refusal-handbook.md) |
+A closed loop does not require a positive biological result. A readiness
+refusal, execution failure, QC rejection, or inconclusive observation can still
+protect material, expose a weak question, and produce evidence for the next
+decision—provided its disposition is not collapsed into “no result.”
+
+| Disposition | What was learned | Safe next route |
+| --- | --- | --- |
+| readiness refused | the plan cannot answer the question safely or completely under current conditions | add controls, resolve inputs, narrow scope, or stop |
+| deferred | the plan may be valid but capacity, material, timing, or ownership is unavailable | retain priority and prerequisites without claiming execution |
+| execution failed | the handoff began but did not yield an acceptable measurement | preserve diagnostics, consumed resources, and recovery boundary |
+| observed, QC rejected | measurements exist but do not meet the assay contract | retain observations as rejected evidence and revise execution or controls |
+| accepted, inconclusive | the assay worked but did not resolve the requested contrast | revise the question, power, measurement, or interpretation window |
+| accepted, unexpected | the observation falls outside the anticipated support/refute frame | create a knowledge gap and review without forcing a binary label |
+
+```mermaid
+flowchart TD
+    attempt["planned follow-up"] --> disposition{"recorded disposition"}
+    disposition -->|refused or deferred| planning["planning evidence"]
+    disposition -->|failed| operational["operational evidence"]
+    disposition -->|QC rejected| rejected["rejected observation"]
+    disposition -->|inconclusive| question["question-design evidence"]
+    disposition -->|unexpected| gap["new knowledge gap"]
+    planning --> next["bounded next decision"]
+    operational --> next
+    rejected --> next
+    question --> next
+    gap --> next
+```
+
+The [Workflow Refusal Handbook](foundation/workflow-refusal-handbook.md) maps
+blocked work to safe responses, while
+[Outcome Learning Loops](foundation/outcome-learning-loops.md) returns accepted
+and non-confirming outcomes to evidence and policy review.
 
 ## Start Inside
 

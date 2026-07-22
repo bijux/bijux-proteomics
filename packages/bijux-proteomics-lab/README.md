@@ -78,6 +78,23 @@ Lab makes the cost and operational consequence of a recommendation visible. It
 does not reinterpret analytical evidence or silently convert advisory planning
 into executable instructions.
 
+## No result is not one state
+
+Work can stop before readiness, during execution, at QC, or after an accepted
+but inconclusive measurement. Those outcomes carry different evidence and
+permit different next actions.
+
+| Terminal condition | Record to retain | Do not report |
+| --- | --- | --- |
+| unready plan | failed readiness checks and unresolved prerequisites | assay failure |
+| deferred plan | capacity, material, timing, and owner constraint | rejected scientific question |
+| failed execution | handoff identity, events, diagnostics, and consumed resources | biological null result |
+| rejected measurement | raw observation, QC failure, controls, and deviations | accepted evidence |
+| inconclusive measurement | accepted data, answerability limits, and requested-versus-observed comparison | confirmation or contradiction |
+
+Keeping these dispositions distinct prevents pressure to turn operational loss
+or weak answerability into an apparently complete experimental loop.
+
 ## Why teams pick this package
 
 - dependency-aware planning that keeps queue pressure, gate pressure, and

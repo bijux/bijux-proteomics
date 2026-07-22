@@ -190,14 +190,41 @@ review bundle; lab observations can be ingested as new evidence through an
 explicit handoff. None of those consumers may mutate evidence history through
 their own policy or operational state.
 
-## Shared Reader Routes
+## Audit a contradiction
 
-| Question | Authority |
-| --- | --- |
-| where does evidence custody sit in the product? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| how can evidence change downstream action? | [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md) |
-| how is a changed recommendation attributed? | [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md) |
-| how does a review bundle become advisory judgment? | [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) |
+Conflicting observations are not necessarily inconsistent records. They may
+refer to different species, tissues, perturbations, analytical policies, time
+points, or claim granularity. Reconcile identity and context before attempting
+to reconcile conclusions.
+
+| Audit step | Question | Preserve even after resolution |
+| --- | --- | --- |
+| source custody | can each source version and payload be reopened? | source identifiers, retrieval time, digest, and lineage |
+| subject resolution | do both records refer to the same biological entity and granularity? | original identifiers and resolution rule |
+| context alignment | are organism, tissue, condition, cohort, workflow, and comparator compatible? | every mismatched or missing dimension |
+| proposition alignment | do direction, relation, magnitude, and time window express the same claim? | original proposition and normalized claim |
+| quality review | are indirectness, bias, coverage, and analytical uncertainty comparable? | source-specific limitations |
+| disposition | support, contradiction, qualification, context-specific variant, or unresolved? | both records and the rule that produced the edge |
+
+```mermaid
+flowchart TD
+    a["evidence record A"] --> custody["verify source custody"]
+    b["evidence record B"] --> custody
+    custody --> identity{"same resolved subject?"}
+    identity -->|no| unresolved["retain unresolved identity"]
+    identity -->|yes| context{"contexts comparable?"}
+    context -->|no| variant["retain context-specific variants"]
+    context -->|yes| proposition{"same proposition?"}
+    proposition -->|no| qualify["record qualification or distinct claim"]
+    proposition -->|yes| relation["record support or contradiction edge"]
+```
+
+Use [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+to see how the resolved evidence constrains action,
+[What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
+for decision attribution, and
+[Decision Support](../01-bijux-proteomics/foundation/decision-support.md) only
+after the review bundle has a declared sufficiency posture.
 
 ## Start Inside
 
