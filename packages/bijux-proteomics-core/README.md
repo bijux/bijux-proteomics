@@ -85,6 +85,23 @@ Core owns the scientific meaning on this path. It deliberately stops before
 provider selection, run scheduling, evidence curation, recommendation policy,
 or laboratory execution.
 
+## Read a report before reading its headline
+
+A rendered conclusion is useful for navigation; the typed report is the
+scientific record. Review these fields together before reusing a result:
+
+| Report component | Question it preserves | Failure hidden when omitted |
+| --- | --- | --- |
+| accepted inputs | what entered the computation? | invalid or out-of-scope records appear analyzed |
+| rejected inputs | what was excluded, and why? | selective loss disappears from review |
+| active policy | which scientific choices shaped the result? | defaults are mistaken for universal rules |
+| ambiguity and QC | where is the result unstable or underdetermined? | a plausible value appears uniquely supported |
+| benchmark lineage | which family and evidence burden were applied? | support in one context is transferred to another |
+| known limits | where must interpretation stop? | analytical acceptance becomes a biological or operational claim |
+
+Machine-readable reports retain this structure so JSON, TSV, console output,
+and narrative summaries can be checked against one scientific disposition.
+
 ## Scientific guarantees
 
 - intake returns accepted and rejected records instead of silently dropping

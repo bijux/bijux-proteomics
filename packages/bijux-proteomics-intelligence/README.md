@@ -102,6 +102,24 @@ The output is a policy decision with traceable reasons, not a new scientific
 fact. Intelligence must preserve uncertainty and contradiction inherited from
 Knowledge and must not promise laboratory feasibility on Lab's behalf.
 
+## A recommendation must be contestable
+
+The package is valuable when a reviewer can reconstruct not only why one
+candidate won, but also what would make it lose. A recommendation record should
+therefore answer both sides of the decision.
+
+| Supporting side | Skeptical side |
+| --- | --- |
+| complete candidate universe and score components | exclusions, dominated alternatives, and tie behavior |
+| evidence fingerprints and support posture | contradictions, stale sources, and unresolved gaps |
+| declared objectives and constraints | plausible alternative policies and threshold crossings |
+| confidence under the tested scenario set | sensitivity, falsifiers, and expected regret |
+| proposed next action | downgrade conditions, stop conditions, and human-review state |
+
+If the skeptical side cannot be reconstructed, the output is a ranking summary,
+not a defensible recommendation. Explanation text never substitutes for the
+underlying candidate, policy, and challenge records.
+
 ## Decision invariants
 
 - the complete candidate universe and exclusions survive the ranking;

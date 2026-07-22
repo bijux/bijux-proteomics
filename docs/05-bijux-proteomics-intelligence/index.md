@@ -178,14 +178,39 @@ flowchart LR
     L -->|ready and authorized| E["executable handoff"]
 ```
 
-## Shared Reader Routes
+## Cross-examine a recommendation
 
-| Question | Authority |
-| --- | --- |
-| where does advisory judgment sit in the product? | [Product Overview](../01-bijux-proteomics/foundation/product-overview.md) |
-| how does family-specific evidence affect an action? | [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md) |
-| why did two recommendation records differ? | [What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md) |
-| what operational authority remains outside Intelligence? | [Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md) |
+Review a recommendation as an argument that can fail. Begin with the action,
+then recover the alternatives, evidence snapshot, policy, challenge burden, and
+authority boundary that produced its posture.
+
+| Challenge | Evidence to demand | Honest response when missing |
+| --- | --- | --- |
+| was the winner selected from a complete declared universe? | candidate ledger and exclusion reasons | disclose selection uncertainty or refuse comparative language |
+| would another reasonable policy change the ordering? | policy fingerprint, component scores, tie-breaks, and alternative policy result | label the decision policy-sensitive |
+| does one contested source control the outcome? | source attribution, leave-one-source-out result, and contradiction state | downgrade until the dependency is resolved |
+| does a plausible threshold reverse the action? | sensitivity surface and rank crossings | expose alternatives and require review |
+| is the cost of error acceptable? | regret estimate, falsifiers, and stop conditions | narrow the action or refuse |
+| is the action feasible and authorized? | Lab readiness and human decision | keep the output advisory |
+
+```mermaid
+flowchart TD
+    recommendation["recommendation"] --> universe["recover candidates and exclusions"]
+    universe --> evidence["resolve evidence snapshot"]
+    evidence --> policy["replay policy and ordering"]
+    policy --> pressure["apply contradictions · sensitivity · regret"]
+    pressure --> posture{"posture survives?"}
+    posture -->|yes| advisory["bounded advisory action"]
+    posture -->|weak| review["downgrade or human review"]
+    posture -->|no| refuse["refusal with unmet conditions"]
+```
+
+Use [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+for family-specific effects,
+[What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
+to compare decisions, and
+[Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md)
+for operational authority.
 
 ## Start Inside
 

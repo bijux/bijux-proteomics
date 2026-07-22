@@ -191,14 +191,38 @@ the workflow contract.
 | acceptance policy | logs, diagnostics, and refusal | thresholds, QC, ambiguity, and known limits |
 | expected artifact contract | artifact ledger and hashes | family-specific acceptance result |
 
-## Shared Reader Routes
+## Trace a quantitative statement
 
-| Question | Authority |
-| --- | --- |
-| which scientific families are supported, and at what level? | [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md) |
-| which public evidence supports a family? | [public benchmark catalog](foundation/flagship-public-benchmark-catalog.md) |
-| what execution produced the artifacts? | [Runtime](../09-bijux-proteomics-runtime/index.md) |
-| how does an accepted result become a recommendation? | [Decision Support](../01-bijux-proteomics/foundation/decision-support.md) |
+“Protein abundance changed” is the end of a scientific argument, not a raw
+output. Review the statement backward until every selection, aggregation, and
+acceptance decision resolves to a typed record.
+
+| Statement dependency | Record to inspect | A reason to narrow or refuse |
+| --- | --- | --- |
+| cohort and contrast | experimental design, sample mapping, covariates, exclusions | groups are ambiguous, underpowered, confounded, or changed after analysis |
+| peptide evidence | normalized observations, identification confidence, contaminants, missingness | evidence is unsupported, inconsistently mapped, or dominated by loss |
+| protein rollup | peptide-to-protein mapping, shared-peptide policy, ambiguity | grouping or parsimony cannot support the named protein-level subject |
+| quantitative model | normalization, imputation, weighting, contrast statistic, uncertainty | conclusion depends on an undisclosed or unstable policy choice |
+| acceptance | QC, thresholds, perturbations, holdout behavior, benchmark lineage | family-specific burden is unmet or does not transfer to this context |
+| public wording | evidence posture and known limits | sentence exceeds the weakest supported dependency |
+
+```mermaid
+flowchart LR
+    design["study design"] --> observations["accepted peptide observations"]
+    observations --> rollup["protein inference and rollup"]
+    rollup --> contrast["contrast and uncertainty"]
+    contrast --> acceptance["family-specific acceptance"]
+    acceptance --> statement["bounded quantitative statement"]
+    rejected["rejections · missingness · ambiguity"] -. constrain .-> observations
+    policy["normalization · inference · thresholds"] -. constrain .-> contrast
+```
+
+The [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
+ledger defines the public ceiling, the
+[benchmark catalog](foundation/flagship-public-benchmark-catalog.md) supplies
+family evidence, [Runtime](../09-bijux-proteomics-runtime/index.md) records the
+execution, and [Decision Support](../01-bijux-proteomics/foundation/decision-support.md)
+begins only after the scientific statement is accepted.
 
 ## Start Inside
 
