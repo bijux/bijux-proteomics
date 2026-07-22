@@ -42,6 +42,25 @@ Execution readiness describes the recorded plan and declared resources. It
 does not predict assay success, sample integrity, instrument performance, or
 data quality.
 
+## Authorization Envelope
+
+Readiness is evidence for an authorization decision, not the decision itself.
+An authorized handoff must bind the plan, selected batch, instruction set,
+readiness report, accepted warnings, approving actor, rationale, and approval
+time. If any bound identity changes, the handoff returns to review.
+
+```mermaid
+flowchart LR
+    plan["executable candidate plan"]
+    readiness["readiness report"]
+    authority{"named authorization"}
+    handoff["frozen handoff envelope"]
+    refused["refusal or deferred batch"]
+    plan --> readiness --> authority
+    authority -->|approved| handoff
+    authority -->|withheld| refused
+```
+
 ## Design and readiness
 
 Design contracts make contrasts, biological and technical replication,
@@ -66,6 +85,14 @@ Batch outcomes retain a rerun policy. Evidence promotion readiness checks the
 observation and QC posture before converting a lab result into normalized
 knowledge evidence.
 
+| Outcome class | Immediate consequence | Evidence consequence |
+| --- | --- | --- |
+| passed | enter promotion review | may support the requested claim within context and QC limits |
+| biological failure | do not repair as technical error | may contradict or narrow the biological claim |
+| technical failure | follow the technical rerun policy | does not adjudicate the biological hypothesis |
+| reproducibility failure | investigate repeatability and lineage | weakens promotion even if one run looked favorable |
+| inconclusive | preserve ambiguity and define missing evidence | cannot be promoted as confirmation or contradiction |
+
 ## Reconciliation and feedback
 
 Reconciliation compares planned and observed assay state, records deviations,
@@ -83,6 +110,12 @@ that preceded the experiment.
   distinguishable.
 - Evidence promotion is gated and provenance-preserving.
 - New outcomes append to decision history rather than revising it silently.
+
+The complete review chain is therefore: recommendation identity, advisory
+plan, design, readiness report, authorization, frozen handoff, returned
+observations, outcome classification, rerun or promotion verdict, and feedback
+record. Missing links must remain visible rather than being reconstructed from
+a final narrative.
 
 These contracts put operational authority with laboratory reviewers while
 keeping the evidence and decision lineage machine-readable.

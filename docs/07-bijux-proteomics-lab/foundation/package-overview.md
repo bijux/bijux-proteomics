@@ -15,24 +15,27 @@ that later tighten the upstream story. The package is only healthy when those
 downstream decisions stay distinct from scientific truth, recommendation
 policy, and runtime execution control.
 
-The package is materially broader now than this older overview implied. It does
-not only hold a thin handoff layer. It owns practical assay-planning routes,
-readiness checks, control-demand records, refusal surfaces, benchmark rehearsal
-paths, and observed-outcome loops that later change what the repository is
-still willing to recommend.
+```mermaid
+flowchart LR
+    gap["evidence gap or recommendation"]
+    advisory["advisory assay plan"]
+    design["controls · samples · dependencies"]
+    readiness["materials · instrument · staff\ncost · queue · provenance"]
+    authority["laboratory authorization"]
+    handoff["frozen executable handoff"]
+    observation["external execution observations"]
+    promotion["promotion, rerun, narrow, or stop"]
+    gap --> advisory --> design --> readiness --> authority --> handoff --> observation --> promotion
+```
 
-## Why This Package Feels More Real Now
+Each arrow can stop. A scientifically useful assay can be operationally
+unready; an operationally ready plan can remain unauthorized; a completed run
+can produce an inconclusive or non-promotable observation. Those stops are
+first-class outcomes, not missing workflow polish.
 
-- the package now exposes downstream scientific work as planning, readiness,
-  refusal, and outcome surfaces instead of one vague "next experiment" idea
-- stronger benchmark and recommendation packets now meet explicit control and
-  burden discipline here
-- the package shows how later scientific meaning can change after real assay
-  work rather than pretending upstream judgment is the end of the story
+## Owned Consequence Surfaces
 
-## Concrete Lab Families
-
-| owner surface | current substance | why it matters |
+| Owner surface | Contract | Why it matters |
 | --- | --- | --- |
 | `planning` | assay planning, material needs, and experimental route shaping | a promising idea becomes a priced and staged follow-up instead of a slogan |
 | `readiness` | control demand, queue discipline, and preflight burden | the repository can say when a follow-up is not yet ready |
@@ -59,16 +62,16 @@ still willing to recommend.
 - this package makes observed outcomes part of later scientific judgment
   instead of leaving them as isolated run notes
 
-## What A Serious Reader Can Verify
+## Audit A Proposed Follow-Up
 
-- whether the next suggested assay has explicit controls, readiness, and
-  operator burden instead of optimistic prose
-- whether a refusal is documented as the scientifically honest outcome when
-  downstream spend would be weak or wasteful
-- whether observed outcomes can actually flow back to tighten later evidence
-  and recommendation language
-- whether benchmark rehearsal and downstream consequence are visible enough to
-  challenge the current workflow-family sentence
+| Review question | Evidence required |
+| --- | --- |
+| What uncertainty would the assay resolve? | named evidence gap, proposed observation, and decision consequence |
+| Is the design scientifically discriminating? | contrast, controls, replication, randomization, censoring and failure criteria |
+| Is the batch operationally ready? | material, instrument, staffing, queue, cost, provenance, and control findings |
+| Who authorized execution? | named authority, approved plan identity, rationale, and unresolved warnings |
+| What was actually observed? | raw replicate values, units, QC, normalization, dispersion, censoring, lineage |
+| Can the outcome enter knowledge? | promotion verdict, evidence identity, support limits, and contradiction impact |
 
 ## What It Refuses
 
@@ -76,19 +79,12 @@ still willing to recommend.
 - recommendation policy or ranking posture
 - general execution orchestration, replay, or provider control
 
-## Best Reader Route
+## Continue By Consequence
 
-- start here when the question is whether `bijux-proteomics` can turn stronger
-  scientific claims into practical follow-up honestly
-- continue to [Lab Consequence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lab-consequence/)
-  when the dispute is still about shared downstream burden
-- continue to outcome-learning and refusal pages when the question becomes
-  whether the next honest move is to spend, narrow, rerun, or stop
-
-## First Proof Check
-
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab`
-- `packages/bijux-proteomics-lab/tests`
-- planning, readiness, refusal, and observed-outcome artifacts once the issue
-  narrows to one follow-up route
-- neighboring handbook branches once a change crosses the local role
+| Need | Read next | Review closes when |
+| --- | --- | --- |
+| separate recommendation from executable work | [Planning and outcome contracts](../interfaces/data-contracts.md) | advisory and executable identities, gates, and authority are distinct |
+| inspect readiness and lifecycle transitions | [Execution model](../architecture/execution-model.md) | blockers, authorization, handoff, observation, and promotion form one history |
+| determine the claim ceiling after follow-up | [Lab consequence](lab-consequence.md) | requested and observed work, QC, uncertainty, and downstream sentence agree |
+| interpret a non-confirming result | [Outcome learning loops](outcome-learning-loops.md) | technical, biological, reproducibility, and inconclusive outcomes remain distinct |
+| refuse unjustified spend | [Workflow refusal handbook](workflow-refusal-handbook.md) | the failed condition and evidence required to reconsider are explicit |
