@@ -20,14 +20,14 @@ every cross-package handoff has an identifiable owner. The
 [product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 traces the full data and decision path.
 
-| If your immediate need is… | Begin with | You receive |
-| --- | --- | --- |
-| create stable identifiers, canonical documents, or compatibility decisions | `bijux-proteomics-foundation` | validated document, canonical bytes, digest, schema decision, or typed refusal |
-| parse, normalize, identify, infer, quantify, or review proteomics data | `bijux-proteomics-core` | typed scientific result, rejections, diagnostics, and active policy |
-| execute, resume, compare, or replay configured work | `bijux-proteomics-runtime` | run state, environment, checkpoints, artifact ledger, and terminal disposition |
-| ground a result against literature, databases, or biological context | `bijux-proteomics-knowledge` | versioned evidence, provenance, support, contradiction, and gaps |
-| rank candidates or challenge an action | `bijux-proteomics-intelligence` | policy-bound recommendation, sensitivity, alternatives, or refusal |
-| turn an accepted action into a controlled experiment | `bijux-proteomics-lab` | readiness decision, handoff, observation, and consequence record |
+| If your immediate need is… | Begin with | You receive | This layer cannot authorize |
+| --- | --- | --- | --- |
+| create stable identifiers, canonical documents, or compatibility decisions | `bijux-proteomics-foundation` | validated document, canonical bytes, digest, schema decision, or typed refusal | source authenticity or scientific equivalence |
+| parse, normalize, identify, infer, quantify, or review proteomics data | `bijux-proteomics-core` | typed scientific result, rejections, diagnostics, and active policy | execution history or biological interpretation |
+| execute, resume, compare, or replay configured work | `bijux-proteomics-runtime` | run state, environment, checkpoints, artifact ledger, and terminal disposition | scientific acceptance or transfer |
+| ground a result against literature, databases, or biological context | `bijux-proteomics-knowledge` | versioned evidence, provenance, support, contradiction, and gaps | candidate ranking or permission to act |
+| rank candidates or challenge an action | `bijux-proteomics-intelligence` | policy-bound recommendation, sensitivity, alternatives, or refusal | resource commitment or laboratory execution |
+| turn an accepted action into a controlled experiment | `bijux-proteomics-lab` | readiness decision, handoff, observation, and consequence record | retroactive changes to analytical or decision history |
 
 ## Current Credible Workflow Families
 
@@ -128,30 +128,36 @@ an inspectable record, not at a narrative summary.
 | **Reviewer: start with** [cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/) | the [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/) | benchmark, run, grounding, recommendation, and consequence records for the same claim |
 | **Maintainer: start with** the [safe-change guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change/) | the gate named for the changed contract | the owning source, generated evidence, exact check result, and consumer impact |
 
-## Evidence Chain
+## Evidence Chain And Authority Stops
 
 ```mermaid
-flowchart LR
-    foundation["foundation\nidentity, schemas, canonical bytes"]
-    sample["sequence, spectra, search output"]
-    core["core\nnormalize, identify, quantify, review"]
-    runtime["runtime\nexecute, checkpoint, replay"]
-    knowledge["knowledge\nground claims, reconcile evidence"]
-    intelligence["intelligence\nrank, challenge, recommend"]
-    lab["lab\nplan assays, record outcomes"]
-    foundation --> core
-    foundation --> runtime
-    foundation --> knowledge
-    foundation --> intelligence
-    foundation --> lab
-    sample --> core --> runtime --> knowledge --> intelligence --> lab
-    lab -. observed evidence .-> knowledge
+flowchart TD
+    foundation["Foundation\nidentity · schema · canonical bytes"]
+    input["sequence · spectra · search output"] --> core["Core scientific record"]
+    core --> scientific{"scientific contract met?"}
+    scientific -->|no| narrow["retain evidence; narrow or refuse"]
+    scientific -->|yes| runtime["Runtime execution record"]
+    runtime --> custody{"execution custody complete?"}
+    custody -->|no| narrow
+    custody -->|yes| knowledge["Knowledge grounding record"]
+    knowledge --> supported{"support burden met?"}
+    supported -->|no| narrow
+    supported -->|yes| intelligence["Intelligence recommendation record"]
+    intelligence --> action{"action stable and authorized?"}
+    action -->|no| narrow
+    action -->|yes| lab["Lab consequence record"]
+    lab -. new observation .-> knowledge
+    foundation -. shared contracts .-> core
+    foundation -. shared contracts .-> runtime
+    foundation -. shared contracts .-> knowledge
+    foundation -. shared contracts .-> intelligence
+    foundation -. shared contracts .-> lab
 ```
 
-The arrows describe record and evidence movement, not the Python import graph.
-The packages can be used independently, but their contracts form one review
-chain. A scientific result is useful only when its inputs, transformations,
-evidence, decision policy, and downstream consequence remain distinguishable.
+The solid arrows describe record and evidence movement, not the Python import
+graph. Each gate can narrow the claim without invalidating valid records from
+an earlier layer. Passing later work never repairs missing scientific
+acceptance, execution custody, or grounding.
 
 | Layer | Durable artifact | Stop condition |
 | --- | --- | --- |

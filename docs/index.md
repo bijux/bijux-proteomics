@@ -23,15 +23,15 @@ owns evidence memory, Intelligence owns decision policy, and Lab owns
 experimental consequence. A compatibility distribution preserves historical
 Runtime entrypoints without becoming a second owner.
 
-| Question | Authority to open first | What it can establish |
-| --- | --- | --- |
-| How is a record identified and serialized? | Foundation contract | subject identity, schema, canonical representation, digest, compatibility, and typed disposition |
-| What scientific calculation ran? | Core report and benchmark lineage | inputs, assumptions, output, rejection, QC, and family acceptance |
-| What actually executed? | Runtime run bundle | configuration, provider, state, artifacts, comparison, and replay evidence |
-| Why is the claim supportable? | Knowledge review bundle | source identity, context, support, contradiction, and unresolved gaps |
-| Why did this action rank? | Intelligence recommendation record | candidate universe, policy, sensitivity, alternatives, confidence, and refusal |
-| What did the follow-up cost and observe? | Lab consequence dossier | controls, readiness, custody, deviations, outcome, and feedback |
-| Why does an old import or command still work? | `agentic-proteins` compatibility record | forwarded owner, parity evidence, migration target, and retirement state |
+| Question | Authority to open first | What it can establish | Where its authority stops |
+| --- | --- | --- | --- |
+| How is a record identified and serialized? | Foundation contract | subject identity, schema, canonical representation, digest, compatibility, and typed disposition | authenticity and scientific equivalence remain domain judgments |
+| What scientific calculation ran? | Core report and benchmark lineage | inputs, assumptions, output, rejection, QC, and family acceptance | execution custody and biological interpretation remain separate |
+| What actually executed? | Runtime run bundle | configuration, provider, state, artifacts, comparison, and replay evidence | completion does not establish scientific acceptance or transfer |
+| Why is the claim supportable? | Knowledge review bundle | source identity, context, support, contradiction, and unresolved gaps | grounding does not select or authorize an action |
+| Why did this action rank? | Intelligence recommendation record | candidate universe, policy, sensitivity, alternatives, confidence, and refusal | recommendations remain advisory until human and operational review |
+| What did the follow-up cost and observe? | Lab consequence dossier | controls, readiness, custody, deviations, outcome, and feedback | observations do not rewrite earlier analytical or decision records |
+| Why does an old import or command still work? | `agentic-proteins` compatibility record | forwarded owner, parity evidence, migration target, and retirement state | compatibility does not create a second implementation owner |
 
 ## Current Credible Workflow Families
 
@@ -145,30 +145,33 @@ The stable join is a typed identity or artifact reference. A filename, display
 label, dashboard color, or prose summary is a view; none is sufficient to join
 records across packages or revisions.
 
-## One result, six accountable layers
+## One Result, Six Accountable Layers
 
 ```mermaid
 flowchart TD
-    input["FASTA, mzML, spectra, search tables"]
-    core["Scientific core\nmodels · algorithms · adapters · QC"]
-    runtime["Execution runtime\nconfiguration · checkpoints · replay"]
-    knowledge["Knowledge\nprovenance · grounding · contradictions"]
-    intelligence["Intelligence\nranking · challenge · recommendation"]
-    lab["Laboratory\nassays · readiness · outcomes"]
-    foundation["Foundation\nidentity · schemas · canonical bytes"]
-    input --> core --> runtime --> knowledge --> intelligence --> lab
-    foundation --> core
-    foundation --> runtime
-    foundation --> knowledge
-    foundation --> intelligence
-    foundation --> lab
-    lab -. evidence feedback .-> knowledge
+    sentence["claim or requested action"] --> core["Core\nscientific acceptance"]
+    core --> runtime["Runtime\nexecution custody"]
+    runtime --> knowledge["Knowledge\nsupport and contradiction"]
+    knowledge --> intelligence["Intelligence\nchallenge and recommendation"]
+    intelligence --> lab["Lab\nreadiness and consequence"]
+    foundation["Foundation\nidentity · schema · canonical bytes"] -. binds .-> core
+    foundation -. binds .-> runtime
+    foundation -. binds .-> knowledge
+    foundation -. binds .-> intelligence
+    foundation -. binds .-> lab
+    core -. failed burden .-> narrow["narrow or refuse"]
+    runtime -. failed burden .-> narrow
+    knowledge -. failed burden .-> narrow
+    intelligence -. failed burden .-> narrow
+    lab -. observed evidence .-> knowledge
 ```
 
 The architecture separates computation from execution and separates evidence
-from judgment. This matters when a run is repeated, a source is contradicted,
-or a recommendation reaches the laboratory: each change has an identifiable
-owner and can be reviewed without reconstructing hidden state.
+from judgment. The chain is asymmetric: any layer may narrow the requested
+language, while a later success cannot promote a weaker earlier record. This
+matters when a run is repeated, a source is contradicted, or a recommendation
+reaches the laboratory: each change has an identifiable owner and can be
+reviewed without reconstructing hidden state.
 
 | Boundary crossing | Required record | What must remain visible |
 | --- | --- | --- |
