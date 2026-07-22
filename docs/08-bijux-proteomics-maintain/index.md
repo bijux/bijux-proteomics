@@ -4,7 +4,7 @@ audience: maintainer
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # Maintainer handbook
@@ -163,21 +163,26 @@ environment, commands, and failure output needed to review or repeat it.
 
 ## Current release disposition
 
-The current repository preflight is blocked. Documentation must present that
-state directly; passing package-local checks or building distributions does
-not make the release candidate publishable.
+The current repository assessment is blocked. Passing package-local checks or
+building distributions does not make the release candidate publishable. The
+seven-category assessment is conjunctive:
 
-| Blocker class | Current conflict | Evidence needed to close it |
+| Release category | Current status | Governing reason |
 | --- | --- | --- |
-| documentation clarity | workflow authority, black-box language, and generated hostile-review surfaces do not fully agree | regenerate from one authority and pass claim-proof and release-honesty checks |
-| scientific ownership | belief-audit contracts have duplicate ownership and Core retains thin ownership boundaries | establish one canonical owner and satisfy source-tree substance gates |
-| runtime evidence | faithful rerun is refused for DDA, DIA, and multiplex while some generated runtime surfaces report stronger readiness | align executable evidence, refusal records, and generated dashboards |
-| public install surface | the runtime migration release matrix does not cover every promised installation route | add and validate the missing install evidence |
+| workflow-family product evidence | ready | flagship workflow and release-family manifests agree with the product architecture |
+| black-box rerunability | blocked | DDA stops at imported engine exports, DIA stops before chromatogram-native replay, and multiplex remains below outsider-auditable trust |
+| benchmark asset quality | blocked | duplicate belief-audit ownership and Core package-substance findings block the scientific dossier |
+| documentation clarity | blocked | the DDA requested posture is stronger than its black-box allowed posture |
+| package-boundary stability | ready | dependency policy, product shape, and ownership routes agree |
+| artifact hygiene | ready | file ownership, drift audit, and package-root hygiene checks are clean |
+| consequence realism | ready | recommendation posture remains bounded by Lab consequence and refusal surfaces |
 
 These are release facts, not documentation defects to word around. The
 [Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
-owns the cross-product categories; gate output owns the verdict for the tested
-revision. A handbook may explain a failure but cannot downgrade its severity.
+owns the revision-specific blocker codes, evidence paths, and exact details;
+gate output owns the verdict for the tested revision. This handbook explains
+the categories but cannot downgrade their severity or replace the generated
+record.
 
 ## Release decision record
 

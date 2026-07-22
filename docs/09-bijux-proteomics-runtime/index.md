@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-07-21
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-runtime
@@ -186,23 +186,31 @@ challenge, or laboratory consequence.
 
 ## Current execution ceiling
 
-Runtime evidence is not uniformly strong across workflow families, and its
-dashboard cannot independently raise the product-level release posture.
+Runtime evidence is not uniformly strong across workflow families. Family
+execution posture and repository release readiness answer different questions:
+the first limits one workflow claim; the second requires every applicable
+release category to pass.
 
-| Family | Runtime evidence reading | Repository-wide consequence |
-| --- | --- | --- |
-| DDA | the black-box dashboard narrows an outsider-auditable request to review-grade because both lanes are import-only | the authority mismatch is a release blocker; do not publish the stronger request |
-| DIA | raw-executable primary and companion lanes are recorded, but the current release preflight still reports a faithful-rerun refusal | treat the generated surfaces as inconsistent until the rerun evidence and dashboard agree |
-| LFQ | the runtime dashboard permits outsider-auditable execution language | the product workflow contract remains review-grade bounded; execution does not promote scientific authority |
-| multiplex | raw-executable lanes exist, with fragile transfer and no outsider review route | keep the family at internal support only |
-| PTM | raw-executable lanes support bounded review of localization | do not extend the claim to occupancy or regulatory interpretation |
-| targeted | raw-executable lanes support bounded transition and carryover review | vendor parity and calibration-perfect claims remain outside the evidence boundary |
+| Family | Black-box allowed posture | Execution evidence | Remaining ceiling |
+| --- | --- | --- | --- |
+| DDA | `review_grade_bounded` | primary and companion lanes are `import_only` | no repository-owned raw search execution; the stronger requested posture is blocked |
+| DIA | `outsider_auditable_bounded` | primary and companion lanes are raw-executable over checked reports | no chromatogram-native replay; library completeness and absent-peptide consequences remain bounded |
+| LFQ | `outsider_auditable_bounded` | primary and companion lanes are raw-executable over checked features | accuracy beyond repeatability and transfer beyond the current cohort package remain bounded |
+| multiplex | `internal_support_only` | both lanes are raw-executable, but companion transfer is fragile | collapsed companion claim, absent outsider decision route, and absent lab packet prevent promotion |
+| PTM | `outsider_auditable_bounded` | both lanes are raw-executable over checked localization inputs | occupancy, function, and regulatory consequence remain outside localization evidence |
+| targeted | `outsider_auditable_bounded` | both lanes are raw-executable over checked targeted QC | vendor parity, calibration transfer, matrix interference, and assay burden remain bounded |
 
-The [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) is the
-authority for installed-entrypoint execution language. The
+The [Black-Box Benchmark Dashboard](black-box-benchmark-dashboard.md) owns
+installed-entrypoint execution language. The
 [Workflow Families](../01-bijux-proteomics/foundation/workflow-families.md)
-ledger is the authority for product posture. When they disagree, the narrower
-language governs and the disagreement remains visible as release work.
+ledger owns product posture. The
+[Release Readiness Matrix](../01-bijux-proteomics/foundation/release-readiness-matrix.md)
+owns repository publication status. A DIA lane can therefore support bounded
+outsider execution language while repository black-box readiness remains
+blocked by the stronger chromatogram-native replay burden. That is a scope
+difference, not permission to choose the more convenient verdict. When two
+surfaces address the same scope and disagree, the narrower live verdict
+governs and the disagreement remains visible as release work.
 
 The execution evidence can be audited from the boundary inward:
 
