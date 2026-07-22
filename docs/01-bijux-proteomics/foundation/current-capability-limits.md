@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # Current Capability Limits
@@ -17,9 +17,9 @@ breadth and packet completeness are reported separately from authority.
 
 | family | strongest current honest sentence | main limiting layer |
 | --- | --- | --- |
-| `dda` | outsider-auditable, bounded | search-engine behavior and transfer remain bounded by the shipped lanes |
+| `dda` | review-grade, bounded | the black-box dashboard defends `review_grade_bounded`; search remains import-backed and no repository-owned raw search lane closes that gap |
 | `dia` | outsider-auditable, bounded | benchmark and runtime strength still narrow under library incompleteness and consequence pressure |
-| `lfq` | review-grade, bounded | external review, normalization, and transfer pressure still block wider language |
+| `lfq` | outsider-auditable, bounded | the checked cohort and sparse-contrast lanes pass the current audit boundary, while normalization and transfer still block wider language |
 | `multiplex` | internal support only | outsider trust still collapses under the current stress packet |
 | `ptm` | outsider-auditable, bounded | localization evidence remains stronger than consequence confidence |
 | `targeted` | outsider-auditable, bounded | calibration, interference, and downstream burden still narrow the sentence |
@@ -34,6 +34,11 @@ breadth and packet completeness are reported separately from authority.
 - one strong family packet does not widen the sentence for weaker families
 - recommendation posture still narrows when grounded contradiction or
   downstream assay burden becomes explicit
+
+These sentences reflect the current black-box result, not the strongest status
+requested by a release policy or an individual evidence root. For example,
+DDA benchmark freshness can support an outsider-auditable request while the
+end-to-end dashboard still lowers the permitted sentence to review-grade.
 
 ## Consequence boundary
 
@@ -74,7 +79,7 @@ The current ceiling is not caused by one kind of weakness only:
 That is why no single package can honestly declare the whole repository ready
 on its own.
 
-## Where The Repository Is Clearly Stronger Now
+## Capability That Does Not Remove The Limits
 
 - `core` is materially deeper across sequence, chemistry, spectra, mzML, DIA,
   PTM review, and quantification
@@ -84,8 +89,8 @@ on its own.
 - `lab` now makes control demand, refusal, and requested-versus-observed
   follow-up visible enough to limit public language honestly
 
-These improvements matter. They also make the honesty boundary more important,
-not less.
+These capabilities are useful within their declared boundaries. None changes a
+family verdict until the governed evidence matrix records the stronger result.
 
 ## What Stronger Code Still Does Not Automatically Earn
 
@@ -96,7 +101,7 @@ not less.
   complexity
 - stronger lab-confidence language than the current follow-up burden supports
 
-## What Would Need To Improve Before Language Widens
+## Evidence Required Before Language Widens
 
 - stronger family-specific transfer packets where benchmark depth is currently
   narrower than the release sentence
@@ -108,6 +113,10 @@ not less.
   consequence
 - downstream evidence that follow-up burden and requested-versus-observed
   outcomes justify stronger public claims
+
+Closure requires a new checked record at the limiting layer, a rerun of the
+family matrix, and agreement between the generated verdict and the public
+sentence. New code or a new package directory is not closure by itself.
 
 ## Inspect the limiting layer
 

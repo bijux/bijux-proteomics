@@ -57,6 +57,26 @@ grounded claim cannot compensate for a recommendation that reverses under a
 small policy change. A recommendation cannot compensate for infeasible or
 uninformative laboratory follow-up.
 
+## Resolve One Family Verdict
+
+A family verdict is a join across independently reviewable records, not an
+average of reassuring signals. Start with the requested public language and
+walk left to right. At the first failed or missing contract, stop and lower the
+language to the strongest posture that the remaining evidence supports.
+
+| review question | record that answers it | narrowing condition |
+| --- | --- | --- |
+| Can the source be identified and rebuilt? | package manifest, citation manifest, generated boundary | unknown source identity, prohibited redistribution, or irreproducible selection |
+| Does the scientific contract match the family? | family invariants, acceptance sheet, warning demonstrations | acceptance criteria omit a family-defining failure mode |
+| Can the declared lane be rerun? | run bundle, execution mode, artifact inventory | missing inputs, unstable artifacts, or an imported lane presented as native execution |
+| Does the conclusion survive a harder package? | companion package and `cross_package_generalization.json` | direction, coverage, or acceptance changes under declared transfer pressure |
+| Is the claim grounded at its stated strength? | support, contradiction, context, and citation records | contradiction is hidden or contextual evidence is promoted to direct support |
+| Is the proposed action proportionate? | challenge, refusal, feasibility, and outcome records | small policy changes reverse the decision or follow-up burden defeats its value |
+
+The exact status token belongs in machine-readable evidence and in public
+prose. Translating it into a friendlier but stronger phrase creates a second,
+unreviewed release policy.
+
 ## DDA
 
 DDA support covers governed search-result intake, PSM normalization,

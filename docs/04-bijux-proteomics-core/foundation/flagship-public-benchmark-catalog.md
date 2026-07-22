@@ -114,7 +114,7 @@ is forced off its easiest package?
 - every package also ships source locators, citation manifests, generated
   boundaries, and rebuild instructions
 
-## What This Catalog Makes Easier To See
+## Family Evidence Exposed By The Catalog
 
 - which workflow families now have genuinely inspectable outsider packets
 - which scientific surfaces each family exposes at package level before runtime
@@ -144,7 +144,7 @@ Open [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bi
 when you need the blinded holdouts and perturbation roots that deliberately try
 to break the claims these package roots would otherwise make too comfortably.
 
-## Next Routes
+## Continue The Family Audit
 
 - Open [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   when the question becomes which family currently deserves stronger public
@@ -158,7 +158,6 @@ to break the claims these package roots would otherwise make too comfortably.
 
 ## Boundary
 
-This catalog should settle package identity, paired-package coverage, and the
-first-order transfer surface. It should not pretend that catalog presence by
-itself earns runtime parity, grounded scientific support, or downstream assay
-confidence.
+The catalog settles package identity, paired-package coverage, and the
+first-order transfer surface. Catalog presence alone does not earn runtime
+parity, grounded scientific support, or downstream assay confidence.
