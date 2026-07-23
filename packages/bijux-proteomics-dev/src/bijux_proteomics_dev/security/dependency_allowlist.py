@@ -25,9 +25,6 @@ def _load_toml(path: Path, label: str) -> dict[str, Any] | None:
     except (OSError, tomllib.TOMLDecodeError) as error:
         print(f"{label} unreadable: {path}: {error}", file=sys.stderr)
         return None
-    if not isinstance(data, dict):
-        print(f"{label} must contain a TOML table: {path}", file=sys.stderr)
-        return None
     return data
 
 
