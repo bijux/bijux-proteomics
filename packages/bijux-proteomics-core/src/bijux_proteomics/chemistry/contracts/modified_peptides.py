@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import re
+from typing import assert_never
 
 from bijux_proteomics.chemistry.amino_acid_mass import _CANONICAL_RESIDUES
 from bijux_proteomics.chemistry.contracts.models import (
@@ -334,9 +335,7 @@ def enumerate_variable_modifications(
     ]
     base_site_keys: set[tuple[str, int | None]] = set()
     for modification in parsed.modifications:
-        site_key = _physical_site_key(modification)
-        if site_key is not None:
-            base_site_keys.add(site_key)
+        base_site_keys.add(_physical_site_key(modification))
     variants: list[VariableModificationEnumerationEntry] = []
     truncated = False
 
@@ -396,17 +395,12 @@ def enumerate_variable_modifications(
             choice_site_keys = {
                 _physical_site_key(modification) for modification in choice
             }
-            if None in choice_site_keys:
-                continue
-            typed_choice_site_keys: set[tuple[str, int | None]] = {
-                site_key for site_key in choice_site_keys if site_key is not None
-            }
-            if occupied_site_keys & typed_choice_site_keys:
+            if occupied_site_keys & choice_site_keys:
                 continue
             visit(
                 index + 1,
                 [*selected, *choice],
-                occupied_site_keys | typed_choice_site_keys,
+                occupied_site_keys | choice_site_keys,
             )
 
     from itertools import combinations
@@ -584,20 +578,15 @@ def _enumeration_candidates_for_definition(
 
 def _physical_site_key(
     modification: AppliedModification,
-) -> tuple[str, int | None] | None:
-    if modification.site is ModificationPosition.ANYWHERE:
-        return ("residue", modification.site_index)
-    if modification.site in {
-        ModificationPosition.PEPTIDE_N_TERM,
-        ModificationPosition.PROTEIN_N_TERM,
-    }:
-        return ("n_term", None)
-    if modification.site in {
-        ModificationPosition.PEPTIDE_C_TERM,
-        ModificationPosition.PROTEIN_C_TERM,
-    }:
-        return ("c_term", None)
-    return None
+) -> tuple[str, int | None]:
+    match modification.site:
+        case ModificationPosition.ANYWHERE:
+            return ("residue", modification.site_index)
+        case ModificationPosition.PEPTIDE_N_TERM | ModificationPosition.PROTEIN_N_TERM:
+            return ("n_term", None)
+        case ModificationPosition.PEPTIDE_C_TERM | ModificationPosition.PROTEIN_C_TERM:
+            return ("c_term", None)
+    assert_never(modification.site)
 
 
 def _raise_on_impossible_modification_combination(
@@ -606,8 +595,6 @@ def _raise_on_impossible_modification_combination(
     by_site: dict[tuple[str, int | None], list[AppliedModification]] = {}
     for modification in modifications:
         site_key = _physical_site_key(modification)
-        if site_key is None:
-            continue
         by_site.setdefault(site_key, []).append(modification)
 
     conflicting_sites = [

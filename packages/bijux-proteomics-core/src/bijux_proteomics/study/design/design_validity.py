@@ -259,7 +259,7 @@ def _selected_conditions(
 ) -> tuple[str, ...]:
     if bool(condition_a) ^ bool(condition_b):
         incomplete_conditions = tuple(
-            cast(str, condition)
+            condition
             for condition in (condition_a, condition_b)
             if condition not in (None, "")
         )
@@ -380,7 +380,7 @@ def _confounded_batch_condition_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if batch_field in (None, "") or len(selected_conditions) < 2:
         return ()
-    resolved_batch_field = cast(str, batch_field)
+    resolved_batch_field = batch_field
     report = detect_batch_condition_confounding(
         experiment_design,
         batch_field=resolved_batch_field,
@@ -415,7 +415,7 @@ def _broken_pair_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if pairing_field in (None, "") or len(selected_conditions) != 2:
         return ()
-    resolved_pairing_field = cast(str, pairing_field)
+    resolved_pairing_field = pairing_field
     relevant_entries = tuple(
         entry
         for entry in experiment_design.entries
@@ -510,7 +510,7 @@ def _timepoint_order_issues(
 ) -> tuple[ExperimentDesignValidityIssue, ...]:
     if timepoint_field in (None, ""):
         return ()
-    resolved_timepoint_field = cast(str, timepoint_field)
+    resolved_timepoint_field = timepoint_field
     labels = tuple(
         sorted(
             {
