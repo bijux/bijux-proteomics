@@ -6,13 +6,12 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 import hashlib
 import json
-from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-from bijux_proteomics_foundation import JsonModel
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.confidence import ConfidenceTier, coerce_confidence_tier
@@ -51,6 +50,7 @@ from bijux_proteomics.workflow.pipelines.operations.orchestrator import (
     WorkflowResult,
     run_proteomics_workflow,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class PublicBenchmarkRunStatus(StrEnum):
