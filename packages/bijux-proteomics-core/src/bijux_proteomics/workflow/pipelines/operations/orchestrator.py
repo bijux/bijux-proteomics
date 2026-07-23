@@ -9,6 +9,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import TypeAlias, cast
 
+from bijux_proteomics_foundation import JsonModel
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics._atomic_files import atomic_write_text
@@ -129,7 +130,6 @@ from bijux_proteomics.workflow.result_types import (
 from bijux_proteomics.workflow.result_types import (
     WorkflowResult as StandardWorkflowResult,
 )
-from bijux_proteomics_foundation import JsonModel
 
 
 class WorkflowMode(StrEnum):
@@ -411,7 +411,6 @@ WorkflowReport: TypeAlias = (
 )
 
 WorkflowSourceReport: TypeAlias = TargetedResultImportReport
-
 WorkflowExportManifest: TypeAlias = (
     BiologicalResultReportExportManifest
     | DdaBiologicalWorkflowExportManifest
