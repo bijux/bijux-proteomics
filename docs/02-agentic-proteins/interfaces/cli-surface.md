@@ -7,7 +7,7 @@ owner: agentic-proteins-docs
 last_reviewed: 2026-07-21
 ---
 
-# Compatibility CLI
+# CLI Surface
 
 The `agentic-proteins` executable preserves the command-line contract that
 predates `bijux-proteomics-runtime`. It is not a separate implementation: the
@@ -15,9 +15,16 @@ entrypoint exports the canonical runtime `click` command object directly.
 Command names, arguments, output envelopes, exit behavior, and runtime
 artifacts therefore come from the runtime package.
 
-The compatibility rule is direct: new workflow use should start from `bijux-proteomics-runtime --help`.
-Keep `agentic-proteins` only where an existing consumer cannot yet change its
-executable name.
+The compatibility CLI surface is deliberately thin. Its executable is defined
+in `src/agentic_proteins/interfaces/cli.py`, while the forwarded HTTP
+application is defined in `src/agentic_proteins/interfaces/http/app.py`. Both
+surfaces delegate to the runtime package, so compatibility users and new
+runtime users cross the same validation, execution, and evidence boundaries.
+
+The compatibility rule is direct: new workflow use should start from
+`bijux-proteomics-runtime --help`. Existing integrations can verify the
+preserved entrypoint with `agentic-proteins --help`; keep that name only where
+a consumer cannot yet change its executable.
 
 ```bash
 # Preserved invocation
