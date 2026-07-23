@@ -11,6 +11,15 @@ last_reviewed: 2026-07-22
 
 Compatibility terminology distinguishes a historical route from the behavior it reaches. That distinction prevents migration support from being mistaken for a second runtime architecture.
 
+## Package Vocabulary Anchors
+
+The `agentic-proteins` distribution is implemented under
+`packages/agentic-proteins` and exposes the `agentic_proteins` Python import
+root. These names identify one compatibility package, not separate products or
+runtime owners. References to the hyphenated distribution name describe
+packaging and command surfaces; references to the underscored name describe
+Python modules and symbols.
+
 | Term | Meaning |
 | --- | --- |
 | **historical surface** | An import path, console command, HTTP path, or optional extra previously exposed by `agentic-proteins` |
