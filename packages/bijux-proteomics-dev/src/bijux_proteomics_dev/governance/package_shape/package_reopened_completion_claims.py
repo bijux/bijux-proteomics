@@ -146,8 +146,10 @@ def _toml_text(report: PackageReopenedCompletionClaimReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims",
         "",
         "[guard]",
-        "max_total_reopened_completion_claim_count = "
-        f"{report.guard.max_total_reopened_completion_claim_count}",
+        (
+            "max_total_reopened_completion_claim_count = "
+            f"{report.guard.max_total_reopened_completion_claim_count}"
+        ),
         "",
     ]
     for entry in report.entries:
@@ -156,8 +158,10 @@ def _toml_text(report: PackageReopenedCompletionClaimReport) -> str:
                 "[[package]]",
                 f'distribution_name = "{entry.distribution_name}"',
                 f"reopened_reasons = [{_render_tuple(entry.reopened_reasons)}]",
-                "reopened_completion_claim = "
-                f"{str(entry.reopened_completion_claim).lower()}",
+                (
+                    "reopened_completion_claim = "
+                    f"{str(entry.reopened_completion_claim).lower()}"
+                ),
                 "",
             ]
         )

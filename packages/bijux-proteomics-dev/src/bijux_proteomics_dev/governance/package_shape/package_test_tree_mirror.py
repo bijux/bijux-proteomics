@@ -135,10 +135,14 @@ def _toml_text(report: PackageTestTreeMirrorReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_test_tree_mirror",
         "",
         "[guard]",
-        "min_total_mirrored_owner_family_count = "
-        f"{report.guard.min_total_mirrored_owner_family_count}",
-        "max_total_missing_test_family_count = "
-        f"{report.guard.max_total_missing_test_family_count}",
+        (
+            "min_total_mirrored_owner_family_count = "
+            f"{report.guard.min_total_mirrored_owner_family_count}"
+        ),
+        (
+            "max_total_missing_test_family_count = "
+            f"{report.guard.max_total_missing_test_family_count}"
+        ),
         f"max_total_flat_test_module_count = {report.guard.max_total_flat_test_module_count}",
         "",
     ]

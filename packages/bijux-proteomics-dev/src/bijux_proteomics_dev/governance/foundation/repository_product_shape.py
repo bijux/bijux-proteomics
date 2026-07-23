@@ -548,10 +548,14 @@ def _toml_text(report: RepositoryProductShapeReport) -> str:
                 f'role_summary = "{package.role_summary}"',
                 f'docs_path = "{package.docs_path}"',
                 f'readme_path = "{package.readme_path}"',
-                "allowed_outbound_imports = "
-                f"[{_render_tuple(package.allowed_outbound_imports)}]",
-                "forbidden_outbound_imports = "
-                f"[{_render_tuple(package.forbidden_outbound_imports)}]",
+                (
+                    "allowed_outbound_imports = "
+                    f"[{_render_tuple(package.allowed_outbound_imports)}]"
+                ),
+                (
+                    "forbidden_outbound_imports = "
+                    f"[{_render_tuple(package.forbidden_outbound_imports)}]"
+                ),
                 f"owned_handoff_classes = [{_render_tuple(package.owned_handoff_classes)}]",
                 "",
             ]

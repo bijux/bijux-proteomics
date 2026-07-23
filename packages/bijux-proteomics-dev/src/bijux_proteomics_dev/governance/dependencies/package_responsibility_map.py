@@ -484,8 +484,10 @@ def _toml_text(report: PackageResponsibilityMapReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.package_responsibility_map",
         "",
         "[guard]",
-        "max_foundation_higher_package_edges = "
-        f"{report.guard.max_foundation_higher_package_edges}",
+        (
+            "max_foundation_higher_package_edges = "
+            f"{report.guard.max_foundation_higher_package_edges}"
+        ),
         f"max_knowledge_runtime_edges = {report.guard.max_knowledge_runtime_edges}",
         f"max_core_cli_edges = {report.guard.max_core_cli_edges}",
         "",
@@ -499,8 +501,10 @@ def _toml_text(report: PackageResponsibilityMapReport) -> str:
                 f'responsibility_kind = "{entry.responsibility_kind}"',
                 f'reason_to_exist = "{entry.reason_to_exist}"',
                 f'must_not_absorb = "{entry.must_not_absorb}"',
-                "canonical_surface_targets = "
-                f"[{_render_tuple(entry.canonical_surface_targets)}]",
+                (
+                    "canonical_surface_targets = "
+                    f"[{_render_tuple(entry.canonical_surface_targets)}]"
+                ),
                 "",
             ]
         )

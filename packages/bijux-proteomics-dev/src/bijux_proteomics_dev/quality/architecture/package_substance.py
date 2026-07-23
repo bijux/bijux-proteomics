@@ -547,12 +547,14 @@ def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
         "",
         "# Package substance",
         "",
-        "Package-substance evidence tests whether each distribution has a coherent "
-        "reason to exist. Canonical products must own domain behavior, Foundation "
-        "must remain a narrow shared kernel, Agentic Proteins must remain a "
-        "forwarding bridge, and maintainer tooling must own real repository-policy "
-        "checks. Counts expose structural pressure; they do not measure scientific "
-        "quality or release readiness by themselves.",
+        (
+            "Package-substance evidence tests whether each distribution has a coherent "
+            "reason to exist. Canonical products must own domain behavior, Foundation "
+            "must remain a narrow shared kernel, Agentic Proteins must remain a "
+            "forwarding bridge, and maintainer tooling must own real repository-policy "
+            "checks. Counts expose structural pressure; they do not measure scientific "
+            "quality or release readiness by themselves."
+        ),
         "",
         "```mermaid",
         "flowchart LR",
@@ -588,49 +590,67 @@ def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
     lines.extend(
         [
             "",
-            "The inventory contains "
-            f"{role_counts[PackageBoundaryRole.CANONICAL_PRODUCT.value]} canonical "
-            "products, "
-            f"{role_counts[PackageBoundaryRole.SHARED_KERNEL.value]} shared kernel, "
-            f"{role_counts[PackageBoundaryRole.COMPATIBILITY_BRIDGE.value]} "
-            "compatibility bridge, and "
-            f"{role_counts[PackageBoundaryRole.MAINTAINER_SUPPORT.value]} maintainer "
-            "support package.",
+            (
+                "The inventory contains "
+                f"{role_counts[PackageBoundaryRole.CANONICAL_PRODUCT.value]} canonical "
+                "products, "
+                f"{role_counts[PackageBoundaryRole.SHARED_KERNEL.value]} shared kernel, "
+                f"{role_counts[PackageBoundaryRole.COMPATIBILITY_BRIDGE.value]} "
+                "compatibility bridge, and "
+                f"{role_counts[PackageBoundaryRole.MAINTAINER_SUPPORT.value]} maintainer "
+                "support package."
+            ),
             "",
             "## Interpret the verdict",
             "",
-            "- A canonical product is blocked when its release identity outruns its "
-            "owned domain behavior or hides unresolved ownership.",
-            "- Foundation is blocked when shared infrastructure grows into scientific, "
-            "execution, evidence, decision, or presentation policy.",
-            "- Agentic Proteins may be forwarding-heavy because compatibility is its "
-            "declared role; bridge-owned product logic is still a blocker.",
-            "- Maintainer tooling must contain tested policy behavior rather than only "
-            "shell entrypoints or empty package structure.",
-            "- Thin-module counts trigger review pressure. A thin module is acceptable "
-            "when it protects a durable seam and suspect when it fragments one owner.",
+            (
+                "- A canonical product is blocked when its release identity outruns its "
+                "owned domain behavior or hides unresolved ownership."
+            ),
+            (
+                "- Foundation is blocked when shared infrastructure grows into scientific, "
+                "execution, evidence, decision, or presentation policy."
+            ),
+            (
+                "- Agentic Proteins may be forwarding-heavy because compatibility is its "
+                "declared role; bridge-owned product logic is still a blocker."
+            ),
+            (
+                "- Maintainer tooling must contain tested policy behavior rather than only "
+                "shell entrypoints or empty package structure."
+            ),
+            (
+                "- Thin-module counts trigger review pressure. A thin module is acceptable "
+                "when it protects a durable seam and suspect when it fragments one owner."
+            ),
             "",
-            f"The current inventory reports **{len(issues)} package-substance policy "
-            f"{finding_noun}**. A clean substance verdict closes only this structural gate; "
-            "scientific evidence, runtime replay, security, documentation, and release "
-            "governance remain independent.",
+            (
+                f"The current inventory reports **{len(issues)} package-substance policy "
+                f"{finding_noun}**. A clean substance verdict closes only this structural gate; "
+                "scientific evidence, runtime replay, security, documentation, and release "
+                "governance remain independent."
+            ),
             "",
             "## Reproduce the evidence",
             "",
-            "The machine-readable inventory is retained at "
-            f"`{PACKAGE_SUBSTANCE_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`. "
-            "The policy and freshness checks live in "
-            "`packages/bijux-proteomics-dev/tests/quality/architecture/"
-            "test_package_substance.py`.",
+            (
+                "The machine-readable inventory is retained at "
+                f"`{PACKAGE_SUBSTANCE_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`. "
+                "The policy and freshness checks live in "
+                "`packages/bijux-proteomics-dev/tests/quality/architecture/"
+                "test_package_substance.py`."
+            ),
             "",
             "```bash",
             ".venv/bin/python -m bijux_proteomics_dev.quality.architecture.package_substance --check",
             "```",
             "",
-            "A stale report, role mismatch, or unresolved policy finding is evidence to "
-            "repair the owning package boundary. It must not be silenced by changing "
-            "the generated summary or lowering the threshold without an architectural "
-            "decision.",
+            (
+                "A stale report, role mismatch, or unresolved policy finding is evidence to "
+                "repair the owning package boundary. It must not be silenced by changing "
+                "the generated summary or lowering the threshold without an architectural "
+                "decision."
+            ),
             "",
         ]
     )

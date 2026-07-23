@@ -176,7 +176,7 @@ def _render_glossary(glossary: PublicLanguageGlossary) -> str:
             '    T -->|allowed| A["use the bounded definition"]',
             '    T -->|retired| R["use the named replacement"]',
             '    A --> P["public sentence"]',
-            '    R --> P',
+            "    R --> P",
             "```",
             "",
             "## Allowed Terms",

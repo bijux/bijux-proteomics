@@ -250,8 +250,7 @@ def _render_learning_loop(entry: WorkflowOutcomeLearningLoop) -> list[str]:
     ):
         lines.extend([f"#### {label}", ""])
         lines.extend(
-            f"- `{value}`" if code_values else f"- {value}"
-            for value in values
+            f"- `{value}`" if code_values else f"- {value}" for value in values
         )
         lines.append("")
     return lines
@@ -287,7 +286,7 @@ def _render_outcome_learning_loops() -> str:
             '    worth -->|yes| revise["versioned evidence and decision revision"]',
             '    worth -->|no| narrow["narrow, hold, or refuse"]',
             '    revise --> preserve["retain prior records for calibration"]',
-            '    narrow --> preserve',
+            "    narrow --> preserve",
             "```",
             "",
             "## Cross-Family Snapshot",

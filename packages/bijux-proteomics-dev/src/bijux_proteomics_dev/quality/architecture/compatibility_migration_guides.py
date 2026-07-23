@@ -88,7 +88,7 @@ def _render_markdown(entries: tuple[CompatibilityMigrationGuideEntry, ...]) -> s
         '    status -->|dead| absence["prove caller absence, then delete"]',
         '    status -->|canonical or duplicate| block["release-blocking ownership violation"]',
         '    canonical --> retire["retire compatibility path"]',
-        '    absence --> retire',
+        "    absence --> retire",
         "```",
         "",
         "The inventory is a routing authority, not a parity claim. A canonical import still requires surface-specific compatibility evidence before a caller can move safely.",

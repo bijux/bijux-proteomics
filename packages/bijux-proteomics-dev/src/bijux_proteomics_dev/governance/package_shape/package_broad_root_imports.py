@@ -119,8 +119,10 @@ def _toml_text(report: PackageBroadRootImportReport) -> str:
                 "[[import]]",
                 f'distribution_name = "{entry.distribution_name}"',
                 f"package_broad_root_import_count = {entry.package_broad_root_import_count}",
-                "max_package_broad_root_import_count = "
-                f"{entry.max_package_broad_root_import_count}",
+                (
+                    "max_package_broad_root_import_count = "
+                    f"{entry.max_package_broad_root_import_count}"
+                ),
                 f'importer_module_path = "{entry.importer_module_path}"',
                 f'import_kind = "{entry.import_kind}"',
                 f"line_number = {entry.line_number}",

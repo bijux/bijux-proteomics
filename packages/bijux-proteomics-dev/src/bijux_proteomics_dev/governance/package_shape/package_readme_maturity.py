@@ -187,10 +187,14 @@ def _toml_text(report: PackageReadmeMaturityReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_readme_maturity",
         "",
         "[guard]",
-        "max_total_maturity_outpaces_owner_logic_count = "
-        f"{report.guard.max_total_maturity_outpaces_owner_logic_count}",
-        "max_total_completion_claims_while_not_ready_count = "
-        f"{report.guard.max_total_completion_claims_while_not_ready_count}",
+        (
+            "max_total_maturity_outpaces_owner_logic_count = "
+            f"{report.guard.max_total_maturity_outpaces_owner_logic_count}"
+        ),
+        (
+            "max_total_completion_claims_while_not_ready_count = "
+            f"{report.guard.max_total_completion_claims_while_not_ready_count}"
+        ),
         "",
     ]
     for entry in report.entries:
@@ -203,10 +207,14 @@ def _toml_text(report: PackageReadmeMaturityReport) -> str:
                 f"owned_value_bullet_count = {entry.owned_value_bullet_count}",
                 f"proof_depth_count = {entry.proof_depth_count}",
                 f"unresolved_debt_count = {entry.unresolved_debt_count}",
-                "maturity_outpaces_owner_logic = "
-                f"{str(entry.maturity_outpaces_owner_logic).lower()}",
-                "completion_claims_while_not_ready = "
-                f"{str(entry.completion_claims_while_not_ready).lower()}",
+                (
+                    "maturity_outpaces_owner_logic = "
+                    f"{str(entry.maturity_outpaces_owner_logic).lower()}"
+                ),
+                (
+                    "completion_claims_while_not_ready = "
+                    f"{str(entry.completion_claims_while_not_ready).lower()}"
+                ),
                 "",
             ]
         )

@@ -8,10 +8,7 @@ import sys
 import tomllib
 from typing import Any
 
-
-POLICY_PATH = Path(
-    "configs/package-governance/root-runtime-dependency-policy.toml"
-)
+POLICY_PATH = Path("configs/package-governance/root-runtime-dependency-policy.toml")
 
 
 def _normalize(dependency: str) -> str:

@@ -178,8 +178,10 @@ def _toml_text(report: PackageTreeDossierReport) -> str:
         "[guard]",
         f"min_total_owner_domain_count = {report.guard.min_total_owner_domain_count}",
         f"max_total_compatibility_surface_count = {report.guard.max_total_compatibility_surface_count}",
-        "min_total_excluded_responsibility_count = "
-        f"{report.guard.min_total_excluded_responsibility_count}",
+        (
+            "min_total_excluded_responsibility_count = "
+            f"{report.guard.min_total_excluded_responsibility_count}"
+        ),
         "",
     ]
     for entry in report.entries:
@@ -191,8 +193,10 @@ def _toml_text(report: PackageTreeDossierReport) -> str:
                 f"owner_domains = [{_render_tuple(entry.owner_domains)}]",
                 f"public_modules = [{_render_tuple(entry.public_modules)}]",
                 f"compatibility_surfaces = [{_render_tuple(entry.compatibility_surfaces)}]",
-                "excluded_responsibilities = "
-                f"[{_render_tuple(entry.excluded_responsibilities)}]",
+                (
+                    "excluded_responsibilities = "
+                    f"[{_render_tuple(entry.excluded_responsibilities)}]"
+                ),
                 "",
             ]
         )

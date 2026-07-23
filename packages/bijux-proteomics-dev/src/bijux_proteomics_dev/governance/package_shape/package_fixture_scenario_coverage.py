@@ -250,17 +250,25 @@ def _toml_text(report: PackageFixtureScenarioCoverageReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_fixture_scenario_coverage",
         "",
         "[guard]",
-        "min_total_medium_realistic_fixture_count = "
-        f"{report.guard.min_total_medium_realistic_fixture_count}",
+        (
+            "min_total_medium_realistic_fixture_count = "
+            f"{report.guard.min_total_medium_realistic_fixture_count}"
+        ),
         f"min_total_negative_fixture_count = {report.guard.min_total_negative_fixture_count}",
         f"min_total_ambiguity_fixture_count = {report.guard.min_total_ambiguity_fixture_count}",
-        "min_total_contradiction_fixture_count = "
-        f"{report.guard.min_total_contradiction_fixture_count}",
-        "min_total_degraded_provenance_fixture_count = "
-        f"{report.guard.min_total_degraded_provenance_fixture_count}",
+        (
+            "min_total_contradiction_fixture_count = "
+            f"{report.guard.min_total_contradiction_fixture_count}"
+        ),
+        (
+            "min_total_degraded_provenance_fixture_count = "
+            f"{report.guard.min_total_degraded_provenance_fixture_count}"
+        ),
         f"min_total_benchmark_fixture_count = {report.guard.min_total_benchmark_fixture_count}",
-        "min_serious_package_with_medium_fixture_count = "
-        f"{report.guard.min_serious_package_with_medium_fixture_count}",
+        (
+            "min_serious_package_with_medium_fixture_count = "
+            f"{report.guard.min_serious_package_with_medium_fixture_count}"
+        ),
         "",
     ]
     for entry in report.entries:
@@ -270,13 +278,17 @@ def _toml_text(report: PackageFixtureScenarioCoverageReport) -> str:
                 f'distribution_name = "{entry.distribution_name}"',
                 f"serious_product_area = {str(entry.serious_product_area).lower()}",
                 f"fixture_file_count = {entry.fixture_file_count}",
-                "medium_realistic_fixture_count_ge_1024 = "
-                f"{entry.medium_realistic_fixture_count_ge_1024}",
+                (
+                    "medium_realistic_fixture_count_ge_1024 = "
+                    f"{entry.medium_realistic_fixture_count_ge_1024}"
+                ),
                 f"negative_fixture_count = {entry.negative_fixture_count}",
                 f"ambiguity_fixture_count = {entry.ambiguity_fixture_count}",
                 f"contradiction_fixture_count = {entry.contradiction_fixture_count}",
-                "degraded_provenance_fixture_count = "
-                f"{entry.degraded_provenance_fixture_count}",
+                (
+                    "degraded_provenance_fixture_count = "
+                    f"{entry.degraded_provenance_fixture_count}"
+                ),
                 f"benchmark_fixture_count = {entry.benchmark_fixture_count}",
                 "",
             ]

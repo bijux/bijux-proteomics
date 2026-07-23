@@ -505,9 +505,11 @@ def _summary_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> st
         "",
         "# agentic-proteins Compatibility Inventory",
         "",
-        "`agentic-proteins` remains in this repository as an explicit compatibility family. "
-        "Its modules are allowed to be wrappers or dead ends only. Any remaining "
-        "canonical or duplicate logic is release-blocking.",
+        (
+            "`agentic-proteins` remains in this repository as an explicit compatibility family. "
+            "Its modules are allowed to be wrappers or dead ends only. Any remaining "
+            "canonical or duplicate logic is release-blocking."
+        ),
         "",
         "## Current Counts",
         "",

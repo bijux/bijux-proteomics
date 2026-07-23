@@ -169,8 +169,10 @@ def _toml_text(report: PackageScorecardReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_scorecard",
         "",
         "[guard]",
-        "min_architectural_ready_package_count = "
-        f"{report.guard.min_architectural_ready_package_count}",
+        (
+            "min_architectural_ready_package_count = "
+            f"{report.guard.min_architectural_ready_package_count}"
+        ),
         f"max_total_unresolved_debt_count = {report.guard.max_total_unresolved_debt_count}",
         "",
     ]

@@ -168,8 +168,10 @@ def _toml_text(report: PackageFixtureRealismReport) -> str:
         "[guard]",
         f"max_total_toy_named_fixture_count = {report.guard.max_total_toy_named_fixture_count}",
         f"min_total_realistic_fixture_count = {report.guard.min_total_realistic_fixture_count}",
-        "min_serious_package_with_realistic_fixtures_count = "
-        f"{report.guard.min_serious_package_with_realistic_fixtures_count}",
+        (
+            "min_serious_package_with_realistic_fixtures_count = "
+            f"{report.guard.min_serious_package_with_realistic_fixtures_count}"
+        ),
         "",
     ]
     for entry in report.entries:
@@ -180,8 +182,10 @@ def _toml_text(report: PackageFixtureRealismReport) -> str:
                 f"serious_product_area = {str(entry.serious_product_area).lower()}",
                 f"fixture_file_count = {entry.fixture_file_count}",
                 f"small_fixture_count_lt_512 = {entry.small_fixture_count_lt_512}",
-                "realistic_fixture_count_ge_1024 = "
-                f"{entry.realistic_fixture_count_ge_1024}",
+                (
+                    "realistic_fixture_count_ge_1024 = "
+                    f"{entry.realistic_fixture_count_ge_1024}"
+                ),
                 f"toy_named_fixture_count = {entry.toy_named_fixture_count}",
                 "",
             ]

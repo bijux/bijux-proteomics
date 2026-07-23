@@ -6,6 +6,8 @@ from pathlib import Path
 
 from bijux_proteomics_dev.docs.consistency import (
     nav_refs,
+)
+from bijux_proteomics_dev.docs.consistency import (
     run as run_docs_consistency,
 )
 from bijux_proteomics_dev.docs.markdown_links import run as run_markdown_links

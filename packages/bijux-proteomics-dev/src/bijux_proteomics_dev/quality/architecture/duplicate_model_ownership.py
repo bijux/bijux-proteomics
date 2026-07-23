@@ -271,9 +271,11 @@ def _summary_text(
         "",
         "# Duplicate Model Ownership",
         "",
-        "This generated report inventories public structured-model definitions across "
-        "the six canonical product packages. A repeated model name is a release blocker "
-        "unless the exact package and module pair is an explicitly governed exception.",
+        (
+            "This generated report inventories public structured-model definitions across "
+            "the six canonical product packages. A repeated model name is a release blocker "
+            "unless the exact package and module pair is an explicitly governed exception."
+        ),
         "",
         "```mermaid",
         "flowchart LR",
@@ -322,15 +324,19 @@ def _summary_text(
             "",
             "## Interpretation",
             "",
-            "A matching class name is not harmless duplication. Separate owners can diverge "
-            "in validation, serialization, defaults, or meaning while callers continue to "
-            "treat them as one concept. Resolve a blocker by choosing one canonical owner and "
-            "migrating consumers, or by governing the exact shared owner set when duplication "
-            "is intentional and semantically identical.",
+            (
+                "A matching class name is not harmless duplication. Separate owners can diverge "
+                "in validation, serialization, defaults, or meaning while callers continue to "
+                "treat them as one concept. Resolve a blocker by choosing one canonical owner and "
+                "migrating consumers, or by governing the exact shared owner set when duplication "
+                "is intentional and semantically identical."
+            ),
             "",
-            "The exception registry is exact by design: a module move invalidates an exception "
-            "until maintainers re-establish that the new owner pair still represents the same "
-            "contract.",
+            (
+                "The exception registry is exact by design: a module move invalidates an exception "
+                "until maintainers re-establish that the new owner pair still represents the same "
+                "contract."
+            ),
             "",
             "## Evidence And Validation",
             "",

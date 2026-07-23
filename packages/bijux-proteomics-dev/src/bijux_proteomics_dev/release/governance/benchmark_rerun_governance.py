@@ -758,9 +758,7 @@ def run(*, check: bool = False) -> int:
         BENCHMARK_COMPARABILITY_MATRIX_PATH: _render_comparability_matrix(
             build_benchmark_comparability_matrix()
         ),
-        BLACK_BOX_BENCHMARK_DASHBOARD_PATH: _render_black_box_dashboard(
-            dashboard_rows
-        ),
+        BLACK_BOX_BENCHMARK_DASHBOARD_PATH: _render_black_box_dashboard(dashboard_rows),
     }
     changed = 0
     for path, text in rendered.items():

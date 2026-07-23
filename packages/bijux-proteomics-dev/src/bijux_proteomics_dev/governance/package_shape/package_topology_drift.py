@@ -231,10 +231,14 @@ def _toml_text(report: PackageTopologyDriftReport) -> str:
         "",
         "[guard]",
         f"max_total_top_level_root_file_count = {report.guard.max_total_top_level_root_file_count}",
-        "max_total_undocumented_owner_family_count = "
-        f"{report.guard.max_total_undocumented_owner_family_count}",
-        "max_total_stale_documented_path_count = "
-        f"{report.guard.max_total_stale_documented_path_count}",
+        (
+            "max_total_undocumented_owner_family_count = "
+            f"{report.guard.max_total_undocumented_owner_family_count}"
+        ),
+        (
+            "max_total_stale_documented_path_count = "
+            f"{report.guard.max_total_stale_documented_path_count}"
+        ),
         f"max_total_historical_shape_count = {report.guard.max_total_historical_shape_count}",
         "",
     ]
@@ -247,11 +251,15 @@ def _toml_text(report: PackageTopologyDriftReport) -> str:
                 f"documented_owner_families = [{_render_tuple(entry.documented_owner_families)}]",
                 f"undocumented_owner_families = [{_render_tuple(entry.undocumented_owner_families)}]",
                 f"stale_documented_paths = [{_render_tuple(entry.stale_documented_paths)}]",
-                "historical_topology_mentions = "
-                f"[{_render_tuple(entry.historical_topology_mentions)}]",
+                (
+                    "historical_topology_mentions = "
+                    f"[{_render_tuple(entry.historical_topology_mentions)}]"
+                ),
                 f"docs_tree_contradiction = {str(entry.docs_tree_contradiction).lower()}",
-                "historical_shape_dominates_design = "
-                f"{str(entry.historical_shape_dominates_design).lower()}",
+                (
+                    "historical_shape_dominates_design = "
+                    f"{str(entry.historical_shape_dominates_design).lower()}"
+                ),
                 "",
             ]
         )
