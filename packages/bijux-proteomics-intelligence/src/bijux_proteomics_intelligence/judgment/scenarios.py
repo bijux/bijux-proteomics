@@ -551,8 +551,10 @@ def evaluate_for_scale_up(
             scenario="scale_up",
             action=ScenarioAction.HOLD,
             reasons=[
-                "scale-up needs decision-ready evidence with at least "
-                f"{policy.minimum_decisive_records} decisive records"
+                (
+                    "scale-up needs decision-ready evidence with at least "
+                    f"{policy.minimum_decisive_records} decisive records"
+                )
             ],
             hypothesis_status=HypothesisStatus.UNRESOLVED,
             confidence=0.5,
