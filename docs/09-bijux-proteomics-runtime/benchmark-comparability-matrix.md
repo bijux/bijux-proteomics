@@ -1,26 +1,31 @@
 ---
 title: Benchmark Comparability Matrix
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-21
 ---
 
 # Benchmark Comparability Matrix
 
-This matrix states how each workflow family behaves when the public sentence has to survive both the primary flagship package and the companion generalization package.
+This matrix tests whether a workflow-family statement survives both its primary flagship package and a companion package with a materially different pressure profile. It reports survival, weakening, and collapse separately so a stable aggregate score cannot conceal a failed claim.
 
-## How To Read This Matrix
+```mermaid
+flowchart LR
+    primary["primary flagship run"] --> compare["family comparison"]
+    companion["companion pressure run"] --> compare
+    compare --> survive["surviving claims"]
+    compare --> weaken["weakened claims"]
+    compare --> collapse["collapsed claims"]
+    survive --> boundary["bounded public language"]
+    weaken --> boundary
+    collapse --> refusal["narrow or refuse"]
+```
 
-- read the stability score as a family-transfer stress result, not as a generic
-  quality badge
-- compare run modes and weakened claims together because one family can rerun
-  cleanly and still lose language under companion pressure
-- treat collapsed claims as the clearest signal that the public sentence must
-  stay narrow
+## Family Comparison
 
-| workflow family | public language | primary run mode | companion run mode | stability score | surviving claims | weakened claims | collapsed claims |
+| Workflow family | Public language | Primary run mode | Companion run mode | Stability score | Surviving claims | Weakened claims | Collapsed claims |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `dda` | `outsider_auditable_bounded` | `import_only` | `import_only` | `0.83` | `1` | `1` | `0` |
 | `dia` | `outsider_auditable_bounded` | `raw_executable` | `raw_executable` | `0.83` | `1` | `1` | `0` |
@@ -28,6 +33,14 @@ This matrix states how each workflow family behaves when the public sentence has
 | `multiplex` | `internal_support_only` | `raw_executable` | `raw_executable` | `0.7` | `1` | `0` | `1` |
 | `ptm` | `outsider_auditable_bounded` | `raw_executable` | `raw_executable` | `0.8` | `1` | `1` | `0` |
 | `targeted` | `outsider_auditable_bounded` | `raw_executable` | `raw_executable` | `0.87` | `1` | `1` | `0` |
+
+## Read The Matrix
+
+- `surviving` means the declared claim remains supported in both packages under the recorded comparison policy;
+- `weakened` means the direction survives but scope, certainty, or transfer language must narrow;
+- `collapsed` means the companion evidence does not support the claim and release language must exclude it;
+- the stability score summarizes the governed findings but never overrides a collapsed claim;
+- run mode distinguishes native Runtime computation from custody of imported external-engine results.
 
 ## Family Notes
 
@@ -97,11 +110,6 @@ This matrix states how each workflow family behaves when the public sentence has
 - Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.
 - This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.
 
-## What This Matrix Makes Easier To See
+## Decision Rule
 
-- why `multiplex` can be operationally real and still remain below outsider
-  trust
-- why stronger runtime lanes do not automatically erase weakened or collapsed
-  claims
-- which flagship families still owe their public caution to family-transfer
-  pressure rather than to missing execution alone
+A family may keep only the language that survives its primary and companion packages, their declared comparison policy, and all visible collapsed findings. Evidence from another family cannot repair a failure here.

@@ -4,48 +4,51 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Dependency Governance
+# Dependency governance
 
-Dependency governance is really boundary governance under another name.
+Core admits dependencies for scientific contracts, numerical work, safe format
+handling, and its public command surface. It must remain usable without
+Runtime, Knowledge, Intelligence, Lab, or the historical compatibility package.
 
-For `bijux-proteomics-core`, dependency review should defend durable rule ownership and keep runtime, policy, or orchestration concerns behind explicit seams.
+## Current dependency roles
 
-## Governance Model
+| Dependency | Admitted role | Boundary |
+| --- | --- | --- |
+| Foundation | shared identity, outcomes, provenance, canonical documents | Foundation does not own proteomics policy |
+| Pydantic | typed models and validation | dependency behavior affecting schemas or coercion is contract-relevant |
+| NumPy | numerical arrays and operations | public results retain explicit units, ordering, and serialization |
+| Biopython | sequence and biological format support | Core owns accepted dialect and normalized scientific meaning |
+| `defusedxml` | defensive XML ingestion | safe parsing does not imply complete mzML or producer coverage |
+| Click | command-line transport | CLI does not become Runtime orchestration authority |
+| Loguru | logging | logs are diagnostics, not result or provenance records |
+| PyArrow | optional Parquet support | absence fails explicitly and cannot change scientific results silently |
+
+## Admission decision
 
 ```mermaid
-flowchart TB
-    change["new or changed dependency"]
-    rule{"supports durable core rules?"}
-    seam{"runtime and policy stay behind seams?"}
-    transit{"core avoids becoming a transit layer?"}
-    accept["dependency is governable"]
-
-    change --> rule
-    rule -->|yes| seam
-    rule -->|no| reject1["reject or relocate"]
-    seam -->|yes| transit
-    seam -->|no| reject2["reject or isolate"]
-    transit -->|yes| accept
-    transit -->|no| reject3["reject or redesign"]
+flowchart TD
+    D["proposed dependency"] --> S{"scientific or safe-I/O role?"}
+    S -->|no| R["reject or move to owning package"]
+    S -->|yes| P{"introduces runtime, evidence, decision, or Lab policy?"}
+    P -->|yes| R
+    P -->|no| I["isolate adapter and library types"]
+    I --> F["test absence, failure, versions, determinism, and provenance"]
+    F --> A["admit with explicit boundary"]
 ```
 
-The point is not just to minimize dependencies. It is to prevent core from absorbing neighboring responsibilities simply because a library makes that move convenient.
+Review license, support horizon, vulnerability posture, binary footprint,
+platform coverage, transitive dependencies, determinism, optionality, and
+failure semantics. A convenience library is not justified merely because
+several modules could call it.
 
-## Review Rules
+## Upgrade evidence
 
-- guard the boundary between shared foundation dependencies and downstream policy consumers
-- keep runtime interaction behind explicit seams
-- avoid dependencies that make core a transit point for unrelated concerns
-
-## First Proof Check
-
-- `packages/bijux-proteomics-core/tests`
-- `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
-- `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
-
-## Design Pressure
-
-The common drift is to add a dependency that makes core the easiest place to wire something through, even though that turns it into an accidental owner of unrelated concerns.
+Dependency upgrades can change numerical precision, parser acceptance,
+sequence interpretation, schema generation, exception classes, ordering,
+threading, or output bytes. Run focused reference and malformed-input cases,
+serial equivalence, artifacts, public APIs, and workflow benchmarks affected by
+the library. Do not approve an upgrade only because imports and unit coverage
+remain green.

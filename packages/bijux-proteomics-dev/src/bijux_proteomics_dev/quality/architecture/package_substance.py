@@ -533,6 +533,8 @@ def _csv_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
 
 def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
     role_counts = Counter(entry.boundary_role.value for entry in entries)
+    issues = validate_package_substance(REPO_ROOT)
+    finding_noun = "finding" if len(issues) == 1 else "findings"
     lines = [
         "---",
         "title: Package Substance",
@@ -540,50 +542,115 @@ def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
         "type: reference",
         "status: canonical",
         "owner: bijux-proteomics-dev",
-        "last_reviewed: 2026-05-05",
+        "last_reviewed: 2026-07-22",
         "---",
         "",
-        "# package substance",
+        "# Package substance",
         "",
-        "This report makes package-boundary substance explicit. The five real product "
-        "packages must carry enough owned logic to justify their boundaries, the "
-        "shared kernel must stay narrow and reusable, the compatibility bridge must "
-        "stay wrapper-only, and the maintainer package must remain a real "
-        "repository-health surface instead of a token directory.",
+        (
+            "Package-substance evidence tests whether each distribution has a coherent "
+            "reason to exist. Canonical products must own domain behavior, Foundation "
+            "must remain a narrow shared kernel, Agentic Proteins must remain a "
+            "forwarding bridge, and maintainer tooling must own real repository-policy "
+            "checks. Counts expose structural pressure; they do not measure scientific "
+            "quality or release readiness by themselves."
+        ),
         "",
-        "## Boundary Roles",
+        "```mermaid",
+        "flowchart LR",
+        '    inventory["source-module inventory"] --> classify["classify owned, forwarding, and thin modules"]',
+        '    classify --> role{"matches declared boundary role?"}',
+        '    role -->|no| block["package-substance blocker"]',
+        '    role -->|yes| evidence["retain inventory and policy verdict"]',
+        '    evidence -. "one input to" .-> release["release readiness"]',
+        "```",
         "",
-        f"- canonical products: {role_counts[PackageBoundaryRole.CANONICAL_PRODUCT.value]}",
-        f"- shared kernels: {role_counts[PackageBoundaryRole.SHARED_KERNEL.value]}",
-        f"- compatibility bridges: {role_counts[PackageBoundaryRole.COMPATIBILITY_BRIDGE.value]}",
-        f"- maintainer support packages: {role_counts[PackageBoundaryRole.MAINTAINER_SUPPORT.value]}",
+        "## Read the metrics",
         "",
-        "## Current Package Counts",
+        "| Metric | Meaning | It does not prove |",
+        "| --- | --- | --- |",
+        "| source modules | Python modules classified in the package source tree | that every module is public or scientifically important |",
+        "| owned logic | modules with substantive behavior assigned to this package | correctness, transfer, or sufficient test evidence |",
+        "| forwarders | modules that intentionally route to another canonical owner | parity for every caller or safe retirement |",
+        "| thin modules | small modules that may be valid seams or may indicate fragmented ownership | architectural debt without reviewing the named module |",
+        "| all diagnostic thresholds | owned-logic and thin-module counts are inside the inventory thresholds | whole-repository readiness; some diagnostic pressure is not release-blocking for every boundary role |",
         "",
+        "## Current boundary inventory",
+        "",
+        "| Package | Boundary role | Source modules | Owned logic | Forwarders | Thin modules | All diagnostic thresholds |",
+        "| --- | --- | ---: | ---: | ---: | ---: | --- |",
     ]
     for entry in entries:
         lines.append(
-            "- "
-            f"`{entry.package_name}`: role={entry.boundary_role.value}, "
-            f"owned_logic={entry.owned_logic_count}, wrappers={entry.wrapper_module_count}, "
-            f"thin={entry.thin_module_count}, ready={'yes' if entry.ready else 'no'}"
+            f"| `{entry.package_name}` | `{entry.boundary_role.value}` | "
+            f"{entry.source_module_count} | {entry.owned_logic_count} | "
+            f"{entry.wrapper_module_count} | {entry.thin_module_count} | "
+            f"{'yes' if entry.ready else 'no'} |"
         )
     lines.extend(
         [
             "",
-            "## Release Rule",
+            (
+                "The inventory contains "
+                f"{role_counts[PackageBoundaryRole.CANONICAL_PRODUCT.value]} canonical "
+                "products, "
+                f"{role_counts[PackageBoundaryRole.SHARED_KERNEL.value]} shared kernel, "
+                f"{role_counts[PackageBoundaryRole.COMPATIBILITY_BRIDGE.value]} "
+                "compatibility bridge, and "
+                f"{role_counts[PackageBoundaryRole.MAINTAINER_SUPPORT.value]} maintainer "
+                "support package."
+            ),
             "",
-            "- the five real product packages must keep enough owned logic to justify separate release identities",
-            "- the shared kernel must stay narrow, reusable, and free of presentation or workflow ownership drift",
-            "- the compatibility bridge is allowed to be thin only because it is explicitly a wrapper-only bridge",
-            "- package-boundary thinness is release-blocking when it hides unresolved SSOT ownership",
-            f"- current package substance issues: {len(validate_package_substance(REPO_ROOT))}",
+            "## Interpret the verdict",
             "",
-            "## First Proof Check",
+            (
+                "- A canonical product is blocked when its release identity outruns its "
+                "owned domain behavior or hides unresolved ownership."
+            ),
+            (
+                "- Foundation is blocked when shared infrastructure grows into scientific, "
+                "execution, evidence, decision, or presentation policy."
+            ),
+            (
+                "- Agentic Proteins may be forwarding-heavy because compatibility is its "
+                "declared role; bridge-owned product logic is still a blocker."
+            ),
+            (
+                "- Maintainer tooling must contain tested policy behavior rather than only "
+                "shell entrypoints or empty package structure."
+            ),
+            (
+                "- Thin-module counts trigger review pressure. A thin module is acceptable "
+                "when it protects a durable seam and suspect when it fragments one owner."
+            ),
             "",
-            f"- `{PACKAGE_SUBSTANCE_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            f"- `{PACKAGE_SUBSTANCE_SUMMARY_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            "- `packages/bijux-proteomics-dev/tests/quality/architecture/test_package_substance.py`",
+            (
+                f"The current inventory reports **{len(issues)} package-substance policy "
+                f"{finding_noun}**. A clean substance verdict closes only this structural gate; "
+                "scientific evidence, runtime replay, security, documentation, and release "
+                "governance remain independent."
+            ),
+            "",
+            "## Reproduce the evidence",
+            "",
+            (
+                "The machine-readable inventory is retained at "
+                f"`{PACKAGE_SUBSTANCE_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`. "
+                "The policy and freshness checks live in "
+                "`packages/bijux-proteomics-dev/tests/quality/architecture/"
+                "test_package_substance.py`."
+            ),
+            "",
+            "```bash",
+            ".venv/bin/python -m bijux_proteomics_dev.quality.architecture.package_substance --check",
+            "```",
+            "",
+            (
+                "A stale report, role mismatch, or unresolved policy finding is evidence to "
+                "repair the owning package boundary. It must not be silenced by changing "
+                "the generated summary or lowering the threshold without an architectural "
+                "decision."
+            ),
             "",
         ]
     )
@@ -604,23 +671,35 @@ def _is_up_to_date(entries: tuple[PackageSubstanceEntry, ...]) -> bool:
     )
 
 
+def package_substance_report_is_up_to_date() -> bool:
+    """Return whether the retained inventory matches the current source tree."""
+
+    return _is_up_to_date(build_package_substance_inventory(REPO_ROOT))
+
+
 def run(check: bool = False) -> int:
     entries = build_package_substance_inventory(REPO_ROOT)
     issues = validate_package_substance(REPO_ROOT)
-    if issues:
+    if check:
+        up_to_date = _is_up_to_date(entries)
         for issue in issues:
             print(f"{issue.code}: {issue.detail}")
-        return 1
-    if check:
-        if _is_up_to_date(entries):
+        if up_to_date and not issues:
             print(f"package substance report is up to date for {len(entries)} packages")
             return 0
-        print("package substance report is stale; regenerate it")
+        if not up_to_date:
+            print("package substance report is stale; regenerate it")
         return 1
     PACKAGE_SUBSTANCE_CSV_PATH.write_text(_csv_text(entries), encoding="utf-8")
     PACKAGE_SUBSTANCE_SUMMARY_PATH.write_text(_summary_text(entries), encoding="utf-8")
-    print(f"generated package substance report for {len(entries)} packages")
-    return 0
+    for issue in issues:
+        print(f"{issue.code}: {issue.detail}")
+    finding_noun = "finding" if len(issues) == 1 else "findings"
+    print(
+        "generated package substance report for "
+        f"{len(entries)} packages with {len(issues)} policy {finding_noun}"
+    )
+    return 1 if issues else 0
 
 
 if __name__ == "__main__":

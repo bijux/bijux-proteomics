@@ -4,51 +4,74 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-21
 ---
 
 # Repository Shape Rationale
 
-This repository is split by durable owner questions, not by delivery sequence.
-The split is justified only when a skeptical reader can explain why one package
-must remain distinct from its neighbors and why one compatibility layer should
-eventually disappear.
+The repository is divided by durable authority: shared contracts, scientific
+computation, execution, evidence custody, decision policy, and laboratory
+consequence. Each package exists because collapsing its authority into a
+neighbor would make an important claim harder to test independently.
+
+```mermaid
+flowchart LR
+    F["Foundation"] --> C["Core"]
+    F --> R["Runtime"]
+    F --> K["Knowledge"]
+    C --> R
+    C --> K
+    K --> I["Intelligence"]
+    I --> L["Lab"]
+    A["Agentic Proteins compatibility"] -.-> R
+```
 
 ## Durable Splits
 
-| package | durable reason to stay distinct | failure if collapsed |
+| Package | Authority | Why separation matters |
 | --- | --- | --- |
-| `bijux-proteomics-foundation` | shared identifiers, serialization, and migration-safe document rules | higher packages would quietly fork payload meaning |
-| `bijux-proteomics-core` | workflow contracts, lifecycle rules, and benchmark-facing scientific law | runtime or review layers would become shadow owners of domain truth |
-| `bijux-proteomics-runtime` | execution control, replay, operator entrypoints, and run artifacts | scientific owners would inherit transport and provider logic |
-| `bijux-proteomics-knowledge` | cited evidence memory, contradiction handling, and reference-grounded review state | intelligence and lab would rebuild private trust models |
-| `bijux-proteomics-intelligence` | recommendation posture, downgrade logic, and refusal behavior | ranking policy would blur into evidence storage or lab action |
-| `bijux-proteomics-lab` | assay consequence, readiness, burden, and observed-outcome follow-through | recommendation language would overstate downstream executability |
+| `bijux-proteomics-foundation` | identifiers, provenance primitives, serialization, compatibility | high-volatility packages cannot fork shared meaning |
+| `bijux-proteomics-core` | scientific parsing, transformation, statistics, workflow-family evidence | orchestration and policy cannot become shadow scientific engines |
+| `bijux-proteomics-runtime` | execution state, providers, retries, replay, run artifacts | scientific code remains independent from process mechanics |
+| `bijux-proteomics-knowledge` | claim and evidence custody, citations, contradiction, grounding | decisions cannot rewrite the evidence they consume |
+| `bijux-proteomics-intelligence` | ranking, confidence policy, recommendation, refusal | judgment remains inspectable and replaceable without changing evidence truth |
+| `bijux-proteomics-lab` | feasibility, controls, handoff, observation, promotion | recommendation cannot imply that downstream work is ready or successful |
 
 ## Temporary Compatibility Split
 
-`agentic-proteins` is not a seventh product owner. It remains only as a legacy
-compatibility bridge for historical runtime imports and entrypoints. New
-behavior should land in canonical owners first, then forward from compat only
-when migration continuity still matters.
+`agentic-proteins` is not a seventh product owner. It forwards established
+imports, CLI, and HTTP construction to `bijux-proteomics-runtime`. New behavior
+lands in Runtime; the compatibility package preserves observable identity only
+for supported historical paths.
+
+## Split Test
+
+A package boundary is justified when it owns a distinct decision, has focused
+tests and public contracts, can refuse invalid inputs independently, and keeps
+dependency direction acyclic. A boundary is suspect when it only re-exports a
+neighbor, duplicates models, or exists because of delivery history.
 
 ## Candidate Future Merges
 
-- Merge a seam only when the weaker package stops owning a question that the
-  stronger package cannot answer without duplicating the same proof.
-- Do not merge foundation into core while deterministic serialization,
-  identifiers, and migration discipline still need a low-volatility owner.
-- Do not merge runtime into core or intelligence while execution control and
-  replay proof still need to stay runtime-specific.
-- Do not merge knowledge into intelligence or lab while evidence truth and
-  contradiction state still need to remain distinct from recommendation or
-  consequence policy.
+A merge is eligible for review only when one side no longer owns an independent
+authority, consumer migrations are understood, persisted artifacts remain
+readable, and the resulting dependency graph is simpler. Do not merge:
 
-## First Checks
+- Foundation into Core while cross-package contracts need a low-volatility
+  owner;
+- Runtime into Core while replay and provider behavior remain independent;
+- Knowledge into Intelligence while evidence truth must remain separate from
+  judgment;
+- Intelligence into Lab while recommendation and consequence require separate
+  refusals.
 
-- Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-  for the current handoff map.
-- Open [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
-  for the shortest owner-routing table.
-- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/dda-cross-package-handbook/)
-  for one concrete benchmark path that exercises all six product packages.
+The compatibility bridge has different retirement evidence: external consumer
+usage, migration guidance, parity checks, release communication, and an
+intentional removal decision.
+
+## Review Routes
+
+Use [Cross-Package Ownership](cross-package-ownership.md) for producer-consumer
+handoffs, [Package Map](package-map.md) for routing, and
+[DDA Cross-Package Handbook](dda-cross-package-handbook.md) for one concrete
+workflow crossing every durable boundary.

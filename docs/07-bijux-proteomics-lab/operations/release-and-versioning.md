@@ -4,23 +4,76 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Release and Versioning
+# Release and versioning
 
-The release version is explicit in Git history because version is resolved from Git tags through `hatch-vcs`.
+Lab follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports source archives
+without repository history; it is not a separate Lab release line. Release
+review is operational: it must show that an upgraded consumer cannot silently
+change authorization, readiness, instructions, observations, or follow-up
+obligations.
 
-Release rules should explain what kind of change readers need to look for before they trust a version bump.
+## Classify operational impact
 
-## Operating Rules
+| Change | Release evidence |
+| --- | --- |
+| planning implementation | identical advisory/executable state and rationale for frozen cases |
+| readiness or refusal policy | boundary cases and changed remediation |
+| handoff schema | old payload load or migration plus operator-view comparison |
+| scheduling logic | dependency, capacity, ordering, and infeasibility comparison |
+| outcome semantics | units, QC, censoring, failure class, and promotion behavior |
+| public export | canonical and `proteomics-lab` forwarding proof |
 
-- release notes should call out planning or outcome contract changes clearly
-- persisted lab artifact changes need migration thinking
-- avoid mixing operator-facing payload shifts with unrelated cleanup
+Computational package versions do not validate physical protocols or
+instruments. A release can prove deterministic planning and artifact behavior;
+claims about laboratory performance require separately governed observed data.
 
-## First Proof Check
+## Release evidence chain
 
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
-- `packages/bijux-proteomics-lab/tests`
+```mermaid
+flowchart LR
+    cases["frozen planning and outcome cases"]
+    boundaries["authority and refusal boundaries"]
+    artifacts["handoff and outcome round trips"]
+    gates["test · quality · API"]
+    aliases["alias forwarding"]
+    install["isolated consumer replay"]
+    cases --> boundaries --> artifacts --> gates --> aliases --> install
+```
+
+Run the package gates from the repository root:
+
+```bash
+make test PACKAGE=bijux-proteomics-lab
+make quality PACKAGE=bijux-proteomics-lab
+make api PACKAGE=bijux-proteomics-lab
+make build PACKAGE=bijux-proteomics-lab
+make test PACKAGE=proteomics-lab
+```
+
+For handoff changes, compare the canonical artifact, its digest, the exported
+operator or LIMS view, and acknowledgement behavior. For outcome changes, replay
+successful, failed-QC, censored, deviated, and rerun-required cases.
+
+## Changelog and rollout
+
+Update `packages/bijux-proteomics-lab/CHANGELOG.md` with the affected
+operational state, payload or policy change, compatibility route, operator
+impact, and any required regeneration of planned work. Never imply that a
+software release retrospectively changes an already authorized instruction or
+recorded observation.
+
+Coordinate with Intelligence when recommendations feeding assay plans change,
+with Knowledge when outcomes can become evidence, and with Core when units or
+scientific result contracts move. Lab retains authority over execution posture
+and refusal.
+
+After publication, install the exact wheel in an empty environment and replay
+one advisory-to-refusal case plus one authorized-handoff-to-outcome case. Verify
+`proteomics-lab` when root exports move. Successful upload establishes package
+delivery; the replays establish that operational boundaries survived release.

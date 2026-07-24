@@ -4,84 +4,115 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Cross-Package Ownership
+# Cross-package ownership
 
-This matrix answers one question fast: if an artifact, import, or claim crosses
-package boundaries, who owns it and who is allowed to consume it.
+Package boundaries preserve the meaning of scientific artifacts and prevent
+execution, evidence, policy, or laboratory concerns from becoming hidden side
+effects of core analysis. Ownership is defined by the package that specifies
+and validates a contract, not by the package that happens to consume it last.
 
-That question matters more now because the repository is no longer thin at the
-package edges. Core now carries real biology, chemistry, spectra, mzML,
-quantification, PTM, and benchmark responsibility; runtime carries stronger
-rerun proof; knowledge and intelligence carry visible grounding and downgrade
-logic; lab carries real consequence pressure. Once that product depth exists,
-cross-package ownership has to be readable without maintainers improvising the
-authority chain.
+## Dependency directions
 
-## Package Matrix
+The governed import policy permits these outbound dependencies:
 
-| Package | Durable role | Allowed outbound imports | Forbidden outbound imports | Owned handoff classes |
-| --- | --- | --- | --- | --- |
-| `bijux-proteomics-foundation` | shared contracts, identifiers, deterministic serialization | none | core, runtime, intelligence, knowledge, lab, agentic, dev | `foundation-contract` |
-| `bijux-proteomics-core` | benchmark assets, durable scientific contracts, workflow requests | foundation, runtime, intelligence, lab | knowledge, agentic, dev | `benchmark-asset-bundle` |
-| `bijux-proteomics-runtime` | execution, provider binding, replay, operator entrypoints | foundation, core, intelligence | knowledge, lab, agentic, dev | `runtime-run-bundle` |
-| `bijux-proteomics-knowledge` | scientific memory, provenance, contradiction handling, review state | foundation | core, runtime, intelligence, lab, agentic, dev | `scientific-review-bundle` |
-| `bijux-proteomics-intelligence` | recommendation posture, ranking sensitivity, refusal behavior | foundation, core, knowledge | runtime, lab, agentic, dev | `recommendation-record` |
-| `bijux-proteomics-lab` | assay consequence planning, readiness, observed outcomes | foundation, core, knowledge, intelligence | runtime, agentic, dev | `lab-consequence-record` |
-| `agentic-proteins` | legacy compatibility bridge for runtime entrypoints and imports | core, intelligence, runtime | foundation, knowledge, lab, dev | none |
-| `bijux-proteomics-dev` | maintainer automation, docs checks, release governance | foundation, core, runtime, intelligence, knowledge, lab | agentic | none |
+| Package | May import from |
+| --- | --- |
+| `bijux-proteomics-foundation` | no product package |
+| `bijux-proteomics-core` | foundation, runtime, knowledge, intelligence, lab |
+| `bijux-proteomics-runtime` | foundation, core, knowledge, intelligence, lab |
+| `bijux-proteomics-knowledge` | foundation, core |
+| `bijux-proteomics-intelligence` | foundation, core, runtime, knowledge, lab |
+| `bijux-proteomics-lab` | foundation, core, knowledge, intelligence |
+| `agentic-proteins` | core, runtime |
+| `bijux-proteomics-dev` | all six canonical product packages |
 
-## Handoff Classes
+These are maximum allowed edges, not a recommendation to use every edge.
+Imports should target the narrowest public contract. Alias distributions may
+depend only on the canonical owner they expose and, where needed, foundation
+alias primitives.
 
-| Handoff class | Owner | Producers | Consumers | Typical examples |
-| --- | --- | --- | --- | --- |
-| `foundation-contract` | `bijux-proteomics-foundation` | foundation | core, runtime, knowledge, intelligence, lab | `DocumentSchema`, `JsonModel`, `ProgramId` |
-| `benchmark-asset-bundle` | `bijux-proteomics-core` | core | runtime, knowledge, intelligence, lab | flagship benchmark manifest, challenge corpus package, workflow execution request |
-| `runtime-run-bundle` | `bijux-proteomics-runtime` | runtime | knowledge, intelligence, lab | run manifest, artifact ledger, review output bundle |
-| `scientific-review-bundle` | `bijux-proteomics-knowledge` | knowledge | intelligence, lab | evidence bundle, contradiction ledger, knowledge decision brief |
-| `recommendation-record` | `bijux-proteomics-intelligence` | intelligence | lab | ranking brief, recommendation stance, refusal explanation |
-| `lab-consequence-record` | `bijux-proteomics-lab` | lab | knowledge, intelligence | assay plan, lab handoff, observed outcome record |
+```mermaid
+flowchart BT
+    F[foundation]
+    C[core]
+    R[runtime]
+    K[knowledge]
+    I[intelligence]
+    L[lab]
+    A[agentic-proteins]
+    D[dev tooling]
 
-## Boundary Rules
+    C --> F
+    K --> F
+    K --> C
+    R --> F
+    R --> C
+    I --> F
+    I --> C
+    I --> K
+    L --> F
+    L --> C
+    L --> K
+    L --> I
+    A --> C
+    A --> R
+    D --> C
+    D --> R
+    D --> K
+    D --> I
+    D --> L
+```
 
-- When an import direction is not listed as allowed here, treat it as a
-  release-blocking boundary leak.
-- When an artifact class is not listed here, the owner has not yet been stated
-  clearly enough for cross-package publication.
-- When `agentic-proteins` needs new logic, move the logic into the canonical
-  owner first and keep the bridge thin.
-- When root docs or release language describe behavior stronger than the owning
-  package tests can prove, narrow the wording instead of widening root prose.
+The diagram shows the essential dependency spine. The policy also permits
+reviewed cross-layer seams used to assemble benchmark and release evidence.
+Those seams must not move contract ownership to the consumer.
 
-## What This Matrix Prevents
+## Artifact ownership
 
-- core scientific breadth from silently taking over runtime, knowledge, or lab
-  ownership
-- runtime rerun realism from being mistaken for scientific truth ownership
-- knowledge grounding from drifting into recommendation authority
-- recommendation posture from widening into free consequence claims without lab
-  ownership
+| Artifact class | Owner | Representative contents | Primary consumers |
+| --- | --- | --- | --- |
+| `foundation-contract` | foundation | `DocumentSchema`, `JsonModel`, `ProgramId`, stable fingerprints | every canonical product package |
+| `benchmark-asset-bundle` | core | manifest, fixture corpus, challenge assets, workflow request, acceptance criteria | runtime, knowledge, intelligence, lab |
+| `runtime-run-bundle` | runtime | run manifest, execution decisions, checkpoint state, artifact ledger, review outputs | knowledge, intelligence, lab |
+| `scientific-review-bundle` | knowledge | grounded claims, citations, contexts, contradiction ledger, evidence decision brief | intelligence, lab |
+| `recommendation-record` | intelligence | candidate ranking, policy, sensitivity, counterfactuals, stance, refusal | lab |
+| `lab-consequence-record` | lab | assay plan, readiness result, handoff, observation, outcome dossier | knowledge, intelligence |
 
-## Strongest Reader Route
+An artifact may include references to another owner's objects. It must not
+silently duplicate their schema or reinterpret their fields. Cross-process
+documents use foundation serialization so identity and fingerprints remain
+stable.
 
-- start here when one feature, artifact, or sentence seems to belong to more
-  than one package
-- continue to
-  [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
-  when the dispute becomes end-to-end instead of package-local
-- then open the owning package handbook only after the ownership class is clear
+## Choosing the owner
 
-## First Proof Check
+- Put a type in **foundation** only when its meaning is genuinely shared and
+  independent of proteomics policy.
+- Put scientific models and calculations in **core**, including adapters that
+  translate external proteomics formats into canonical scientific contracts.
+- Put run lifecycle, provider selection, persistence, replay, and operator
+  interfaces in **runtime**.
+- Put sources, citations, evidence context, reconciliation, and contradiction
+  state in **knowledge**.
+- Put rankings, thresholds for progression, scenarios, and recommendation
+  policy in **intelligence**.
+- Put assay feasibility, readiness, scheduling, physical handoff, and observed
+  follow-up in **lab**.
+- Put historical forwarding only in **agentic-proteins**; reusable behavior
+  belongs to its canonical owner.
+- Put tests of repository health, generated governance, release checks, and
+  documentation tooling in **bijux-proteomics-dev**.
 
-- `configs/package-governance/repository-product-shape.toml`
-- `configs/package-governance/package-dependency-policy.toml`
-- `packages/*/README.md`
-- `packages/*/src/*/__init__.py`
+## Enforcement
 
-## Design Pressure
+The source of truth is
+`configs/package-governance/package-dependency-policy.toml`, generated from the
+repository product-shape model. Architecture checks compare declared package
+dependencies and imports with that policy. Public API locks and schema
+artifacts separately detect accidental interface drift.
 
-The repository gets confusing when dependency direction, artifact ownership,
-and public wording each tell a slightly different story. This matrix exists so
-those three surfaces can be reviewed together.
+For the end-to-end meaning of these boundaries, continue with
+[product architecture](product-architecture.md). For release and validation
+commands, use the [maintainer handbook](../../08-bijux-proteomics-maintain/index.md).

@@ -19,6 +19,7 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
 
@@ -57,50 +58,88 @@ analytical families:
 Those families are the durable answer to what intelligence can decide and what it
 must refuse or downgrade.
 
-Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
-package `docs/*.md` set aligned before claiming new intelligence behavior or
-scientific scope.
-
 It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
-`lfq`, and `multiplex` workflows when reviewers need package-owned claims
-instead of presentation-only summaries.
+`targeted`, `lfq`, and `multiplex` workflows when reviewers need package-owned
+claims instead of presentation-only summaries.
 
-## At a glance
+## Decision ownership
 
-- Use intelligence when reviewers need ranking, readiness, refusal, or
-  recommendation posture without pretending those outputs are scientific truth.
-- Start with `candidates.ranking`, `judgment.paths`, and
-  `posture.evidence`, then open the
-  [intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  for the full owner map.
-- Route curated evidence memory to knowledge, scientific meaning to core,
-  executable control to runtime, and assay follow-up execution to lab.
+Choose Intelligence when reviewed evidence must become a reproducible ranking,
+recommendation, downgrade, or refusal. The package records how a declared
+policy behaved; it does not convert that policy output into scientific truth or
+execution authority.
 
-## Why teams pick this package
+| Input pressure | Intelligence responsibility | Output evidence |
+| --- | --- | --- |
+| candidate universe and exclusions | validate and fingerprint the choice set | candidate ledger |
+| evidence support and contradiction | preserve evidence posture without rewriting it | evidence references and caveats |
+| objectives, constraints, thresholds | apply an explicit ranking policy | score components and ordering |
+| plausible alternatives and withheld evidence | run scenarios, falsifiers, and counterfactuals | challenge record |
+| threshold and burden changes | measure sensitivity, confidence, and regret | stability and downgrade chain |
+| inadequate or unstable support | refuse the action | reason codes and unmet conditions |
 
-- transparent ranking and recommendation outputs with traceable decision rationale
-- explicit downgrade and refusal behavior when evidence is stale, thin, or contradictory
-- review-ready packets and skeptical challenge surfaces that keep unresolved questions visible
-- typed interpretation summaries that stay cautious about biological meaning
+The [intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+connects these records to benchmark review and laboratory handoff boundaries.
 
-## Typical use cases
+## Recommendation flow
 
-- rank candidate proteins against defined decision policies
-- decide whether current evidence is ready for progression-oriented review
-- produce explainable shortlists and review-board packets for expert scrutiny
-- summarize proteomics interpretation posture without re-owning raw analysis
-- carry benchmark-backed review claims into release conversations
+```mermaid
+flowchart LR
+    evidence["grounded evidence and contradictions"]
+    candidates["candidate set"]
+    policy["explicit ranking policy"]
+    challenge["sensitivity, falsifiers, regret"]
+    posture{"recommendation posture"}
+    advance["advance with reasons"]
+    downgrade["downgrade or refuse"]
 
-## 0.3.8 Release Highlights
+    evidence --> candidates --> policy --> challenge --> posture
+    posture -->|supported| advance
+    posture -->|insufficient or unstable| downgrade
+```
 
-- Intelligence now ships typed interpretation surfaces for run summaries,
-  differential abundance, PTM review, missingness, outliers, contaminants, and
-  enrichment-driven recommendation posture.
-- The package is now organized around durable owner families for candidates,
-  judgment, posture, interpretation, reviews, and learning, so recommendation
-  boundaries are easier to audit.
-- README and handbook examples now route readers through the currently shipped
-  analytical entrypoints instead of older decision-brief naming.
+The output is a policy decision with traceable reasons, not a new scientific
+fact. Intelligence must preserve uncertainty and contradiction inherited from
+Knowledge and must not promise laboratory feasibility on Lab's behalf.
+
+## A recommendation must be contestable
+
+The package is valuable when a reviewer can reconstruct not only why one
+candidate won, but also what would make it lose. A recommendation record should
+therefore answer both sides of the decision.
+
+| Supporting side | Skeptical side |
+| --- | --- |
+| complete candidate universe and score components | exclusions, dominated alternatives, and tie behavior |
+| evidence fingerprints and support posture | contradictions, stale sources, and unresolved gaps |
+| declared objectives and constraints | plausible alternative policies and threshold crossings |
+| confidence under the tested scenario set | sensitivity, falsifiers, and expected regret |
+| proposed next action | downgrade conditions, stop conditions, and human-review state |
+
+If the skeptical side cannot be reconstructed, the output is a ranking summary,
+not a defensible recommendation. Explanation text never substitutes for the
+underlying candidate, policy, and challenge records.
+
+## Decision invariants
+
+- the complete candidate universe and exclusions survive the ranking;
+- policy, thresholds, evidence fingerprints, and tie-breaking are recoverable;
+- contradiction, uncertainty, and missing evidence can only narrow posture;
+- sensitivity and counterfactual results remain attached to the recommendation;
+- confidence is distinct from evidence strength and cost of error;
+- refusal remains a valid terminal result when no supported action exists.
+
+## Decision work owned here
+
+- rank and select candidates under explicit policies and constraints;
+- interpret quantitative, pathway, contrast, PTM, contaminant, structure, and
+  run-level evidence without re-owning Core computation;
+- challenge claims through contradictions, falsifiers, blinded evidence,
+  scenarios, sensitivity, and regret;
+- assemble review boards, decision briefs, outsider packets, and
+  family-specific benchmark reviews;
+- apply outcome-aware calibration through new learning records rather than
+  mutating historical recommendations.
 
 ## Installation
 
@@ -322,6 +361,15 @@ chain, but it does not own the whole story.
 - [`src/bijux_proteomics_intelligence/interpretation/quantitative.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/quantitative.py) for quantitative interpretation and missingness caveats
 - [`src/bijux_proteomics_intelligence/learning/adaptation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/adaptation.py) for follow-up learning pressure
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
+
+## Release evidence
+
+A release review starts with this package `README.md`, its `CHANGELOG.md`, and
+the package `docs/*.md`. Together they state the public decision contract,
+record user-visible changes, and preserve detailed boundary and interpretation
+guidance. Reviewers then confirm those claims against the package tests and the
+repository release gates; passing tests alone do not authorize broader
+scientific or operational language.
 
 ## Documentation
 

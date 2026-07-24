@@ -119,9 +119,9 @@ _TRIAGE_BLUEPRINTS: dict[
     KnowledgeWorkflowFamily.MULTIPLEX: (
         (
             ContradictionConsequenceLevel.RELEASE_BLOCKING,
-            "Multiplex chemistry pressure is public, but outsider authority remains blocked because the family still lacks its own outsider packet and lab consequence surface.",
-            "This ranks first because it decides the authority boundary outright: multiplex stays internal support until the contradiction between public chemistry detail and missing outsider consequence closure is resolved.",
-            "Keep multiplex internal support only until dedicated outsider review and lab consequence packets exist.",
+            "Multiplex has a paired public benchmark surface, but the companion stress result defeats outsider authority and no dedicated lab consequence packet closes the downstream gap.",
+            "This ranks first because it decides the authority boundary outright: multiplex stays internal support until its companion-package failure and missing consequence closure are resolved.",
+            "Keep multiplex internal support only until companion pressure passes and dedicated outsider review and lab consequence packets exist.",
             (
                 "contradiction_dossier:multiplex:1",
                 "workflow_authority_matrix:multiplex",

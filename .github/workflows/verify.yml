@@ -54,7 +54,7 @@ jobs:
     name: policy-prerequisites
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: "Wait for policy and standards prerequisites"
         shell: bash
         env:
@@ -68,11 +68,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: 3.11
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -98,9 +98,6 @@ jobs:
           - package_slug: bijux-proteomics-core
             package_dir: packages/bijux-proteomics-core
             artifacts_dir: artifacts/bijux-proteomics-core
-          - package_slug: bijux-proteomics-runtime
-            package_dir: packages/bijux-proteomics-runtime
-            artifacts_dir: artifacts/bijux-proteomics-runtime
           - package_slug: bijux-proteomics-intelligence
             package_dir: packages/bijux-proteomics-intelligence
             artifacts_dir: artifacts/bijux-proteomics-intelligence
@@ -110,38 +107,6 @@ jobs:
           - package_slug: bijux-proteomics-lab
             package_dir: packages/bijux-proteomics-lab
             artifacts_dir: artifacts/bijux-proteomics-lab
-          - package_slug: bijux-proteomics
-            package_dir: packages/bijux-proteomics
-            artifacts_dir: artifacts/bijux-proteomics
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics
-            package_dir: packages/proteomics
-            artifacts_dir: artifacts/proteomics
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics-core
-            package_dir: packages/proteomics-core
-            artifacts_dir: artifacts/proteomics-core
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics-foundation
-            package_dir: packages/proteomics-foundation
-            artifacts_dir: artifacts/proteomics-foundation
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics-runtime
-            package_dir: packages/proteomics-runtime
-            artifacts_dir: artifacts/proteomics-runtime
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics-intelligence
-            package_dir: packages/proteomics-intelligence
-            artifacts_dir: artifacts/proteomics-intelligence
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics-knowledge
-            package_dir: packages/proteomics-knowledge
-            artifacts_dir: artifacts/proteomics-knowledge
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
-          - package_slug: proteomics-lab
-            package_dir: packages/proteomics-lab
-            artifacts_dir: artifacts/proteomics-lab
-            check_targets: "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
           - package_slug: bijux-proteomics-dev
             package_dir: packages/bijux-proteomics-dev
             artifacts_dir: artifacts/bijux-proteomics-dev

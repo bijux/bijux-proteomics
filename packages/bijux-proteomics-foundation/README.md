@@ -18,6 +18,7 @@
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -52,6 +53,41 @@ serialization, and cross-package consistency for reproducible proteomics data.
   posture to intelligence, scientific memory to knowledge, and assay follow-up
   to lab.
 
+## Contract flow
+
+```mermaid
+flowchart LR
+    model["typed model"] --> canonical["canonical JSON"]
+    canonical --> fingerprint["stable fingerprint"]
+    fingerprint --> persisted["persisted or exchanged document"]
+    persisted --> compatibility["compatibility assessment"]
+    compatibility -->|accepted| consumer["downstream package"]
+    compatibility -->|refused| refusal["typed refusal with reason"]
+```
+
+Foundation makes identity and compatibility reproducible; it does not decide
+whether a peptide assignment, recommendation, or assay plan is scientifically
+correct. Downstream packages own those meanings while reusing the same bytes,
+identifiers, failure envelopes, and migration rules.
+
+## Equality is not authority
+
+Canonicalization deliberately makes a narrow promise. It lets independent
+consumers reproduce document identity without granting the document authority
+outside its producing domain.
+
+| Foundation evidence | Safe statement | Unsafe leap |
+| --- | --- | --- |
+| valid `DocumentSchema` | the payload satisfies the declared structural version | the payload is scientifically correct |
+| canonical JSON | the same supported value has one governed representation | the source observation is authentic |
+| stable fingerprint | canonical content can be compared and referenced | matching content is biologically equivalent in every context |
+| compatible migration | a declared transformation reaches a readable target schema | the migration is scientifically lossless without domain review |
+| typed refusal | no value was produced for the recorded reason | retrying with weaker validation is acceptable |
+
+Keep the producer, parent references, schema decision, canonicalization policy,
+and outcome beside the digest. A detached hash is an identifier, not a
+provenance record.
+
 ## Why teams pick this kernel
 
 - one canonical document-contract baseline across every proteomics package
@@ -66,17 +102,6 @@ serialization, and cross-package consistency for reproducible proteomics data.
 - serialize domain models into canonical JSON for reproducible comparisons
 - validate migration paths before accepting persisted record upgrades
 - centralize shared contract behavior so other packages stay focused on domain logic
-
-## 0.3.8 Release Highlights
-
-- The shared kernel now covers canonical document metadata, JSON rendering,
-  stable hashing, identifier kinds, refusal and result envelopes, and schema
-  compatibility checks in one bounded package.
-- Foundation also ships the shared optional-dependency guards, alias helpers,
-  generated-file markers, and reusable test-policy primitives that the release
-  gates now depend on.
-- The public root stays intentionally small while durable owner families make
-  long-term boundaries explicit for contributors and downstream packages.
 
 ## Installation
 

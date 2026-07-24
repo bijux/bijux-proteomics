@@ -16,9 +16,11 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
+[![proteomics](https://img.shields.io/badge/proteomics-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fproteomics)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -40,7 +42,7 @@ It is the install and import alias for bijux-proteomics-core.
 Use this package when you want the shortest public distribution and import name
 for the core scientific surface without creating a second owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics` when the shortest install and import name matters more than
   the canonical owner package spelling.
@@ -50,12 +52,19 @@ for the core scientific surface without creating a second owner.
 - Route all scientific behavior to `bijux-proteomics-core`; keep this package
   focused on compatibility naming and short-form ergonomics.
 
-## 0.3.8 Release Highlights
+```mermaid
+flowchart LR
+    caller["from proteomics import …"]
+    alias["short-name forwarding layer"]
+    owner["bijux-proteomics-core"]
+    api["bijux_proteomics implementation"]
 
-- The short-name alias now points readers straight at the current core docs
-  and shipped scientific examples instead of reading like a second owner.
-- Compatibility wording, package boundaries, and release guidance now state
-  directly that `bijux-proteomics-core` owns all real behavior.
+    caller --> alias --> owner --> api
+```
+
+The short name changes how consumers install and import the surface; it does
+not change scientific semantics. Behavioral changes belong to Core and must be
+visible through the canonical tests before this alias forwards them.
 
 ## Installation
 

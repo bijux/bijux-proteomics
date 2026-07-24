@@ -140,8 +140,10 @@ def _toml_text(report: PackageOversizedMixedModuleReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_oversized_mixed_modules",
         "",
         "[guard]",
-        "max_total_oversized_mixed_module_count = "
-        f"{report.guard.max_total_oversized_mixed_module_count}",
+        (
+            "max_total_oversized_mixed_module_count = "
+            f"{report.guard.max_total_oversized_mixed_module_count}"
+        ),
         f"max_largest_nonempty_line_count = {report.guard.max_largest_nonempty_line_count}",
         "",
     ]

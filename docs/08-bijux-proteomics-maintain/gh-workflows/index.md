@@ -4,15 +4,15 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-22
 ---
 
 # gh-workflows
 
-This section maps repository events to the workflow files that answer them. It
-should get a maintainer from a failing run, a missing release artifact, or a
-stalled docs deployment to the right YAML owner without wandering through the
-Actions tab.
+GitHub workflows translate repository events into verification, governance,
+documentation, and publication graphs. Diagnose them by event, owning
+workflow, reusable execution contract, and terminal gate—not by whichever job
+name happens to fail last.
 
 ```mermaid
 flowchart LR
@@ -31,11 +31,32 @@ flowchart LR
     tag --> release --> outputs
 ```
 
-## What This Section Should Make Obvious
+## Event-to-owner contract
 
-- which event starts which automation
-- which workflows produce proof versus publication
-- where to look first when a repository promise breaks in GitHub
+| Event or symptom | First workflow owner | Evidence boundary |
+| --- | --- | --- |
+| pull request, merge group, or matching push | `verify.yml` | policy prerequisites, repository contracts, package matrix, terminal verification gate |
+| package matrix failure | reusable `ci.yml` called by `verify.yml` | selected package profile, target output, and governed package artifacts |
+| shared governance drift | `bijux-std.yml` or repository policy workflow | synchronized-source reference and checksum or policy evidence |
+| documentation deployment failure | `deploy-docs.yml` | validated site artifact before Pages publication |
+| release tag without complete artifacts | release orchestrator and `release-artifacts.yml` | built distributions, SBOMs, attestations, and package-qualified staging |
+| registry or GitHub publication failure | destination-specific release workflow | publication credentials and immutable staged artifact identity |
+
+Verification and publication are separate authorities. A successful upload
+does not repair failed proof, and a green verification run does not itself
+authorize a tag or registry write.
+
+```mermaid
+flowchart TD
+    event["repository event"] --> orchestrator["event-owning workflow"]
+    orchestrator --> reusable["reusable execution contract"]
+    reusable --> proof{"required proof passed?"}
+    proof -->|no| block["terminal gate blocks progression"]
+    proof -->|yes| artifact["identified artifact or verification result"]
+    artifact --> authority{"publication event and authority present?"}
+    authority -->|no| retain["retain proof without publication"]
+    authority -->|yes| publish["destination-specific publication"]
+```
 
 ## Start With
 
@@ -59,9 +80,14 @@ flowchart LR
 - [release-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/release-workflows/)
   for staged artifact assembly and final publication
 
-## First Proof Check
+## First proof route
 
 - `.github/workflows/verify.yml`
 - `.github/workflows/deploy-docs.yml`
 - `.github/workflows/release-*.yml`, `.github/workflows/ci.yml`, and
   `.github/workflows/github-policy.yml`
+
+Begin with the event-owning workflow, resolve any `workflow_call` boundary,
+then inspect the exact Make target and artifact name. A synchronized workflow
+change belongs in the shared standards owner; repository-specific matrices and
+inputs remain reviewable in the repository surfaces designed for them.

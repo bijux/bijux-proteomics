@@ -1,85 +1,124 @@
 ---
 title: Lab Consequence
 audience: mixed
-type: index
+type: guide
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # Lab Consequence
 
-This route answers the downstream question: if the repository recommends a
-follow-up, what real burden, control demand, refusal case, or observed-outcome
-feedback still keeps that recommendation honest.
+Laboratory consequence asks whether an advisory recommendation can become a
+safe, controlled, and informative experiment. Scientific support and ranking
+confidence are inputs to that decision; neither authorizes execution. Lab
+readiness also depends on controls, materials, instrumentation, staffing,
+sample burden, expected information gain, and explicit human approval.
 
-`bijux-proteomics-lab` matters more now because the upstream product is
-stronger. More scientific and analytical depth creates more downstream
-pressure, not less. A stronger benchmark packet is only useful if the follow-up
-story remains executable, reviewable, and honest about cost.
+## From Recommendation To Handoff
 
-## What Consequence Means Here
+```mermaid
+flowchart TD
+    recommendation["versioned advisory recommendation"] --> question["bounded experimental question"]
+    question --> design["assay design + controls + acceptance criteria"]
+    design --> readiness{"materials, capacity, safety, and review ready?"}
+    readiness -->|no| refusal["refuse, defer, or redesign"]
+    readiness -->|yes| approval{"required human approval complete?"}
+    approval -->|no| hold["hold as advisory"]
+    approval -->|yes| handoff["executable handoff"]
+    handoff --> observation["observations + QC + deviations"]
+    observation --> learning["new evidence and decision review"]
+```
 
-The lab route is where the repository makes explicit:
+An executable handoff is versioned and immutable in meaning. If evidence,
+design, controls, or resources change, create a revised plan rather than
+silently altering the approved record.
 
-- what is executable versus only advisory
-- what control burden and readiness gates still apply
-- what should be refused rather than optimistically handed off
-- what was requested versus what was actually run
-- how observed outcome should narrow or strengthen the next recommendation
+## Consequence Record
 
-This is why strong benchmark or runtime evidence can still end in a narrower
-public sentence.
+A reviewable consequence packet identifies:
 
-## What Is Stronger Than Before
+| Field | Required content |
+| --- | --- |
+| decision lineage | recommendation, evidence bundle, scientific result, and policy identities |
+| experimental question | result that can strengthen, weaken, or leave the claim unresolved |
+| assay and sample design | targets, matrix, cohort, replicates, randomization, and exclusions |
+| controls | positive, negative, process, calibration, carryover, and contamination controls as applicable |
+| readiness | materials, instrument, method, staffing, scheduling, safety, and review state |
+| burden | sample consumption, run time, cost, analyst time, and opportunity cost |
+| acceptance and stop rules | measurable success, failure, inconclusive, and refusal conditions |
+| output contract | observations, QC, deviations, artifact identities, and uncertainty |
+| authority | required human approvals and custody transfer |
 
-- the lab package now owns real planning, readiness, handoff, refusal, and
-  outcome-reconciliation surfaces across the flagship families
-- downstream burden is visible enough now that recommendation language cannot
-  quietly imply cheap or obvious follow-up
-- requested-versus-observed outcome learning is part of the public chain
-  instead of a hidden maintainer interpretation step
+Feasibility answers “can this work be performed under the declared controls?”
+It does not answer “is this the best scientific action?” Expected information
+gain and opportunity cost remain part of the review.
 
-## What This Route Should Settle
+## Family Consequence Limits
 
-- whether a family still stops at exploratory-only follow-up
-- whether the recommendation survives control demand and operator burden
-- whether refusal is the most honest downstream action
-- whether observed outcome should tighten or weaken the next public sentence
-
-## Family-Level Consequence Reading
-
-| family | consequence posture today | main downstream limiter |
+| Family | Reviewable follow-up | Consequence that remains bounded |
 | --- | --- | --- |
-| `dda` | bounded follow-up value | stronger execution review still does not erase follow-up cost and control demand |
-| `dia` | bounded follow-up value | absent-peptide and downstream interpretation burden still narrow the call |
-| `lfq` | exploratory follow-up only | cohort and normalization uncertainty still make stronger consequence language unsafe |
-| `ptm` | exploratory follow-up only | localization confidence still outruns follow-up certainty |
-| `targeted` | exploratory follow-up only | calibration, interference, and burden can still flip the recommendation |
-| `multiplex` | internal support only | downstream trust still collapses under the current stress packet |
+| `dda` | investigate identification or inference differences using preserved engine context | imported search execution and control burden prevent a universal rerun claim |
+| `dia` | test library-conditioned absence, interference, or matrix sensitivity | absent-peptide interpretation and chromatogram-native evidence remain limited |
+| `lfq` | repeat or extend cohort contrasts under explicit normalization and missingness policy | transfer across cohorts and analytical policies remains uncertain |
+| `multiplex` | inspect channel assignment, reference design, interference, and batch connectivity | outsider-facing consequence evidence is not closed; support remains internal |
+| `ptm` | challenge localization or measure a bounded site-level follow-up | localization does not establish occupancy, function, or causal regulation |
+| `targeted` | assess transitions, calibration, interference, carryover, and matrix suitability | method transfer and assay burden can still reverse the recommendation |
 
-## Start Here
+## Refuse Before Execution
 
-- Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/)
-  when the question is how observed follow-up should tighten the next release
-  sentence.
-- Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/)
-  when the honest next action may be to stop, narrow, or refuse.
-- Open [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the disagreement still spans evidence, recommendation, and burden.
-- Open [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
-  when the question is whether current follow-up limits still block stronger
-  repository wording.
+Refuse, defer, or redesign when the question is not falsifiable, required
+controls are absent, sample identity or custody is unresolved, material or
+instrument conditions cannot satisfy the contract, expected information gain
+does not justify burden, or required review is incomplete.
 
-## What This Route Prevents
+Use the [Workflow Refusal Handbook](workflow-refusal-handbook.md) to distinguish
+stop, rerun, narrow, and refuse decisions. A refusal is an auditable outcome;
+it should name the failed condition and the evidence required to reconsider.
 
-- treating a strong benchmark packet as if downstream validation were cheap
-- treating assay feasibility as if it were the same thing as assay worth
-- treating blocked or narrowed follow-up as if it had no effect on the next
-  public sentence
+## Classify The Outcome Without Promoting It
 
-## Boundary
+| observed outcome | consequence record | effect on the next decision |
+| --- | --- | --- |
+| controls fail or custody is unresolved | invalid outcome with failure class and preserved diagnostics | refuse interpretation; correct the precondition before a new run |
+| execution is technically clean but the question remains unresolved | valid observation with insufficient information gain | retain or narrow the prior posture; do not promote from cleanliness |
+| observation contradicts the expected direction | valid contradiction with QC and deviation context | return contradiction to Knowledge and rerun decision challenge |
+| observation supports the bounded question | direct support at the assay's declared scope | reconsider only the scoped recommendation, not broader family authority |
+| requested assay is blocked or omitted | requested-versus-observed gap with reason | include the missing assay as downgrade evidence |
 
-This route owns downstream consequence pressure. It should not start teaching
-package architecture before the reader knows whether the lab question is the
-real limiting factor.
+An observed assay changes a recommendation only through a versioned evidence
+revision. It never edits the original result, recommendation, or approved
+handoff in place.
+
+## Compare Requested And Observed Work
+
+After execution, record the requested and observed assay, controls, samples,
+instrument and method identity, QC, deviations, terminal state, artifacts,
+failure class, and uncertainty. Do not convert a technically clean observation
+directly into a biological conclusion.
+
+[Outcome Learning Loops](outcome-learning-loops.md) defines how observations
+return to Knowledge and Intelligence. The observation becomes new evidence;
+the original recommendation and handoff remain preserved for calibration and
+regret review.
+
+```mermaid
+sequenceDiagram
+    participant L as Lab observation
+    participant K as Knowledge reconciliation
+    participant I as Intelligence review
+    L->>K: observation + QC + deviations + lineage
+    K->>K: append support, contradiction, or unresolved evidence
+    K->>I: versioned evidence bundle
+    I->>I: retain, rerank, downgrade, or refuse
+    I-->>L: revised advisory question when warranted
+```
+
+## Continue The Review
+
+- [Decision Support](../../01-bijux-proteomics/foundation/decision-support.md)
+  traces the limiting owner before a handoff reaches Lab.
+- [Workflow Consequence Maps](../../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+  compares consequence posture across all workflow families.
+- [Current Capability Limits](../../01-bijux-proteomics/foundation/current-capability-limits.md)
+  records the evidence needed before a stronger public claim can be made.

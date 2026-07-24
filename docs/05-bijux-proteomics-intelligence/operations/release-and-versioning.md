@@ -4,23 +4,77 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Release and Versioning
+# Release and versioning
 
-The release version is explicit in Git history because version is resolved from Git tags through `hatch-vcs`.
+Intelligence follows the coordinated package-family release identity.
+The version is resolved from Git tags through `hatch-vcs`.
+A `v<version>` tag identifies the source revision shared with the coordinated
+package family. The fallback value in package metadata supports source archives
+without repository history; it is not a separate Intelligence release line.
+Release review focuses on whether a consumer can reproduce and challenge an
+advisory outcome under the released evidence and policy.
 
-Release rules should explain what kind of change readers need to look for before they trust a version bump.
+## Classify decision impact
 
-## Operating Rules
+| Change | Release question |
+| --- | --- |
+| internal implementation | do frozen decision cases retain every observable field? |
+| new diagnostic | can existing consumers ignore it without losing meaning? |
+| policy default | which rankings, refusals, or actions change? |
+| report schema | can stored packets still be loaded or migrated? |
+| confidence semantics | does the same value now support a different conclusion? |
+| authority boundary | can advisory output be mistaken for enforced action? |
 
-- release notes should explain decision-surface changes in reader language
-- artifact shape changes need downstream warning and proof
-- avoid combining policy shifts with unrelated structural cleanup in one release story
+Policy and implementation versions must remain distinguishable. A code release
+can support several explicit policies, and a policy change can alter advice
+without a new model class. Store policy identity with each decision artifact.
 
-## First Proof Check
+## Release evidence chain
 
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
-- `packages/bijux-proteomics-intelligence/tests`
+```mermaid
+flowchart LR
+    fixtures["frozen evidence and policy cases"]
+    compare["decision and explanation comparison"]
+    packets["review packet round trip"]
+    gates["test · quality · API"]
+    aliases["alias forwarding"]
+    install["isolated install"]
+    fixtures --> compare --> packets --> gates --> aliases --> install
+```
+
+Run the package gates from the repository root:
+
+```bash
+make test PACKAGE=bijux-proteomics-intelligence
+make quality PACKAGE=bijux-proteomics-intelligence
+make api PACKAGE=bijux-proteomics-intelligence
+make build PACKAGE=bijux-proteomics-intelligence
+make test PACKAGE=proteomics-intelligence
+```
+
+The decision comparison includes rank order, factor contributions, hard
+exclusions, Pareto membership, contradictions, falsifiers, scenario spread,
+refusal state, confidence, and next actions. If any move, the release evidence
+explains why and identifies affected consumer behavior.
+
+## Changelog contract
+
+Update `packages/bijux-proteomics-intelligence/CHANGELOG.md` with the affected
+decision surface, policy identity, before-and-after consequence, artifact
+compatibility, and required consumer action. Describe explanation-only changes
+separately from changes that can alter an action.
+
+Coordinate with Knowledge when evidence interpretation or claim structures
+move, with Core when scientific metrics change, and with Lab when advice feeds
+planning. Coordination does not transfer ownership: Knowledge curates evidence,
+Core owns scientific calculations, Intelligence advises, and Lab authorizes
+physical work.
+
+After publication, install the exact wheel into an empty environment, load a
+frozen evidence-and-policy case, build its review artifact, and compare the
+decision record with the release dossier. Verify the `proteomics-intelligence`
+alias when the public module surface changes. These checks establish consumer
+reproducibility beyond successful package upload.

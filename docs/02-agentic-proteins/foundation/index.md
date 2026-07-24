@@ -4,72 +4,95 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Foundation
+# Compatibility foundations
 
-The foundation section explains the durable role of `agentic-proteins` before it
-explains implementation detail. Use it to resolve why preserved legacy surfaces still belong here instead of in the canonical runtime package.
+`agentic-proteins` preserves named interfaces required by historical callers
+while `bijux-proteomics-runtime` owns execution behavior. The boundary is
+deliberately asymmetric: the bridge may forward to canonical packages, but
+canonical packages never depend on the bridge.
 
 ```mermaid
-flowchart TB
-    past["legacy callers still exist"]
-    bridge["agentic-proteins<br/>compatibility package"]
-    runtime["canonical runtime"]
-    retire["bridge can shrink"]
-
-    past --> bridge
-    bridge --> runtime
-    runtime --> retire
+flowchart LR
+    C["historical caller"] --> B["agentic-proteins bridge"]
+    B --> R["Runtime execution owner"]
+    B --> S["Core scientific report owner"]
+    R --> E["equivalence evidence"]
+    S --> E
+    E --> M["canonical caller"]
 ```
 
-## Why This Section Exists
+## Contract routes
 
-- it helps the reader understand why a package can be valuable even while being
-  temporary
-- it makes retirement pressure explicit instead of letting compatibility linger
-  without a reason
-- it distinguishes bridge ownership from canonical runtime ownership
+| Question | Guide | Decision |
+| --- | --- | --- |
+| Why does the distribution exist? | [Package overview](package-overview.md) | bridge required by a supported historical caller |
+| Is a surface in scope? | [Scope and non-goals](scope-and-non-goals.md) | preserve, migrate, or reject |
+| Where must behavior change? | [Ownership boundary](ownership-boundary.md) | bridge or canonical owner |
+| Which behaviors may the bridge perform? | [Capability map](capability-map.md) | forward, translate, warn, or report |
+| Which packages may it depend on? | [Dependencies and adjacencies](dependencies-and-adjacencies.md) | allowed one-way dependency |
+| What permits a surface to disappear? | [Lifecycle overview](lifecycle-overview.md) | caller evidence and removal gate |
 
-## Start With
+The [compatibility contract](compatibility-contract.md) is authoritative when a
+convenient local change conflicts with the bridge boundary.
 
-- Open [Package Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/package-overview/) for the shortest statement of
-  the package role.
-- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/ownership-boundary/) when the question is
-  whether a change belongs here or in a neighbor.
-- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/scope-and-non-goals/) when a proposed change
-  risks broadening the package.
-- Open [Capability Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/capability-map/) when you need the concrete work
-  the package is allowed to do.
+## Owned surfaces
 
-## Section Pages
+The package owns compatibility behavior for historical:
 
-- [Package Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/package-overview/)
-- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/scope-and-non-goals/)
-- [Ownership Boundary](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/ownership-boundary/)
-- [Capability Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/capability-map/)
-- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/dependencies-and-adjacencies/)
-- [Repository Fit](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/repository-fit/)
-- [Lifecycle Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/lifecycle-overview/)
-- [Domain Language](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/domain-language/)
-- [Change Principles](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/change-principles/)
+- `agentic_proteins` Python imports;
+- `agentic-proteins` command invocation;
+- HTTP module paths and route assembly;
+- configuration and state translation required for canonical execution;
+- migration diagnostics and explicit failure when equivalence is unavailable.
 
-## What This Section Settles
+It does not own providers, run state machines, replay semantics, scientific
+reports, benchmarks, evidence interpretation, or new feature design. Those
+changes begin in the canonical package and flow through the bridge only when a
+declared compatibility contract requires forwarding.
 
-- whether a preserved surface still needs a bridge
-- whether compatibility logic is still narrow enough to stay here
-- when a legacy concern should move fully into runtime or disappear
+## Compatibility decisions
 
-## First Proof Check
+```mermaid
+flowchart TD
+    P["proposed bridge change"] --> H{"historical caller requires it?"}
+    H -->|no| X["implement in canonical owner"]
+    H -->|yes| O{"canonical owner exists?"}
+    O -->|yes| F["forward or translate narrowly"]
+    O -->|no| R["reject or record migration blocker"]
+    F --> T["prove surface equivalence"]
+```
 
-- `packages/agentic-proteins`
-- `packages/agentic-proteins/tests`
-- neighboring handbooks once the change crosses the local boundary
+A bridge change is justified by a concrete caller contract, not by the
+possibility that somebody might use it. Compatibility code remains narrow,
+observable, and removable once its declared consumers have migrated.
 
-## Neighbors
+## Proof obligations
 
-- Open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  when the question leaves compatibility forwarding for legacy runtime imports and entrypoints.
-- Open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
-  when the issue is clearly outside this package's local role.
+| Surface | Minimum proof |
+| --- | --- |
+| Python import | legacy import resolves to the declared canonical object or an explicit removal error |
+| CLI | command, arguments, exit status, standard output, standard error, and artifacts are compared |
+| HTTP | route, request, response, status, and error contracts are compared |
+| configuration | accepted keys, defaults, rejection behavior, and translation are compared |
+| persisted state | schema identity, checkpoint loading, and replay behavior are compared |
+
+Package tests protect local forwarding. Repository migration validation checks
+the complete ledger and cross-package equivalence. Both are required because a
+bridge can import successfully while still changing operational behavior.
+
+## Language and change rules
+
+The [domain language](domain-language.md) distinguishes bridge, canonical owner,
+forwarder, translation, equivalence, and removal. The
+[change principles](change-principles.md) apply those terms to implementation
+and release decisions. [Repository fit](repository-fit.md) explains how the
+distribution participates in the wider package family without becoming a
+second runtime.
+
+For canonical execution behavior, continue to the
+[Runtime handbook](../../09-bijux-proteomics-runtime/index.md). For repository
+migration gates, continue to
+[runtime migration validation](../../01-bijux-proteomics/operations/runtime-migration-validation.md).

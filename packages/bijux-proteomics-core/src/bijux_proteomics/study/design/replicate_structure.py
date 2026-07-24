@@ -8,7 +8,6 @@ from __future__ import annotations
 from collections import defaultdict
 import csv
 from io import StringIO
-from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -377,10 +376,10 @@ def _repeated_measure_subject_ids(experiment_design: ExperimentDesign) -> set[st
     for sample in experiment_design.samples:
         if sample.pair_id in (None, ""):
             continue
-        pair_id = cast(str, sample.pair_id)
+        pair_id = sample.pair_id
         pair_samples[pair_id].add(sample.sample_id)
         if sample.timepoint not in (None, ""):
-            pair_timepoints[pair_id].add(cast(str, sample.timepoint))
+            pair_timepoints[pair_id].add(sample.timepoint)
     return {
         pair_id
         for pair_id in pair_samples

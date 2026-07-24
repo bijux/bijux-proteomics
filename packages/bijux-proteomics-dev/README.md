@@ -19,6 +19,47 @@ standards; it is intentionally separate from product runtime behavior.
 - Route product behavior back to its owner package instead of adding science
   or runtime semantics here.
 
+## A gate result is revision-specific evidence
+
+A gate answers a bounded question for one source state, configuration, and
+environment. Preserve that scope when interpreting or sharing its result.
+
+| Retain with the result | Why it matters |
+| --- | --- |
+| source commit and worktree state | identifies the code and governed files that were checked |
+| exact command and configuration | identifies the policy and check mode that ran |
+| tool and dependency environment | explains reproducibility and environment-sensitive behavior |
+| generated-input freshness | prevents a passing check over stale derived evidence |
+| full failure or refusal output | preserves the violated contract and closure condition |
+| claimed conclusion | prevents a local pass from being presented as product or release readiness |
+
+The toolkit enforces contracts; it does not create scientific authority. A docs
+build proves rendering integrity, a package test proves covered package
+behavior, and release preflight proves only that its ordered repository policy
+passed for the identified candidate.
+
+## Release-candidate decision record
+
+Release readiness is a decision over an identified candidate, not a reusable
+property of a branch or a previous passing run. The retained record must make
+both the evidence and the resulting publication scope explicit.
+
+| Record field | Required content |
+| --- | --- |
+| candidate identity | source revision, worktree state, package versions, and immutable artifact hashes |
+| gate evidence | exact commands, configurations, environments, timestamps, and complete outputs |
+| freshness evidence | generated-source identities and proof that derived contracts match the candidate |
+| exceptions and blockers | owner, rationale, affected contract, expiry or closure condition, and linked evidence |
+| channel scope | package indexes, containers, documentation, schemas, and attestations covered by the decision |
+| disposition | `publish`, `narrow`, `withhold`, or `refuse`, with the accountable decision owner |
+
+A violated contract is a failure until repaired. Missing infrastructure or an
+unavailable external dependency is `blocked`; a validator defect is an owned
+tooling failure; an intentional contract change requires its governed review
+and regenerated evidence. None of those outcomes becomes a pass by omission.
+Signing and attestation establish artifact identity and provenance, but they do
+not override scientific, compatibility, security, or ownership refusals.
+
 ## Why teams pick this package
 
 - one toolkit for quality, security, release, docs, and API governance gates
@@ -35,15 +76,15 @@ standards; it is intentionally separate from product runtime behavior.
 - detect OpenAPI and schema drift before publication
 - automate maintainership checks for docs and repository health
 
-## 0.3.8 Release Highlights
+## Enforced repository contracts
 
-- The maintainer package now owns architecture regression, runtime-boundary,
+- The maintainer package owns architecture regression, runtime-boundary,
   package-tree, orphan-module, circular-import, public-API typecheck,
   generated-file, scientific-concept, and cross-package smoke gates.
-- README API examples are now executed against the shipped package surfaces,
+- README API examples execute against the shipped package surfaces,
   and the repository test lanes are documented as explicit fast and slow
   contracts.
-- Release validation now treats bridge migration, package ownership, and
+- Release validation treats bridge migration, package ownership, and
   runtime handoff checks as first-class repository policy instead of scattered
   workflow glue.
 

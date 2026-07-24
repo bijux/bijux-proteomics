@@ -124,8 +124,10 @@ def _toml_text(report: PackageDependencyDossierReport) -> str:
                 f"allowed_inbound_edges = [{_render_tuple(entry.allowed_inbound_edges)}]",
                 f"actual_outbound_edges = [{_render_tuple(entry.actual_outbound_edges)}]",
                 f"actual_inbound_edges = [{_render_tuple(entry.actual_inbound_edges)}]",
-                "unexpected_outbound_edges = "
-                f"[{_render_tuple(entry.unexpected_outbound_edges)}]",
+                (
+                    "unexpected_outbound_edges = "
+                    f"[{_render_tuple(entry.unexpected_outbound_edges)}]"
+                ),
                 f'rationale = "{entry.rationale}"',
                 "",
             ]

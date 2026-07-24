@@ -19,6 +19,7 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 
@@ -60,6 +61,40 @@ or handoff safety guarantees.
 - Route scientific truth to core, evidence memory to knowledge,
   recommendation posture to intelligence, and execution control to runtime.
 
+## Consequence flow
+
+```mermaid
+flowchart LR
+    request["recommended follow-up"] --> feasibility["materials, capacity, controls"]
+    feasibility --> readiness{"ready to hand off?"}
+    readiness -->|yes| plan["versioned assay plan"]
+    readiness -->|no| refusal["refusal or downgraded plan"]
+    plan --> observed["observed outcome"]
+    observed --> reconcile["requested-versus-observed record"]
+    reconcile -. evidence feedback .-> knowledge["Knowledge"]
+```
+
+Lab makes the cost and operational consequence of a recommendation visible. It
+does not reinterpret analytical evidence or silently convert advisory planning
+into executable instructions.
+
+## No result is not one state
+
+Work can stop before readiness, during execution, at QC, or after an accepted
+but inconclusive measurement. Those outcomes carry different evidence and
+permit different next actions.
+
+| Terminal condition | Record to retain | Do not report |
+| --- | --- | --- |
+| unready plan | failed readiness checks and unresolved prerequisites | assay failure |
+| deferred plan | capacity, material, timing, and owner constraint | rejected scientific question |
+| failed execution | handoff identity, events, diagnostics, and consumed resources | biological null result |
+| rejected measurement | raw observation, QC failure, controls, and deviations | accepted evidence |
+| inconclusive measurement | accepted data, answerability limits, and requested-versus-observed comparison | confirmation or contradiction |
+
+Keeping these dispositions distinct prevents pressure to turn operational loss
+or weak answerability into an apparently complete experimental loop.
+
 ## Why teams pick this package
 
 - dependency-aware planning that keeps queue pressure, gate pressure, and
@@ -83,18 +118,6 @@ or handoff safety guarantees.
   controls, caveats, field loss, and refusal reasons
 - reconcile observed outcomes back into supported, weakened, or blocked
   feedback for downstream review
-
-## 0.3.8 Release Highlights
-
-- Lab now publishes typed design, planning, readiness, handoff,
-  reconciliation, and follow-up packet surfaces across DDA, DIA, LFQ, PTM, and
-  targeted workflows.
-- Targeted benchmark rehearsal, refusal, outcome dossier, and learning
-  surfaces now make assay burden and observed follow-up visible before stronger
-  downstream claims are made.
-- The package root is deliberately narrowed to planning entrypoints while the
-  durable owner bands keep readiness, handoff, outcome, and benchmark behavior
-  auditable.
 
 ## Installation
 

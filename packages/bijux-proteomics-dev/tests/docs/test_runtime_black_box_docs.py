@@ -66,13 +66,22 @@ def test_runtime_black_box_docs_name_execution_modes_replay_and_refusal_paths() 
     assert "Minimal steps:" in replay
 
     assert "# Runtime Environment Contracts" in environment
+    assert "## Qualify an environment" in environment
+    assert "## Record the qualification" in environment
+    assert "irreproducible" in environment
     assert "supported combinations:" in environment
     assert "unsupported combinations:" in environment
 
     assert "# Runtime Artifact Stability" in stability
+    assert "## Classify Drift Before Comparing Runs" in stability
+    assert "## Minimum comparison record" in stability
+    assert "unclassified drift" in stability
     assert "bit-stable paths:" in stability
     assert "review-stable surfaces:" in stability
 
     assert "# Runtime Rerun Refusals" in refusals
+    assert "## Current family posture" in refusals
+    assert "## Close or preserve a refusal" in refusals
+    assert "strongest supported lane" in refusals
     assert "refusal reasons:" in refusals
     assert "next evidence paths:" in refusals

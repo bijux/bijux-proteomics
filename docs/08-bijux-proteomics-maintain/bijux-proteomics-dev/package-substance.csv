@@ -1,9 +1,9 @@
 package_name,boundary_role,source_module_count,owned_logic_count,wrapper_module_count,thin_module_count,evidence_locator,ready
-agentic-proteins,compatibility_bridge,117,0,112,0,packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/architecture/agentic_compatibility_inventory.py,true
-bijux-proteomics-core,canonical_product,149,128,0,21,packages/bijux-proteomics-core/src/bijux_proteomics/,true
-bijux-proteomics-dev,maintainer_support,169,142,0,27,packages/bijux-proteomics-dev/src/bijux_proteomics_dev/,false
-bijux-proteomics-foundation,shared_kernel,25,24,0,1,packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/charter.py,true
-bijux-proteomics-intelligence,canonical_product,62,25,0,1,packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/charter.py,true
-bijux-proteomics-knowledge,canonical_product,57,44,0,13,packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/charter.py,true
-bijux-proteomics-lab,canonical_product,37,27,0,10,packages/bijux-proteomics-lab/src/bijux_proteomics_lab/governance/charter.py,true
-bijux-proteomics-runtime,canonical_product,165,139,0,26,packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py,true
+agentic-proteins,compatibility_bridge,120,0,112,0,packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/architecture/agentic_compatibility_inventory.py,true
+bijux-proteomics-core,canonical_product,1337,1204,0,133,packages/bijux-proteomics-core/src/bijux_proteomics/,false
+bijux-proteomics-dev,maintainer_support,188,160,0,28,packages/bijux-proteomics-dev/src/bijux_proteomics_dev/,false
+bijux-proteomics-foundation,shared_kernel,39,37,0,2,packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/charter.py,true
+bijux-proteomics-intelligence,canonical_product,80,33,0,2,packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/charter.py,true
+bijux-proteomics-knowledge,canonical_product,76,54,0,22,packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/charter.py,true
+bijux-proteomics-lab,canonical_product,39,29,0,10,packages/bijux-proteomics-lab/src/bijux_proteomics_lab/governance/charter.py,true
+bijux-proteomics-runtime,canonical_product,189,155,0,34,packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py,true

@@ -121,7 +121,9 @@ def test_cross_package_smoke_validation_names_the_first_broken_boundary(
     )
 
     assert validate_cross_package_smoke_report(broken) == (
-        "first broken boundary is knowledge.resolve_pathway_members at "
-        "bijux_proteomics_knowledge.resolve_pathway_members; got "
-        "runtime.run_reviewable_sequence_path",
+        (
+            "first broken boundary is knowledge.resolve_pathway_members at "
+            "bijux_proteomics_knowledge.resolve_pathway_members; got "
+            "runtime.run_reviewable_sequence_path"
+        ),
     )

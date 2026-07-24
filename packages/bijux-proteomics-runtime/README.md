@@ -15,6 +15,7 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
@@ -46,50 +47,114 @@ Runtime owns execution control. It does not own the scientific workflow
 blueprint, evidence truth, ranking semantics, or lab progression logic that the
 wider proteomics engine still needs.
 
-## At a glance
+## Execution ownership
 
-- Use runtime when the concern is executable workflow control, provider
-  binding, deterministic replay, or operator-facing handoff.
-- Start with `bijux-proteomics-runtime --help` for the live CLI surface, then
-  open the
-  [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  when you need the end-to-end run path.
-- Route scientific truth to core, cited evidence memory to knowledge,
-  recommendation posture to intelligence, and assay follow-up authority to
-  lab.
+Choose Runtime when the question is what can execute, which provider and mode
+were selected, what state transitions occurred, which artifacts were produced,
+and whether a completed run can be resumed, compared, or replayed.
 
-## Why teams pick this package
+| Runtime owns | Runtime records | Runtime does not decide |
+| --- | --- | --- |
+| preflight and capability checks | unmet requirements and refusal reason | scientific validity |
+| provider and execution-mode selection | selected capability, fallback, environment | evidence truth |
+| run lifecycle and checkpoints | transitions, events, resume boundary | recommendation policy |
+| artifact and cache custody | paths, hashes, lineage, reuse decision | laboratory readiness |
+| comparison, rerun, and replay | normalized differences and equivalence limits | cross-context biological transfer |
 
-- one canonical runtime surface for CLI, API, orchestration, and providers
-- deterministic replay and artifact shaping for repeatable execution outcomes
-- typed run context, artifact ledger, replay contract, and local/container/scheduler/import run bundle outputs
-- runtime-owned CLI and API operations that avoid private helper glue
-- reviewable run and import paths that publish canonical downstream-facing manifests
-- partial rerun planning, cache claims, cleanup plans, and failure-recovery audits for operational safety
-- preflight and failure reports that fail early on missing execution requirements
-- import traces, human-review resume checkpoints, and artifact-integrity reports for safe reuse
-- runtime-owned control surfaces that consume lower-layer contracts without re-exporting their domain semantics
-- explicit migration target for `agentic-proteins` compatibility forwarding
+The live CLI contract is available through `bijux-proteomics-runtime --help`.
+The [runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+traces a run from request to archived evidence.
 
-## Typical use cases
+## Execution evidence flow
 
-- run the canonical proteomics workflow through CLI or HTTP entrypoints
-- bind local or API-backed structure providers behind one orchestration layer
-- enforce replay-safe runtime execution without moving domain semantics upward
-- ingest third-party engine outputs while preserving external provenance honestly
-- publish one useful run path from clean install to reviewable output
-- publish one useful import-only path from third-party result to reviewable output
-- integrate canonical runtime surfaces while legacy imports remain compat-only
+```mermaid
+flowchart LR
+    request["core workflow request"] --> preflight["capability preflight"]
+    preflight --> provider["provider and execution mode"]
+    provider --> run["run, checkpoint, resume"]
+    run --> ledger["artifact and decision ledgers"]
+    ledger --> replay["compare, replay, or refuse reuse"]
 
-## 0.3.8 Release Highlights
+    preflight -. unavailable .-> refusal["typed refusal"]
+    replay -. integrity mismatch .-> refusal
+```
 
-- Runtime now publishes advanced DIA-NN dry-run, resume, comparison, archive,
-  and architecture-demo workflows as public owner surfaces.
-- Workflow DAG typing, semantic cache fingerprints, partial rerun plans,
-  workflow failure artifacts, and reviewable handoff archives now stay
-  machine-readable instead of living in ad hoc runtime glue.
-- Black-box rerun and reviewable sequence/import paths are now explicit parts
-  of the runtime trust story rather than maintainer-only knowledge.
+Runtime proves what was requested, selected, executed, persisted, and reused.
+It does not turn successful execution into scientific truth. Import-only lanes
+retain their external-engine provenance and cannot claim raw execution parity.
+
+## Completion, rerun, and reproduction differ
+
+These words describe increasing evidence burdens. Use the narrowest statement
+the run records actually support.
+
+| Statement | Minimum Runtime evidence | Additional boundary |
+| --- | --- | --- |
+| completed | one run reached a successful terminal state and retained its required artifacts | says nothing about another execution |
+| rerunnable | request, inputs, environment contract, provider capability, and instructions are sufficient to attempt another run | availability may still change |
+| rerun | a new bundle records another execution of the declared request | equality has not yet been assessed |
+| operationally comparable | a named policy classifies request, environment, event, and artifact differences | does not establish scientific equivalence |
+| replay-compatible | persisted state and events can be consumed under the declared compatibility contract | does not prove identical external providers |
+| scientifically reproduced | Runtime comparison and Core acceptance both support the family-specific equivalence claim | remains bounded by the tested context |
+
+When a required environment, provider, or artifact identity cannot be
+reconstructed, emit a refusal or narrower disposition instead of treating a
+second completion as reproduction.
+
+## Rerun closure record
+
+A rerun closes only when the new execution is linked to its source run and all
+material differences have a named interpretation. Preserve the following
+fields with the comparison rather than reducing the outcome to pass or fail.
+
+| Record field | Required content |
+| --- | --- |
+| source and rerun identities | immutable run identifiers, revisions, requests, and input fingerprints |
+| execution context | provider capability, environment contract, dependency lock, and execution mode |
+| observed differences | request, event, state, artifact, timing, and external-provider differences |
+| stability class | `identity-stable`, `semantically-stable`, `expected-drift`, or `incompatible` for each governed surface |
+| policy and evidence | comparison policy version plus retained manifests, hashes, logs, and normalized reports |
+| disposition | `accepted`, `degraded`, or `refused`, with the exact reason and accountable reviewer |
+
+Classify request and input drift before environment drift, environment drift
+before event and state drift, and event and state drift before artifact drift.
+That order preserves causality: an artifact difference should not be explained
+as numerical variation when the rerun used a different request or provider
+contract. `Degraded` is a bounded result for usable but weaker evidence;
+`refused` means the available record cannot support the requested comparison or
+reuse claim.
+
+## Execution evidence contract
+
+Each governed run exposes a typed run context, artifact ledger, replay contract,
+preflight and failure reports, provider decision, checkpoint history, and
+terminal disposition. Local, container, scheduler, and import launch surfaces
+produce distinct records because their custody and reproducibility boundaries
+differ.
+
+```mermaid
+flowchart TD
+    Q["validated workflow request"] --> P{"preflight"}
+    P -->|refuse| F["typed refusal and unmet capability"]
+    P -->|accept| S["resolved provider and execution mode"]
+    S --> R["run context and lifecycle events"]
+    R --> A["artifact ledger and checkpoints"]
+    A --> T{"terminal disposition"}
+    T -->|complete| C["comparison · rerun · replay evidence"]
+    T -->|fail| E["failure report and recovery boundary"]
+```
+
+## Supported operational work
+
+- execute validated workflow requests through CLI, Python, or HTTP;
+- bind built-in, local, and remote providers behind capability checks;
+- emit launch bundles for local, container, and scheduler environments without
+  claiming infrastructure ownership;
+- normalize imported third-party outputs while retaining external provenance;
+- checkpoint and resume human-review or interruption boundaries;
+- plan partial reruns, verify cache claims and artifact integrity, and compare
+  completed run bundles;
+- provide the canonical target for `agentic-proteins` forwarding.
 
 ## Installation
 

@@ -165,8 +165,10 @@ def _toml_text(report: PackageRootSurfaceIllusionReport) -> str:
                 f"root_export_symbol_count = {entry.root_export_symbol_count}",
                 f"owner_logic_module_count = {entry.owner_logic_module_count}",
                 f"illusion_reasons = [{_render_tuple(entry.illusion_reasons)}]",
-                "root_surface_hides_owner_depth = "
-                f"{str(entry.root_surface_hides_owner_depth).lower()}",
+                (
+                    "root_surface_hides_owner_depth = "
+                    f"{str(entry.root_surface_hides_owner_depth).lower()}"
+                ),
                 "",
             ]
         )

@@ -18,6 +18,7 @@
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -47,42 +48,85 @@ Core also owns workflow blueprints and execution requests, but only as
 runtime-agnostic scientific contracts. It does not take over provider binding,
 run orchestration, ranking policy, reference curation, or lab readiness.
 
-## At a glance
+## Ownership decision
 
-- Use core when a change defines proteomics meaning that should remain true
-  before orchestration, curation, recommendation, or lab follow-up is layered
-  on top.
-- Start with the [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md) for the
-  fastest non-developer path, or `bijux_proteomics.interfaces` for curated
-  reader-facing examples.
-- Route provider binding and replay to runtime, cited scientific memory to
-  knowledge, recommendation posture to intelligence, and assay follow-up to
-  lab.
+Choose Core when the output must retain proteomics meaning outside the process
+that computed it. Core owns the models and policies needed to answer whether a
+sequence, spectrum, PSM, protein group, quantitative value, PTM site, or
+workflow result is scientifically interpretable.
 
-## Why teams pick this package
+| Concern | Core owns | Adjacent owner |
+| --- | --- | --- |
+| sequence and chemistry | validation, digestion, masses, modifications, fragments | Runtime executes provider-backed work |
+| evidence intake | format parsing, search-result normalization, loss accounting | Knowledge grounds claims against sources |
+| identification and inference | PSM confidence, FDR, protein grouping, ambiguity | Intelligence ranks possible actions |
+| quantification and specialized workflows | LFQ, DIA, multiplex, PTM, targeted contracts | Lab evaluates experimental follow-up |
+| benchmark evidence | corpora, acceptance bars, perturbations, family limitations | Runtime records rerun and replay evidence |
 
-- explicit scientific contracts for sequence, chemistry, identification, quantification, PTM, DIA, study, and review surfaces
-- deterministic evidence normalization with honest loss and refusal reporting
-- workflow contracts that stay runtime-agnostic while preserving scientific meaning
-- reviewable artifacts that downstream packages can consume without redefining core domain truth
+The [Shipped demo CLI tutorial](docs/SHIPPED-DEMO-CLI.md) is the minimal
+non-developer CLI path. Curated Python examples live in
+`bijux_proteomics.interfaces`.
 
-## Typical use cases
+## Scientific ownership flow
 
-- normalize proteomics evidence into durable core contracts before higher-layer judgment begins
-- model program, target, assay, review, and workflow state with explicit scientific semantics
-- inspect unsupported or lossy scientific inputs without hiding uncertainty
-- build reviewable scientific artifacts that runtime, knowledge, intelligence, and lab can consume
+```mermaid
+flowchart LR
+    inputs["FASTA, spectra, mzML, result tables"]
+    normalize["loss-aware normalization"]
+    science["identification, quantification, PTM, DIA"]
+    review["QC, uncertainty, inference, benchmark evidence"]
+    contract["runtime-agnostic workflow contract"]
 
-## 0.3.8 Release Highlights
+    inputs --> normalize --> science --> review --> contract
+    normalize -. unsupported input .-> refusal["explicit refusal or loss report"]
+```
 
-- The public scientific surface now covers FASTA intake, digestion, peptide
-  chemistry, search-result normalization, spectra, mzML ingestion, search
-  adapters, protein inference, label-free quantification, PTM analysis, run
-  QC, and workflow planning.
-- Identification and quantification now publish governed public facades backed
-  by machine-readable owner ledgers instead of one broad mixed export bucket.
-- The shipped demo CLI path and the README examples now point at the current
-  reader-facing workflows instead of older placeholder routes.
+Core owns the scientific meaning on this path. It deliberately stops before
+provider selection, run scheduling, evidence curation, recommendation policy,
+or laboratory execution.
+
+## Read a report before reading its headline
+
+A rendered conclusion is useful for navigation; the typed report is the
+scientific record. Review these fields together before reusing a result:
+
+| Report component | Question it preserves | Failure hidden when omitted |
+| --- | --- | --- |
+| accepted inputs | what entered the computation? | invalid or out-of-scope records appear analyzed |
+| rejected inputs | what was excluded, and why? | selective loss disappears from review |
+| active policy | which scientific choices shaped the result? | defaults are mistaken for universal rules |
+| ambiguity and QC | where is the result unstable or underdetermined? | a plausible value appears uniquely supported |
+| benchmark lineage | which family and evidence burden were applied? | support in one context is transferred to another |
+| known limits | where must interpretation stop? | analytical acceptance becomes a biological or operational claim |
+
+Machine-readable reports retain this structure so JSON, TSV, console output,
+and narrative summaries can be checked against one scientific disposition.
+
+## Scientific guarantees
+
+- intake returns accepted and rejected records instead of silently dropping
+  malformed or unsupported input;
+- normalization records mapped, unsupported, refused, and lost fields;
+- policies such as digestion, tolerance, FDR, inference, missingness, and
+  normalization remain attached to their results;
+- ambiguity and QC are first-class outputs rather than prose added after the
+  calculation;
+- workflow requests remain runtime-agnostic and name their expected artifacts
+  and refusal conditions;
+- benchmark acceptance is family-specific and cannot be transferred to an
+  untested workflow by API similarity.
+
+## Scientific work owned here
+
+- parse FASTA, MGF, mzML, mzIdentML, mzTab, and supported engine outputs;
+- calculate digestion, peptide chemistry, isotope, labeling, and fragment
+  contracts;
+- audit PSM confidence, target-decoy FDR, contaminants, calibration, and
+  protein inference;
+- build LFQ, DIA, multiplex, PTM, proteoform, and targeted-review artifacts;
+- evaluate study design, batch QC, reproducibility, and publication thresholds;
+- construct benchmark and workflow contracts consumed by Runtime and review
+  packages.
 
 ## Installation
 
@@ -737,7 +781,7 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [`src/bijux_proteomics/domain/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/domain/program_spec.py) for canonical program entities and stage semantics
 - [`src/bijux_proteomics/domain/programs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/domain/programs.py) for review-gated progression and execution requests
 - [`src/bijux_proteomics/sequences/core.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py) for FASTA parsing, target-decoy generation, and sequence normalization
-- [`src/bijux_proteomics/sequences/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py) for protease rules, digestion modes, peptide filters, and peptide-to-protein indexing
+- [`src/bijux_proteomics/sequences/digestion/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion) for protease rules, digestion modes, peptide filters, and peptide-to-protein indexing
 - [`src/bijux_proteomics/chemistry/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py) for peptide masses, fragment ions, neutral losses, and modification semantics
 - [`src/bijux_proteomics/identification/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py) for stable PSM parsing, target-decoy evaluation, and peptide/protein evidence rollups
 - [`src/bijux_proteomics/identification/search_adapters/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters) for engine-specific manifests, normalization, conformance, and loss accounting

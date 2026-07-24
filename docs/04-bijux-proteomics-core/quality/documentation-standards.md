@@ -4,43 +4,57 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Documentation Standards
+# Documentation standards
 
-Documentation standards should protect the reader from filler, drift, and false confidence.
+Public scientific language must identify what Core computed, what it imported,
+which policy shaped the result, which evidence challenged it, and where the
+claim stops. Feature breadth is not a substitute for this chain.
 
-For `bijux-proteomics-core`, documentation should keep contract meaning separate from runtime execution and make quality pages read like review gates rather than reassurance.
+## Claim vocabulary
 
-## Documentation Model
+| Term | Required evidence | Does not mean |
+| --- | --- | --- |
+| **native** | repository-owned transformation from the named input contract | vendor-native raw processing or external-engine parity |
+| **imported** | named external producer, version or format, parameters when available, and preserved provenance | independently reproduced computation |
+| **validated** | declared invariant and the positive and negative cases that exercise it | universally scientifically correct |
+| **benchmark-backed** | identified asset, license, lineage, acceptance bar, and result | broad transfer beyond the benchmark envelope |
+| **parity** | named comparator, fields, tolerances, disagreement policy, and versions | interchangeable tools or algorithms |
+| **deterministic** | identical supported inputs, configuration, ordering policy, and environment envelope | invariance across arbitrary dependency or hardware changes |
+| **supported** | workflow family, run mode, inputs, outputs, and current trust ceiling | every route in the broader proteomics category |
+
+## Claim construction
 
 ```mermaid
-flowchart TB
-    contract["stable core contract meaning"]
-    examples["examples stay on durable surfaces"]
-    quality["quality pages behave like review gates"]
-    reader["reader knows what core owns and what it does not"]
-
-    contract --> examples
-    examples --> quality
-    quality --> reader
+flowchart LR
+    O["operation and owner"] --> I["input and provenance"]
+    I --> P["policy and parameters"]
+    P --> E["evidence and challenge"]
+    E --> L["limitation and trust ceiling"]
 ```
 
-This page should stop core docs from sliding toward nearby convenience paths. Readers should leave with a sharper idea of stable rule ownership, not a blurrier one.
+A useful example ends with a reviewable artifact: accepted and rejected
+records, policy, parameters, source identity, warnings, and reason codes. A
+numeric output without those fields demonstrates syntax, not scientific trust.
 
-## Review Rules
+## Comparisons and benchmarks
 
-- docs should help readers distinguish contract meaning from runtime execution
-- examples should focus on stable core surfaces, not nearby convenience paths
-- quality pages should sound like review gates, not reassurance text
+Name whether a comparator output was imported, replayed, or independently
+computed. State exact comparison dimensions and tolerances. Preserve
+disagreement instead of averaging it away. Benchmark pages identify asset
+custody and licensing, primary versus companion role, holdout status, and the
+condition that would narrow the claim.
 
-## First Proof Check
+## Cross-package language
 
-- `packages/bijux-proteomics-core/tests`
-- `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
-- `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
+Core owns scientific models and transformations. Runtime owns execution and
+retained run state; Knowledge owns evidence and citation custody; Intelligence
+owns recommendation policy; Lab owns assay readiness and observed outcomes.
+Public prose must not transfer authority merely because Core data appears in a
+downstream artifact.
 
-## Design Pressure
-
-The common drift is to explain runtime-adjacent convenience so heavily that the actual durable contract starts to disappear from view.
+Use [workflow families](../../01-bijux-proteomics/foundation/workflow-families.md)
+for current family ceilings and [known limitations](known-limitations.md) for
+the limits that apply even when Core checks pass.

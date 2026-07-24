@@ -4,71 +4,76 @@ audience: mixed
 type: runbook
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Runtime Migration Validation
+# Runtime migration validation
 
-Use this runbook to prove that runtime migration work did not quietly break
-canonical execution, legacy compatibility, or release coverage.
+Runtime migration is the coordinated movement of execution ownership from
+historical Agentic Proteins paths to `bijux-proteomics-runtime`. Validation must
+prove canonical execution, legacy forwarding, migration-ledger coverage, API
+parity, and release packaging together.
 
-## Validation Model
-
-```mermaid
-flowchart TB
-    change["runtime migration change"]
-    boundary["runtime boundary contracts"]
-    ledger["migration ledger freshness and coverage"]
-    inventory["compatibility inventory and bridge posture"]
-    release["release matrix and artifact coverage"]
-    parity["compatibility parity checks"]
-    verdict["migration is releasable or blocked"]
-
-    change --> boundary
-    boundary --> ledger
-    ledger --> inventory
-    inventory --> release
-    release --> parity
-    parity --> verdict
-```
-
-This page should make migration validation feel like a release gate with several linked proofs, not one extra command at the end of a release checklist.
-
-## Validation Command
-
-Run the dedicated suite from repository root:
+## Run the dedicated gate
 
 ```bash
 make quality-runtime-migration-validation
 ```
 
-## What It Proves
+This composite gate checks runtime boundaries, migration-ledger freshness,
+compatibility inventory, release coverage, and parity expectations. Use the
+narrower ledger gate while editing generated migration records:
 
-- lower-layer packages do not import runtime by accident
-- the migration ledger is fresh and covers the full legacy module set
-- the compatibility bridge stays wrapper-only and does not regain original
-  product logic
-- tracked API artifacts under `apis/*/v1` still match runtime expectations
-- release matrices still include both canonical runtime and compatibility
-  surfaces where required
-- compatibility import, CLI, and API parity tests still hold
+```bash
+make quality-runtime-migration-ledger
+```
 
-## Coordinated Release Order
+## Interpret the proof chain
 
-1. confirm package metadata and changelog entries for every affected package
-2. run shared repository checks such as `make quality`, `make security`, and
-   `make test`
-3. run `make quality-runtime-migration-validation`
-4. verify release matrix variables and workflow coverage
-5. confirm release language still names `agentic-proteins` as compatibility and
-   `bijux-proteomics-runtime` as the canonical execution owner
+```mermaid
+flowchart LR
+    canonical["canonical Runtime owner"]
+    boundary["dependency boundaries"]
+    ledger["complete migration ledger"]
+    bridge["forwarding-only Agentic bridge"]
+    parity["import · CLI · API parity"]
+    release["both distributions covered"]
+    canonical --> boundary --> ledger --> bridge --> parity --> release
+```
 
-## First Proof Check
+| Proof | Failure meaning |
+| --- | --- |
+| boundary validation | a lower layer imports Runtime or execution ownership leaked |
+| ledger coverage | a legacy module has no current destination or retirement state |
+| bridge inventory | Agentic Proteins regained product behavior instead of forwarding |
+| import parity | a documented legacy symbol no longer resolves to the canonical owner |
+| CLI/API parity | process or serialized behavior differs across compatibility routes |
+| release coverage | one side of the migration can ship without its required counterpart |
 
-- `make quality-runtime-migration-validation`
-- release workflow inputs and tracked API artifacts
-- migration ledger outputs under `docs/09-bijux-proteomics-runtime/migration-ledger/`
+## Validate a migration change
 
-## Design Pressure
+1. Change behavior in the canonical owner.
+2. Update the forwarding route only when the legacy contract requires it.
+3. Regenerate or refresh the compatibility inventory and migration ledger
+   through their owning tooling.
+4. Run Runtime and Agentic package tests and API checks.
+5. Run `make quality-runtime-migration-validation`.
+6. Inspect package metadata, dependency floors, changelogs, and release workflow
+   matrices for both distributions.
 
-The common drift is to run the migration suite as a ritual without checking whether the ledger, release matrices, and compatibility proofs still tell the same story.
+A passing bridge import test is not enough: it can miss CLI exit changes, API
+schema drift, missing modules, and publication gaps. A passing Runtime suite is
+also insufficient because it does not prove the legacy path reaches Runtime.
+
+## Retirement decisions
+
+A compatibility route is retired only when its ledger conditions are satisfied
+and the release communicates the destination and consumer action. Removing a
+route from navigation or ceasing to mention it does not retire its contract.
+Until retirement, new execution behavior still belongs only in Runtime; the
+bridge adapts or forwards without creating a second implementation.
+
+The migration is releasable when the ledger covers every governed legacy
+surface, canonical and compatibility contracts agree where promised, package
+artifacts contain the intended routes, and release notes state precisely which
+promises remain, narrow, or end.

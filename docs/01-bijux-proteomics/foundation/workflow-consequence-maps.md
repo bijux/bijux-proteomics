@@ -9,21 +9,29 @@ last_reviewed: 2026-05-09
 
 # Workflow Consequence Maps
 
-These maps are the shared consequence narrative across knowledge, intelligence, and lab. Each family starts from contradiction pressure, passes through current recommendation posture, and ends at assay burden and the cost of being wrong.
+Each workflow family starts from contradiction pressure, passes through a recommendation posture, and ends at assay burden and the cost of being wrong.
 
 The value of this page is that it keeps the repository from pretending those three layers are interchangeable. A workflow family can have a strong benchmark packet, a convincing rerun lane, and still stop at a weaker public sentence because the downstream cost of being wrong remains too high.
 
-## How To Read These Maps
+## Consequence Rule
 
 - These are not vote tallies. The weakest downstream boundary controls the strongest honest public sentence.
 - A family can look benchmark-strong and still remain recommendation-bounded once comparator pressure, assay burden, or follow-up failure stays unresolved.
-- Read the table first for posture shape, then read the family map to see which contradiction, control demand, or consequence cost actually enforces the downgrade.
+- Use the family map to identify the contradiction, control demand, or consequence cost that enforces the downgrade.
 
-## What This Page Protects
+```mermaid
+flowchart LR
+    claim["grounded family claim"] --> contradiction{"material contradiction?"}
+    contradiction -->|yes| narrow["downgrade or refuse"]
+    contradiction -->|no| decision["challenged recommendation"]
+    decision --> feasible{"follow-up feasible and informative?"}
+    feasible -->|no| narrow
+    feasible -->|yes| action["bounded laboratory action"]
+    action --> outcome["requested-versus-observed outcome"]
+    outcome --> next["next decision revision"]
+```
 
-- it protects trust pages from sounding stronger than the combined consequence chain
-- it protects recommendation posture from sounding cleaner than the lab burden it still triggers
-- it protects release language from drifting upward because one upstream packet improved while the downstream boundary stayed weak
+The maps constrain action, not the underlying analytical record. A laboratory refusal does not erase a valid identification or quantification result; it says that the proposed use of that result is not justified under the current controls, burden, and authority.
 
 | workflow family | knowledge posture | recommendation posture | lab posture | weakest allowed posture |
 | --- | --- | --- | --- | --- |
@@ -98,8 +106,8 @@ The value of this page is that it keeps the repository from pretending those thr
 - current strongest allowed posture: `do_not_recommend`
 - decision-grade remains blocked when the weakest downstream boundary stays below a full recommendation.
 
-- contradiction pressure: Multiplex chemistry pressure is public, but outsider authority remains blocked because the family still lacks its own outsider packet and lab consequence surface.
-- knowledge next action: Keep multiplex internal support only until dedicated outsider review and lab consequence packets exist.
+- contradiction pressure: Multiplex has a paired public benchmark surface, but the companion stress result defeats outsider authority and no dedicated lab consequence packet closes the downstream gap.
+- knowledge next action: Keep multiplex internal support only until companion pressure passes and dedicated outsider review and lab consequence packets exist.
 - recommendation summary: Current recommendation posture is `do_not_recommend`
 - recommendation blockers: public comparator-backed claim support is refused, biological grounding remains thin, vendor and library comparison gaps remain open, operational burden remains too high for a justified recommendation
 - assay burden and follow-up posture: No dedicated lab follow-up packet is published for this family.
@@ -144,13 +152,12 @@ The value of this page is that it keeps the repository from pretending those thr
 - cost of being wrong: coeluting interference produces clean-looking transitions that still misstate the biology, heavy-light mismatch or calibration drift turns the panel into an operationally neat but scientifically weak artifact
 - evidence paths: `artifacts/intelligence/recommendation-packets/targeted.json`, `comparator drift or missing external execution parity still materially limits this public workflow claim`, `contradiction_triage:targeted:1`, `artifacts/lab/flagship-follow-up-packets/targeted.json`, `blank`, `heavy_reference`, `calibration_standard`, `interference_scout_injection`, `artifacts/lab/flagship-follow-up-outcomes/targeted.json`
 
-## Next Routes
+## Continue From Consequence
 
 - Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/) when the question is which evidence axis or observed outcome actually moved the call.
 - Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/) when the question is how requested-versus-observed follow-up should tighten the next recommendation.
 - Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/) when the question is whether the honest next action is to stop, rerun, narrow, or refuse.
 
-## Honest Reader Outcome
+## Resulting Interpretation
 
-- the reader should leave knowing which family still survives a bounded recommendation
-- the reader should also know which exact downstream burden keeps that family away from decision-grade language
+The family table states the permitted posture. The family map names the exact contradiction, control demand, burden, and cost-of-error record responsible for that posture. If those records cannot be resolved, the posture is not independently reviewable.

@@ -411,7 +411,6 @@ WorkflowReport: TypeAlias = (
 )
 
 WorkflowSourceReport: TypeAlias = TargetedResultImportReport
-
 WorkflowExportManifest: TypeAlias = (
     BiologicalResultReportExportManifest
     | DdaBiologicalWorkflowExportManifest

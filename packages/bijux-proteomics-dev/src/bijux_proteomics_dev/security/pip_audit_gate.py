@@ -7,7 +7,7 @@ import os
 import sys
 from typing import Any
 
-REPORT_PATH = os.getenv("PIPA_JSON", "artifacts_pages/security/pip-audit.json")
+REPORT_PATH = os.getenv("PIPA_JSON", "artifacts/security/pip-audit.json")
 IGNORE_IDS = set(filter(None, os.getenv("SECURITY_IGNORE_IDS", "").split()))
 IS_STRICT = os.getenv("SECURITY_STRICT", "1") == "1"
 

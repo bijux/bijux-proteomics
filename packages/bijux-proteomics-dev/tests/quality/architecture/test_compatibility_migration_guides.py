@@ -47,3 +47,6 @@ def test_compatibility_migration_guide_covers_agentic_runtime_bridge() -> None:
     assert "agentic-proteins Canonical Migration Guide" in guide_text
     assert "wrapper modules" in guide_text
     assert "`agentic_proteins.interfaces.http.app`" in guide_text
+    assert "## Migration Proof" in guide_text
+    assert "## Freshness Contract" in guide_text
+    assert "this document should" not in guide_text.lower()

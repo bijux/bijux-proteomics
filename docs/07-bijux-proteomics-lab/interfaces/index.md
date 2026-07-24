@@ -4,70 +4,104 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Laboratory interfaces
 
-`bijux-proteomics-lab` interfaces are where scientific intent turns into
-operational work. This section should show how the package receives assay
-requirements, publishes planning and schedule payloads, and emits outcome and
-rerun signals that other packages can still reason about.
+Lab interfaces describe the artifacts that cross the boundary between
+scientific intent and experimental consequence. They distinguish advice,
+readiness, authorization, observation, and evidence promotion so no single
+“success” field can collapse the laboratory lifecycle.
 
 ```mermaid
 flowchart LR
-    intent["requirements and assay intent"]
-    planning["planning surfaces"]
-    schedules["schedule and repository contracts"]
-    outcomes["outcome payloads"]
-    feedback["rerun and feedback outputs"]
-
-    intent --> planning --> schedules --> outcomes --> feedback
+    I["evidence need"] --> A["advisory plan"]
+    A --> E["executable plan"]
+    E --> H["handoff record"]
+    H --> O["observation record"]
+    O --> R["reconciliation record"]
+    R --> F["evidence feedback"]
+    A -. blockers .-> X["refusal record"]
+    E -. readiness lost .-> X
 ```
 
-## What These Interfaces Need To Carry
+## Choose an interface
 
-- enough structure to make lab work executable, not merely discussable
-- enough explicitness to connect outcomes back to plans and assay intent
-- enough boundary clarity that lab payloads do not quietly absorb program
-  authority or evidence semantics
+| Need | Owner | Output |
+| --- | --- | --- |
+| express scientifically useful follow-up | `planning.assays` | advisory assay plan |
+| authorize an operationally complete plan | planning plus readiness | executable assay plan or refusal |
+| group ready work | queue, priority, batching, scheduling | batch and schedule records with constraints |
+| transfer work to an operator or system | `handoffs` | authority, risk, instruction, artifact, and export records |
+| record what happened | `outcomes` | observation, QC, failure, reliability, and feedback |
+| determine follow-up consequence | `reconciliation` | requested-versus-observed disposition and next action |
+| test package claims | `benchmarks` | rehearsal, follow-up, learning, and outcome dossier |
 
-## Start With
+The package root exposes three planning operations:
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/data-contracts/)
-  when the question is what a plan, schedule, outcome, or rerun recommendation
-  must contain
-- open [Operator Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/operator-workflows/)
-  when the reader wants the real lab-facing flow instead of a code view
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/artifact-contracts/)
-  when the issue is persisted plans, execution records, or promoted outcomes
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/compatibility-commitments/)
-  before changing any published planning or outcome shape
+```python
+from bijux_proteomics_lab import (
+    build_advisory_assay_plan,
+    build_executable_assay_plan,
+    plan_experiment_batches,
+)
+```
 
-## Read By Workflow Hand-Off
+[API surface](api-surface.md) defines their contracts. Use
+[public imports](public-imports.md) for specialized owner modules.
 
-- [Public Imports](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/public-imports/)
-  for code-level planning and outcome entrypoints
-- [Data Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/artifact-contracts/)
-  for the durable forms of lab work
-- [API Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/configuration-surface/)
-  for operator and automation entrypoints
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/entrypoints-and-examples/)
-  for concrete end-to-end planning examples
+## Executable-plan contract
 
-## What This Section Should Settle
+An executable plan identifies:
 
-- how assay intent becomes an executable artifact rather than a vague
-  recommendation
-- where outcome payloads belong in the wider proteomics story
-- which lab-facing interfaces are stable enough for operators and repository
-  tooling to depend on
+- the upstream recommendation and evidence revision;
+- biological question, measurable endpoint, and scientific rationale;
+- assay, protocol, sample, material, and instrument requirements;
+- positive, negative, process, and interpretation controls;
+- randomization, blocking, fractionation, labels, and carryover handling where
+  applicable;
+- acceptance, failure, deviation, and stopping criteria;
+- capacity, schedule, risk, ownership, and authorization;
+- the observation and reconciliation artifacts expected after execution.
 
-## First Proof Check
+Missing required information produces a readiness finding or refusal rather
+than a partially executable instruction. [Data contracts](data-contracts.md)
+defines fields, reason codes, and lifecycle states.
 
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/design/protocols.py`, `handoffs/artifacts.py`, and `handoffs/serialization.py`
-- `packages/bijux-proteomics-lab/tests`
+## Handoff contract
+
+```mermaid
+sequenceDiagram
+    participant P as Plan owner
+    participant L as Lab handoff
+    participant O as Operator or LIMS
+    participant R as Reconciliation
+    P->>L: executable plan and authorization
+    L->>O: instructions, materials, controls, risk
+    O-->>L: observations, QC, deviations
+    L->>R: plan-linked outcome record
+```
+
+Handoff serialization preserves identifiers and compatibility while adapting
+to external systems. An export is not proof that a LIMS accepted or executed
+the work. [Artifact contracts](artifact-contracts.md) defines envelopes,
+exports, and round-trip expectations.
+
+## Outcome and promotion
+
+An observation record reports measured facts. Promotion is a separate governed
+decision based on QC, reliability, deviations, acceptance criteria, and the
+original question. An outcome may be accepted operationally but remain
+inconclusive scientifically.
+
+[Operator workflows](operator-workflows.md) follows the full handoff and
+feedback loop. [Compatibility commitments](compatibility-commitments.md)
+covers plan, readiness, reason-code, lifecycle, and artifact evolution.
+
+## Safety and authority
+
+Lab may refuse unsafe, wasteful, under-controlled, or uninterpretable work. It
+does not manufacture upstream evidence sufficiency, replace Intelligence
+ranking, or grant itself human authorization. [Configuration surface](configuration-surface.md)
+separates declared readiness and planning policy from hidden operator defaults.

@@ -1,46 +1,108 @@
 ---
 title: Module Map
-audience: mixed
-type: explanation
+audience: maintainer
+type: reference
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-22
 ---
 
-# Module Map
+# Module map
 
-The maintainer package stays legible only when helper families remain separated by job.
+The maintainer toolkit groups helpers by the repository property they govern.
+Choose the narrowest family that owns the rule; do not add a generic utility
+module when the behavior has a clear policy domain.
 
-## Module Model
-
-```mermaid
-flowchart TB
-    root["bijux-proteomics-dev"]
-    docs["docs/"]
-    api["api/"]
-    gates["quality/, security/, release/"]
-    tools["tools/ and trusted_process.py"]
-
-    root --> docs
-    root --> api
-    root --> gates
-    root --> tools
+```text
+bijux_proteomics_dev/
+├── docs/          public documentation integrity and governance
+├── governance/    package, contract, dependency, and ownership policy
+├── quality/       architecture, artifacts, benchmarks, dependencies, and gates
+├── release/       release readiness, versioning, licensing, and publication
+├── security/      dependency audit and trusted process execution
+├── tools/         explicit maintainer workflows
+└── workspace/     repository environment and artifact layout
 ```
 
-This page should let a maintainer classify a helper before opening code. If every policy helper feels adjacent to every other one, the package will become hard to route and harder to review.
+## Routing table
 
-## Module Families
+| Question | Module family |
+| --- | --- |
+| Is public documentation linked, coherent, current, and structurally valid? | `docs/` |
+| Does an API, public symbol, package boundary, or dependency direction comply with policy? | `governance/` |
+| Does the repository satisfy architecture, artifact, benchmark, or dependency quality? | `quality/` |
+| Can the package family be versioned, licensed, built, and released safely? | `release/` |
+| Are dependency and subprocess security controls satisfied? | `security/` |
+| Is this an operator-triggered asset-management workflow rather than a gate? | `tools/` |
+| Does the rule concern generated-output location or shared workspace setup? | `workspace/` |
 
-- `docs/` for documentation integrity, consistency, design debt, and badge/link checks
-- `api/` for contract freezing and OpenAPI drift checks
-- `release/`, `security/`, and `quality/` for publication, audit, and architecture gates
-- `tools/` and `trusted_process.py` for maintainer-oriented utility workflows
+```mermaid
+flowchart TD
+    request["new maintainer behavior"]
+    verdict{"pass/fail repository policy?"}
+    governance{"ownership or contract rule?"}
+    quality["quality/ or security/"]
+    contract["governance/"]
+    workflow{"release-specific?"}
+    release["release/"]
+    tool["tools/ or workspace/"]
+    request --> verdict
+    verdict -->|yes| governance
+    governance -->|yes| contract
+    governance -->|no| quality
+    verdict -->|no| workflow
+    workflow -->|yes| release
+    workflow -->|no| tool
+```
 
-## First Proof Check
+## Subdomain boundaries
 
-- `src/bijux_proteomics_dev/docs/`
-- `src/bijux_proteomics_dev/governance/`, `release/`, `security/`, and `quality/`
+`governance/` is further divided by contracts, dependencies, package shape, and
+canonical package ownership. `quality/` contains architecture, artifacts,
+benchmarks, dependencies, graphs, and composed gates. `release/` separates
+general governance from licensing and versioning.
 
-## Design Pressure
+Use these subdomains rather than expanding a root module. A helper that scans
+package trees belongs with package-shape governance; one that evaluates output
+placement belongs with artifact quality; one that coordinates the final release
+verdict belongs with release governance.
 
-The easy failure is to keep adding helpers without preserving family boundaries, which slowly turns the maintainer package into one vague toolbox.
+## Dependency direction
+
+Leaf scanners and models must not import composed release gates. Higher-level
+gates may combine lower-level governance and quality results. Make and workflow
+callers depend on the package; the package does not depend on repository YAML or
+shell behavior for its policy semantics.
+
+Tests mirror the owned family under `packages/bijux-proteomics-dev/tests/`.
+Place fixtures with the narrowest test owner and keep generated reports beneath
+`artifacts/` unless the helper intentionally governs a tracked output.
+
+## Trace a failing gate
+
+```mermaid
+flowchart TD
+    target["failing root target"] --> caller["Make recipe and package command"]
+    caller --> finding["stable finding code"]
+    finding --> evaluator["owning module family"]
+    evaluator --> input["governed input or retained baseline"]
+    evaluator --> test["positive and negative policy tests"]
+    input --> repair["repair owning source"]
+    test --> repair
+    repair --> rerun["rerun the same public target"]
+```
+
+| Failure concerns | Inspect first | Repair authority |
+| --- | --- | --- |
+| documentation topology, links, generated pages, or public language | `docs/` evaluator and governed documentation source | owning documentation or generator source |
+| package owner, import direction, API lock, or duplicate contract | `governance/` finding and policy manifest | canonical product or shared-contract owner |
+| artifacts, benchmark inventory, dependency graph, or architecture | `quality/` finding and retained report | source package or governed asset owner |
+| dependency risk or subprocess trust | `security/` policy and command evidence | dependency, allowlist, or trusted-execution owner |
+| version, license, publication, or release readiness | `release/` dossier and prerequisite findings | the prerequisite owner; release code does not waive it |
+| example, model, or repository asset operation | named `tools/` workflow | workflow-owned source and governed destination |
+
+Start from the stable public target because it establishes the same environment
+and inputs used by CI. Continue to the finding code, not to the first helper
+whose name resembles the symptom. Repair the source of truth, regenerate owned
+evidence when required, and rerun the original target so the closure path
+remains reproducible.

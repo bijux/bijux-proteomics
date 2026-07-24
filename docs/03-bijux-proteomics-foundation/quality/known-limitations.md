@@ -4,46 +4,49 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Known Limitations
+# Known limitations
 
-Known limitations matter because honest boundaries are part of quality, not an admission of failure.
+Foundation makes shared values deterministic and portable within declared
+contracts. It does not prove that a downstream scientific workflow chose the
+right value, interpreted it correctly, or preserved it through an undeclared
+integration.
 
-For `bijux-proteomics-foundation`, limitations are mostly about what shared contracts cannot prove once they leave the package boundary.
+## Contract limits
 
-## Limitation Model
+| Limitation | Consequence | Honest interpretation |
+| --- | --- | --- |
+| identifiers establish stable identity syntax, not biological equivalence | two valid identifiers may still refer to records that require domain reconciliation | use Knowledge or the scientific owner for equivalence claims |
+| canonical JSON covers supported normalized values | arbitrary objects and environment-dependent encodings are outside the guarantee | validate inputs before claiming byte stability |
+| fingerprints are deterministic for canonical input | they do not establish provenance, authenticity, or scientific correctness by themselves | retain source and transformation records separately |
+| document validation enforces declared schema | a schema-valid document can still contain scientifically weak evidence | pair schema proof with the package that owns scientific meaning |
+| migrations cover registered version paths | unregistered, lossy, or skipped versions are not implicitly compatible | require an explicit fixture and loss policy for each path |
+| result, failure, and refusal primitives preserve outcome categories | consumers can still flatten those categories incorrectly | test the consuming branch and published representation |
+| public test helpers enforce repository contracts | they do not substitute for package-specific scientific tests | keep owner evidence next to owner claims |
+
+## Guarantee boundary
 
 ```mermaid
-flowchart TB
-    foundation["shared schema and serialization"]
-    consumers["consuming packages interpret the contract"]
-    usage["local usage can still drift"]
-    migrations["versioning holds only when migration proof stays current"]
-    limit["foundation cannot prove the whole chain alone"]
-
-    foundation --> consumers
-    consumers --> usage
-    consumers --> migrations
-    usage --> limit
-    migrations --> limit
+flowchart LR
+    F["Foundation: shape, identity, serialization"] --> C["consumer interpretation"]
+    C --> W["workflow behavior"]
+    F --> P["Foundation proof"]
+    C --> O["consumer proof"]
+    W --> S["scientific evidence"]
 ```
 
-This page should keep the reader from confusing strong shared contracts with total downstream control. The package can define the language, but it cannot force every consumer to honor it correctly by prose alone.
+Foundation proof ends at the shared contract. Claims about recommendation,
+execution, evidence strength, assay outcome, or biological truth require proof
+from Intelligence, Runtime, Knowledge, Lab, or Core as appropriate.
 
-## Review Rules
+## Reporting compatibility
 
-- foundation cannot prove downstream usage by itself
-- shared types still depend on consuming packages to honor them correctly
-- versioning discipline is only as strong as the migration tests that enforce it
+State the precise envelope: for example, “canonical JSON is byte-stable for the
+document primitives covered by the round-trip fixtures,” or “schema version A
+migrates to B through the registered migration.” Avoid “serialization is
+stable” when only one document family or direction was tested.
 
-## First Proof Check
-
-- `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
-- `src/bijux_proteomics_foundation/serialization/`
-
-## Design Pressure
-
-The dangerous illusion is to treat well-specified shared meaning as if it automatically guarantees correct downstream behavior.
+When consumer evidence has not run, report the Foundation result as local
+contract proof and leave cross-package compatibility unresolved.

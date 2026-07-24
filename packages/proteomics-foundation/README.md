@@ -16,9 +16,11 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
+[![proteomics-foundation](https://img.shields.io/badge/proteomics--foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fproteomics-foundation)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -41,7 +43,7 @@ Use this package when you want a shorter distribution and import name for the
 serialization, schema, and compatibility kernel without creating a second
 foundation owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-foundation` when you want a shorter package name for the
   shared kernel without changing who owns the contracts.
@@ -52,12 +54,15 @@ foundation owner.
   `bijux-proteomics-foundation`; keep this package focused on compatibility
   naming.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-foundation` | `bijux-proteomics-foundation` |
+| Import root | `proteomics_foundation` | `bijux_proteomics_foundation` |
+| Behavior | forwarded contracts | Foundation serialization, identity, outcomes, and compatibility modules |
 
-- The alias now routes readers to the current foundation handbook instead of
-  reading like a second kernel surface.
-- Compatibility prose now makes the canonical ownership and forwarding-only
-  contract explicit in the first screen.
+Canonical JSON, fingerprints, identifiers, and compatibility verdicts must be
+identical through either import route. This package cannot carry an alternative
+schema policy.
 
 ## Installation
 

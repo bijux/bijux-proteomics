@@ -4,43 +4,60 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Documentation Standards
+# Documentation standards
 
-Documentation standards should protect the reader from filler, drift, and false confidence.
+Laboratory language must preserve state and authority. “Planned,” “ready,”
+“authorized,” “handed off,” “observed,” “accepted,” and “promoted” describe
+different records; substituting one for another can turn advice into an unsafe
+instruction or a weak observation into overstated evidence.
 
-For `bijux-proteomics-lab`, documentation should read like operator-facing record guidance and show how durable state is created, interpreted, and promoted.
+## Operational vocabulary
 
-## Documentation Model
+| Term | Required context | Must not imply |
+| --- | --- | --- |
+| **advisory plan** | evidence need, assay rationale, controls, dependencies, and `executable = false` | authorization or operational readiness |
+| **ready** | named batch, current resources, controls, lineage, capacity, risk, and authority gates | scientific value or successful execution |
+| **authorized handoff** | approver, custody, frozen instructions, identity, and risk record | instrument work occurred |
+| **executed** | external operation returned a linked observation record | accepted, reproducible, or promoted result |
+| **completed** | expected operational return was received | QC passed or question answered |
+| **accepted** | declared assay acceptance and QC rules passed | broad biological confirmation |
+| **inconclusive** | assay cannot support the requested disposition under recorded conditions | missing data that may be omitted |
+| **promoted** | named policy accepted the outcome as downstream evidence | original observation or uncertainty may be rewritten |
+
+## State-preserving narrative
 
 ```mermaid
-flowchart TB
-    workflow["operator-facing workflow"]
-    records["durable lab state and interpretation"]
-    promotion["promotion reasoning stays explicit"]
-    reader["reader can reconstruct what happened"]
-
-    workflow --> records
-    records --> promotion
-    promotion --> reader
+flowchart LR
+    N["evidence need"] --> P["advisory design"]
+    P --> G["readiness and authority"]
+    G --> H["handoff"]
+    H --> O["returned observation"]
+    O --> Q["QC and interpretation"]
+    Q --> R["promotion or follow-up"]
 ```
 
-This page should stop lab docs from sounding generic. The job is to make the durable record and its interpretation legible to an operator under pressure.
+Examples name the operator decision at each transition and include the
+non-success route. A ready example includes the blockers that were tested. A
+handoff example shows custody and any lossy target mapping. An outcome example
+retains missingness, deviations, failure class, and the acceptance rule.
 
-## Review Rules
+## Physical execution boundary
 
-- docs should sound like operator-facing record guidance, not generic package filler
-- examples should show how durable lab state is created and interpreted
-- quality pages should mention promotion reasoning directly
+The package plans, authorizes, serializes, receives, and reconciles laboratory
+work. Physical instrument and bench execution occur outside this Python
+package. Runtime may execute repository workflows, but it does not become the
+laboratory authority. State those boundaries wherever “run” or “execute” could
+be misread.
 
-## First Proof Check
+## Consequence language
 
-- `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
+A technically accepted assay can still be biologically uninformative or too
+burdensome to justify follow-up. Publish requested-versus-observed agreement,
+reliability, burden, and promotion posture with the outcome. Refusal, hold,
+failure, and inconclusive are durable results, not missing success prose.
 
-## Design Pressure
-
-The easy failure is to describe workflows pleasantly while leaving the promotion rationale and record interpretation too implicit for real operator use.
+[Known limitations](known-limitations.md) bounds the operational claim and
+[definition of done](definition-of-done.md) defines the evidence loop.

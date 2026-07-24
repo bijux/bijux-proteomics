@@ -14,12 +14,14 @@ def test_repository_handbook_routes_product_owners_and_reader_intent() -> None:
         encoding="utf-8"
     )
 
-    assert "## Shared Reader Routes" in handbook
+    assert "## Resolve The Governing Authority" in handbook
     assert "Product Architecture" in handbook
     assert "Cross-Package Ownership" in handbook
     assert "Repository Shape Rationale" in handbook
     assert "Release Readiness Matrix" in handbook
-    assert "## Reader Routes" in handbook
+    assert "## Continue By Objective" in handbook
+    assert "## Shared Reader Routes" not in handbook
+    assert "## Reader Routes" not in handbook
     assert "Product Overview" in handbook
     assert "Workflow Families" in handbook
     assert "Maintenance" in handbook

@@ -81,34 +81,36 @@ extra:
   bijux:
     repository: bijux-proteomics
     docs_package: bijux-proteomics-dev
-    hub_links:
-      - key: bijux
-        label: Bijux
-        url: https://bijux.io/
-      - key: bijux-core
-        label: Core
-        url: https://bijux.io/bijux-core/
-      - key: bijux-proteomics
-        label: Proteomics
-        url: https://bijux.io/bijux-proteomics/
-      - key: bijux-pollenomics
-        label: Pollenomics
-        url: https://bijux.io/bijux-pollenomics/
-      - key: bijux-phylogenetics
-        label: Phylogenetics
-        url: https://bijux.io/bijux-phylogenetics/
-      - key: bijux-canon
-        label: Canon
-        url: https://bijux.io/bijux-canon/
-      - key: bijux-atlas
-        label: Atlas
-        url: https://bijux.io/bijux-atlas/
-      - key: bijux-masterclass
-        label: Masterclass
-        url: https://bijux.io/bijux-masterclass/
-
 nav:
   - Home: index.md
+  - Product Overview:
+      - Overview: 01-bijux-proteomics/foundation/product-overview.md
+      - Product Architecture: 01-bijux-proteomics/foundation/product-architecture.md
+      - Scientist Journey: 01-bijux-proteomics/foundation/scientist-journey.md
+  - Benchmark Assets:
+      - Overview: 04-bijux-proteomics-core/foundation/benchmark-assets.md
+      - Public Benchmark Catalog: 04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md
+      - Benchmark Asset Audit: 04-bijux-proteomics-core/foundation/benchmark-asset-audit.md
+  - Execution:
+      - Overview: 09-bijux-proteomics-runtime/execution-overview.md
+      - Operator Rerun Journey: 09-bijux-proteomics-runtime/operator-rerun-journey.md
+      - Benchmark Rerun Kits: 09-bijux-proteomics-runtime/benchmark-rerun-kits.md
+  - Workflow Families:
+      - Overview: 01-bijux-proteomics/foundation/workflow-families.md
+      - DDA Cross-Package Handbook: 01-bijux-proteomics/foundation/dda-cross-package-handbook.md
+      - Current Capability Limits: 01-bijux-proteomics/foundation/current-capability-limits.md
+  - Decision Support:
+      - Overview: 01-bijux-proteomics/foundation/decision-support.md
+      - Workflow Consequence Maps: 01-bijux-proteomics/foundation/workflow-consequence-maps.md
+      - What Changed The Recommendation: 01-bijux-proteomics/foundation/what-changed-the-recommendation.md
+  - Lab Consequence:
+      - Overview: 07-bijux-proteomics-lab/foundation/lab-consequence.md
+      - Outcome Learning Loops: 07-bijux-proteomics-lab/foundation/outcome-learning-loops.md
+      - Workflow Refusal Handbook: 07-bijux-proteomics-lab/foundation/workflow-refusal-handbook.md
+  - Maintenance:
+      - Overview: 08-bijux-proteomics-maintain/index.md
+      - Maintainer Safe Change: 08-bijux-proteomics-maintain/bijux-proteomics-dev/maintainer-safe-change.md
+      - Release Support: 08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
   - Repository Handbook:
       - Repository Handbook: 01-bijux-proteomics/index.md
       - Foundation:
@@ -499,7 +501,24 @@ nav:
           - Risk Register: 07-bijux-proteomics-lab/quality/risk-register.md
   - bijux-proteomics-runtime:
       - Overview: 09-bijux-proteomics-runtime/index.md
-      - This Package Does Not Own: 09-bijux-proteomics-runtime/this-package-does-not-own.md
+      - Operate:
+          - CLI Reference: 09-bijux-proteomics-runtime/cli-reference.md
+          - Execution Overview: 09-bijux-proteomics-runtime/execution-overview.md
+          - Operator Rerun Journey: 09-bijux-proteomics-runtime/operator-rerun-journey.md
+          - Benchmark Rerun Kits: 09-bijux-proteomics-runtime/benchmark-rerun-kits.md
+          - Raw Versus Import Execution: 09-bijux-proteomics-runtime/raw-versus-import-execution.md
+      - Verify:
+          - Flagship Run Registry: 09-bijux-proteomics-runtime/flagship-run-registry.md
+          - Benchmark Comparability Matrix: 09-bijux-proteomics-runtime/benchmark-comparability-matrix.md
+          - Black-Box Benchmark Dashboard: 09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md
+          - Black-Box Run Verification: 09-bijux-proteomics-runtime/black-box-run-verification.md
+          - Runtime Artifact Stability: 09-bijux-proteomics-runtime/runtime-artifact-stability.md
+      - Boundaries:
+          - Runtime Execution Boundary: 09-bijux-proteomics-runtime/runtime-execution-boundary.md
+          - Runtime Environment Contracts: 09-bijux-proteomics-runtime/runtime-environment-contracts.md
+          - Runtime Replay Challenges: 09-bijux-proteomics-runtime/runtime-replay-challenges.md
+          - Runtime Rerun Refusals: 09-bijux-proteomics-runtime/runtime-rerun-refusals.md
+          - This Package Does Not Own: 09-bijux-proteomics-runtime/this-package-does-not-own.md
       - Migration Ledger:
           - Migration Ledger: 09-bijux-proteomics-runtime/migration-ledger/README.md
           - Agentic Module Ledger Summary: 09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md

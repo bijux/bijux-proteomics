@@ -1,114 +1,133 @@
 ---
-title: Package Overview
+title: Scientific Knowledge Map
 audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
-# Package Overview
+# Scientific knowledge map
 
-`bijux-proteomics-knowledge` exists to keep claims, evidence, confidence, and
-contradiction state explicit and reviewable. The package is useful only when
-that role stays narrow enough that a reviewer can say why it exists without
-naming several different owners at once.
+The knowledge package combines durable evidence memory with typed biological
+resolution. Its modules answer where an assertion came from, which context it
+applies to, what contradicts it, and which biological entities can be linked
+without exceeding the available evidence.
 
-The package is also broader now than this older overview suggested. It does
-not only hold generic evidence records. It owns selective scientific memory,
-grounding references, contradiction-aware reconciliation, and concrete
-biological lookup surfaces that downstream packages use to keep claims honest.
+## Four Questions That Must Stay Separate
 
-## Why This Package Feels More Scientific Now
+```mermaid
+flowchart LR
+    input["identifier, relationship, or claim"]
+    identity["identity resolution\nwhat entity is this?"]
+    context["context match\nwhere does it apply?"]
+    evidence["evidence reconciliation\nwhat supports or contradicts it?"]
+    sufficiency["use-specific sufficiency\nwhat may this evidence support?"]
+    input --> identity --> context --> evidence --> sufficiency
+```
 
-- the package now makes biological context a public owner surface instead of an
-  implied helper behind trust pages
-- claim grounding, contradiction handling, and curated references now sit
-  beside pathway, complex, kinase, disease, drug-target, and ortholog lookups
-  in one coherent scientific memory layer
-- readers can now see where the repository keeps evidence discipline without
-  confusing that role with recommendation policy
+An exact identifier match does not establish a relationship. A curated
+relationship does not establish activity in the observed context. Supporting
+evidence does not establish sufficiency for every claim. Keeping these verdicts
+separate is the central knowledge contract.
 
-## Concrete Knowledge Families
+## Evidence memory
 
-| owner surface | current substance | why it matters |
+`memory.models` defines claims and evidence records. `memory.normalization`
+ingests external records into stable forms, `memory.reconciliation` resolves
+duplicate or conflicting representations, and `memory.integrity` checks graph
+relationships. Evidence bundles preserve source-level detail while providing a
+portable handoff for review.
+
+```mermaid
+flowchart TD
+    claim["EvidenceClaim"]
+    record["EvidenceRecord"]
+    bundle["EvidenceBundle"]
+    provenance["source and provenance"]
+    context["biological and experimental context"]
+    contradiction["contradiction state"]
+    claim --> bundle
+    record --> bundle
+    provenance --> record
+    context --> record
+    contradiction --> bundle
+```
+
+## Reference grounding
+
+`references.grounding` owns citations, contexts, literature, ontologies,
+curated corpora, rules, and known grounding problems. `references.workflows`
+builds review-level products: claim grounding, benchmark ledgers, comparator
+confrontations, literature audits and matrices, contradiction dossiers,
+evidence sufficiency, knowledge deficits, reading packs, replay proof, and
+scientific-release risk.
+
+Grounding rules are context-sensitive. A source that supports a protein-level
+statement may not support a site-specific PTM claim; evidence from one species,
+tissue, assay, or perturbation cannot be transferred without an explicit rule
+and uncertainty record.
+
+## Biological resolution families
+
+| Module | Resolution responsibility |
+| --- | --- |
+| `identity` | canonical protein identity and unresolved/ambiguous status |
+| `features` | overlap between protein intervals and governed feature types |
+| `pathways` | pathway membership and coverage confidence |
+| `complexes` | complex membership with confidence and coverage policy |
+| `kinases` | kinase–substrate match type and resolution evidence |
+| `drugs` | drug–target relationship type and resolution |
+| `disease` | disease-term normalization and resolution |
+| `orthologs` | cross-species mapping and explicit ambiguity |
+| `coverage` | completeness by entity set and knowledge type |
+
+These modules return typed entries, summaries, and reports. TSV renderers are
+provided for review and interoperability, but the rendered table is a view of
+the typed result rather than a second source of truth.
+
+## Review handoff
+
+`reviews` turns evidence memory into provenance reports, explanations, trends,
+flagship evidence summaries, and `KnowledgeDecisionBrief` objects. A brief
+communicates current evidence posture to intelligence or lab; it does not
+discard the underlying sources, open contradictions, or coverage gaps.
+
+## Choose The Evidence Surface
+
+| Reader question | Owning surface | Required review evidence |
 | --- | --- | --- |
-| `memory` | evidence bundles, claims, normalization, integrity, and reconciliation state | the repository can preserve hesitation and conflict instead of flattening them |
-| `references` | workflow grounding, literature audits, and curated scientific support routes | public workflow language can be challenged against explicit reading pressure |
-| `pathways`, `complexes`, `kinases` | mechanistic and regulatory biological context | analytical claims can be tied to real systems biology instead of generic labels |
-| `drugs`, `disease`, `features`, `coverage` | therapeutic, disease, feature, and evidence-coverage context | downstream recommendation and lab burden can see what is missing or clinically relevant |
-| `identity`, `orthologs` | entity reconciliation and cross-species context | claims stay stable across datasets and biological mappings |
-| `reviews` and `contracts` | package-owned review seams and compatibility expectations | downstream packages cannot quietly rewrite knowledge-state semantics |
+| Which biological entity does this value denote? | `identity`, `orthologs` | normalized input, exact/alias/ambiguous/unresolved status, candidate mappings |
+| Does a curated relationship exist? | `features`, `pathways`, `complexes`, `kinases`, `drugs`, `disease` | source, relationship type, coverage, match policy, unresolved members |
+| Which records bear on this claim? | `memory`, reference grounding | supporting and contradicting records with source and experimental context |
+| Can conflicting records be reconciled? | reconciliation and contradiction workflows | grouping rule, retained disagreements, resolution account, remaining conflict |
+| Is evidence sufficient for this use? | sufficiency, deficit, and scientific-risk workflows | requested claim, threshold policy, coverage gaps, stale or missing sources |
+| What can another package consume? | `reviews` | decision brief linked to the complete evidence bundle and provenance report |
 
-## Why This Package Exists Separately
+## Public API example
 
-- core can own scientific truth without also becoming a long-lived memory and
-  grounding store
-- intelligence can own ranking and recommendation posture without inventing
-  evidence state locally
-- lab can reason about follow-up burden without becoming the keeper of claim
-  grounding, contradiction history, or external scientific references
+```python
+from bijux_proteomics_knowledge import (
+    EvidenceBundle,
+    KnowledgeCoveragePolicy,
+    compute_knowledge_coverage,
+    resolve_protein_ids,
+)
+```
 
-## What It Owns
+This package has no standalone CLI or HTTP service. Consuming applications may
+render its reports or expose them through runtime while retaining the package's
+schema and provenance contracts.
 
-- track claims and evidence records
-- model confidence and contradiction state
-- provide repositories and review seams for knowledge state
-- resolve grounded biological context that later recommendation and lab routes
-  should not improvise independently
-- keep literature pressure, context gaps, and identity reconciliation visible
-  after benchmark packets have already looked strong
+## Scientific limits
 
-## What Readers Commonly Underestimate
+Resolution is bounded by source freshness, identifier coverage, context
+specificity, licensing, curation quality, and contradiction state. A successful
+lookup is not proof of completeness, and a normalized relationship is not
+automatically causal. Knowledge returns uncertainty and gaps so downstream
+decision policy can narrow or refuse a recommendation.
 
-- this package is where public scientific memory lives after benchmark packets
-  are assembled and before recommendations are phrased
-- this package decides whether a sentence is grounded, contradicted, stale, or
-  context-thin before intelligence gets to sound confident about it
-- this package now carries concrete biology rather than just generic evidence
-  bookkeeping
-
-## What A Serious Reader Can Verify
-
-- whether a workflow claim is grounded by explicit references or only by
-  repository tone
-- whether contradiction has been preserved as structured state or silently
-  collapsed into one confidence score
-- whether biological context is broad enough to support the current sentence in
-  pathways, complexes, kinases, disease, drug targets, and ortholog space
-- whether downstream packages are inheriting evidence state or improvising it
-  locally
-
-## What It Refuses
-
-- scoring policy
-- lab workflow ownership
-- operator-facing runtime behavior
-
-## Strongest First Checks
-
-- start in `memory` when the question is whether a claim, contradiction, or
-  evidence bundle is explicit enough to review
-- start in `references` when the question is whether a workflow sentence is
-  grounded in cited scientific support
-- start in the biological lookup owners when the question is whether pathway,
-  complex, kinase, disease, drug-target, or ortholog context is actually
-  available and reviewable
-
-## Best Reader Route
-
-- start here when the question is whether `bijux-proteomics` really owns
-  scientific memory and context or only benchmark packets plus careful wording
-- continue to [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
-  when the dispute is about exact sentence support
-- continue to [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
-  when the dispute is about citation freshness, gap pressure, or scientific
-  backdrop honesty
-
-## First Proof Check
-
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge`
-- `packages/bijux-proteomics-knowledge/tests`
-- grounding, contradiction, and biological-context artifacts once a claim
-  narrows to one surface
-- neighboring handbook branches once a change crosses the local role
+Knowledge review is complete only when identity status, source context,
+support, contradiction, freshness, coverage, and use-specific sufficiency are
+visible together. A lookup count or aggregate confidence cannot substitute for
+that record.

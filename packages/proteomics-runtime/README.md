@@ -16,9 +16,11 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
+[![proteomics-runtime](https://img.shields.io/badge/proteomics--runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fproteomics-runtime)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -40,7 +42,7 @@ It is the install and import alias for bijux-proteomics-runtime.
 Use this package when you want a shorter runtime distribution and import name
 without creating a second execution owner.
 
-## Alias at a glance
+## Compatibility role
 
 - Use `proteomics-runtime` when you want a shorter install or import name for
   canonical runtime entrypoints.
@@ -50,12 +52,26 @@ without creating a second execution owner.
 - Route all runtime behavior to `bijux-proteomics-runtime`; keep this package
   focused on compatibility naming and CLI/import forwarding.
 
-## 0.3.8 Release Highlights
+| Surface | Compatibility name | Canonical owner |
+| --- | --- | --- |
+| Distribution | `proteomics-runtime` | `bijux-proteomics-runtime` |
+| Import root | `proteomics_runtime` | `bijux_proteomics_runtime` |
+| Behavior | forwarded execution API | Runtime CLI, HTTP, providers, runs, recovery, and workflow modules |
 
-- The alias now sends readers straight to the live runtime handbook and CLI
-  contract instead of looking like a second execution product.
-- Release guidance and boundary language now make the forwarding-only contract
-  easier to review before publishing.
+Run state, provider decisions, artifacts, and recovery behavior remain owned by
+the canonical package. New execution behavior belongs in Runtime before it can
+appear here.
+
+## Evidence boundary
+
+This alias demonstrates import and application-construction compatibility. It
+does not carry an independent execution-evidence suite or make package-local
+reproducibility claims. Inspect the canonical Runtime run bundles, comparison
+records, refusal records, and validation tests for operational evidence.
+
+Successful forwarding establishes that the alias reaches a canonical public
+surface. It does not establish provider availability, completed execution,
+artifact equivalence, or scientific acceptance for a workflow.
 
 ## Installation
 

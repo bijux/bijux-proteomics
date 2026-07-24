@@ -4,43 +4,50 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Change Validation
+# Change validation
 
-Change validation should make it obvious whether a package edit is safe, risky, or mis-scoped.
+Validate a Foundation change across every stability dimension it touches:
+semantic value, serialized bytes, schema version, migration, fingerprint,
+public import, and consumer interpretation.
 
-## Validation Model
+## Change-to-proof map
+
+| Change | Required local proof | Required boundary proof |
+| --- | --- | --- |
+| identifier validation or normalization | valid/invalid table, equality, canonical form, round trip | joins, caches, and reference consumers |
+| result, failure, or refusal | exhaustive constructors and serialized outcome | every consumer branch that distinguishes the outcomes |
+| canonical JSON or stable value | byte fixtures, unsupported inputs, ordering, round trip | fingerprints and persisted artifact readers |
+| document schema | old/new fixtures, version, validation, round trip | all packages that publish or read the document |
+| migration | source and target fixtures, loss policy, unsupported path, repeat behavior | consumer opens migrated output without coercion |
+| fingerprint | equal-meaning and changed-meaning cases | cache, artifact, or evidence identity consumers |
+| public export | API guard, typing, import-boundary and dependency checks | direct downstream imports |
+
+## Validation route
 
 ```mermaid
-flowchart LR
-    meaning["shared type or schema meaning"]
-    downstream["downstream consumer proof"]
-    migration["migration proof"]
-    verdict["safe, risky, or mis-scoped"]
-
-    meaning --> downstream --> migration --> verdict
+flowchart TD
+    E["Foundation edit"] --> M["name changed meaning"]
+    M --> S{"persisted or public?"}
+    S -->|yes| V["schema, bytes, version, migration, API"]
+    S -->|no| L["local invariant proof"]
+    V --> C["affected consumer tests"]
+    L --> C
+    C --> D{"same interpretation?"}
+    D -->|yes| P["validated"]
+    D -->|no or unknown| B["breaking or unproven"]
 ```
 
-This page should frame validation as consumer protection. Foundation changes
-are safe only when shared meaning, migrations, and downstream use still line up
-without silent coercion.
+Inspect generated or retained fixtures before and after the change. A parser
+that accepts old bytes is not compatible if the reconstructed meaning moved.
+A successful migration is not safe if it drops provenance or collapses an
+outcome class.
 
-## Review Rules
+## Validation record
 
-- validate every shared-type change against downstream consumers
-- require migration proof for durable payload changes
-- reject silent coercion that hides a breaking semantic shift
-
-## First Proof Check
-
-- `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
-- `src/bijux_proteomics_foundation/serialization/`
-
-## Design Pressure
-
-Foundation validation fails when migration success is treated as enough proof on
-its own. The package has to prove that durable meaning still matches what
-downstream consumers believe they are reading.
+State the contract family, old and new meaning, stability dimensions, schema
+versions, migration direction and loss policy, consumers, exact checks, and
+unverified paths. If compatibility is intentionally broken, use an explicit
+version and rejection path rather than silent coercion.

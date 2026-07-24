@@ -4,67 +4,67 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
 # Why Multiplex Stops At Internal Support
 
 ## Internal Support Only
 
-`multiplex` is not currently part of the outsider-auditable flagship family
-set.
+`multiplex` has real scientific and Runtime evidence, but it is not an
+outsider-auditable flagship family. Its current transfer and consequence chain
+does not support that stronger public posture.
 
-It has a real public package, a raw-executable runtime lane, and explicit
-chemistry pressure, plus one companion stress package and one published
-cross-package report, but it still lacks a dedicated outsider decision brief, a
-requested-versus-observed outcome dossier, and an assay-worth-it ledger row.
+```mermaid
+flowchart LR
+    P["primary TMTpro package"] --> R["raw-executable Runtime lane"]
+    S["channel-stress package"] --> T["cross-package transfer"]
+    R --> T
+    T -->|fragile_transfer| B["internal support ceiling"]
+    D["outsider decision brief missing"] --> B
+    O["requested-versus-observed dossier missing"] --> B
+    A["assay-worth-it row missing"] --> B
+```
 
-This page exists because the current repository is deeper than older docs made
-it sound. Multiplex is not thin or imaginary. It is a real scientific and
-runtime surface that still stops at internal support because the outsider trust
-chain collapses under stress and because the downstream consequence packet is
-not yet complete.
+## Evidence Already Present
 
-## What This Family Has Earned
+| Surface | Current evidence | What it establishes |
+| --- | --- | --- |
+| primary package | `multiplex_tmtpro_review_package` | channel balance, ratio compression, and missing-channel review |
+| stress package | `multiplex_channel_stress_review_package` | harsher channel and transfer pressure |
+| Runtime | `multiplex-tmtpro-review-corpus` in `raw_executable` mode | repository execution from the checked input level |
+| transfer report | `multiplex_channel_stress_review_package/cross_package_generalization.json` | current cross-package result is `fragile_transfer` |
 
-- tracked benchmark package under
-  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package`
-- companion stress package under
-  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package`
-- raw-executable runtime lane in `multiplex-tmtpro-review-corpus`
-- explicit public chemistry pressure around channel balance, ratio compression,
-  and missing-channel behavior
-- published family-transfer report at
-  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/cross_package_generalization.json`
+`raw_executable` does not mean vendor-native acquisition replay, stable family
+transfer, outsider review closure, or laboratory value. Those are separate
+evidence bars.
 
-## What Still Breaks The Outsider Packet
+## Missing Trust Links
 
-- the companion stress package still labels transfer `fragile_transfer`
-- no dedicated outsider decision brief family exists yet
-- no requested-versus-observed outcome dossier exists yet
-- no assay-worth-it ledger row exists yet
-- one raw-executable runtime lane is not enough to replace those missing
-  review and consequence surfaces
+- a dedicated outsider decision brief with explicit policy and refusal;
+- a requested-versus-observed outcome dossier;
+- an assay-worth-it ledger row connecting benefit, burden, controls, and
+  outcome;
+- transfer evidence strong enough to replace `fragile_transfer` with a
+  defensible bounded result.
 
-## What This Family Has Not Earned
+Because these links are absent, Multiplex has not earned outsider-auditable
+flagship family status, lab-consequential authority, or language borrowed from
+the DDA, DIA, LFQ, PTM, or targeted trust pages.
 
-- outsider-auditable flagship family status
-- public trust language that rides with the DDA, DIA, LFQ, PTM, or targeted
-  trust pages
-- lab-consequential authority
-- any claim that a second multiplex package stabilizes outsider-facing trust;
-  the current cross-package report labels that transfer `fragile_transfer`
+## Promotion Rule
 
-## Boundary
-
-Until outsider review and lab consequence surfaces exist, multiplex stays an
-internal-support family and should not be described as an outsider-auditable
-flagship family, even though it now has a second public package and one
-published family-transfer report.
+Promotion requires all missing links to close together. A second benchmark
+package alone is insufficient; a green Runtime rerun alone is insufficient;
+and a polished review narrative is insufficient. The generated workflow claim
+limits, transfer result, outsider packet, and Lab consequence evidence must
+agree on the same bounded sentence.
 
 ## Evidence Grounding
 
-- sentence grounding and unsupported-claim review:
-  [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
-- citation freshness, bibliography export, and gap audits:
-  [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
+- [Workflow Claim Grounding](../../06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md)
+  tests whether each sentence retains source support.
+- [Workflow Literature Audits](../../06-bijux-proteomics-knowledge/foundation/workflow-literature-audits.md)
+  exposes citation freshness and unresolved gaps.
+- [Workflow Consequence Maps](workflow-consequence-maps.md) shows the downstream
+  evidence required before internal support can widen.

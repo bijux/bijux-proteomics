@@ -3,8 +3,8 @@
 ## Package identity
 
 - Distribution name: `bijux-proteomics`
-- Public import root: `bijux_proteomics`
-- Private metadata helper: `bijux_proteomics_alias`
+- Import root: `bijux_proteomics_alias`
+- Installed canonical namespace: `bijux_proteomics`
 
 ## Architectural role
 
@@ -25,10 +25,13 @@
 
 ## Canonical tree layout
 
-- Public import roots: `bijux_proteomics`
-- Local metadata helper roots: `bijux_proteomics_alias`
+- Import roots: `bijux_proteomics_alias`
 - Top-level families: none
 - Root modules: none
+
+The tree-layout policy tracks the alias-owned metadata helper. The distribution
+also installs the canonical `bijux_proteomics` namespace supplied by Core;
+that public namespace is not an alias-local implementation family.
 
 ## Dependency direction
 

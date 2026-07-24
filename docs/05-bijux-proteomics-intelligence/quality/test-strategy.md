@@ -4,45 +4,55 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Test Strategy
+# Test strategy
 
-A useful test strategy names what evidence is needed and why shallow coverage is not enough.
+Intelligence testing proves both the decision and its explanation under
+ordinary, adverse, ambiguous, and changing conditions. Numeric movement alone
+is not sufficient evidence.
 
-For `bijux-proteomics-intelligence`, the test story should show how recommendation logic remains explainable under ambiguity, contradiction, and changed outcome paths.
+## Evidence layers
 
-## Strategy Model
+| Layer | Question | Representative suite |
+| --- | --- | --- |
+| candidate integrity | are valid, invalid, missing, duplicate, excluded, and fingerprinted candidates handled explicitly? | `tests/candidates/` |
+| component semantics | do orientation, scale, boundaries, missingness, and explanations agree? | candidate ranking and quality tests |
+| policy behavior | are constraints, weights, thresholds, ties, alternatives, and order deterministic? | judgment policy and decision tests |
+| challenge | do contradictions, falsifiers, counterfactuals, blinded cases, and skeptical posture affect the result? | contradictions, falsifiers, judgment challenge, and posture tests |
+| stability | which plausible evidence, threshold, weight, or scenario changes reverse or weaken the action? | sensitivity and scenario tests |
+| calibration and regret | does declared confidence match the corpus and are alternative costs retained? | confidence, calibration, and regret tests |
+| review artifact | can a reader reconstruct evidence, candidates, policy, challenges, posture, and authority? | `tests/reviews/` |
+| learning | does outcome feedback create a versioned policy without rewriting history? | `tests/learning/` |
+| package boundary | are Foundation, Core, Knowledge, Runtime, and Lab meanings preserved? | `tests/package/` |
+
+## Decision challenge path
 
 ```mermaid
-flowchart TB
-    inputs["evidence and policy inputs"]
-    evaluators["candidate, judgment, and posture tests"]
-    ambiguity["ambiguity and contradiction cases"]
-    outputs["report and outcome proof"]
-    release["release confidence"]
-
-    inputs --> evaluators
-    evaluators --> ambiguity
-    ambiguity --> outputs
-    outputs --> release
+flowchart LR
+    F["fixed evidence and candidates"] --> P["policy result"]
+    P --> C["contradiction and counterfactual"]
+    C --> S["sensitivity"]
+    S --> G["calibration and regret"]
+    G --> R["review artifact and posture"]
 ```
 
-The point is not simply to prove that scores move. The strategy has to show why a recommendation changed and whether that explanation survives all the way to the published outputs.
+Run the closest decision family first, then the complete suite when public
+policy, candidate models, review artifacts, or cross-package contracts move:
 
-## Review Rules
+```bash
+uv run --project packages/bijux-proteomics-intelligence \
+  pytest -q packages/bijux-proteomics-intelligence/tests
+```
 
-- favor tests that show why an outcome changed, not just that it changed
-- cover ambiguity, contradiction, and decision-loop pressure cases
-- treat report artifacts as quality surfaces, not optional extras
+## Required negative outcomes
 
-## First Proof Check
+Test no candidate, tied candidates, contradictory evidence, missing
+decision-critical evidence, unstable recommendation, calibration outside the
+supported corpus, excessive regret, and absent downstream authority. Hold and
+refusal are successful test outcomes when their preconditions are met.
 
-- `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
-
-## Design Pressure
-
-The easy failure is a test suite that proves numeric movement while leaving the explanation path too thin for a reviewer to trust.
+Snapshotting a recommendation sentence does not prove the policy. Assert the
+candidate set, component results, alternatives, challenge findings, posture,
+and authority record that explain it.

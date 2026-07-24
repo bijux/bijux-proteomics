@@ -69,21 +69,29 @@ def _render_consequence_maps() -> str:
         [
             "# Workflow Consequence Maps",
             "",
-            "These maps are the shared consequence narrative across knowledge, intelligence, and lab. Each family starts from contradiction pressure, passes through current recommendation posture, and ends at assay burden and the cost of being wrong.",
+            "Each workflow family starts from contradiction pressure, passes through a recommendation posture, and ends at assay burden and the cost of being wrong.",
             "",
             "The value of this page is that it keeps the repository from pretending those three layers are interchangeable. A workflow family can have a strong benchmark packet, a convincing rerun lane, and still stop at a weaker public sentence because the downstream cost of being wrong remains too high.",
             "",
-            "## How To Read These Maps",
+            "## Consequence Rule",
             "",
             "- These are not vote tallies. The weakest downstream boundary controls the strongest honest public sentence.",
             "- A family can look benchmark-strong and still remain recommendation-bounded once comparator pressure, assay burden, or follow-up failure stays unresolved.",
-            "- Read the table first for posture shape, then read the family map to see which contradiction, control demand, or consequence cost actually enforces the downgrade.",
+            "- Use the family map to identify the contradiction, control demand, or consequence cost that enforces the downgrade.",
             "",
-            "## What This Page Protects",
+            "```mermaid",
+            "flowchart LR",
+            '    claim["grounded family claim"] --> contradiction{"material contradiction?"}',
+            '    contradiction -->|yes| narrow["downgrade or refuse"]',
+            '    contradiction -->|no| decision["challenged recommendation"]',
+            '    decision --> feasible{"follow-up feasible and informative?"}',
+            "    feasible -->|no| narrow",
+            '    feasible -->|yes| action["bounded laboratory action"]',
+            '    action --> outcome["requested-versus-observed outcome"]',
+            '    outcome --> next["next decision revision"]',
+            "```",
             "",
-            "- it protects trust pages from sounding stronger than the combined consequence chain",
-            "- it protects recommendation posture from sounding cleaner than the lab burden it still triggers",
-            "- it protects release language from drifting upward because one upstream packet improved while the downstream boundary stayed weak",
+            "The maps constrain action, not the underlying analytical record. A laboratory refusal does not erase a valid identification or quantification result; it says that the proposed use of that result is not justified under the current controls, burden, and authority.",
             "",
             "| workflow family | knowledge posture | recommendation posture | lab posture | weakest allowed posture |",
             "| --- | --- | --- | --- | --- |",
@@ -123,16 +131,15 @@ def _render_consequence_maps() -> str:
         )
     lines.extend(
         [
-            "## Next Routes",
+            "## Continue From Consequence",
             "",
             "- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/) when the question is which evidence axis or observed outcome actually moved the call.",
             "- Open [Outcome Learning Loops](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/outcome-learning-loops/) when the question is how requested-versus-observed follow-up should tighten the next recommendation.",
             "- Open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/workflow-refusal-handbook/) when the question is whether the honest next action is to stop, rerun, narrow, or refuse.",
             "",
-            "## Honest Reader Outcome",
+            "## Resulting Interpretation",
             "",
-            "- the reader should leave knowing which family still survives a bounded recommendation",
-            "- the reader should also know which exact downstream burden keeps that family away from decision-grade language",
+            "The family table states the permitted posture. The family map names the exact contradiction, control demand, burden, and cost-of-error record responsible for that posture. If those records cannot be resolved, the posture is not independently reviewable.",
         ]
     )
     return "\n".join(lines)
@@ -168,9 +175,7 @@ def _render_recommendation_changes() -> str:
         [
             "# What Changed The Recommendation",
             "",
-            "This page answers the blunt question a hostile reviewer will ask next: what actually changes the recommendation once comparator pressure, literature pressure, lab burden, or observed outcome enters the picture?",
-            "",
-            "It exists because the repository now has enough depth that recommendation language can move for real reasons rather than just cleaner prose. If the docs do not name those reasons clearly, the product sounds more arbitrary than it is and more certain than it deserves.",
+            "A recommendation can change when comparator evidence, literature evidence, decision policy, laboratory burden, or an observed outcome changes. The prior decision remains immutable; a revision points back to it and identifies the inputs that moved.",
             "",
             "## How To Read These Counterfactuals",
             "",
@@ -185,6 +190,21 @@ def _render_recommendation_changes() -> str:
             "- a lab-burden shift that makes the same analytical story no longer worth the spend",
             "- an observed outcome that materially changes the next sentence instead of just adding more work around the same uncertainty",
             "",
+            "```mermaid",
+            "flowchart TD",
+            '    prior["retained prior decision"] --> compare["compare input revisions"]',
+            '    compare --> evidence{"evidence changed?"}',
+            '    compare --> policy{"policy changed?"}',
+            '    compare --> burden{"burden changed?"}',
+            '    compare --> outcome{"outcome observed?"}',
+            '    evidence --> attribution["named driver set"]',
+            "    policy --> attribution",
+            "    burden --> attribution",
+            "    outcome --> attribution",
+            '    attribution --> revised["new posture and rationale"]',
+            '    revised --> audit["old and new records remain inspectable"]',
+            "```",
+            "",
         ]
     )
     for entry in changes:
@@ -193,35 +213,47 @@ def _render_recommendation_changes() -> str:
         [
             "## Reading Rule",
             "",
-            "If comparator removal, literature removal, doubled assay burden, or one observed outcome can collapse the recommendation, the public wording should stay at the weaker posture immediately.",
-            "",
-            "## Why This Page Matters More Now",
-            "",
-            "- several families now have real benchmark, runtime, and recommendation packets, so the next honest question is what actually moves the call",
-            "- a stronger repository needs clearer counterfactuals, not just stronger summaries",
-            "- this page keeps the recommendation story tied to evidence, burden, and observed outcomes instead of letting it drift into style",
+            "If comparator removal, literature removal, doubled assay burden, or one observed outcome can collapse the recommendation, the permitted wording stays at the weaker posture. A stronger posture requires a checked counterfactual record demonstrating that the relevant pressure no longer changes the call.",
         ]
     )
     return "\n".join(lines)
 
 
 def _render_learning_loop(entry: WorkflowOutcomeLearningLoop) -> list[str]:
-    return [
+    requested_assays = (
+        ", ".join(f"`{assay}`" for assay in entry.requested_assay_ids)
+        if entry.requested_assay_ids
+        else "none recorded"
+    )
+    observed_assays = (
+        ", ".join(f"`{assay}`" for assay in entry.observed_assay_ids)
+        if entry.observed_assay_ids
+        else "none recorded"
+    )
+    lines = [
         f"### `{entry.workflow_family.value}`",
         "",
         f"- initial posture: `{entry.initial_strength.value}`",
         f"- revised posture after outcome: `{entry.revised_strength.value}`",
         f"- worth the assay spend: {'yes' if entry.worth_it else 'no'}",
-        f"- requested assays: {', '.join(f'`{assay}`' for assay in entry.requested_assay_ids)}",
-        f"- observed assays: {', '.join(f'`{assay}`' for assay in entry.observed_assay_ids)}",
+        f"- requested assays: {requested_assays}",
+        f"- observed assays: {observed_assays}",
         f"- matched assays: {', '.join(f'`{assay}`' for assay in entry.matched_assay_ids) if entry.matched_assay_ids else 'none'}",
         f"- blocked assays: {', '.join(f'`{assay}`' for assay in entry.blocked_assay_ids) if entry.blocked_assay_ids else 'none'}",
         f"- weakened assays: {', '.join(f'`{assay}`' for assay in entry.weakened_assay_ids) if entry.weakened_assay_ids else 'none'}",
-        f"- learning points: {', '.join(entry.learning_points)}",
-        f"- next adjustments: {', '.join(entry.next_adjustments)}",
-        f"- evidence paths: {', '.join(f'`{path}`' for path in entry.evidence_paths)}",
         "",
     ]
+    for label, values, code_values in (
+        ("learning points", entry.learning_points, False),
+        ("next adjustments", entry.next_adjustments, False),
+        ("evidence paths", entry.evidence_paths, True),
+    ):
+        lines.extend([f"#### {label}", ""])
+        lines.extend(
+            f"- `{value}`" if code_values else f"- {value}" for value in values
+        )
+        lines.append("")
+    return lines
 
 
 def _render_outcome_learning_loops() -> str:
@@ -234,9 +266,7 @@ def _render_outcome_learning_loops() -> str:
         [
             "# Outcome Learning Loops",
             "",
-            "These loops record how requested-versus-observed follow-up should tighten or weaken the next recommendation.",
-            "",
-            "They exist because downstream consequence should not be memoryless. Once the repository has asked for assays, observed only part of them, or learned that the information gain was weaker than expected, the next recommendation should change in public.",
+            "Outcome loops compare requested follow-up with observed work and carry the difference into the next recommendation. The prior recommendation, approved handoff, and observation remain separate immutable records.",
             "",
             "## What One Loop Tells You",
             "",
@@ -247,6 +277,17 @@ def _render_outcome_learning_loops() -> str:
             "- what assays actually happened",
             "- whether the loop was worth the assay spend",
             "- how the observed result should narrow or strengthen the next recommendation",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            '    request["requested assays and expected information"] --> observation["observed assays, QC, and deviations"]',
+            '    observation --> reconcile["match, block, weaken, or contradict"]',
+            '    reconcile --> worth{"information justified burden?"}',
+            '    worth -->|yes| revise["versioned evidence and decision revision"]',
+            '    worth -->|no| narrow["narrow, hold, or refuse"]',
+            '    revise --> preserve["retain prior records for calibration"]',
+            "    narrow --> preserve",
+            "```",
             "",
             "## Cross-Family Snapshot",
             "",
@@ -276,24 +317,40 @@ def _render_outcome_learning_loops() -> str:
         [
             "## Boundary",
             "",
-            "A recommendation that changes after one shipped follow-up loop should not keep its old public sentence by inertia.",
+            "An outcome loop can revise the next recommendation only at the scope supported by its controls and observed assays. Missing assays, failed controls, and weak information gain are evidence for narrowing; they are not silently discarded operational details.",
         ]
     )
     return "\n".join(lines)
 
 
 def _render_refusal_guidance(entry: WorkflowRefusalGuidance) -> list[str]:
-    return [
+    lines = [
         f"### `{entry.workflow_family.value}`",
         "",
         f"- current posture: `{entry.current_strength.value}`",
-        f"- stop when: {', '.join(entry.stop_when) if entry.stop_when else 'none'}",
-        f"- rerun when: {', '.join(entry.rerun_when) if entry.rerun_when else 'none'}",
-        f"- narrow when: {', '.join(entry.narrow_when) if entry.narrow_when else 'none'}",
-        f"- refuse when: {', '.join(entry.refuse_when) if entry.refuse_when else 'none'}",
-        f"- evidence paths: {', '.join(f'`{path}`' for path in entry.evidence_paths)}",
         "",
     ]
+    for label, conditions in (
+        ("stop when", entry.stop_when),
+        ("rerun when", entry.rerun_when),
+        ("narrow when", entry.narrow_when),
+        ("refuse when", entry.refuse_when),
+    ):
+        lines.extend([f"#### {label}", ""])
+        if conditions:
+            lines.extend(f"- {condition}" for condition in conditions)
+        else:
+            lines.append("- no additional family-specific condition is published")
+        lines.append("")
+    lines.extend(
+        [
+            "#### evidence paths",
+            "",
+            *(f"- `{path}`" for path in entry.evidence_paths),
+            "",
+        ]
+    )
+    return lines
 
 
 def _render_refusal_handbook() -> str:
@@ -306,7 +363,14 @@ def _render_refusal_handbook() -> str:
         [
             "# Workflow Refusal Handbook",
             "",
-            "This handbook names when the honest next move is to stop, rerun, narrow, or refuse. It exists so workflow-family consequence stays inspectable in operational language instead of being hidden inside a confident recommendation sentence.",
+            "A refusal record distinguishes four operational responses. Each response preserves the current evidence and names what can happen next.",
+            "",
+            "| response | meaning | next admissible action |",
+            "| --- | --- | --- |",
+            "| stop | the current handoff must not proceed | preserve state and inspect the named blocking condition |",
+            "| rerun | the question remains valid and recoverable evidence is missing or invalid | correct the declared condition and create a new run record |",
+            "| narrow | a weaker scope remains supported | issue a revised bounded question or recommendation |",
+            "| refuse | no responsible action exists inside the current policy or authority | retain the refusal until new evidence or authority changes the precondition |",
             "",
         ]
     )
@@ -316,7 +380,7 @@ def _render_refusal_handbook() -> str:
         [
             "## Rule",
             "",
-            "If the best downstream action is still stop, rerun, narrow, or refuse, the public recommendation must stay weaker than a full recommendation.",
+            "If the best downstream action is stop, rerun, narrow, or refuse, the public recommendation remains weaker than a full recommendation. A retry creates a new run or decision record; it does not erase the refusal that justified it.",
         ]
     )
     return "\n".join(lines)

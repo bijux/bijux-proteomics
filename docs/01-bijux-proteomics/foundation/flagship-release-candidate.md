@@ -1,101 +1,103 @@
 ---
 title: Flagship Release Candidate
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # Flagship Release Candidate
 
-This page names the strongest current release sentence the repository can
-defend. It does not describe the whole repository as universally ready.
+The `flagship-release-candidate-bundle` is the review boundary for the
+repository’s strongest workflow-family evidence. It is not an unqualified
+release approval. Publication remains blocked whenever ownership, generated
+governance, Runtime reproducibility, public language, or downstream consequence
+reports a narrower result.
 
-The current flagship release candidate is:
+## Candidate Scope
 
-- outsider-auditable, bounded: `dda`, `dia`, `ptm`, `targeted`
-- review-grade, bounded: `lfq`
-- internal support only: `multiplex`
+- full outsider-readable family packets: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- internal-support-only workflow families: `multiplex`
 
-That bundle is materially stronger than it was at `v0.3.7`, but it is still a
-bounded family bundle, not a blanket claim about all proteomics workflows.
+An outsider-readable packet means the sources, manifests, outputs, tests,
+limitations, and review route are available for inspection. It does not mean
+every family has the same Runtime mode or allowed claim. In particular, the DDA
+black-box lane remains review-grade bounded because it begins after external
+search execution.
 
-## What Makes This A Real Bundle
+## Evidence Inventory
 
-The release-candidate sentence now depends on a deeper cross-package chain:
+```mermaid
+flowchart LR
+    roots["paired public benchmark packages"] --> stability["family_stability_scorecard.json"]
+    stability --> rerun["independent rerun dossiers"]
+    rerun --> review["external review kits"]
+    review --> consequence["requested-versus-observed outcome dossier"]
+    consequence --> index["public artifact index + role matrix"]
+    index --> decision{"candidate accepted?"}
+    decision -->|no| refusal["narrow or refuse release language"]
+```
 
-- benchmark packages that expose real scientific evidence roots
-- runtime rerun lanes and artifact-boundary checks
-- grounded claim and contradiction review
-- recommendation challenge, downgrade, and regret surfaces
-- downstream lab-consequence and refusal pressure
+The bundle must retain:
 
-If one of those layers narrows, the bundle narrows with it.
+- primary and companion benchmark manifests for each covered family;
+- `family_stability_scorecard.json` and its perturbation evidence;
+- independent rerun dossiers with environment and artifact identity;
+- external review kits that do not depend on maintainer narration;
+- a requested-versus-observed outcome dossier when follow-up evidence exists;
+- the [public artifact index](public-artifact-index.md) and
+  [Public Artifact Role Matrix](public-artifact-role-matrix.md);
+- current claim limits, refusals, and the exact release-preflight result.
 
-## Current Bundle Inventory
+No artifact can substitute for a different authority layer. A run bundle does
+not replace benchmark acceptance; a decision brief does not replace grounded
+evidence; a clean outcome does not retroactively authorize the original
+recommendation.
 
-| family | current public release sentence | why it survives | why it still stays bounded |
-| --- | --- | --- | --- |
-| `dda` | outsider-auditable, bounded | strong benchmark packet, downstream review surfaces, and cross-package consequence route | still `import_only`, so runtime realism remains narrower than full live-engine parity |
-| `dia` | outsider-auditable, bounded | raw-executable runtime lane plus stronger DIA-specific scientific and consequence surfaces | library incompleteness and consequence ambiguity still block broader language |
-| `lfq` | review-grade, bounded | public benchmark, runtime, grounding, and recommendation surfaces are real and reviewable | missingness, normalization, cohort transfer, and external review pressure still narrow the stronger sentence |
-| `ptm` | outsider-auditable, bounded | stronger localization, review, and runtime surfaces | localization strength still outruns downstream consequence confidence |
-| `targeted` | outsider-auditable, bounded | strong benchmark and runtime packet plus explicit challenge and lab surfaces | calibration, interference, and follow-up burden still block stronger authority |
-| `multiplex` | internal support only | real package and runtime substance exists | the current stress packet still collapses outsider-facing trust |
+## Stability And Coexistence
 
-## What This Bundle Proves
+The candidate review requires a stable coexistence map for canonical packages,
+compatibility distributions, public imports, commands, schemas, and artifacts.
+Compatibility aliases must either preserve observable parity or carry explicit
+retirement evidence.
 
-- the repository can now defend multiple outsider-auditable workflow families
-  without pretending that they are all equally strong
-- the strongest release language now rests on scientific, runtime, grounding,
-  recommendation, and consequence surfaces together rather than on release
-  prose alone
-- the release sentence is now specific enough that a skeptical reviewer can
-  challenge each family through shipped public routes
+It also requires a stable language-demotion rule set. When the requested family
+language exceeds black-box, grounding, recommendation, or consequence
+evidence, the candidate adopts the lower allowed language automatically. A
+release note cannot override that demotion.
 
-## What This Bundle Still Refuses To Claim
+## Blocking Review
 
-- repository-wide excellence or universal proteomics authority
-- decision-grade trust for every public family
-- full family equivalence just because several families now survive bounded
-  outsider audit
-- stronger follow-up confidence than the current lab-consequence chain
-  supports
+Open these surfaces in order:
 
-## Best Audit Route
+1. [Workflow claim limits](workflow-claim-limits.md) for requested and allowed
+   language;
+2. [Core benchmark assets](../../04-bijux-proteomics-core/foundation/benchmark-assets.md)
+   for source, license, acceptance, freshness, and incompleteness;
+3. [Execution](../../09-bijux-proteomics-runtime/execution-overview.md) and
+   [Black-Box Run Verification](../../09-bijux-proteomics-runtime/black-box-run-verification.md)
+   for actual run mode and rerun evidence;
+4. [Decision Support](decision-support.md) for grounding, challenge, and
+   recommendation stability;
+5. [Lab Consequence](../../07-bijux-proteomics-lab/foundation/lab-consequence.md)
+   for readiness, burden, refusal, and observed outcomes;
+6. [Release Narrowing Protocol](release-narrowing-protocol.md) for evidence-led
+   language demotion;
+7. [Hostile Review Kit](hostile-review-kit.md) for independent scrutiny;
+8. [Why This Repository Is Not Ready Yet](why-this-repository-is-not-ready-yet.md)
+   and [What Would Make This Repository Ready](what-would-make-this-repository-ready.md)
+   for open vetoes and their closure evidence.
 
-Use this order when challenging the current flagship sentence:
+## Reader Routes
 
-1. [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-2. [Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-assets/)
-3. [Execution](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/execution-overview/)
-4. [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-5. [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+- Open [Workflow Families](workflow-families.md) to compare family trust status,
+  run mode, benchmark coverage, and blockers.
+- Open [Execution](../../09-bijux-proteomics-runtime/execution-overview.md) to
+  distinguish native, delegated, and imported work.
+- Open [Decision Support](decision-support.md) to identify the owner currently
+  limiting the advisory conclusion.
 
-## Why The Bundle Still Stays Narrow
-
-- strong family packets do not erase cross-family transfer limits
-- one raw-executable lane does not erase downstream assay-burden limits
-- broader scientific depth in core does not erase narrower runtime, grounding,
-  or consequence boundaries
-- if the weakest family-limiting surface still survives public scrutiny, the
-  release sentence must stop there
-
-## Honest Reading
-
-The practical release meaning is simple:
-
-- `dda`, `dia`, `ptm`, and `targeted` are public and challengeable now, but
-  each still carries a visible limiting factor
-- `lfq` is publicly reviewable and materially stronger than before, but its
-  present release wording still has to remain narrower than the outsider call
-- `multiplex` is real product substance, not fake scaffolding, but the
-  repository still cannot let it inherit trust from neighboring stronger
-  families
-
-## Boundary
-
-This page names the strongest current release sentence. It does not authorize
-broader wording than the family, runtime, grounding, and consequence surfaces
-can all still defend together.
+The candidate is publishable only when the tagged source, package ownership,
+generated governance, benchmark evidence, Runtime lane, consequence chain, and
+public language agree on the same bounded result.

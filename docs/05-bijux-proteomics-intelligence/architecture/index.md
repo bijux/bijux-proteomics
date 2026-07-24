@@ -4,69 +4,102 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Architecture
+# Decision architecture
 
-`bijux-proteomics-intelligence` architecture should make judgment legible. This
-section is where a reader should understand how candidates become ranked,
-judged, reviewed, and turned into recommendation outcomes without pretending
-that judgment is the same thing as evidence truth.
+`bijux-proteomics-intelligence` makes analytical judgment reproducible without
+pretending judgment is evidence truth. It validates a candidate universe,
+applies a named policy, challenges the ranking, measures sensitivity and
+regret, then emits an advisory recommendation, downgrade, escalation, or
+refusal.
 
 ```mermaid
 flowchart LR
-    candidates["candidate intake"]
-    metrics["candidate quality and fingerprints"]
-    policies["candidate, judgment, and posture families"]
-    briefs["reviews and interpretation"]
-    outcomes["decision outcomes"]
-    loop["refinement feedback"]
-
-    candidates --> policies
-    metrics --> policies
-    policies --> briefs
-    policies --> outcomes
-    outcomes --> loop
-    loop --> candidates
+    E["versioned evidence bundle"] --> C["decision context"]
+    U["candidate universe"] --> C
+    P["policy and constraints"] --> C
+    C --> R["ranking"]
+    R --> H["contradictions · falsifiers · scenarios"]
+    H --> S["sensitivity · calibration · regret"]
+    S --> O{"posture"}
+    O --> A["recommend"]
+    O --> D["downgrade or escalate"]
+    O --> F["refuse"]
 ```
 
-## What Makes This Architecture Distinct
+## Responsibility map
 
-- it is allowed to judge, rank, and explain
-- it is not allowed to redefine evidence truth or execute lab work
-- the feedback loop matters because recommendation quality is learned over time,
-  not frozen in one score pass
+| Family | Owns | Retains for review |
+| --- | --- | --- |
+| `candidates` | candidate models, validation, metrics, filtering, ranking, selection, lifecycle | complete universe, exclusions, fingerprints, score components |
+| `claims` | claim-support interrogation | evaluated claim and immutable evidence references |
+| `interpretation` | bounded analytical readings | assumptions, context, caveats, computed versus inferred content |
+| `judgment` | policies, scenarios, recommendations, counterfactuals, sensitivity, confidence, regret | policy identity, alternatives, reversals, uncertainty |
+| `posture` | evidence posture and skeptical review | downgrade, escalation, and human-review conditions |
+| `reviews` | benchmark reviews, decision briefs, outsider packets, public scrutiny | input lineage, challenge results, unresolved pressure |
+| `learning` | adaptation, refinement, convergence, stagnation | triggering outcomes and prior policy identity |
 
-## Start With
+The [module map](module-map.md) identifies concrete owners and
+[dependency direction](dependency-direction.md) keeps evidence custody and
+laboratory authority outside the package.
 
-- open [Execution Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/execution-model/)
-  when the question is how inputs move through policy into recommendation output
-- open [Integration Seams](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/integration-seams/)
-  when a proposed change starts to smell like evidence semantics or execution
-  control
-- open [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/)
-  when you need the owning family for candidates, judgment, reviews, interpretation, or learning
+## Decision context is immutable input
 
-## Reader Routes
+```mermaid
+sequenceDiagram
+    participant K as Knowledge
+    participant I as Intelligence
+    participant L as Lab
+    K->>I: evidence bundle at a fixed revision
+    I->>I: validate, rank, challenge, calibrate
+    I->>L: advisory record or refusal
+    L-->>K: observation as new evidence
+    K-->>I: new bundle for a new decision
+```
 
-- for scoring mechanics:
-  [Execution Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/execution-model/)
-  and [Dependency Direction](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/dependency-direction/)
-- for explainability surfaces:
-  [State and Persistence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/state-and-persistence/)
-  and [Code Navigation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/code-navigation/)
-- for future scoring or report extensions:
-  [Extensibility Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/extensibility-model/)
-  and [Architecture Risks](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/architecture-risks/)
+Outcome learning produces a new calibration or policy record. It never edits
+the evidence bundle or recommendation that existed before the observation.
+[State and persistence](state-and-persistence.md) defines this history.
 
-## First Proof Check
+## Ranking is policy, not fact
 
-- `src/bijux_proteomics_intelligence/candidates/` for candidate inputs and quality framing
-- `src/bijux_proteomics_intelligence/judgment/` and `posture/` for ranking, scenario, and refusal structure
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/` for downstream analytical projection and refinement pressure
+A ranking combines declared values: objectives, weights, constraints,
+thresholds, tie-breaking, missing-data treatment, and feasibility assumptions.
+Two valid policies may rank the same evidence differently. The architecture
+therefore preserves component scores and competing candidates rather than only
+the winner.
 
-## Boundary Test
+[Execution model](execution-model.md) traces candidate intake through posture.
+The resulting record is explainable only when another reviewer can recompute
+the ordering from the same decision context.
 
-If a recommendation cannot be explained as a policy result with named inputs,
-the architecture is too opaque for the role this package claims.
+## Challenge before recommendation
+
+Challenge is part of the decision path, not an optional report. Contradictions,
+falsifiers, blinded evidence, plausible alternative scenarios, threshold
+sensitivity, and regret test whether the ranking is stable enough for its
+declared use. An unstable result is downgraded, escalated, or refused even when
+its nominal score is high.
+
+## Extension rules
+
+A new metric belongs with candidate quality; a new policy belongs with
+judgment; a new skeptical test belongs with challenge or posture; a new review
+artifact composes existing records without becoming an alternative policy
+engine. Every extension identifies its inputs, policy, deterministic behavior,
+failure modes, and authority limit.
+
+Use [extensibility model](extensibility-model.md) before adding a capability,
+[integration seams](integration-seams.md) for evidence and Lab handoffs, and
+[error model](error-model.md) for refusal and invalid decision contexts.
+
+## Architectural risks
+
+The most serious risks are incomplete candidate universes, hidden exclusions,
+policy defaults that change without identity, scores presented without
+components, explanations generated from different inputs than the decision,
+and feedback that rewrites history. Duplicate decision models and broad owner
+facades also weaken accountability. [Architecture risks](architecture-risks.md)
+and [code navigation](code-navigation.md) provide the focused review paths.

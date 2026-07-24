@@ -4,46 +4,48 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Known Limitations
+# Known limitations
 
-Known limitations matter because honest boundaries are part of quality, not an admission of failure.
+Intelligence makes decision policy inspectable; it does not turn incomplete
+evidence into truth, a ranking into a calibrated probability, or an advisory
+artifact into permission to execute.
 
-For `bijux-proteomics-intelligence`, limitations exist wherever recommendation quality depends on evidence strength, operator judgment, or downstream execution outside this package.
+## Decision limits
 
-## Limitation Model
+| Limitation | Consequence | Responsible interpretation |
+| --- | --- | --- |
+| every ranking is conditional on its candidate universe | omitted or filtered alternatives can change the apparent winner | publish candidates and exclusions with the result |
+| component scores depend on orientation, scale, weights, and missing-data policy | a stable number can encode a changed decision rule | retain normalized policy and component explanations |
+| confidence is only as broad as its calibration corpus | calibration may drift across workflow family, instrument, cohort, or consequence | name the corpus and avoid probability language outside it |
+| contradiction and falsifier machinery exposes pressure; it does not resolve all disputes | a challenged claim can remain genuinely uncertain | preserve adverse evidence and use hold or refusal when needed |
+| sensitivity covers declared perturbations | untested policy or evidence changes may still reverse the decision | report the explored envelope and observed reversals |
+| regret depends on modeled alternatives and costs | unmodeled laboratory, time, or opportunity costs can dominate | pair decision review with Lab consequence evidence |
+| learning uses retained outcomes and policy assumptions | biased or sparse outcomes can reinforce the wrong policy | version adaptations and preserve the prior decision history |
+| Intelligence is advisory | downstream authorization, execution, and scientific acceptance remain separate | route authority to the responsible human, Lab, Runtime, or scientific owner |
+
+## Inference boundary
 
 ```mermaid
-flowchart TB
-    evidence["weak or conflicting evidence"]
-    policy["intelligence candidate, judgment, and posture owners"]
-    outputs["rankings, reports, and outcomes"]
-    execution["lab and runtime execute the result"]
-    limit["intelligence cannot turn weak inputs into guaranteed truth"]
-
-    evidence --> policy
-    policy --> outputs
-    outputs --> execution
-    evidence --> limit
-    execution --> limit
+flowchart LR
+    E["bounded evidence"] --> P["declared policy"]
+    P --> D["advisory decision"]
+    D --> L["Lab feasibility and authority"]
+    L --> R["Runtime execution"]
+    R --> O["observed outcome"]
+    O --> N["new evidence and policy review"]
 ```
 
-This page should stop readers from over-claiming what a scoring layer can do. The package can make decisions legible, but it cannot manufacture stronger evidence or guarantee the quality of execution that follows.
+Each arrow can narrow or reverse the prior posture. Intelligence cannot promise
+that the recommended assay is feasible, that execution will succeed, or that
+the observed outcome will support the original claim.
 
-## Review Rules
+## Report the uncertainty
 
-- intelligence cannot make weak evidence strong by itself
-- downstream execution quality still depends on lab and runtime surfaces
-- recommendation quality is bounded by the transparency of its inputs and outputs
-
-## First Proof Check
-
-- `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
-
-## Design Pressure
-
-The common drift is to treat a persuasive recommendation surface as if it were a substitute for evidence quality or downstream operational discipline.
+State the evidence revision, candidate scope, policy, calibration corpus,
+challenge coverage, sensitivity range, modeled regret, and downstream
+authority. If one is absent, name the gap and use a weaker posture. “The model
+recommended” is never a sufficient explanation of what was known or why the
+action was justified.

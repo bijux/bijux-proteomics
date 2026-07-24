@@ -19,7 +19,7 @@ __all__ = [
 
 FOUNDATION_DIR = REPO_ROOT / "docs" / "01-bijux-proteomics" / "foundation"
 PUBLIC_LANGUAGE_GLOSSARY_PATH = FOUNDATION_DIR / "public-language-glossary.md"
-_LAST_REVIEWED = "2026-05-09"
+_LAST_REVIEWED = "2026-07-21"
 
 
 @dataclass(frozen=True)
@@ -63,7 +63,7 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                     "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
                     "docs/01-bijux-proteomics/foundation/workflow-claim-limits.md",
                 ),
-                rationale="Use this only for workflow families whose current package, rerun, and review surfaces survive skeptical opening order without maintainer narration.",
+                rationale="Reserved for workflow families whose package, rerun, and review surfaces survive skeptical inspection without maintainer narration.",
             ),
             PublicLanguageTerm(
                 term="internal-support-only",
@@ -75,7 +75,7 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                     "docs/01-bijux-proteomics/foundation/workflow-claim-limits.md",
                     "docs/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md",
                 ),
-                rationale="Use this for workflow families with real substance that still do not earn outsider-facing release language.",
+                rationale="Marks workflow families with real implementation and evidence that still do not support outsider-facing reliance.",
             ),
             PublicLanguageTerm(
                 term="independent rerun dossier",
@@ -85,7 +85,7 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                     "docs/01-bijux-proteomics/foundation/independent-rerun-dossiers.md",
                     "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
                 ),
-                rationale="This names a distinct reviewer-facing artifact that tests whether one workflow sentence survives a second challenge lane.",
+                rationale="Names the reviewer-facing artifact that tests whether one workflow sentence survives a second challenge lane.",
             ),
             PublicLanguageTerm(
                 term="external review kit",
@@ -95,7 +95,7 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                     "docs/01-bijux-proteomics/foundation/external-review-kits.md",
                     "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
                 ),
-                rationale="This names the shortest outsider opening order through benchmark, rerun, and recommendation evidence for one workflow family.",
+                rationale="Names the shortest outsider inspection route through benchmark, rerun, and recommendation evidence for one workflow family.",
             ),
             PublicLanguageTerm(
                 term="decision brief",
@@ -104,7 +104,7 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                 allowed_surfaces=(
                     "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/decision_briefs.py",
                 ),
-                rationale="This remains a stable route-contract term for package-owned packet creation, lookup, diff, and export operations.",
+                rationale="Identifies the stable route contract for package-owned packet creation, lookup, diff, and export operations.",
             ),
         ),
         retired_terms=(
@@ -113,35 +113,35 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                 status="retired",
                 preferred_phrase="claim limits or internal-support limit",
                 allowed_surfaces=(),
-                rationale="This phrase hid the real reader question. Public docs should now say what claims are supported, blocked, or refused.",
+                rationale="Hides whether a claim is supported, blocked, or refused.",
             ),
             PublicLanguageTerm(
                 term="workflow authority matrix",
                 status="retired",
                 preferred_phrase="workflow claim limits",
                 allowed_surfaces=(),
-                rationale="The page no longer exists to project authority. It exists to state current claim limits per workflow family.",
+                rationale="Projects general authority instead of stating family-specific claim limits.",
             ),
             PublicLanguageTerm(
                 term="canonical workflow",
                 status="retired",
                 preferred_phrase="what one workflow family supports today",
                 allowed_surfaces=(),
-                rationale="The old label sounded broader and more final than the one bounded workflow sentence the repository can currently defend.",
+                rationale="Suggests broader finality than the bounded workflow sentence supported by current evidence.",
             ),
             PublicLanguageTerm(
                 term="reviewable-proteomics",
                 status="retired",
                 preferred_phrase="flagship workflow chain or bounded workflow family",
                 allowed_surfaces=(),
-                rationale="This was an internal campaign label, not a durable public product name or workflow concept.",
+                rationale="Was an internal campaign label rather than a durable product or workflow concept.",
             ),
             PublicLanguageTerm(
                 term="multiplex authority boundary",
                 status="retired",
                 preferred_phrase="why multiplex stops at internal support",
                 allowed_surfaces=(),
-                rationale="Readers need a direct answer about multiplex limits, not a repository-internal framing term.",
+                rationale="Obscures the direct statement that multiplex stops at internal support.",
             ),
         ),
     )
@@ -167,7 +167,17 @@ def _render_glossary(glossary: PublicLanguageGlossary) -> str:
         [
             "# Public Language Glossary",
             "",
-            "This page governs the release-facing vocabulary that root docs, package docs, and public route contracts may use without drifting back into repository lore.",
+            "Public terms separate workflow evidence, reviewer access, and route contracts without implying authority that the underlying proof has not earned.",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            '    C["scientific or operational claim"] --> E["inspect governed evidence"]',
+            '    E --> T{"term status"}',
+            '    T -->|allowed| A["use the bounded definition"]',
+            '    T -->|retired| R["use the named replacement"]',
+            '    A --> P["public sentence"]',
+            "    R --> P",
+            "```",
             "",
             "## Allowed Terms",
             "",
@@ -195,11 +205,11 @@ def _render_glossary(glossary: PublicLanguageGlossary) -> str:
     lines.extend(
         [
             "",
-            "## Enforcement",
+            "## Validation boundary",
             "",
             "- `validate_public_language()` rejects retired phrases in root docs, package READMEs, foundation docs, and release-support surfaces.",
-            "- `workflow_public_scrutiny.py` and `final_preflight.py` both depend on this glossary before stronger release wording may pass.",
-            "- New public terms belong here before they spread across repository-owned docs or public route contracts.",
+            "- `workflow_public_scrutiny.py` and `final_preflight.py` require the glossary to match the checked contract.",
+            "- A term that is absent from the allowed set carries no governed release meaning.",
         ]
     )
     return "\n".join(lines) + "\n"

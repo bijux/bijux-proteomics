@@ -16,9 +16,11 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
+[![bijux-proteomics](https://img.shields.io/badge/bijux--proteomics-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics)
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -42,7 +44,7 @@ namespace shipped by core.
 Use this package when you need the flagship install name on PyPI while keeping
 all scientific behavior owned by the canonical core package.
 
-## Alias at a glance
+## Distribution role
 
 - Use `bijux-proteomics` when packaging, documentation, or deployment needs
   the flagship distribution name rather than the canonical owner package name.
@@ -52,13 +54,35 @@ all scientific behavior owned by the canonical core package.
 - Route all new scientific behavior to `bijux-proteomics-core`; keep this
   package focused on install-name compatibility and publication metadata.
 
-## 0.3.8 Release Highlights
+```mermaid
+flowchart LR
+    install["pip install bijux-proteomics"]
+    alias["distribution metadata alias"]
+    owner["bijux-proteomics-core"]
+    api["bijux_proteomics public API"]
 
-- The flagship distribution name now routes readers directly to the current
-  core scientific surface instead of implying a second owner package.
-- The alias follows the `0.3.8` release line while the canonical
-  `bijux-proteomics-core` package continues to own FASTA, digestion, search,
-  quantification, PTM, QC, and workflow-planning behavior.
+    install --> alias --> owner --> api
+```
+
+There is no parallel implementation in this distribution. Scientific fixes,
+new exports, tests, and release evidence belong to the Core owner.
+
+## Resolve the three names
+
+Python packaging exposes three related names here, but only one implementation
+owner. Keeping them distinct prevents alias metadata from being mistaken for a
+scientific package boundary.
+
+| Name | Meaning | Where a change belongs |
+| --- | --- | --- |
+| `bijux-proteomics` | install and publication name | this alias package only when dependency or distribution metadata changes |
+| `bijux_proteomics` | public Python import namespace | `bijux-proteomics-core` |
+| `bijux-proteomics-core` | canonical scientific distribution | Core source, tests, API exports, scientific evidence, and scientific docs |
+
+A consumer may install the flagship name and import the canonical namespace;
+that does not make this directory the implementation owner. Review the
+installed dependency edge and the Core export before attributing behavior to
+the alias.
 
 ## Installation
 

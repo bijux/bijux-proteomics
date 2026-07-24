@@ -4,42 +4,49 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Risk Register
 
-A risk register should name the structural and behavioral failures that deserve ongoing attention.
-
-## Risk Model
+Intelligence can remain operational while becoming untrustworthy: rankings
+still sort, recommendations still serialize, and review packets still render.
+The critical risks are therefore silent changes to evidence use, policy,
+calibration, explanation, refusal, and downstream authority.
 
 ```mermaid
 flowchart LR
-    policy["policy drift becomes opaque"]
-    metrics["new metrics lose explanation"]
-    ownership["recommendation logic absorbs lab or runtime concerns"]
-
-    policy --> metrics --> ownership
+    E["evidence and results"] --> P["declared policy"]
+    P --> J["judgment"]
+    J --> C["confidence and rationale"]
+    C --> D{"recommend or refuse"}
+    D --> Q["consequence review"]
+    F["feedback"] --> P
 ```
 
-This page should make intelligence risk feel like explainability loss under
-decision pressure. The package is in trouble when the system can still rank or
-recommend but can no longer explain why in reviewable terms.
+## Active And Structural Risks
 
-## Review Rules
+| Risk | Observable failure | Required control |
+| --- | --- | --- |
+| duplicate semantic ownership | the same belief-audit model exists in Core and Intelligence | resolve the active ownership blocker or govern the exact shared contract |
+| evidence laundering | a score appears authoritative without source claim and lineage | require Knowledge references and expose missing support |
+| policy drift | threshold or default changes move recommendations silently | version policy and compare decision outcomes |
+| score orientation error | larger/smaller or sign meaning reverses a rank | type and test orientation at the boundary |
+| missingness coercion | absence becomes zero, neutral, or low confidence implicitly | declare missingness semantics and refusal behavior |
+| unstable ranking | ties or floating-point differences reorder candidates | deterministic tie policy, tolerances, and retained comparison |
+| confidence miscalibration | high confidence persists under weak or shifted evidence | calibration and counterfactual challenge corpus |
+| circular benchmark | the same evidence tunes and validates policy | separated challenge evidence and provenance |
+| rationale decay | output remains usable but no longer explains decisive factors | structured rationale and review packet checks |
+| refusal erosion | downstream demand converts blockers into warnings | refusal tests and release-language guards |
+| consequence bypass | recommendation is treated as a laboratory instruction | mandatory Lab feasibility and consequence handoff |
+| feedback contamination | outcomes adapt policy without eligibility or provenance checks | governed learning inputs and adaptation audit |
 
-- policy drift becomes opaque
-- new metrics land without enough reviewable explanation
-- recommendation logic starts absorbing lab or runtime concerns
+## Review Priority
 
-## First Proof Check
+Prioritize risks that can change a recommendation without changing its schema.
+Those failures are hardest to detect through ordinary compatibility tests.
+Challenge policy changes with unchanged inputs, missing evidence, ties,
+contradictions, adversarial counterfactuals, and downstream infeasibility.
 
-- `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
-
-## Design Pressure
-
-Intelligence risk compounds when recommendation movement stays operationally
-useful while becoming less interpretable. The register has to keep opaque drift
-visible before it becomes normalized.
+A recommendation is trustworthy only when a reviewer can reconstruct its
+inputs, policy, alternatives, confidence, rationale, and refusal boundary.

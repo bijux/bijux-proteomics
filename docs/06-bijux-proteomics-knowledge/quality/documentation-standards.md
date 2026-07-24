@@ -4,43 +4,62 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Documentation Standards
+# Documentation standards
 
-Documentation standards should protect the reader from filler, drift, and false confidence.
+Knowledge documentation must preserve the distance between a source, an
+evidence record, a claim, a review disposition, and a downstream decision.
+Collapsing those layers makes uncertainty disappear from prose even when it
+remains in storage.
 
-For `bijux-proteomics-knowledge`, documentation should expose contradiction handling directly and show reviewed knowledge state rather than stopping at raw evidence inputs.
+## Evidence vocabulary
 
-## Documentation Model
+| Term | Required context | Must not imply |
+| --- | --- | --- |
+| **source** | origin, version or retrieval date, license posture, and stable identifier | endorsement or current correctness |
+| **evidence** | source lineage, extracted statement or observation, context, and normalization | proof independent of interpretation |
+| **claim** | exact proposition, scope, linked support and contradiction, and revision | settled biological truth |
+| **support** | edge rationale and applicable context | corroboration if several records derive from one source |
+| **contradiction** | incompatible proposition or observation and its context | automatic falsification in every context |
+| **confidence** | scale, policy, inputs, and update rule | calibrated probability unless calibration is shown |
+| **reviewed** | reviewer or authority, fixed evidence revision, disposition, and rationale | permanently resolved or universally accepted |
+| **current** | freshness rule and checked-at time | live synchronization with every external source |
+
+## Reader evidence chain
 
 ```mermaid
-flowchart TB
-    evidence["raw evidence input"]
-    review["reviewed knowledge state"]
-    contradiction["certainty ends and contradiction stays visible"]
-    reader["reader can see what is known and what is unresolved"]
-
-    evidence --> review
-    review --> contradiction
-    contradiction --> reader
+flowchart LR
+    Q["question or claim"] --> C["claim record"]
+    C --> E["support and contradiction"]
+    E --> S["sources and provenance"]
+    E --> R["review disposition at revision"]
+    R --> U["uncertainty and consumer boundary"]
 ```
 
-This page should keep knowledge docs from becoming too clean. If the prose hides where certainty ends, it stops describing the package honestly.
+Start a public claim with the exact proposition and context. Then expose both
+support and contradiction, source custody, freshness, and the review revision.
+End with what a consumer may conclude and what remains unresolved.
 
-## Review Rules
+## Citation and aggregation rules
 
-- docs should expose contradiction handling directly
-- examples should show reviewed knowledge state, not just raw evidence input
-- quality pages should state where certainty ends
+Count independent evidence lineages, not repeated citations. Identify when a
+review, database, and benchmark ultimately derive from the same experiment.
+Preserve negative and null evidence. Explain identifier and species mapping
+before aggregating records across sources.
 
-## First Proof Check
+Quotes or summaries do not replace structured provenance. A reader must be able
+to reach the source identity and understand what transformation produced the
+stored evidence without assuming the repository republishes restricted
+content.
 
-- `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
+## Decision boundary
 
-## Design Pressure
+Knowledge describes evidence state. Intelligence owns recommendation policy,
+Lab owns observed assay outcomes, and Core owns scientific computation. A
+Knowledge brief may inform those owners without becoming their approval or
+execution record.
 
-The common mistake is to document the storage path clearly while leaving contradiction handling and uncertainty boundaries vague.
+[Known limitations](known-limitations.md) states the evidence ceiling, while
+[definition of done](definition-of-done.md) defines custody after a change.

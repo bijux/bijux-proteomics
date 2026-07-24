@@ -4,50 +4,62 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-21
 ---
 
 # Compatibility Contract
 
-`agentic-proteins` is not a second runtime and it is not a fallback place for
-new product logic. Its durable role is narrower: preserve legacy entrypoints
-while callers migrate toward the canonical runtime package.
+`agentic-proteins` preserves established access to canonical
+`bijux-proteomics-runtime` behavior. Compatibility is observable parity, not
+similar intent: consumers should see the same objects, inputs, outputs,
+failures, and lifecycle through supported historical paths.
 
-## What This Package Owns
+## Supported Root Contract
 
-- compatibility forwarding for historical import roots
-- legacy CLI and HTTP entrypoints that still need the old package name
-- migration-safe routing toward canonical runtime, core, and intelligence
-  owners
+| Historical name | Canonical owner |
+| --- | --- |
+| `agentic_proteins.AppConfig` | `bijux_proteomics_runtime.AppConfig` |
+| `agentic_proteins.RunManager` | `bijux_proteomics_runtime.RunManager` |
+| `agentic_proteins.cli` | `bijux_proteomics_runtime.cli` |
+| `agentic_proteins.create_app` | `bijux_proteomics_runtime.create_app` |
 
-## What This Package Does Not Own
+The root resolves lazily to Runtime and preserves object identity. Supported
+nested paths are governed separately in [Public Imports](../interfaces/public-imports.md)
+and the compatibility inventory; source-tree presence alone is not a promise.
 
-This package does not own canonical runtime behavior or new scientific owners.
+## Observable Parity
 
-- new canonical execution behavior
-- new benchmark, evidence, recommendation, or lab source-of-truth logic
-- repository-wide maintainer automation
+| Surface | Parity requirement |
+| --- | --- |
+| Python import | same canonical object or explicitly documented adapter |
+| callable | signature, defaults, return type, exceptions, and side effects |
+| model | validation, serialization, schema, and migration behavior |
+| CLI | command names, options, help, exit status, output, and artifacts |
+| HTTP | route inventory, request/response schema, middleware, dependencies, and errors |
+| lifecycle | state transitions, replay, cancellation, refusal, and recovery |
 
-## Public Import Rule
+Version equality alone does not prove parity. A forwarding package can install
+successfully while pointing at a missing symbol, changed default, or divergent
+error contract.
 
-If a new import surface cannot be explained as compatibility forwarding, it
-does not belong here. New integrations should target canonical packages
-directly, especially `bijux-proteomics-runtime`.
+## Failure Contract
 
-## Release Rule
+Unsupported historical paths fail explicitly. They must not fall back to
+copied implementations, dynamically guess a replacement, or import an internal
+Runtime path that is absent from the public ledger. Optional Runtime
+dependencies retain their canonical unavailable or degraded behavior.
 
-Release language must keep `bijux-proteomics-runtime` as the canonical
-execution owner and `agentic-proteins` as the compatibility bridge. Any change
-that makes the bridge feel equally authoritative is a release-blocking drift.
+## Migration And Retirement
 
-## Migration Proof
+Consumers migrate by replacing supported `agentic_proteins` paths with the
+corresponding Runtime owner paths and running behavior-level tests. Retirement
+requires:
 
-- `make quality-runtime-migration-validation`
-- `docs/01-bijux-proteomics/operations/runtime-migration-validation.md`
-- `packages/agentic-proteins/tests`
+1. a complete supported-path inventory;
+2. replacement guidance and release communication;
+3. observed consumer migration or an explicit support-ending decision;
+4. parity evidence through the final supported release; and
+5. coordinated removal from distribution metadata, CLI, HTTP, docs, and tests.
 
-## First Proof Check
-
-- `packages/agentic-proteins/src/agentic_proteins`
-- `packages/agentic-proteins/README.md`
-- `docs/02-agentic-proteins/interfaces/public-imports.md`
+Until those conditions hold, the bridge remains supported but non-canonical.
+New integrations should import Runtime directly.

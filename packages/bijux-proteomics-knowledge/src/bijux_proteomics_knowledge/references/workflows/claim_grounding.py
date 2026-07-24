@@ -1651,7 +1651,7 @@ _UNSUPPORTED_CLAIM_BLUEPRINTS: dict[
         (
             "It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider decision brief, a requested-versus-observed outcome dossier, and an assay-worth-it ledger row.",
             ScientificClaimSeverity.LOW,
-            "The narrowing is honest, but the chemistry-pressure wording still depends on internal benchmark interpretation because multiplex lacks its own outsider packet and lab consequence surface.",
+            "The narrowing is honest, but chemistry-pressure authority remains internal because the companion stress package fails the outsider boundary and no lab consequence packet closes the downstream gap.",
             "Ship a dedicated multiplex outsider decision brief and a dedicated multiplex lab consequence packet before promoting any stronger public chemistry-pressure language.",
         ),
     ),

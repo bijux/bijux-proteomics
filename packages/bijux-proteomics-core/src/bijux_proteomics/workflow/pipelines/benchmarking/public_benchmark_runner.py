@@ -167,10 +167,6 @@ def _repo_root() -> Path:
     )
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def run_public_benchmark_descriptor(
     descriptor_path: Path,
     *,
@@ -190,7 +186,9 @@ def run_public_benchmark_descriptor(
     for source in descriptor.source_files:
         path = repo_root / source.repo_relative_path
         exists = path.exists()
-        observed_sha256 = _sha256(path) if exists else None
+        observed_sha256 = (
+            hashlib.sha256(path.read_bytes()).hexdigest() if exists else None
+        )
         checksum_matched = observed_sha256 == source.sha256 if exists else False
         source_audits.append(
             PublicBenchmarkSourceAudit(
@@ -1137,11 +1135,11 @@ def _direction_from_effect_size(value: float | None) -> str | None:
 
 
 __all__ = [
-    "PublicBenchmarkRunReport",
     "PublicBenchmarkExpectedSignalAssessment",
     "PublicBenchmarkExpectedSignalAssessmentStatus",
     "PublicBenchmarkFailure",
     "PublicBenchmarkFailureKind",
+    "PublicBenchmarkRunReport",
     "PublicBenchmarkRunStatus",
     "PublicBenchmarkSuiteReport",
     "load_public_benchmark_descriptor",

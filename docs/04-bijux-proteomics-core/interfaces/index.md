@@ -4,73 +4,105 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Scientific interfaces
 
-`bijux-proteomics-core` interfaces are where the domain speaks in public. This
-section should make it obvious which surfaces define protein programs, lifecycle
-gates, assay requirements, and execution readiness so a reader can tell where
-governance ends and orchestration begins.
+Core interfaces expose scientific operations through Python, CLI, and portable
+artifacts. All three routes share the same domain contracts: format acceptance,
+scientific policy, result schema, rejected-input evidence, QC, and typed failure
+must not change merely because the caller changes.
 
 ```mermaid
 flowchart LR
-    imports["public imports"]
-    programs["program and target contracts"]
-    reviews["review and liability surfaces"]
-    assays["assay and criteria payloads"]
-    execution["execution-facing contracts"]
-    operators["cli, repositories,<br/>operator workflows"]
-
-    imports --> programs --> reviews --> assays --> execution --> operators
+    P["Python API"] --> C["scientific owner"]
+    L["bijux-proteomics CLI"] --> C
+    R["Runtime workflow request"] --> C
+    C --> O["typed result"]
+    C --> F["failure or refusal"]
+    O --> A["JSON · JSONL · TSV · manifests · review bundles"]
+    F --> A
 ```
 
-## What Makes These Interfaces Important
+## Choose an entry route
 
-- they publish the constitutional rules of the proteomics program model
-- they are meant to be consumed by both code and review processes, not just by
-  Python call sites
-- they define readiness and progression without owning runtime execution itself
+| Need | Interface | Appropriate when |
+| --- | --- | --- |
+| common intake from Python | curated package root | one of the five stable root operations is sufficient |
+| specialized scientific work | owning family module | the caller needs domain-specific policies, reports, or reason codes |
+| shell composition or inspection | `bijux-proteomics` CLI | files and machine-readable artifacts are the natural boundary |
+| governed multi-operation execution | Runtime request consuming Core contracts | lifecycle, providers, checkpoints, or replay are required |
+| cross-process review | artifact contract | another tool or reviewer must inspect the exact result independently |
 
-## Start With
+The package root intentionally exposes only `DigestPolicy`,
+`parse_fasta_document`, `parse_experimental_design_table`,
+`build_normalized_run_bundle`, and `build_fdr_audit_trail`. Use
+[public imports](public-imports.md) to find the supported owner module for wider
+capabilities. Do not treat every importable internal symbol as public API.
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
-  when the question is what a program, review, assay, or gate payload is
-  allowed to mean
-- open [Operator Workflows](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/operator-workflows/)
-  when the reader is less interested in Python and more interested in how the
-  package is actually used in governed work
-- open [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
-  and [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/)
-  when the question starts from code or command entrypoints
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
-  before widening or narrowing any public domain promise
+## Result contract
 
-## Read By Domain Question
+A reviewable result preserves more than its headline values:
 
-- [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
-  for the exported domain vocabulary
-- [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/artifact-contracts/)
-  for the durable forms of those rules
-- [API Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/configuration-surface/)
-  for how operators and tooling touch the domain
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/entrypoints-and-examples/)
-  and [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
-  for the cost of changing those surfaces
+| Contract element | Examples |
+| --- | --- |
+| source identity | input digest, file identity, external engine and version |
+| normalized policy | protease, modification set, tolerances, FDR method, inference or normalization rule |
+| accepted material | parsed proteins, PSMs, peptides, groups, quantities, sites, transitions |
+| excluded material | rejected rows, contaminants, decoys, ambiguous assignments, missing observations |
+| diagnostics and QC | counts, distributions, calibration, missingness, interference, sensitivity |
+| compatibility | schema identity, producer version, migration posture |
+| scientific limits | unresolved ambiguity, transfer boundary, heuristic status, unavailable evidence |
 
-## What This Section Should Settle
+See [data contracts](data-contracts.md) for field invariants and
+[artifact contracts](artifact-contracts.md) for persisted representations.
 
-- which public surfaces define program authority
-- where a downstream package may depend on core contracts without taking over
-  core governance
-- how to distinguish execution readiness from actual execution ownership
+## CLI behavior
 
-## First Proof Check
+CLI commands validate arguments before scientific work, write machine-readable
+outputs atomically, and return nonzero status for invalid input or governed
+failure. Concise terminal text is an operator aid; it is not the authoritative
+scientific artifact.
 
-- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py`
-- `src/bijux_proteomics/interfaces/cli/app.py` and `interfaces/cli/__main__.py`
-- `packages/bijux-proteomics-core/tests`
+```bash
+bijux-proteomics fasta-parse --help
+bijux-proteomics digest --help
+bijux-proteomics fdr --help
+bijux-proteomics protein-lfq --help
+bijux-proteomics ptm --help
+bijux-proteomics targeted-panel-builder --help
+```
+
+The [CLI surface](cli-surface.md) documents commands and exit behavior.
+[Operator workflows](operator-workflows.md) connects commands into defensible
+scientific sequences, while [entrypoints and examples](entrypoints-and-examples.md)
+provides focused invocations.
+
+## Artifact custody
+
+JSON and table exports are deterministic where their contract promises stable
+ordering. A manifest identifies inputs, parameters, producer, and owned output
+files. Review bundles connect primary results to diagnostics and limitations
+without replacing the primary artifacts.
+
+An artifact proves what Core serialized under a declared policy. It does not by
+itself prove that an external engine behaved correctly, that a run can be
+replayed, that evidence is sufficient for a recommendation, or that an assay is
+safe to execute.
+
+## Configuration boundary
+
+Scientific configuration belongs with the Core operation: digestion,
+modification, tolerance, scoring, inference, normalization, or workflow-family
+policy. Process configuration—provider choice, resources, retries, service
+transport, checkpoints, and scheduling—belongs to Runtime. See
+[configuration surface](configuration-surface.md) before adding a setting.
+
+## Compatibility
+
+Public imports, command names, fields, enumerations, artifact schemas, defaults,
+and failure behavior are compatibility surfaces. A change may require a schema
+migration even when Python imports remain unchanged. [Compatibility commitments](compatibility-commitments.md)
+defines the review burden for those changes; [API surface](api-surface.md)
+identifies the curated facade and its evidence.

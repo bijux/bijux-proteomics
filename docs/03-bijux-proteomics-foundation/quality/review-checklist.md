@@ -4,48 +4,55 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Review Checklist
 
-A review checklist is useful only if it catches the real ways this package can drift.
+Review Foundation changes as repository-wide contract changes. A passing unit
+test in Foundation is insufficient when every downstream package may persist,
+hash, migrate, or interpret the affected value.
 
-For `bijux-proteomics-foundation`, good review starts by asking whether a change really belongs in shared meaning or whether local convenience is trying to promote itself to system truth.
+## Ownership
 
-## Review Model
+- Identify at least two real consumers of a proposed shared primitive.
+- Confirm the meaning is identical across consumers and contains no downstream
+  policy.
+- Reject reverse imports and optional behavior that requires a product package.
+- Prefer the existing owner when the change is scientific, operational,
+  evidential, decisional, or laboratory-facing.
 
-```mermaid
-flowchart TB
-    review["review proposed foundation change"]
-    ownership{"shared meaning or local convenience?"}
-    proof{"migrations and serialization move together?"}
-    downstream{"downstream packages get an explicit path?"}
-    approve["ready to approve"]
+## Representation And Semantics
 
-    review --> ownership
-    ownership -->|shared meaning| proof
-    ownership -->|local convenience| rehome["re-scope the change"]
-    proof -->|yes| downstream
-    proof -->|no| block1["keep reviewing"]
-    downstream -->|yes| approve
-    downstream -->|no| block2["keep reviewing"]
-```
+- Compare validation, defaults, optionality, enumeration values, units, and
+  failure behavior.
+- Inspect canonical JSON and stable-value ordering.
+- Recompute hashes only through the governed policy; never patch a digest.
+- Distinguish document ID, content hash, revision, and schema version.
+- Verify refusals and errors remain typed rather than collapsing to null values.
 
-This checklist should catch the moment a seemingly small schema or serialization edit starts forcing every consumer to reinterpret the package on its own.
+## Compatibility
 
-## Review Rules
+| Change | Evidence |
+| --- | --- |
+| identifier or prefix | construction, classification, invalid form, downstream fixtures |
+| model field or default | old/new validation, serialization, schema, consumer behavior |
+| canonicalization or hashing | golden bytes and digests across supported values |
+| document metadata | round trip, revision, lineage, producer, old reader behavior |
+| migration | complete path, missing path, cycle, deprecated target, wrong output version |
+| public import | root API ledger, wheel contents, downstream import inventory |
+| exception or outcome | caller handling and preserved failure distinction |
 
-- ask who else consumes the shared meaning
-- check whether the proposed change is truly shared or only locally convenient
-- verify migrations, serialized forms, and docs move together
+## Required Verification
 
-## First Proof Check
+Run focused Foundation tests, serialization and compatibility suites, public
+API and package-shape checks, then affected downstream tests and documentation
+gates. Inspect built-wheel imports when the public surface changes. Retain old
+fixtures when persisted data is involved.
 
-- `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
-- `src/bijux_proteomics_foundation/serialization/`
+## Approval Boundary
 
-## Design Pressure
-
-The risk is approving a change because it is tidy in one package while missing that it quietly rewrites shared meaning for the rest of the repository.
+Approve only when the owner is correct, current consumers agree on meaning,
+generated artifacts match source, migrations or explicit rejection cover old
+data, and downstream evidence is green or the blocker is recorded. Do not
+weaken a compatibility check to accept an undocumented semantic change.

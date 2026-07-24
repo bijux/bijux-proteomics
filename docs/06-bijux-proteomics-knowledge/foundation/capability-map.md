@@ -4,29 +4,39 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Capability Map
 
-The capability map lists the kinds of work `bijux-proteomics-knowledge` is allowed to do.
-That list should make the package easier to defend in review, not broader by
-default.
+`bijux-proteomics-knowledge` preserves scientific assertions, their sources, their conflicts, and their biological context. It makes evidence reusable without pretending that storage, normalization, or trust scoring settles every scientific disagreement.
 
-## Allowed Capability Classes
+```mermaid
+flowchart LR
+    S[Sources] --> R[Evidence records]
+    R --> C[Claims]
+    C --> G[Integrity graph]
+    G --> X[Conflict reconciliation]
+    B[Biological grounding] --> C
+    X --> D[Decision lineage and reviews]
+    D --> K[Durable evidence memory]
+```
 
-- track claims and evidence records
-- model confidence and contradiction state
-- provide repositories and review seams for knowledge state
+## Memory capabilities
 
-## Disallowed Expansion
+| Capability | Preserved context |
+| --- | --- |
+| Evidence records | kind, source, source type, origin, extraction method, assay context, quantitative support, artifacts, confidence, and time |
+| Claims | statement, structured relation, assumptions, supporting and contradicting evidence, status, polarity, confidence, and resolution assays |
+| Bundles | target-scoped evidence collections, document schema, decision tags, trust summaries, freshness, and conflict state |
+| Integrity | valid claim-to-evidence links, graph coherence, duplicate and orphan detection |
+| Reconciliation | policy, compared evidence, chosen action, rationale, belief update, actor, timestamp, and hold requirement |
+| Query and lineage | structured filtering and traceability from decision areas to claims and evidence |
 
-- scoring policy
-- lab workflow ownership
-- operator-facing runtime behavior
+## Grounding capabilities
 
-## First Proof Check
+The package resolves protein identifiers, pathway and complex membership, kinase–substrate relationships, drug targets, disease terms, orthologs, and protein-feature overlaps. Every resolver carries status, ambiguity, coverage, or confidence rather than returning only matched values. Public reference workflows add citations, ontologies, literature audits, claim grounding, comparator confrontations, contradiction dossiers, and knowledge-deficit reports.
 
-- [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/)
-- [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/)
-- the package source and tests that prove the claimed capability
+## Boundary
+
+Knowledge can describe support and conflict and propose a governed reconciliation. It cannot choose a portfolio action, authorize an experiment, or execute a workflow. Intelligence applies decision policy; lab governs experimental action; runtime governs execution.

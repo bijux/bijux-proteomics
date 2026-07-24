@@ -9,8 +9,8 @@ last_reviewed: 2026-07-01
 
 # Benchmark Assets
 
-This route starts at public source identity and ends at the benchmark packages
-the repository currently asks outsiders to inspect first.
+Benchmark evidence starts at public source identity and ends at the checked
+packages used to constrain workflow-family claims.
 
 The benchmark surface is no longer a thin example-data story. It is the public
 scientific evidence root for flagship workflow language: source identity,
@@ -62,37 +62,56 @@ flagship language.
 | `ptm` | strong public package pair | localization evidence still outruns downstream consequence confidence | [PTM Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ptm-benchmark-lineage/) |
 | `targeted` | strong public package pair | calibration and interference still narrow broader certainty | [Targeted Benchmark Lineage](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/targeted-benchmark-lineage/) |
 
-## Why This Route Matters More Now
+## From Public Source To Permitted Claim
 
-The repository now has enough real scientific depth that evidence-root quality
-has become a first-order product question:
+```mermaid
+flowchart LR
+    source["public source identity"] --> custody["license, citation, and selection record"]
+    custody --> primary["primary package"]
+    custody --> pressure["companion pressure package"]
+    primary --> rerun["declared Runtime lane"]
+    pressure --> transfer["cross-package generalization"]
+    rerun --> matrix["family evidence matrix"]
+    transfer --> matrix
+    matrix --> sentence["permitted public sentence"]
+    custody -. incomplete .-> narrow["narrow or refuse"]
+    rerun -. unstable .-> narrow
+    transfer -. fails .-> narrow
+```
 
-- broader sequence, chemistry, spectra, mzML, DIA, PTM, and quantification
-  surfaces mean benchmark packages are no longer only fixtures
-- paired benchmark logic means one easy flagship packet cannot carry the whole
-  public sentence alone
-- incompleteness, freshness drift, and licensing limits are now part of the
-  public evidence story rather than maintainer-only context
+The primary package demonstrates the declared scientific path under a known
+set of conditions. The companion package changes a family-relevant condition:
+engine, library, sparsity, channel stress, localization ambiguity, or
+carryover. A family claim survives only when both packages remain traceable,
+their declared lanes rerun, and the transfer report supports the requested
+language.
 
-## What A Skeptical Reader Should Check
+## Audit A Benchmark Package
 
-- does the family have both a flagship package and a companion pressure route
-- does the package expose enough source identity and rebuild detail to be
-  reviewable
-- do incompleteness and transfer limits appear at the evidence root instead of
-  being postponed into later recommendation prose
-- does the lineage page explain why the family sentence narrows where it does
+1. Resolve every source locator and confirm that the citation describes the
+   scientific material actually packaged.
+2. Compare the asset inventory with the generated boundary; copied source
+   material and repository-derived outputs must not be conflated.
+3. Rebuild the governed outputs and compare their declared stable artifacts.
+4. Inspect freshness, incompleteness, and redistribution constraints before
+   interpreting a successful run.
+5. Run the companion package and read the family-transfer report before
+   accepting any family-level sentence.
 
-## What Changed Since v0.3.7
+## Governed Benchmark Guarantees
 
-- benchmark surfaces are now one of the clearest public proofs that the
-  repository contains more than governance
-- family-specific lineage, freshness, incompleteness, and licensing pages now
-  make benchmark quality part of the public release argument
-- paired flagship and pressure packages now keep stronger workflow families
-  honest by forcing easier and harder evidence roots to coexist
+- source identity and citation are reviewable separately from generated output
+- package identity, artifact inventory, quality posture, and lifecycle posture
+  are machine-readable
+- every listed family pairs a primary package with a pressure package and a
+  cross-package generalization record
+- lineage, freshness, incompleteness, and licensing limits remain visible when
+  later layers consume the package
 
-## Best Next Routes
+These guarantees make the evidence inspectable. They do not guarantee that a
+family passes its runtime, grounding, recommendation, or consequence bars.
+
+## Continue The Audit
 
 - Open [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
   for the current benchmark package set.
@@ -107,6 +126,6 @@ has become a first-order product question:
 
 ## Boundary
 
-This route should answer where the public scientific evidence starts and how
-complete it is. It should hand off before pretending that benchmark lineage
-alone settles runtime trust, recommendation strength, or lab consequence.
+Benchmark lineage establishes where public scientific evidence starts and how
+complete that evidence root is. Runtime trust, recommendation strength, and
+laboratory consequence remain separate contracts.

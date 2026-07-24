@@ -4,58 +4,78 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Change Principles
+# Change principles
 
-Root-level change should leave the repository easier to explain, not merely more
-featureful. When a change makes ownership, proof, or naming less obvious, it is
-usually creating review debt even if the code still works.
+A repository change is complete when ownership, behavior, evidence, and public
+explanation agree. Passing checks is necessary, but it does not justify blurred
+package boundaries, ambiguous names, silent contract drift, or generated output
+committed as source.
 
-## Change Model
+## Route to the narrowest owner
+
+Place scientific behavior in Core, execution in Runtime, evidence memory in
+Knowledge, advisory judgment in Intelligence, laboratory authority in Lab, and
+shared serialization primitives in Foundation. Agentic Proteins and the
+`proteomics-*` distributions are compatibility routes, not alternate owners.
+
+Root ownership is reserved for rules that genuinely coordinate several
+packages: package inventory, shared checks, public site publication, tracked API
+governance, and release orchestration.
 
 ```mermaid
-flowchart TB
-    change["proposed root or cross-package change"]
-    owner{"narrowest owner still clear?"}
-    proof{"docs, tests, schema, and automation stay aligned?"}
-    naming{"durable names and intent remain explicit?"}
-    accept["change follows root principles"]
-
-    change --> owner
-    owner -->|yes| proof
-    owner -->|no| reject1["re-scope the change"]
-    proof -->|yes| naming
-    proof -->|no| reject2["repair the proof chain"]
-    naming -->|yes| accept
-    naming -->|no| reject3["rename or simplify"]
+flowchart TD
+    change["proposed change"]
+    owner{"one package owns the meaning?"}
+    local["change canonical package"]
+    shared{"repository-wide contract?"}
+    root["change root orchestration"]
+    split["separate concerns and owners"]
+    owner -->|yes| local
+    owner -->|no| shared
+    shared -->|yes| root
+    shared -->|no| split
 ```
 
-This page should help a reviewer judge whether a root-level change improves the repository’s explanation quality or merely hides more behavior behind cross-package convenience.
+## Keep contract layers aligned
 
-## Principles
+When observable behavior changes, inspect every representation of that
+behavior:
 
-- move behavior toward the owning package instead of broadening root scope for
-  convenience
-- keep docs, schema artifacts, tests, and automation updates aligned when they
-  describe the same behavior
-- use durable names for files, headings, and commit intent
-- keep repository automation explicit about which packages and assets it is
-  governing
+- typed source and public imports;
+- CLI or HTTP interfaces;
+- persisted data and artifact schemas;
+- compatibility aliases and migration routes;
+- tests, benchmarks, and runtime evidence;
+- public explanations and limitations.
 
-## Conflict Test
+Update only the affected layers, but do not declare an implementation-only
+change until evidence shows the public layers remain stable.
 
-When a change seems reasonable in both root and package space, bias toward the
-narrower owner. Root ownership is justified only when the rule genuinely spans
-more than one package and would become misleading if documented locally.
+## Preserve evidence, not history-shaped structure
 
-## First Proof Check
+Names describe durable domain responsibility. Avoid labels based on delivery
+order, temporary migration state, or a generic bucket. Compatibility code may
+be temporary, but its name must state the stable relationship it preserves.
 
-- the owning package handbook when the change is behavior-facing
-- `Makefile`, `makes/`, `apis/`, or workflow files when the change is truly
-  repository-wide
+Keep commits reviewable by intent. A contract migration, generated artifact
+refresh, and unrelated prose revision are separate unless correctness requires
+them to move together. Each commit leaves the repository coherent and records
+the checks relevant to its risk.
 
-## Design Pressure
+## Refuse silent accommodation
 
-The common drift is to accept a repository-wide convenience change that saves local wiring while making ownership and proof harder to explain everywhere else.
+Do not coerce invalid scientific input, invent missing provenance, treat
+advisory output as authority, convert a failed check into a warning, or copy
+behavior into a neighboring package to unblock one caller. Make the failure
+explicit and correct the owning contract.
+
+Before merging a cross-package change, a reviewer should be able to answer:
+
+1. Who owns the changed meaning?
+2. Which public or persisted contract moved?
+3. What evidence distinguishes intended change from regression?
+4. How do existing consumers migrate or fail?
+5. Which limitations remain after the change?

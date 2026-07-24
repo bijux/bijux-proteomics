@@ -4,133 +4,108 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-06-30
+last_reviewed: 2026-07-21
 ---
 
-# Foundation
+# Evidence foundations
 
-The foundation section explains the durable role of `bijux-proteomics-knowledge` before it
-explains implementation detail. Use it to resolve why evidence truth belongs here before decision or lab layers consume it.
-
-That role is materially richer now than a general evidence ledger. Stronger
-workflow packets, public trust surfaces, and downstream recommendation pressure
-mean this section has to own exact grounding, contradiction discipline,
-literature audit routes, and biological context with enough clarity that the
-rest of the repository cannot improvise why a sentence should be believed.
-
-## Why Readers Should Start Here More Deliberately
-
-- this is where the repository proves it has memory, contradiction, and
-  grounding discipline instead of only benchmark packets and careful prose
-- the package now carries more real biological context than older docs
-  admitted, including pathway, complex, kinase, disease, drug, and ortholog
-  lookup owners
-- if this section is weak, every stronger recommendation or trust sentence
-  above it becomes less honest immediately
+Knowledge owns the durable relationship between a claim and the evidence that
+supports, contradicts, qualifies, or fails to resolve it. Its memory preserves
+source identity, biological context, provenance, confidence, and history before
+Intelligence applies decision policy or Lab adds experimental consequence.
 
 ```mermaid
-flowchart TB
-    observations["observations"]
-    claims["claims"]
-    confidence["confidence"]
-    contradictions["contradictions"]
-    knowledge["knowledge foundation"]
-    consumers["intelligence, lab, runtime"]
-
-    observations --> claims
-    observations --> confidence
-    observations --> contradictions
-    claims --> knowledge
-    confidence --> knowledge
-    contradictions --> knowledge
-    knowledge --> consumers
+flowchart LR
+    S["source or observation"] --> P["provenance"]
+    P --> G["identity and context grounding"]
+    G --> C["claim relationship"]
+    C --> R["reconciliation"]
+    R --> B["versioned review bundle"]
+    R -. contradiction .-> X["contradiction ledger"]
+    R -. missing support .-> D["knowledge deficit"]
 ```
 
-## What This Section Protects
+## Evidence routes
 
-- a stable place for truth claims before they become decisions
-- contradiction as structured information instead of something to hide
-- confidence semantics that downstream packages can consume without redefining
+| Question | Guide | Governing evidence |
+| --- | --- | --- |
+| What does Knowledge own? | [Package overview](package-overview.md) | memory, grounding, reconciliation, and review bundles |
+| Does a record belong here? | [Ownership boundary](ownership-boundary.md) | evidence state rather than downstream policy |
+| Which biological and review capabilities exist? | [Capability map](capability-map.md) | typed resolvers, evidence memory, references, and audits |
+| What must remain outside? | [Scope and non-goals](scope-and-non-goals.md) | algorithm ownership, ranking, execution, and lab authority |
+| Is public language grounded? | [Workflow claim grounding](workflow-claim-grounding.md) | exact source, context, support, and contradiction chain |
+| Is the scientific backdrop current? | [Workflow literature audits](workflow-literature-audits.md) | bibliography, corpus, gap, and freshness record |
 
-## What This Section Now Carries
+[This package does not own](../this-package-does-not-own.md) resolves boundary
+cases where evidence state is being confused with a recommendation or an
+operational result.
 
-- claim grounding that ties public language back to named evidence owners
-- contradiction and confidence routes that keep hesitation visible
-- literature and biological review surfaces that prevent downstream packages
-  from inventing scientific memory
+## Evidence protocol
 
-## Start With
+1. Identify the source, version, retrieval context, and applicable license.
+2. Normalize the record without losing the original source identity.
+3. Resolve biological identifiers and contextual qualifiers explicitly.
+4. Attach the record to a precise proposition as support, contradiction,
+   qualification, mention, or unresolved material.
+5. Reconcile duplicates and conflicts without discarding independent lineage.
+6. Assess coverage, directness, quality, freshness, and intended-use
+   sufficiency.
+7. Produce a versioned review bundle that retains support, contradiction, and
+   deficits.
 
-- Open [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
-  the package role.
-- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/) when the question is
-  whether a change belongs here or in a neighbor.
-- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/scope-and-non-goals/) when a proposed change
-  risks broadening the package.
-- Open [Capability Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/capability-map/) when you need the concrete work
-  the package is allowed to do.
-- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/this-package-does-not-own/)
-  when a proposal is trying to turn evidence state into recommendation policy,
-  workflow law, or runtime behavior.
-- Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
-  when the question is whether public trust language is actually tied to exact evidence owners.
-- Open [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
-  when the question is whether the shipped citations, bibliography, or gap stories are still current enough.
+```mermaid
+sequenceDiagram
+    participant S as Source
+    participant K as Knowledge
+    participant I as Intelligence
+    participant L as Lab
+    S->>K: evidence with provenance and context
+    K->>K: ground, reconcile, retain contradictions
+    K->>I: immutable review bundle
+    I->>L: recommendation referencing bundle
+    L-->>K: observation as new evidence
+```
 
-## Section Pages
+The loop appends knowledge. It never allows a later outcome to rewrite the
+source and evidence available to an earlier decision.
 
-- [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/)
-- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/scope-and-non-goals/)
-- [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/)
-- [This Package Does Not Own](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/this-package-does-not-own/)
-- [Capability Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/capability-map/)
-- [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
-- [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
-- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/dependencies-and-adjacencies/)
-- [Repository Fit](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/repository-fit/)
-- [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/)
-- [Domain Language](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/domain-language/)
-- [Change Principles](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/change-principles/)
+## Grounding dimensions
 
-## What This Section Settles
+Biological grounding is multidimensional. The package exposes resolution for
+protein identifiers, features, pathways, complexes, kinase–substrate
+relationships, diseases, drug targets, and orthologs. A successful match in one
+dimension does not settle the others.
 
-- when a change is really about evidence state rather than about downstream use
-- how confidence and contradiction should remain explicit
-- when a proposed change belongs in intelligence, lab, or runtime instead of
-  here
+For example, an identifier may resolve while the species is wrong; a feature
+may overlap while the experimental condition differs; a pathway membership may
+be correct while coverage is too sparse for the intended conclusion. Review
+bundles retain these distinctions instead of flattening them into one score.
 
-## Reader Questions This Section Can Answer Well
+## Contradiction and sufficiency
 
-- why a public trust sentence is grounded rather than only rhetorically careful
-- where contradiction pressure still keeps a family sentence narrow
-- which biological context the repository really owns instead of borrowing
-  loosely from external memory
-- how literature and evidence state differ from recommendation posture or lab
-  consequence
+Contradiction is a first-class relationship, not a failed ingestion. A review
+can contain strong support and strong contradiction simultaneously. Confidence
+describes the current evidence posture under declared context; it is not a
+ranking score and does not authorize an action.
 
-## Strongest Knowledge Proof
+Evidence sufficiency is always relative to intended use:
 
-- start with
-  [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
-  when the real question is whether a trust sentence is grounded precisely
-- continue to
-  [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
-  when the dispute is whether the cited scientific backdrop is still honest and
-  current
-- open
-  [This Package Does Not Own](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/this-package-does-not-own/)
-  when someone is trying to convert evidence state into recommendation posture
-  or operator control
+| Intended use | Typical burden |
+| --- | --- |
+| descriptive context | resolved identity, source provenance, and relevant context |
+| scientific interpretation | multiple relevant records, limitations, contradictions, and coverage assessment |
+| candidate prioritization | versioned review bundle suitable for declared decision policy |
+| experimental action | decision record plus Lab feasibility, risk, and readiness review |
 
-## First Proof Check
+Missing evidence remains a knowledge deficit. It is not automatically negative
+evidence, and it cannot be converted into support by confident prose.
 
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge`
-- `packages/bijux-proteomics-knowledge/tests`
-- neighboring handbooks once the change crosses the local boundary
+## Evolution rules
 
-## Neighbors
-
-- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  when the question leaves claims, confidence, contradictions, and evidence state.
-- Open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
-  when the issue is clearly outside this package's local role.
+The [domain language](domain-language.md) stabilizes claim, evidence, source,
+context, grounding, contradiction, and sufficiency. The
+[change principles](change-principles.md) preserve source lineage and review
+history when schemas or resolution policy evolve. [Dependencies and adjacencies](dependencies-and-adjacencies.md)
+and [repository fit](repository-fit.md) keep the package independent of
+Intelligence, Runtime, and Lab, while [lifecycle overview](lifecycle-overview.md)
+defines how evidence moves from ingestion to reviewed memory.

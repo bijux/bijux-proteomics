@@ -4,152 +4,270 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # bijux-proteomics-intelligence
 
-`bijux-proteomics-intelligence` owns decision policy in
-`bijux-proteomics`. It turns evidence and program constraints into scores,
-rankings, scenarios, counterfactuals, and explanations that remain inspectable
-instead of pretending to be upstream fact. This is where the system stops only
-describing the world and starts making bounded judgments about what should
-happen next.
+`bijux-proteomics-intelligence` turns scientific evidence and program
+constraints into inspectable decisions. It owns candidate ranking, scenario
+analysis, skeptical challenge, recommendation posture, and refusal. It does not
+own the evidence it evaluates.
 
-This package is more concrete now than older docs suggested. It is not a vague
-"decision layer." It owns recommendation posture, benchmark-backed challenge
-routes, confidence and regret surfaces, interpretation summaries, and
-learning-facing judgment that stays visibly separate from scientific truth.
+```bash
+python -m pip install bijux-proteomics-intelligence
+```
+
+## Diagnose recommendation movement
+
+Two recommendation records can disagree without either being corrupt. Compare
+the dimension that moved before interpreting the decision change.
+
+| Changed dimension | Record to inspect | Defensible interpretation |
+| --- | --- | --- |
+| evidence snapshot | Knowledge bundle identities, source versions, contradictions, and sufficiency decision | the decision responded to different scientific support; do not describe this as policy learning |
+| candidate universe | included, excluded, invalid, and unavailable candidate identities | the winner changed inside a different choice set; rankings are not directly comparable until the shared set is isolated |
+| decision policy | objectives, hard constraints, thresholds, weights, tie-breakers, and policy version | the value judgment changed; evidence did not become stronger merely because the ranking moved |
+| scenario burden | counterfactuals, perturbations, sensitivity ranges, and falsifiers | the recommendation faced a different challenge envelope |
+| feasibility or lab burden | capacity, assay readiness, cost, safety, and consequence assumptions | an analytically attractive action became operationally weaker or stronger |
+| authority state | human review, escalation owner, approval, hold, or refusal | the permission to act changed; the scientific inputs may be identical |
+
+Record multiple causes separately when they move together. A later
+recommendation supersedes a prior decision only for its declared evidence,
+candidate, policy, scenario, and authority context; it does not rewrite why the
+earlier record was produced.
+
+## Decision pipeline
 
 ```mermaid
 flowchart LR
-    foundation["foundation<br/>shared meaning"]
-    core["core<br/>durable rules"]
-    knowledge["knowledge<br/>evidence state"]
-    intelligence["intelligence<br/>scores, scenarios, explanations"]
-    lab["lab<br/>plans and outcomes"]
-    runtime["runtime<br/>execution"]
-
-    foundation --> intelligence
-    core --> intelligence
-    knowledge --> intelligence
-    intelligence --> lab
-    intelligence --> runtime
+    evidence["versioned evidence bundle"]
+    snapshot["evidence fingerprint"]
+    candidates["candidate set\nfilter · validate · fingerprint"]
+    policy["declared policy\nconstraints · objectives · thresholds"]
+    burden["feasibility and lab burden"]
+    rank["ranking\npolicy · quality · selection"]
+    challenge["challenge\ncontradictions · falsifiers · scenarios"]
+    judgment["judgment\nsensitivity · confidence · regret"]
+    result{"supported?"}
+    recommend["recommendation record"]
+    refuse["refusal with reasons"]
+    review["human and domain review"]
+    evidence --> snapshot --> challenge
+    candidates --> rank
+    policy --> rank
+    rank --> challenge
+    burden --> challenge
+    challenge --> judgment --> result
+    result -->|yes| recommend
+    result -->|no| refuse
+    recommend --> review
+    refuse --> review
 ```
 
-## What Makes This Package Different
+Every recommendation is a policy output, not a fact. Its candidate set,
+policy, evidence posture, sensitivity, alternatives, and reason codes remain
+recoverable so a reviewer can reproduce the judgment without treating the
+result as new evidence.
 
-- it does not claim to be raw truth
-- it turns evidence plus constraints into choices
-- it must explain itself because recommendation without explanation is only
-  opaque force
+## Recommendation record anatomy
 
-## What It Owns
+| Field | Why it matters |
+| --- | --- |
+| candidate universe and exclusions | prevents a winning candidate from being presented without the alternatives it defeated |
+| evidence references and fingerprints | ties the decision to immutable review inputs without copying or rewriting them |
+| policy and constraints | exposes the values, thresholds, feasibility limits, and objectives that shaped the ranking |
+| score components and ordering | makes aggregation and tie-breaking inspectable |
+| contradictions and falsifiers | records evidence that weakens or could overturn the action |
+| scenarios and sensitivity | shows whether small plausible changes reverse the ranking |
+| confidence and regret | separates certainty language from the estimated cost of being wrong |
+| posture and human-review flag | distinguishes advisory output, downgrade, escalation, and refusal |
 
-- candidate scoring and ranking policy
-- scenario evaluation and recommendation logic
-- explanation and reporting surfaces for those decisions
-- challenge, confidence, regret, and downgrade routes that show where the
-  analytical posture narrows before the lab or operator is asked to act
+## Analytical capabilities
 
-## Concrete Analytical Families
+| Surface | Responsibility |
+| --- | --- |
+| `candidates` | typed records, validation, filtering, quality, fingerprints, ranking, selection, storage, and lifecycle |
+| `interpretation` | quantitative, contrast, pathway, PTM, contaminant, structure, and run-level readings |
+| `claims`, `contradictions`, `falsifiers` | support checks and skeptical pressure against an interpretation |
+| `judgment` | policies, scenarios, recommendations, blinded challenges, counterfactuals, sensitivity, confidence, regret, and flagship decisions |
+| `posture` | explicit evidence posture and skeptical review |
+| `reviews` | benchmark reviews, review boards, decision briefs, outsider packets, independent reruns, and public scrutiny |
+| `learning` | adaptation, refinement convergence, and stagnation detection |
+| `next_steps`, `query`, `refusal` | action handoff, interrogation, and unsupported-claim refusal |
 
-| owner band | visible package substance | why it matters |
+The package root lazily exposes these fourteen owner modules, keeping import
+cost and accidental coupling low while making the supported capability families
+discoverable.
+
+## What makes a recommendation defensible
+
+A recommendation is strongest when:
+
+1. the candidate set and exclusions are explicit;
+2. the ranking policy and input evidence are fingerprinted;
+3. plausible contradictory evidence and falsifiers were evaluated;
+4. ranking stability survives threshold and scenario sensitivity;
+5. competing actions and the cost of error are visible;
+6. confidence is calibrated against benchmark and observed outcome evidence;
+7. a refusal remains possible when the support is inadequate.
+
+Benchmark review modules cover DDA, DIA, LFQ, multiplex, PTM, and targeted
+workflow families. LFQ and multiplex review both live in the quantification
+surface, but they do not share an evidence posture: LFQ is outsider-auditable
+bounded while multiplex remains internal support only. Module existence does
+not grant authority; the recommendation inherits the weakest relevant ceiling
+in its input evidence chain.
+
+## Decision output states
+
+Intelligence returns a disposition with an explicit next authority. A score or
+rank is incomplete until this state is recorded.
+
+| Output state | Meaning | Required next authority |
 | --- | --- | --- |
-| `candidates` and `claims` | ranking pressure, shortlist logic, recommendation-facing claims | analytical posture starts from explicit competitive pressure |
-| `interpretation` | run summaries, differential-abundance readings, PTM and review synthesis | scientific outputs become typed analytical narratives |
-| `judgment` and `posture` | review-board decisions, readiness, downgrade, regret, refusal | recommendation strength is challengeable as policy |
-| `reviews` and `learning` | benchmark-backed review packets and outcome-aware refinement | the package can improve or narrow because of later evidence |
+| recommend | one action remains defensible under the declared evidence, policy, and challenge set | human and domain review before commitment |
+| recommend with conditions | the action survives only inside named thresholds, prerequisites, or stop conditions | owner verifies every condition before handoff |
+| downgrade | evidence or policy sensitivity does not support the requested confidence or consequence | reviewer narrows wording, scope, or action |
+| escalate | the decision depends on unresolved expertise, safety, cost, or contradiction | named domain or operational owner decides |
+| hold | additional evidence can resolve a material gap and waiting is an admissible action | evidence owner supplies the named record or closes the route |
+| refuse | no candidate satisfies the hard constraints or support burden | requester changes the question, evidence, or constraints |
 
-## Why This Package Matters More Now
+These states are not confidence synonyms. A high-scoring candidate can still
+be held, escalated, or refused when the action exceeds the available authority.
 
-- the repository now has enough benchmark, runtime, and grounding depth that
-  recommendation posture can no longer hide behind generic prose
-- stronger workflow families create stronger overconfidence risk, which this
-  package must expose rather than smooth away
-- the repository now ships blinded and counterfactual pressure surfaces instead
-  of only confidence-sounding summaries
-- lab consequence now depends on explicit analytical judgment instead of an
-  implied handoff
+## Decision stability
 
-## Shared Reader Routes
+| Observed behavior | Interpretation | Required posture |
+| --- | --- | --- |
+| ordering survives plausible thresholds and evidence removal | locally stable under tested pressure | bounded recommendation with tested conditions |
+| top candidates exchange rank under small changes | policy-sensitive | expose alternatives and require review |
+| recommendation depends on one contested source | evidence-fragile | downgrade until contradiction is resolved |
+| feasible action changes when assay burden is included | consequence-sensitive | return cost and burden to the decision record |
+| no candidate satisfies hard constraints | unsupported action | refuse with unmet conditions |
 
-- Use [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the question is still about grounding, recommendation posture, or
-  public artifact roles rather than one intelligence-owner module.
-- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-consequence-maps/)
-  when the question is whether current recommendation language already outruns
-  the weakest downstream boundary.
-- Use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-changed-the-recommendation/)
-  when the question is which contradiction, comparator, or lab burden actually
-  moved the recommendation.
-- Use [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
-  when the family trust sentence is still the main question.
+Stability applies only to the tested candidate universe, evidence snapshot,
+policy, and scenario set. It does not imply that an omitted candidate or future
+evidence could not change the result.
 
-## Start Inside This Package
+## Challenge before action
 
-- Open [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
-  for the package role and boundary.
-- Open [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-  when the question is where overconfidence, underconfidence, or regret already
-  shows up in public artifacts.
-- Open [Workflow Recommendation Challenges](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges/)
-  when the question is whether one family still survives hidden reveal or
-  counterfactual pressure.
-- Open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
-  when the question is how scoring, scenarios, and explanations are arranged.
-- Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
-  when the issue is a policy-facing surface or explanation output.
+```mermaid
+flowchart TD
+    R["ranked candidates"] --> B["blinded evidence challenge"]
+    B --> C["counterfactual scenarios"]
+    C --> S["threshold sensitivity"]
+    S --> G["regret analysis"]
+    G --> D{"ranking remains defensible?"}
+    D -->|yes| P["bounded recommendation"]
+    D -->|weakens| W["downgrade or escalate"]
+    D -->|no| F["refuse"]
+```
 
-## Reader Questions This Package Can Answer
+A recommendation that changes under a plausible threshold, withheld evidence
+pattern, or feasible alternative must expose that instability. Explanation is
+not a substitute for challenge; it reports how the declared policy behaved
+under challenge.
 
-- why the current recommendation moved instead of staying at an earlier,
-  seemingly safer posture
-- which workflow families still carry bounded recommendation posture even when
-  their benchmark and runtime routes look strong
-- whether overconfidence, underconfidence, or regret pressure is already
-  visible in the shipped analytical artifacts
-- how recommendation language changes when contradiction, comparator pressure,
-  or lab burden is reintroduced
+## Ownership boundary
 
-## What Changed Since v0.3.7
+- Core owns scientific calculations and benchmark contracts.
+- Runtime owns what executed and whether it can be replayed.
+- Knowledge owns sources, claims, provenance, and contradiction state.
+- Intelligence owns how reviewed inputs become a ranked or refused action.
+- Lab owns whether that action is feasible and what happened after execution.
 
-- analytical judgment is no longer hidden inside one confidence-sounding layer
-- challenge, downgrade, and regret surfaces now make overclaiming easier to
-  detect from public docs
-- the package now looks like a real analytical owner instead of a soft bridge
-  between evidence and lab follow-up
+Intelligence may consume all of those signals, but it must not rewrite them.
+Outcome-aware learning creates a new policy or calibration record rather than
+editing the historical recommendation.
 
-## Analytical Proof Surfaces
+## Compare decisions without erasing history
 
-- decision-support pages for repository-wide recommendation posture before the
-  question narrows to one policy surface
-- workflow recommendation confidence for overconfidence, underconfidence, and
-  regret-facing evidence
-- workflow recommendation challenges for blinded and counterfactual pressure on
-  each family
-- architecture and interface pages for how scoring, scenarios, and explanation
-  outputs stay separated from evidence truth
+When a recommendation changes, compare immutable decision records. Do not
+rewrite the earlier record to match the current evidence or policy.
 
-## What It Refuses
+| Comparison dimension | Meaning of a difference | Required interpretation |
+| --- | --- | --- |
+| candidate universe | candidates were added, removed, or newly excluded | isolate selection effects before comparing scores |
+| evidence fingerprint | the support or contradiction snapshot changed | attribute the change to evidence custody in Knowledge |
+| policy fingerprint | weights, thresholds, constraints, or objectives changed | report a policy change, not scientific discovery |
+| scenario set | the tested uncertainty envelope changed | compare only shared scenarios or label the new burden |
+| feasibility input | cost, capacity, safety, or assay burden changed | distinguish operational consequence from evidence strength |
+| ranking and posture | ordering, confidence, escalation, or refusal changed | state which upstream difference caused the disposition change |
 
-- evidence truth and contradiction handling
-- durable program contracts and shared payload meaning
-- execution and operator-facing runtime behavior
-- assay-worth claims that belong to lab consequence
+```mermaid
+flowchart LR
+    O["earlier decision record"] --> CP["compare fingerprints and inputs"]
+    N["current decision record"] --> CP
+    CP --> EC{"what changed?"}
+    EC -->|evidence| ER["evidence-attributed explanation"]
+    EC -->|policy| PR["policy-attributed explanation"]
+    EC -->|feasibility| FR["consequence-attributed explanation"]
+    EC -->|multiple| MR["separate effects and disclose ambiguity"]
+```
 
-## Strongest Proof Route
+If the responsible difference cannot be isolated, the correct output is an
+attribution gap. A plausible narrative is not a substitute for matching
+record identities.
 
-- start at [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
-  when the question is still repository-wide
-- continue to [Workflow Recommendation Confidence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence/)
-  when the dispute is already about recommendation pressure
-- open the challenge and counterfactual routes once the question is no longer
-  whether a recommendation exists, but whether it survives scrutiny
+## Human authority boundary
 
-## First Proof Check
+Intelligence can rank, challenge, downgrade, or refuse an action. It does not
+approve clinical use, spend resources, authorize an executable laboratory
+handoff, or override biosafety and operational custody. A `human_review` flag
+is a required decision state, not a claim that human review has occurred.
 
-- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
-- `packages/bijux-proteomics-intelligence/tests`
-- challenge, confidence, counterfactual, and regret artifacts
-- explainability and reporting modules once a claim narrows to one surface
+```mermaid
+flowchart LR
+    R["recommendation record"] --> H{"human and domain review"}
+    H -->|revise| I["new policy or evidence input"]
+    H -->|reject| X["closed or refused action"]
+    H -->|accept advisory| L["Lab readiness assessment"]
+    L -->|not ready| N["revised or refused plan"]
+    L -->|ready and authorized| E["executable handoff"]
+```
+
+## Challenge A Recommendation
+
+Review a recommendation as an argument that can fail. Begin with the action,
+then recover the alternatives, evidence snapshot, policy, challenge burden, and
+authority boundary that produced its posture.
+
+| Challenge | Evidence to demand | Honest response when missing |
+| --- | --- | --- |
+| was the winner selected from a complete declared universe? | candidate ledger and exclusion reasons | disclose selection uncertainty or refuse comparative language |
+| would another reasonable policy change the ordering? | policy fingerprint, component scores, tie-breaks, and alternative policy result | label the decision policy-sensitive |
+| does one contested source control the outcome? | source attribution, leave-one-source-out result, and contradiction state | downgrade until the dependency is resolved |
+| does a plausible threshold reverse the action? | sensitivity surface and rank crossings | expose alternatives and require review |
+| is the cost of error acceptable? | regret estimate, falsifiers, and stop conditions | narrow the action or refuse |
+| is the action feasible and authorized? | Lab readiness and human decision | keep the output advisory |
+
+```mermaid
+flowchart TD
+    recommendation["recommendation"] --> universe["recover candidates and exclusions"]
+    universe --> evidence["resolve evidence snapshot"]
+    evidence --> policy["replay policy and ordering"]
+    policy --> pressure["apply contradictions · sensitivity · regret"]
+    pressure --> posture{"posture survives?"}
+    posture -->|yes| advisory["bounded advisory action"]
+    posture -->|weak| review["downgrade or human review"]
+    posture -->|no| refuse["refusal with unmet conditions"]
+```
+
+Use [Workflow Consequence Maps](../01-bijux-proteomics/foundation/workflow-consequence-maps.md)
+for family-specific effects,
+[What Changed The Recommendation](../01-bijux-proteomics/foundation/what-changed-the-recommendation.md)
+to compare decisions, and
+[Lab Consequence](../07-bijux-proteomics-lab/foundation/lab-consequence.md)
+for operational authority.
+
+## Continue By Decision Question
+
+| Need | Read next | Review is complete when |
+| --- | --- | --- |
+| understand module ownership and artifact flow | [package overview](foundation/package-overview.md) | candidates, evidence, policy, challenge, disposition, and next authority resolve separately |
+| pressure-test a ranking | [recommendation challenges](foundation/workflow-recommendation-challenges.md) | leave-one-source-out, counterfactual, threshold, and burden pressure expose every rank reversal |
+| interpret confidence, calibration, or regret | [recommendation confidence](foundation/workflow-recommendation-confidence.md) | confidence language matches the tested evidence snapshot and cost-of-error record |
+| inspect policy and dependency boundaries | [architecture](architecture/index.md) | Intelligence consumes owner records without rewriting scientific, execution, evidence, or laboratory truth |
+| choose Python, data, or artifact contracts | [interfaces](interfaces/index.md) | the recommendation can be reproduced from identified candidates, evidence, policy, and scenarios |
+| determine when Intelligence must downgrade or refuse | [known limitations](quality/known-limitations.md) | every unsupported action ends in a named downgrade, escalation, hold, or refusal |

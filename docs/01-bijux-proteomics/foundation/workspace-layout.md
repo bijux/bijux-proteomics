@@ -1,59 +1,77 @@
 ---
 title: Workspace Layout
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Workspace Layout
+# Workspace layout
 
-The workspace layout is part of the repository's review model. It separates
-product packages, maintainer automation, tracked API artifacts, docs, and root
-process surfaces so a reviewer can tell what kind of change is being made
-before reading implementation detail.
+Repository directories separate publishable code, public contracts,
+documentation, automation, and generated evidence. The location of a change is
+therefore part of its ownership and review story.
 
-## Layout Model
-
-```mermaid
-flowchart TB
-    workspace["workspace"]
-    packages["packages/"]
-    docs["docs/"]
-    apis["apis/"]
-    process["Makefile, makes/, workflows"]
-    artifacts["artifacts/"]
-
-    workspace --> packages
-    workspace --> docs
-    workspace --> apis
-    workspace --> process
-    workspace --> artifacts
+```text
+bijux-proteomics/
+├── packages/        publishable packages and repository tooling
+├── docs/            public MkDocs source
+├── apis/            tracked API contract artifacts
+├── configs/         repository-owned tool and governance configuration
+├── makes/           composable Make orchestration
+├── .github/         CI, release, and repository governance
+├── artifacts/       generated local and CI outputs
+├── Makefile         root command entrypoint
+└── mkdocs.yml       published documentation navigation
 ```
 
-This page should make the directory layout feel like a review map. The point is not just where files sit, but what kind of claim a change is making before anyone reads code.
+## Ownership by directory
 
-## Layout Layers
+| Path | Owns | Does not own |
+| --- | --- | --- |
+| `packages/` | source, tests, metadata, package-local compatibility surfaces | ad hoc generated reports |
+| `docs/` | public explanations, guides, references, and governed public dossiers | private planning notes or transient run logs |
+| `apis/` | checked OpenAPI and other public machine-readable contracts | runtime-generated copies with no review contract |
+| `configs/` | shared lint, type, test, and repository policy configuration | package behavior that belongs in source |
+| `makes/` | command composition, package dispatch, checks, builds, and publication wiring | scientific or product policy |
+| `.github/` | workflow execution and repository governance entrypoints | duplicate implementations of Make or package logic |
+| `artifacts/` | disposable or reproducible outputs from local and CI runs | governed handwritten source |
 
-- `packages/` for publishable product packages and the maintainer helper package
-- `docs/` for the public handbook split that mirrors the architecture
-- `apis/` for tracked API and contract artifacts
-- `Makefile`, `makes/`, and `.github/workflows/` for repository-wide process
-  and automation surfaces
-- `artifacts/` for generated local or CI output that is not governed source
+```mermaid
+flowchart TD
+    source["packages/ source"]
+    contracts["apis/ tracked contracts"]
+    docs["docs/ public explanation"]
+    automation["Makefile · makes/ · workflows"]
+    output["artifacts/ generated evidence"]
+    source --> contracts
+    source --> docs
+    automation --> source
+    automation --> contracts
+    automation --> output
+```
 
-## Why Layout Matters
+## Package layout
 
-This structure is not just current arrangement. It protects the distinction
-between owned source, tracked contracts, public explanation, and generated run
-output. When those categories mix, boundary review gets weaker.
+Canonical packages use a `src/` layout and keep tests inside the corresponding
+package directory. Compatibility distributions such as `proteomics-core`
+forward to canonical owners and must not gain a second implementation. Package
+metadata and changelogs live with the distribution they describe.
 
-## First Proof Check
+The repository root coordinates packages but is not a product package. A rule
+belongs at root only when it genuinely spans several packages, such as package
+inventory, documentation publication, shared quality dispatch, or coordinated
+release validation.
 
-- the directory layer where a proposed change lands
-- the matching handbook branch that should explain that layer
+## Generated versus governed files
 
-## Design Pressure
+Generated run products, test reports, builds, coverage, SBOMs, and site output
+belong under `artifacts/`. A generated file may live elsewhere only when that
+location is itself the governed public contract, such as a checked API schema or
+an intentionally published documentation dossier. Such outputs require a
+generator and a freshness check; they are not hand-edited as ordinary prose.
 
-The easy failure is to treat layout as neutral storage, which makes it harder to notice when governed source, generated output, and cross-package process start mixing together.
+When a change crosses directories, review every boundary it claims to connect.
+A source change with a contract consequence may require `apis/`, tests, and
+public docs. A workflow-only change should not quietly alter scientific meaning.

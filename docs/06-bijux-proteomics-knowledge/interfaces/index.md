@@ -4,72 +4,102 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Evidence interfaces
 
-`bijux-proteomics-knowledge` interfaces are the published shape of evidence
-work. This section should help a reader see how evidence records, claims,
-confidence segments, contradiction handling, and review payloads leave the
-package in forms that other packages and human reviewers can still interrogate.
+Knowledge interfaces carry evidence from a named source into durable memory,
+through identity and context grounding, and into contradiction-aware review.
+They make uncertainty a typed part of the result rather than an annotation
+added after a conclusion is chosen.
 
 ```mermaid
 flowchart LR
-    evidence["evidence inputs"]
-    claims["claim surfaces"]
-    lineage_graph["graph and lineage contracts"]
-    confidence["confidence and resolution outputs"]
-    review["review artifacts and repositories"]
-
-    evidence --> claims --> lineage_graph --> confidence --> review
+    I["literature · database · run · lab observation"] --> E["evidence contract"]
+    E --> G["grounding report"]
+    G --> R["reconciliation record"]
+    R --> B["review bundle"]
+    B --> C["downstream consumer"]
+    G -. ambiguous or unresolved .-> B
+    R -. contradiction or hold .-> B
 ```
 
-## What These Interfaces Need To Preserve
+## Choose an interface
 
-- evidence should remain traceable after it is transformed into claims or
-  reviewable knowledge
-- contradictions should remain visible in the interface, not hidden inside
-  internal resolution code
-- downstream consumers need enough structure to ask why a conclusion changed,
-  not just what the new conclusion is
+| Need | Public route | Output |
+| --- | --- | --- |
+| store evidence or claims | evidence-memory owner modules | `EvidenceRecord`, `EvidenceClaim`, `EvidenceBundle` |
+| resolve protein identity | curated root or identity module | typed resolution report and optional TSV |
+| resolve biological context | feature, pathway, complex, kinase, disease, drug, or ortholog owner | source-qualified matches, ambiguity, coverage |
+| inspect graph integrity | memory integrity module | missing-node, invalid-edge, and lineage findings |
+| reconcile evidence | reconciliation module | classification, policy action, retained conflict |
+| assemble literature or ontology review | reference grounding and workflow modules | audit, corpus, dossier, sufficiency, or deficit artifact |
+| hand evidence to decision policy | review module | versioned `KnowledgeDecisionBrief` or review bundle |
 
-## Start With
+The [Python API surface](api-surface.md) maps curated root exports. Use
+[public imports](public-imports.md) when a specialized owner module expresses
+the dependency more accurately than the package root.
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
-  when the question is how evidence, claims, or reviews are represented
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
-  when the concern is lineage, persisted decision briefs, or contradiction-aware
-  outputs
-- open [Operator Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/operator-workflows/)
-  when the reader wants the knowledge flow rather than a code inventory
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/)
-  before changing any surface that other packages use to reason about evidence
+## Evidence contract
 
-## Read By Evidence Question
+A durable evidence record identifies:
 
-- [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
-  for programmatic evidence and resolution entrypoints
-- [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
-  for the durable shape of knowledge work
-- [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/)
-  for automation and operator control
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/entrypoints-and-examples/)
-  for concrete examples of contradiction-aware use
+- the proposition or observation represented;
+- source, source version, retrieval or production context, and provenance;
+- subject identity and biological context;
+- observed, inferred, imported, curated, or synthetic origin;
+- support, contradiction, qualification, mention, or unresolved relationship;
+- quality, freshness, directness, and known limitations;
+- links to superseding or derived records without destructive replacement.
 
-## What This Section Should Make Clear
+[Data contracts](data-contracts.md) defines model and enumeration semantics.
 
-- which public surfaces let readers reconstruct the reasoning path from evidence
-  to review output
-- where confidence and contradiction are explicit interface concepts rather than
-  background implementation
-- why repository-facing review payloads are first-class outputs for this package
+## Grounding reports
 
-## First Proof Check
+Resolution functions return reports because a scalar answer would hide the
+scientifically important cases. Reports distinguish resolved, ambiguous,
+unresolved, incompatible, and coverage-limited outcomes and retain the source
+pack used for the decision.
 
-- `src/bijux_proteomics_knowledge/memory/models/claims.py`, `memory/models/evidence.py`, and `memory/integrity/graph.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/decision_briefs.py`, and `reviews/provenance.py`
-- `packages/bijux-proteomics-knowledge/tests`
+```python
+from bijux_proteomics_knowledge import resolve_protein_ids
+
+report = resolve_protein_ids(("P28482", "Q02750"), annotation_pack)
+```
+
+The exact annotation-pack contract and rendering routes are documented in
+[entrypoints and examples](entrypoints-and-examples.md). A resolved identifier
+does not establish pathway membership, disease association, or experimental
+relevance; those are separate interfaces with separate evidence.
+
+## Artifact contracts
+
+Portable outputs include evidence bundles, graph findings, grounding reports,
+coverage reports, contradiction dossiers, knowledge-deficit reports,
+literature audits, reading packs, and decision briefs. Each artifact identifies
+its source memory revision and assembly policy.
+
+[Artifact contracts](artifact-contracts.md) defines persisted fields and
+round-trip expectations. TSV renderers support inspection but do not replace
+the typed record when nested provenance or competing resolutions matter.
+
+## Configuration and compatibility
+
+Source selection, alias policy, context rules, conflict policy, freshness
+thresholds, and intended-use sufficiency are domain configuration. Consumers
+must not substitute local defaults that reinterpret a stored review silently.
+See [configuration surface](configuration-surface.md).
+
+Status values, relationship kinds, source identity, report fields, and
+serialization are compatibility surfaces. [Compatibility commitments](compatibility-commitments.md)
+defines migration requirements; unknown states are not coerced into success.
+
+## Consumer boundary
+
+Core supplies scientific artifacts. Runtime may supply execution provenance.
+Lab supplies observations. Knowledge records and reviews them. Intelligence
+consumes a versioned review bundle and owns ranking. A consumer may reference
+Knowledge state but cannot mutate its history through a recommendation or run
+status. [Operator workflows](operator-workflows.md) shows the supported
+handoffs.

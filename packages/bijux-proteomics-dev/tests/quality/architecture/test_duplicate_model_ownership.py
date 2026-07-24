@@ -8,7 +8,7 @@ from bijux_proteomics_dev.quality.architecture.duplicate_model_ownership import 
     DUPLICATE_MODEL_OWNERSHIP_CSV_PATH,
     DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH,
     build_duplicate_model_inventory,
-    run,
+    is_duplicate_model_ownership_report_up_to_date,
     validate_duplicate_model_ownership,
 )
 
@@ -21,7 +21,7 @@ REPO_ROOT = next(
 
 @pytest.mark.slow
 def test_duplicate_model_ownership_report_is_up_to_date() -> None:
-    assert run(check=True) == 0
+    assert is_duplicate_model_ownership_report_up_to_date()
 
 
 def test_duplicate_model_inventory_tracks_canonical_product_models() -> None:
@@ -45,7 +45,9 @@ def test_duplicate_model_ownership_is_release_clean() -> None:
     assert validate_duplicate_model_ownership(REPO_ROOT) == ()
 
 
-def test_duplicate_model_ownership_summary_reports_zero_drift() -> None:
+def test_duplicate_model_ownership_summary_reports_current_drift() -> None:
     summary_text = DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.read_text(encoding="utf-8")
+    issues = validate_duplicate_model_ownership(REPO_ROOT)
 
-    assert "current duplicate model issues: 0" in summary_text
+    assert f"unresolved ownership conflicts: **{len(issues)}**" in summary_text
+    assert all(issue.detail in summary_text for issue in issues)

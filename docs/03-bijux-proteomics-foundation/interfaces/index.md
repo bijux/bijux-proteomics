@@ -4,75 +4,115 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Shared contract interfaces
 
-`bijux-proteomics-foundation` interfaces are the points where shared meaning
-leaves this small package and becomes everybody else's assumption. This section
-should help a reader see how identifiers, schema profiles, canonical
-serialization, and migrations become stable promises that the rest of the
-repository can safely build on.
+Foundation interfaces are deliberately small because their compatibility radius
+is large. Every product package can persist identifiers, models, hashes,
+outcomes, and schema metadata. A change at this layer can therefore alter
+artifacts and consumers across the repository.
 
 ```mermaid
 flowchart LR
-    imports["public imports"]
-    ids["stable ids"]
-    contracts["schema and data contracts"]
-    artifacts["canonical artifacts"]
-    migration["migration commitments"]
-    packages["core, runtime, intelligence,<br/>knowledge, lab"]
-
-    imports --> ids --> contracts --> artifacts --> migration --> packages
+    P["product package"] --> I["identifier"]
+    P --> M["JsonModel"]
+    M --> D["DocumentSchema"]
+    D --> J["canonical JSON"]
+    J --> H["hash or fingerprint"]
+    D --> V["schema compatibility"]
+    M --> O["typed outcome"]
 ```
 
-## What These Interfaces Actually Do
+## Curated root interface
 
-- they give every other package a shared language for document identity and
-  payload shape
-- they make persisted artifacts comparable across versions instead of merely
-  serializable once
-- they publish small surfaces, but those surfaces carry repository-wide
-  consequences when they change
+The package root exposes fifteen primitives:
 
-## Start With
+| Group | Exports |
+| --- | --- |
+| identifiers | `ProgramId`, `TargetId`, `CandidateId`, `EvidenceId`, `ClaimId`, `AssayId`, `BatchId`, `GateId` |
+| models and metadata | `JsonModel`, `DocumentSchema` |
+| canonical representation | `to_canonical_json`, `fingerprint_model` |
+| hashing | `hash_model`, `hash_payload`, `hash_text` |
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
-  when the question is really about what a payload means and how long that
-  meaning must survive
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
-  when the concern is canonical JSON, fingerprints, or persisted record form
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/)
-  before changing any outward promise that downstream packages rely on
-- open [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
-  when the question starts from Python code rather than from artifacts
+```python
+from bijux_proteomics_foundation import hash_payload, to_canonical_json
 
-## Read By Surface
+payload = {"assay": "assay-mapk1", "replicates": 3}
+canonical = to_canonical_json(payload)
+digest = hash_payload(payload)
+```
 
-- [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
-  for the narrow code surface this package intentionally exports
-- [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
-  for the two surfaces that most directly preserve shared meaning
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/entrypoints-and-examples/)
-  and [Operator Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/operator-workflows/)
-  for how maintainers touch those primitives in practice
-- [API Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/configuration-surface/)
-  mainly as repository integration seams rather than end-user product surfaces
+`canonical` is a deterministic representation and `digest` identifies the
+canonical content under the default hash policy. Neither proves that the assay
+exists, the replicates are sufficient, or the payload is authentic.
 
-## What A Reader Should Walk Away Knowing
+[API surface](api-surface.md) defines the curated facade and
+[public imports](public-imports.md) maps specialized owner modules.
 
-- why such a small package still has some of the highest-leverage public
-  contracts in the repository
-- which promises belong to payload stability versus operational convenience
-- where to look first before assuming another package owns a serialization or
-  migration concern
+## Typed identifiers
 
-## First Proof Check
+Foundation identifiers are constrained strings used by type checkers and model
+validation. Owner modules additionally expose identifier kinds, construction,
+classification, and prefix validation. They do not query databases, merge
+aliases, or decide whether two scientific entities are equivalent.
 
-- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py`
-- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py`
-- `packages/bijux-proteomics-foundation/tests`
+Use an identifier to preserve entity class across package boundaries. Use
+Knowledge grounding to resolve biological identity.
+
+## Document and serialization contracts
+
+`JsonModel` provides the strict JSON-backed model boundary. `DocumentSchema`
+carries producer, version, lineage, revision, status, timestamps, and optional
+content identity for durable documents. Canonical serialization and stable
+hashing operate on supported values with deterministic ordering.
+
+[Data contracts](data-contracts.md) defines model semantics and
+[artifact contracts](artifact-contracts.md) explains persisted documents,
+fingerprints, and round trips.
+
+## Typed outcomes
+
+Specialized outcome modules expose:
+
+- `OperationResult` and `OperationDisposition` for portable success and
+  non-success state;
+- `OperationRefusal` and `RefusalKind` for policy-bounded refusal;
+- `ErrorEnvelope` and `ErrorCategory` for structured failures;
+- explicit contract, migration, conflict, and optional-dependency exceptions.
+
+These outcomes preserve why no value was produced. Consumers must not flatten a
+refusal, unavailable extra, invalid input, and execution failure into `None` or
+an empty collection.
+
+## Compatibility interfaces
+
+Schema versions and evolution assessments determine whether a consumer can read
+a document. `MigrationRegistry` and `SchemaMigration` own declared document
+transformations. Import-migration helpers support compatible Python forwarding
+without changing document semantics.
+
+```mermaid
+flowchart TD
+    C["consumer receives document"] --> S["inspect schema identity"]
+    S --> A{"compatible?"}
+    A -->|yes| V["validate and consume"]
+    A -->|declared migration| M["migrate, then validate"]
+    A -->|no| R["reject with explicit outcome"]
+```
+
+[Compatibility commitments](compatibility-commitments.md) defines version and
+migration guarantees. Unknown versions never become compatible by omission.
+
+## Configuration and service boundary
+
+Foundation has no CLI or network service. Canonicalization, validation, and
+compatibility behavior are code-owned contracts rather than environment-driven
+policy. [Configuration surface](configuration-surface.md) lists the narrow
+supported controls. Runtime owns services and process execution; product
+packages own scientific, evidential, decision, and laboratory policy.
+
+[Operator workflows](operator-workflows.md) provides inspection, fingerprint,
+compatibility, and migration sequences. [Entrypoints and examples](entrypoints-and-examples.md)
+provides focused Python examples.

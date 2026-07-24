@@ -381,14 +381,22 @@ def _toml_text(report: PackageDocsClaimProofReport) -> str:
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.docs.governance.claim_proof",
         "",
         "[guard]",
-        "max_total_unproven_claim_kind_count = "
-        f"{report.guard.max_total_unproven_claim_kind_count}",
-        "min_total_benchmark_proof_artifact_count = "
-        f"{report.guard.min_total_benchmark_proof_artifact_count}",
-        "min_total_replay_proof_artifact_count = "
-        f"{report.guard.min_total_replay_proof_artifact_count}",
-        "min_total_integrity_proof_artifact_count = "
-        f"{report.guard.min_total_integrity_proof_artifact_count}",
+        (
+            "max_total_unproven_claim_kind_count = "
+            f"{report.guard.max_total_unproven_claim_kind_count}"
+        ),
+        (
+            "min_total_benchmark_proof_artifact_count = "
+            f"{report.guard.min_total_benchmark_proof_artifact_count}"
+        ),
+        (
+            "min_total_replay_proof_artifact_count = "
+            f"{report.guard.min_total_replay_proof_artifact_count}"
+        ),
+        (
+            "min_total_integrity_proof_artifact_count = "
+            f"{report.guard.min_total_integrity_proof_artifact_count}"
+        ),
         "",
     ]
     for entry in report.entries:
@@ -397,31 +405,53 @@ def _toml_text(report: PackageDocsClaimProofReport) -> str:
                 "[[package]]",
                 f'distribution_name = "{entry.distribution_name}"',
                 f"benchmark_claim_count = {entry.benchmark_claim_count}",
-                "benchmark_proof_artifact_count = "
-                f"{entry.benchmark_proof_artifact_count}",
+                (
+                    "benchmark_proof_artifact_count = "
+                    f"{entry.benchmark_proof_artifact_count}"
+                ),
                 f"replay_claim_count = {entry.replay_claim_count}",
                 f"replay_proof_artifact_count = {entry.replay_proof_artifact_count}",
                 f"integrity_claim_count = {entry.integrity_claim_count}",
-                "integrity_proof_artifact_count = "
-                f"{entry.integrity_proof_artifact_count}",
-                "benchmark_proof_artifacts_per_claim = "
-                f"{_render_float(entry.benchmark_proof_artifacts_per_claim)}",
-                "replay_proof_artifacts_per_claim = "
-                f"{_render_float(entry.replay_proof_artifacts_per_claim)}",
-                "integrity_proof_artifacts_per_claim = "
-                f"{_render_float(entry.integrity_proof_artifacts_per_claim)}",
-                "benchmark_claim_document_paths = "
-                f"[{_render_tuple(entry.benchmark_claim_document_paths)}]",
-                "benchmark_proof_artifact_paths = "
-                f"[{_render_tuple(entry.benchmark_proof_artifact_paths)}]",
-                "replay_claim_document_paths = "
-                f"[{_render_tuple(entry.replay_claim_document_paths)}]",
-                "replay_proof_artifact_paths = "
-                f"[{_render_tuple(entry.replay_proof_artifact_paths)}]",
-                "integrity_claim_document_paths = "
-                f"[{_render_tuple(entry.integrity_claim_document_paths)}]",
-                "integrity_proof_artifact_paths = "
-                f"[{_render_tuple(entry.integrity_proof_artifact_paths)}]",
+                (
+                    "integrity_proof_artifact_count = "
+                    f"{entry.integrity_proof_artifact_count}"
+                ),
+                (
+                    "benchmark_proof_artifacts_per_claim = "
+                    f"{_render_float(entry.benchmark_proof_artifacts_per_claim)}"
+                ),
+                (
+                    "replay_proof_artifacts_per_claim = "
+                    f"{_render_float(entry.replay_proof_artifacts_per_claim)}"
+                ),
+                (
+                    "integrity_proof_artifacts_per_claim = "
+                    f"{_render_float(entry.integrity_proof_artifacts_per_claim)}"
+                ),
+                (
+                    "benchmark_claim_document_paths = "
+                    f"[{_render_tuple(entry.benchmark_claim_document_paths)}]"
+                ),
+                (
+                    "benchmark_proof_artifact_paths = "
+                    f"[{_render_tuple(entry.benchmark_proof_artifact_paths)}]"
+                ),
+                (
+                    "replay_claim_document_paths = "
+                    f"[{_render_tuple(entry.replay_claim_document_paths)}]"
+                ),
+                (
+                    "replay_proof_artifact_paths = "
+                    f"[{_render_tuple(entry.replay_proof_artifact_paths)}]"
+                ),
+                (
+                    "integrity_claim_document_paths = "
+                    f"[{_render_tuple(entry.integrity_claim_document_paths)}]"
+                ),
+                (
+                    "integrity_proof_artifact_paths = "
+                    f"[{_render_tuple(entry.integrity_proof_artifact_paths)}]"
+                ),
                 f"unproven_claim_kinds = [{_render_tuple(entry.unproven_claim_kinds)}]",
                 "",
             ]

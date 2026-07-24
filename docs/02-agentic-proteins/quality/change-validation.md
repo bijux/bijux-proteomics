@@ -4,44 +4,47 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Change Validation
+# Change validation
 
-Change validation should make it obvious whether a package edit is safe, risky, or mis-scoped.
+Classify every bridge change as preserving, narrowing, or retiring a named
+compatibility promise. A change that introduces bridge-owned behavior is
+mis-scoped even when every legacy test passes.
 
-## Validation Model
+## Validation matrix
+
+| Change | Focused validation | Wider review |
+| --- | --- | --- |
+| forwarded export | object identity, import path, `__all__`, unavailable dependency | canonical Runtime public API and external caller |
+| CLI command | arguments, defaults, exit codes, stdout/stderr, errors, artifacts | Runtime CLI and migration guidance |
+| HTTP endpoint | request schema, status, response, middleware, failure mapping | Runtime HTTP contract and clients |
+| execution or orchestration alias | state transitions, resume, cancellation, artifacts, telemetry | Runtime lifecycle and persistence |
+| provider or tool | capability selection, dependency isolation, timeout, error, fallback | Runtime provider policy and optional extras |
+| compatibility removal | caller inventory, replacement proof, release metadata, absence test | retirement budget and public migration record |
+
+## Validation decision
 
 ```mermaid
-flowchart LR
-    promise["compatibility promise"]
-    proof["bridge-to-runtime proof"]
-    divergence["unexplained divergence"]
-    verdict["safe, risky, or mis-scoped"]
-
-    promise --> proof --> verdict
-    divergence --> verdict
+flowchart TD
+    E["bridge edit"] --> P["name promise and caller"]
+    P --> O{"new behavior owner?"}
+    O -->|bridge| M["mis-scoped: move policy to Runtime"]
+    O -->|Runtime| C["run direct comparison"]
+    C --> D{"divergence?"}
+    D -->|unexplained| F["failed validation"]
+    D -->|none or declared narrowing| R["check migration and retirement evidence"]
+    R --> V["validated change"]
 ```
 
-This page should make bridge validation concrete. A change is safe only when a
-reviewer can tell whether the compatibility promise was preserved, narrowed, or
-retired and can see the proof close to the runtime surface it forwards into.
+Inspect both the legacy result and the canonical result. Compare object
+identity where promised; otherwise compare public fields, ordering, terminal
+state, errors, warnings, and artifacts. Include at least one negative path.
 
-## Review Rules
+## Required record
 
-- every change should say whether it preserves, narrows, or retires a compatibility promise
-- run the closest bridge-to-runtime proof before accepting the edit
-- treat unexplained divergence from runtime as a failed validation
-
-## First Proof Check
-
-- `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
-- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
-
-## Design Pressure
-
-Bridge changes become sloppy when “still works” replaces an explicit account of
-what promise survived and what changed. Validation has to keep retirement
-pressure and runtime alignment visible at the same time.
+State the compatibility promise, remaining caller, Runtime owner, comparison
+method, negative case, exact checks, and effect on retirement. For a narrowed
+or removed surface, state the replacement and evidence that affected callers
+can move. “Still works” is not a validation result.

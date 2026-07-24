@@ -4,27 +4,22 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-22
 ---
 
 # Current Capability Limits
 
-This page is the repository honesty boundary. It names where the current
-scientific, runtime, grounding, recommendation, and lab-consequence chain
-still stops stronger public language.
-
-The point is not to deny progress. The repository is materially deeper than it
-was at `v0.3.7`. The point is to keep the wording tied to the weakest live
-owner surface instead of letting stronger neighboring surfaces inflate the
-claim.
+Current capability is bounded by the weakest scientific, runtime, grounding,
+recommendation, or laboratory-consequence result in each workflow family. Code
+breadth and packet completeness are reported separately from authority.
 
 ## Current Family-Level Ceiling
 
 | family | strongest current honest sentence | main limiting layer |
 | --- | --- | --- |
-| `dda` | outsider-auditable, bounded | runtime realism remains weaker than in-repo live-engine parity |
+| `dda` | review-grade, bounded | the black-box dashboard defends `review_grade_bounded`; search remains import-backed and no repository-owned raw search lane closes that gap |
 | `dia` | outsider-auditable, bounded | benchmark and runtime strength still narrow under library incompleteness and consequence pressure |
-| `lfq` | review-grade, bounded | external review, normalization, and transfer pressure still block wider language |
+| `lfq` | outsider-auditable, bounded | the checked cohort and sparse-contrast lanes pass the current audit boundary, while normalization and transfer still block wider language |
 | `multiplex` | internal support only | outsider trust still collapses under the current stress packet |
 | `ptm` | outsider-auditable, bounded | localization evidence remains stronger than consequence confidence |
 | `targeted` | outsider-auditable, bounded | calibration, interference, and downstream burden still narrow the sentence |
@@ -39,6 +34,27 @@ claim.
 - one strong family packet does not widen the sentence for weaker families
 - recommendation posture still narrows when grounded contradiction or
   downstream assay burden becomes explicit
+
+These sentences reflect the current black-box result, not the strongest status
+requested by a release policy or an individual evidence root. For example,
+DDA benchmark freshness can support an outsider-auditable request while the
+end-to-end dashboard still lowers the permitted sentence to review-grade.
+
+## Consequence boundary
+
+LFQ, PTM, and targeted remain bounded even though each has an outsider-readable
+packet. Their shipped consequence records end at exploratory-only follow-up;
+they do not establish broad clinical, production, or cross-laboratory utility.
+
+The consequence maps expose conditions that can demote an otherwise strong
+analytical packet. A doubled assay burden, unresolved interference, weak
+requested-versus-observed agreement, or loss of a comparator or literature
+anchor can narrow the recommendation immediately.
+
+- [`workflow-consequence-maps.md`](workflow-consequence-maps.md) ties every
+  family to its weakest permitted consequence posture.
+- [`what-changed-the-recommendation.md`](what-changed-the-recommendation.md)
+  records which evidence removal or burden change alters the decision.
 
 ## Which Layer Currently Carries The Brake
 
@@ -63,7 +79,7 @@ The current ceiling is not caused by one kind of weakness only:
 That is why no single package can honestly declare the whole repository ready
 on its own.
 
-## Where The Repository Is Clearly Stronger Now
+## Capability That Does Not Remove The Limits
 
 - `core` is materially deeper across sequence, chemistry, spectra, mzML, DIA,
   PTM review, and quantification
@@ -73,8 +89,8 @@ on its own.
 - `lab` now makes control demand, refusal, and requested-versus-observed
   follow-up visible enough to limit public language honestly
 
-These improvements matter. They also make the honesty boundary more important,
-not less.
+These capabilities are useful within their declared boundaries. None changes a
+family verdict until the governed evidence matrix records the stronger result.
 
 ## What Stronger Code Still Does Not Automatically Earn
 
@@ -85,7 +101,7 @@ not less.
   complexity
 - stronger lab-confidence language than the current follow-up burden supports
 
-## What Would Need To Improve Before Language Widens
+## Evidence Required Before Language Widens
 
 - stronger family-specific transfer packets where benchmark depth is currently
   narrower than the release sentence
@@ -98,20 +114,11 @@ not less.
 - downstream evidence that follow-up burden and requested-versus-observed
   outcomes justify stronger public claims
 
-## Documentation Rule
+Closure requires a new checked record at the limiting layer, a rerun of the
+family matrix, and agreement between the generated verdict and the public
+sentence. New code or a new package directory is not closure by itself.
 
-If any README, changelog, trust page, or package handbook sounds stronger than
-this page, the wording is wrong until the proof moves first.
-
-Update this page in the same change set when:
-
-- a family meaningfully widens its public sentence
-- a benchmark, runtime, grounding, or consequence blocker materially narrows
-- a release note would otherwise outrun the checked owner surfaces
-
-## Best Next Question
-
-Use this page to identify which layer is actually blocking wider language:
+## Inspect the limiting layer
 
 - [Workflow Families](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-families/)
   for the public family call
@@ -122,13 +129,6 @@ Use this page to identify which layer is actually blocking wider language:
 - [Decision Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-support/)
   for grounding, recommendation, and consequence limits
 
-## Reader Rule
-
-When a workflow-family page, README, release note, or package handbook sounds
-materially stronger than the weakest layer named here, the stronger page is
-the problem until proof changes first.
-
-## Boundary
-
-This page is not a roadmap. It is the current release-language brake for the
-repository.
+The public sentence follows the weakest live layer. A wider sentence requires
+new evidence at that layer and a passing governed matrix; it cannot be inferred
+from implementation depth elsewhere in the system.

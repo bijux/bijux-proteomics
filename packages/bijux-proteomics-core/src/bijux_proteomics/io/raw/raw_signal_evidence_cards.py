@@ -604,11 +604,11 @@ def render_raw_signal_evidence_cards_html(report: RawSignalEvidenceCardReport) -
             [
                 "<section>",
                 (f"<h2>{escape(card.peptide_ref)} ({escape(card.precursor_id)})</h2>"),
-                "<p>"
-                f"Card id: {escape(card.card_id)}<br>"
-                f"Display name: {escape(card.display_name or '')}<br>"
-                f"Target ids: {escape('|'.join(card.chromatographic_target_ids))}"
-                "</p>",
+                (
+                    f"<p>Card id: {escape(card.card_id)}<br>"
+                    f"Display name: {escape(card.display_name or '')}<br>"
+                    f"Target ids: {escape('|'.join(card.chromatographic_target_ids))}</p>"
+                ),
             ]
         )
         if card.warnings:

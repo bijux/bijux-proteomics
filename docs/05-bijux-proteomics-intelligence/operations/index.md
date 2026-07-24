@@ -4,60 +4,89 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Operations
+# Operating decision workflows
 
-`bijux-proteomics-intelligence` operations is about changing judgment without
-making it arbitrary. Maintainers here are not just shipping code. They are
-shipping policy behavior, recommendation quality, and explanation patterns that
-people may use to decide what gets advanced, redesigned, or paused.
+An Intelligence workflow starts from a fixed evidence revision and complete
+candidate universe. It validates inputs, applies a named policy, challenges the
+ranking, and publishes an advisory result with enough detail to reproduce or
+contest the judgment.
 
 ```mermaid
 flowchart LR
-    policy["candidate, judgment, or posture change"]
-    scenarios["rerun scenario and ranking tests"]
-    explain["check decision brief and interpretation quality"]
-    drift["inspect portfolio and refinement drift"]
-    review["review recommendation consequences"]
-    release["publish updated judgment surface"]
-
-    policy --> scenarios --> explain --> drift --> review --> release
+    I["pin evidence and candidates"] --> V["validate decision context"]
+    V --> R["rank under named policy"]
+    R --> C["challenge and perturb"]
+    C --> S["measure sensitivity and regret"]
+    S --> P{"select posture"}
+    P --> B["publish decision brief"]
 ```
 
-## What Operations Means Here
+## Standard operating sequence
 
-- recommendation drift is an operational concern, not just a modeling concern
-- a passing test suite is incomplete if explanations become harder to trust
-- maintainers need to reason about output quality across scenarios, not only
-  single-function correctness
+1. Pin Core results, Runtime provenance, and the Knowledge review revision.
+2. Validate candidate identities, required attributes, exclusions, and
+   duplicates.
+3. Normalize and fingerprint the decision policy and program constraints.
+4. Retain component scores, ranking, ties, dominated alternatives, and selected
+   candidates.
+5. Run contradictions, falsifiers, blinded challenges, scenarios, and
+   counterfactuals.
+6. Evaluate threshold sensitivity, confidence calibration, and regret.
+7. Emit a recommendation, downgrade, escalation, hold, or refusal with a human
+   review boundary.
 
-## Start With
+[Common workflows](common-workflows.md) provides concrete package routes and
+[installation and setup](installation-and-setup.md) covers the supported local
+environment.
 
-- open [Common Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/common-workflows/)
-  when you need the standard path from policy edit to trustworthy release
-- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/observability-and-diagnostics/)
-  when rankings, briefings, or scenario outputs no longer look believable
-- open [Failure Recovery](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/failure-recovery/)
-  when recommendation behavior already regressed in a way humans can see
-- open [Release and Versioning](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/release-and-versioning/)
-  before publishing any change that alters policy defaults or explanation shape
+## Compare decisions correctly
 
-## Route From Operating Concern
+Do not compare only final ranks. A meaningful comparison identifies changes in:
 
-- [Local Development](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/local-development/)
-  and [Installation and Setup](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/installation-and-setup/)
-  for reproducible scoring and evaluation work
-- [Deployment Boundaries](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/deployment-boundaries/)
-  and [Security and Safety](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/security-and-safety/)
-  for the limits that stop recommendation logic from becoming hidden authority
-- [Performance and Scaling](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/performance-and-scaling/)
-  when evaluation volume, portfolio breadth, or report generation cost becomes
-  the practical bottleneck
+| Dimension | Review |
+| --- | --- |
+| evidence | revision, added or removed support, contradictions, freshness |
+| candidate universe | additions, exclusions, deduplication, changed attributes |
+| policy | weights, objectives, constraints, thresholds, tie-breaking |
+| challenge | scenarios, falsifiers, withheld evidence, perturbation range |
+| outcome | ordering, posture, confidence, regret, human-review requirement |
 
-## First Proof Check
+A rank change is expected when a named input changes. An unexplained rank
+change under identical normalized inputs is a reproducibility failure.
 
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
-- `packages/bijux-proteomics-intelligence/tests`
+## Diagnose recommendation behavior
+
+| Symptom | Inspect first | Safe response |
+| --- | --- | --- |
+| winner changed unexpectedly | input fingerprints and policy identity | compare contexts before debugging scores |
+| scores look plausible but cannot be explained | component ledger and tie-breaking | refuse publication until lineage is complete |
+| recommendation is brittle | threshold and scenario sensitivity | downgrade, escalate, or request discriminating evidence |
+| confidence remains high after failures | calibration corpus and regret | recalibrate under a new policy record |
+| report omits a contradiction | evidence revision and challenge assembly | correct the brief; preserve original decision history |
+| downstream treats advice as approval | posture and handoff contract | restore explicit human or Lab authority |
+
+[Observability and diagnostics](observability-and-diagnostics.md) maps artifacts
+to these questions. [Failure recovery](failure-recovery.md) preserves decision
+history while correcting inputs, policy, or review assembly.
+
+## Scaling and security
+
+Portfolio evaluation, parallel scenarios, and cached metrics must remain
+equivalent to the supported serial policy, including deterministic ordering and
+tie-breaking. Performance work cannot reduce the challenge set silently. See
+[performance and scaling](performance-and-scaling.md).
+
+Decision artifacts may contain sensitive program constraints, unpublished
+evidence, and candidate priorities. Apply least-privilege access and avoid
+embedding secrets or restricted source material. [Security and safety](security-and-safety.md)
+and [deployment boundaries](deployment-boundaries.md) define those limits.
+
+## Release boundary
+
+A default-policy or schema change can alter decisions without changing an
+import path. [Release and versioning](release-and-versioning.md) therefore
+requires before-and-after decisions over fixed corpora, challenge and
+calibration evidence, compatibility review, and explicit public posture.

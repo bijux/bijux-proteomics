@@ -9,9 +9,7 @@ last_reviewed: 2026-05-09
 
 # What Changed The Recommendation
 
-This page answers the blunt question a hostile reviewer will ask next: what actually changes the recommendation once comparator pressure, literature pressure, lab burden, or observed outcome enters the picture?
-
-It exists because the repository now has enough depth that recommendation language can move for real reasons rather than just cleaner prose. If the docs do not name those reasons clearly, the product sounds more arbitrary than it is and more certain than it deserves.
+A recommendation can change when comparator evidence, literature evidence, decision policy, laboratory burden, or an observed outcome changes. The prior decision remains immutable; a revision points back to it and identifies the inputs that moved.
 
 ## How To Read These Counterfactuals
 
@@ -25,6 +23,21 @@ It exists because the repository now has enough depth that recommendation langua
 - a literature or grounding surface that keeps the scientific story from sounding cleaner than its evidence state
 - a lab-burden shift that makes the same analytical story no longer worth the spend
 - an observed outcome that materially changes the next sentence instead of just adding more work around the same uncertainty
+
+```mermaid
+flowchart TD
+    prior["retained prior decision"] --> compare["compare input revisions"]
+    compare --> evidence{"evidence changed?"}
+    compare --> policy{"policy changed?"}
+    compare --> burden{"burden changed?"}
+    compare --> outcome{"outcome observed?"}
+    evidence --> attribution["named driver set"]
+    policy --> attribution
+    burden --> attribution
+    outcome --> attribution
+    attribution --> revised["new posture and rationale"]
+    revised --> audit["old and new records remain inspectable"]
+```
 
 ### `dda`
 
@@ -94,10 +107,4 @@ It exists because the repository now has enough depth that recommendation langua
 
 ## Reading Rule
 
-If comparator removal, literature removal, doubled assay burden, or one observed outcome can collapse the recommendation, the public wording should stay at the weaker posture immediately.
-
-## Why This Page Matters More Now
-
-- several families now have real benchmark, runtime, and recommendation packets, so the next honest question is what actually moves the call
-- a stronger repository needs clearer counterfactuals, not just stronger summaries
-- this page keeps the recommendation story tied to evidence, burden, and observed outcomes instead of letting it drift into style
+If comparator removal, literature removal, doubled assay burden, or one observed outcome can collapse the recommendation, the permitted wording stays at the weaker posture. A stronger posture requires a checked counterfactual record demonstrating that the relevant pressure no longer changes the call.

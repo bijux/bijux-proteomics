@@ -108,7 +108,9 @@ def test_cross_package_function_signatures_detect_signature_drift(
     )
 
     assert failures == (
-        "signature drift for bijux_proteomics.dia.build_dia_capability_matrix: "
-        "(entries: tuple[object, ...]) -> object -> "
-        "(entries: 'tuple[DiaCapabilityMatrixEntry, ...]') -> 'DiaCapabilityMatrixReport'",
+        (
+            "signature drift for bijux_proteomics.dia.build_dia_capability_matrix: "
+            "(entries: tuple[object, ...]) -> object -> "
+            "(entries: 'tuple[DiaCapabilityMatrixEntry, ...]') -> 'DiaCapabilityMatrixReport'"
+        ),
     )

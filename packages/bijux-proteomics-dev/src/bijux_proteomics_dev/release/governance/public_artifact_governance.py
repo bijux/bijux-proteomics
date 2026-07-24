@@ -24,7 +24,7 @@ __all__ = [
 FOUNDATION_DIR = REPO_ROOT / "docs" / "01-bijux-proteomics" / "foundation"
 PUBLIC_ARTIFACT_INDEX_PATH = FOUNDATION_DIR / "public-artifact-index.md"
 PUBLIC_ARTIFACT_ROLE_MATRIX_PATH = FOUNDATION_DIR / "public-artifact-role-matrix.md"
-_LAST_REVIEWED = "2026-05-09"
+_LAST_REVIEWED = "2026-07-21"
 
 
 @dataclass(frozen=True)
@@ -125,7 +125,7 @@ def _front_matter(title: str) -> list[str]:
         "---",
         f"title: {title}",
         "audience: mixed",
-        "type: explanation",
+        "type: reference",
         "status: canonical",
         "owner: bijux-proteomics-docs",
         f"last_reviewed: {_LAST_REVIEWED}",
@@ -140,27 +140,64 @@ def _render_public_artifact_index(index: PublicArtifactIndex) -> str:
         [
             "# Public Artifact Index",
             "",
-            "This page is the reviewer-facing registry of shipped public artifacts. Every entry declares its owner package, intended audience, question answered, and why it still exists next to its neighboring surfaces.",
+            "Public claims in Bijux Proteomics are backed by different artifact classes. Each artifact has an owner package, a review question it can answer, and a boundary beyond which it provides no authority. Review starts with the claim, opens the strongest relevant evidence, and follows its identifiers back to the underlying source and run records.",
             "",
-            f"- governed artifact budget: `{index.artifact_budget}`",
-            f"- current artifact count: `{len(index.entries)}`",
+            "## Evidence Flow",
             "",
-            "| artifact id | owner package | audience | question answered | coexistence rationale |",
+            "```mermaid",
+            "flowchart LR",
+            '    lineage["Core lineage + benchmark manifest"] --> run["Runtime run bundle"]',
+            '    run --> grounding["Knowledge evidence bundle"]',
+            '    grounding --> decision["Intelligence recommendation record"]',
+            '    decision --> lab["Lab readiness or outcome dossier"]',
+            '    lab --> release["release candidate evidence"]',
+            "```",
+            "",
+            "## Governed Artifact Registry",
+            "",
+            f"The registry contains `{len(index.entries)}` artifacts under a governed budget of `{index.artifact_budget}`.",
+            "",
+            "| Artifact id | Owner package | Audience | Question answered | Evidence locator |",
             "| --- | --- | --- | --- | --- |",
         ]
     )
     for entry in index.entries:
         lines.append(
-            f"| `{entry.entry_id}` | `{entry.owner_package}` | `{entry.audience}` | {entry.question_answered} | {entry.coexistence_rationale} |"
+            f"| `{entry.entry_id}` | `{entry.owner_package}` | `{entry.audience}` | {entry.question_answered} | `{entry.locator}` |"
         )
     lines.extend(
         [
             "",
-            "## Why This Exists",
+            "## Open Evidence In Order",
+            "",
+            "1. Identify the exact workflow family and proposed public sentence.",
+            "2. Open its benchmark manifest, companion package, and Core lineage.",
+            "3. Verify Runtime entrypoints, environment, run identity, artifacts, and comparison policy.",
+            "4. Inspect support, contradiction, and unresolved context in Knowledge.",
+            "5. Inspect recommendation sensitivity, downgrade, refusal, and human-review state.",
+            "6. Inspect laboratory readiness, burden, controls, and observed outcome.",
+            "7. Compare the surviving sentence with the current release claim limit.",
+            "",
+            "An [independent rerun dossier](independent-rerun-dossiers.md) gives the runtime and comparison opening path. An [external review kit](external-review-kits.md) adds scientific, decision, and consequence pressure without requiring private maintainer context.",
+            "",
+            "## Artifact Coexistence",
             "",
             index.note,
             "",
-            "The registry is intentionally stricter than a link list. If a new public artifact cannot name a distinct audience, question, and coexistence reason, it should replace an older surface instead of shipping beside it.",
+            "The coexistence rationale must identify the distinct review question or authority layer preserved by each artifact. A benchmark manifest defines scientific inputs; a run bundle records execution. A generated summary provides navigation; its source records carry the proof.",
+            "",
+            "Coexistence is not justified when two pages repeat the same conclusion, a generated view has no freshness check, or readers can mistake a weaker artifact for the stronger authority. In those cases, consolidate the duplicate or make the authority difference explicit.",
+            "",
+            "Use the [Public Artifact Role Matrix](public-artifact-role-matrix.md) to compare stronger and weaker neighbors for every governed artifact.",
+            "",
+            "## Integrity Rules",
+            "",
+            "- every artifact identity resolves to an owner and versioned source;",
+            "- generated artifacts name their generator and freshness check;",
+            "- summaries retain identifiers for the records they omit;",
+            "- local run products remain under `artifacts/` until explicitly promoted;",
+            "- a stale, missing, contradicted, or refused artifact narrows the public claim;",
+            "- artifact count never substitutes for independent challenge value.",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -172,9 +209,25 @@ def _render_public_artifact_role_matrix(matrix: PublicArtifactRoleMatrix) -> str
         [
             "# Public Artifact Role Matrix",
             "",
-            "This page records why each shipped public artifact still exists and which stronger or weaker artifact sits beside it.",
+            "Artifacts that discuss the same workflow can carry different authority. This matrix distinguishes navigation from proof, primary evidence from derived views, and a bounded positive result from challenge evidence that can overturn it.",
             "",
-            "| artifact id | audience | decision role | question answered | weaker artifact | stronger artifact |",
+            "A weaker artifact answers a narrower question or derives from evidence elsewhere. A stronger artifact is the more direct or demanding authority for the claim under review.",
+            "",
+            "## Authority Order",
+            "",
+            "```mermaid",
+            "flowchart LR",
+            '    guide["guide or index"] --> summary["generated summary"]',
+            '    summary --> record["versioned evidence record"]',
+            '    record --> challenge["independent challenge result"]',
+            '    challenge --> refusal["release acceptance or refusal"]',
+            "```",
+            "",
+            "Authority is question-specific. A benchmark manifest is stronger than a prose summary for input identity, while a Runtime run bundle is stronger for what executed. Neither can answer the other question by itself.",
+            "",
+            "## Artifact Roles",
+            "",
+            "| Artifact id | Audience | Decision role | Question answered | Weaker artifact | Stronger artifact |",
             "| --- | --- | --- | --- | --- | --- |",
         ]
     )
@@ -187,13 +240,27 @@ def _render_public_artifact_role_matrix(matrix: PublicArtifactRoleMatrix) -> str
     lines.extend(
         [
             "",
+            "## Coexistence Rules",
+            "",
             matrix.note,
             "",
-            "## Rule",
+            "Two public artifacts may coexist when:",
             "",
-            "- a new public artifact must either replace a weaker artifact or justify a distinct decision role",
-            "- workflow-family artifacts must declare the stronger or weaker surface beside them so adjacent trust pages do not drift into duplication",
-            f"- current governed public artifact budget: `{len(matrix.rows)}`",
+            "- they have different owner packages or authority questions;",
+            "- one is a stable derived view with a freshness check and resolvable source;",
+            "- one preserves historical or compatibility evidence required for replay;",
+            "- one applies independent pressure absent from the primary artifact.",
+            "",
+            "Consolidate or remove an artifact when:",
+            "",
+            "- it repeats another artifact's conclusion without adding evidence or a reader route;",
+            "- its owner, generator, source identity, or freshness check is unknown;",
+            "- readers can mistake it for a stronger authority surface;",
+            "- no compatibility contract requires its continued publication.",
+            "",
+            "When artifacts disagree, open their source identities, owner contracts, and validators. Narrow the claim until the conflict is resolved; the preferred conclusion does not select the winner.",
+            "",
+            f"The current governed public artifact budget is `{len(matrix.rows)}`.",
         ]
     )
     return "\n".join(lines) + "\n"

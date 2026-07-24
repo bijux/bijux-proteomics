@@ -4,77 +4,91 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-runtime
-last_reviewed: 2026-05-09
+last_reviewed: 2026-07-21
 ---
 
 # Raw Versus Import Execution
 
-This page makes the execution-mode boundary explicit for each flagship workflow family. It exists to stop import-backed or library-conditioned lanes from quietly inheriting stronger raw-rerun language.
+Execution mode states where repository-controlled computation begins. It does not, by itself, establish vendor-native acquisition replay, chromatogram processing, external-engine parity, or scientific authority.
 
-## Why This Distinction Matters
+```mermaid
+flowchart LR
+    A["vendor or acquisition system"] --> X["exported or derived input"]
+    X --> R["repository-controlled runtime lane"]
+    R --> B["checked bundle and lineage"]
+    B --> C["bounded runtime claim"]
+    A -. "not implied by raw_executable" .-> R
+```
 
-- execution mode is one of the easiest places for docs to overstate what the
-  repository really proves
-- a lane can be useful, reviewable, and still not deserve raw-native or
-  vendor-parity language
-- this page keeps runtime honesty separate from benchmark strength and downstream
-  recommendation strength
+## Mode Contract
 
-| workflow family | current run mode | raw rerun supported | imported dependency count |
-| --- | --- | --- | --- |
-| `dda` | `import_only` | no | `3` |
-| `dia` | `raw_executable` | yes | `5` |
-| `lfq` | `raw_executable` | yes | `3` |
-| `multiplex` | `raw_executable` | yes | `2` |
-| `ptm` | `raw_executable` | yes | `2` |
-| `targeted` | `raw_executable` | yes | `4` |
+| mode | repository guarantee | claim ceiling |
+| --- | --- | --- |
+| `import_only` | the checked lane begins from imported exported-result evidence | no raw or external-engine rerun claim |
+| `raw_executable` | the repository can execute its declared transformation from the checked input level | no automatic vendor-native, acquisition-native, or vendor-parity claim |
+
+The model field `raw_rerun_supported` distinguishes those two repository modes.
+On this page, the clearer reader-facing term is **declared lane executable from
+checked input** because the input may already be exported or derived.
+
+## Family Summary
+
+| workflow family | current run mode | declared lane executable from checked input | imported dependency count | blocked claim count |
+| --- | --- | --- | --- | --- |
+| `dda` | `import_only` | no | `3` | `2` |
+| `dia` | `raw_executable` | yes | `5` | `2` |
+| `lfq` | `raw_executable` | yes | `3` | `0` |
+| `multiplex` | `raw_executable` | yes | `2` | `1` |
+| `ptm` | `raw_executable` | yes | `2` | `0` |
+| `targeted` | `raw_executable` | yes | `4` | `0` |
 
 ## Family Boundaries
 
 ### `dda`
 
-- mode difference: dda currently reruns through imported exported-result evidence instead of a raw in-repository execution lane.
-- imported dependencies: `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv`, `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_evidence.tsv`, `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_settings.txt`
+- run contract: dda currently reruns through imported exported-result evidence instead of a raw in-repository execution lane.
+- tracked imported dependencies: `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv`, `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_evidence.tsv`, `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_settings.txt`
 - blocked claims: raw external-engine parity, vendor-native or engine-native reproducibility
-- claim guard: dda must not be described as raw-executable while `dda-maxquant-pipeline-corpus` still runs in `import_only` mode.
+- public claim ceiling: dda must not be described as raw-executable while `dda-maxquant-pipeline-corpus` still runs in `import_only` mode.
 
 ### `dia`
 
-- mode difference: dia executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
-- imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_settings.txt`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json`
+- run contract: dia executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
+- tracked imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_settings.txt`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json`
 - blocked claims: chromatogram-native DIA authority, broad vendor-parity DIA replay
-- claim guard: DIA remains raw-executable in runtime terms, but the shipped package still stops short of chromatogram-native and vendor-parity claims.
+- public claim ceiling: DIA remains raw-executable in runtime terms, but the shipped package still stops short of chromatogram-native and vendor-parity claims.
 
 ### `lfq`
 
-- mode difference: lfq executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
-- imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json`
+- run contract: lfq executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
+- tracked imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json`
 - blocked claims: none
-- claim guard: lfq should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
+- public claim ceiling: lfq should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
 
 ### `multiplex`
 
-- mode difference: multiplex executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
-- imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv`
+- run contract: multiplex executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
+- tracked imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv`
 - blocked claims: outsider-auditable multiplex trust
-- claim guard: Multiplex may rerun in runtime terms while still failing the stronger outsider-facing claim boundary.
+- public claim ceiling: Multiplex may rerun in runtime terms while still failing the stronger outsider-facing claim boundary.
 
 ### `ptm`
 
-- mode difference: ptm executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
-- imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv`
+- run contract: ptm executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
+- tracked imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv`
 - blocked claims: none
-- claim guard: ptm should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
+- public claim ceiling: ptm should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
 
 ### `targeted`
 
-- mode difference: targeted executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
-- imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json`
+- run contract: targeted executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity.
+- tracked imported dependencies: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json`, `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json`
 - blocked claims: none
-- claim guard: targeted should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
+- public claim ceiling: targeted should keep its stronger sentence behind the current benchmark package and downstream consequence limits.
 
-## What `raw_executable` Still Does Not Mean
+## Interpretation Discipline
 
-- it does not mean vendor-parity authority by itself
-- it does not mean companion-package transfer pressure disappeared
-- it does not mean downstream lab consequence is already justified
+A stronger execution mode changes the runtime statement only. Benchmark
+acceptance, grounding, recommendation, and lab consequence remain separately
+owned decisions. Imported dependencies stay visible even for `raw_executable`
+families so a repository rerun cannot be mistaken for vendor-parity replay.

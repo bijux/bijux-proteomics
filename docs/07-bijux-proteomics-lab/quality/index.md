@@ -4,61 +4,83 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Quality
+# Laboratory quality
 
-`bijux-proteomics-lab` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
-
-## Trust Model
+Lab quality is the ability to prevent under-specified work from becoming an
+instruction and to preserve what happened after authorized execution. It joins
+design validity, readiness, custody, QC, refusal, reconciliation, and
+append-only outcome history.
 
 ```mermaid
 flowchart LR
-    invariants["invariants"]
-    tests["test strategy"]
-    validation["change validation"]
-    risks["risk register and limitations"]
-    decision["trust or block the change"]
-
-    invariants --> tests --> validation --> risks --> decision
+    D["design validity"] --> R["readiness"]
+    R --> A["authority and custody"]
+    A --> O["observation integrity"]
+    O --> Q["QC and reliability"]
+    Q --> C["reconciliation"]
+    C --> P{"promotion posture"}
+    P -->|supported| E["new evidence"]
+    P -->|not supported| F["failure, inconclusive, or refusal"]
 ```
 
-This page should make lab quality about durable planning and outcomes, not just
-execution success. The package stays trustworthy when planning state, outcome
-state, and persistence behavior remain reviewable and distinct from upstream
-policy.
+## Quality dimensions
 
-## Start With
+| Dimension | Evidence | Blocking failure |
+| --- | --- | --- |
+| design | measurable endpoint, controls, power advice, randomization and blocking | assay cannot answer the stated question |
+| readiness | sample, material, instrument, staffing, budget, risk, provenance | missing prerequisite hidden by a ready status |
+| authority and custody | owner, approval, handoff identity, instructions, transfer record | advisory plan treated as authorization |
+| schedule integrity | ready-only queue, compatibility constraints, stable policy | priority bypasses controls or readiness |
+| observation | plan-linked measurements, missingness, deviations, failures | values detached from assay or batch identity |
+| QC and reliability | acceptance criteria, controls, reproducibility, failure class | completed work promoted despite failed QC |
+| reconciliation | requested-versus-observed disposition and next action | interpretation overwrites the measured record |
+| feedback | append-only Knowledge and policy handoff | later outcome rewrites earlier decisions |
 
-- open [Invariants](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/invariants/) before changing package meaning
-- open [Change Validation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/change-validation/) when you need the minimum proof for a real edit
-- open [Risk Register](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/risk-register/) when the package boundary feels under pressure
+## Proof by change type
 
-## Section Pages
+| Change | Minimum proof |
+| --- | --- |
+| assay or protocol model | valid, incomplete, incompatible, control and acceptance cases |
+| readiness rule | pass, block, conditional, refusal, missing evidence and safe next action |
+| queue or scheduling policy | capacity, priority, incompatibility, stable ordering, ready-only admission |
+| handoff or export | authority, provenance, risk, round trip, external rejection |
+| outcome model | observation, missingness, deviation, QC failure, reliability, identity |
+| reconciliation or promotion | supported, weakened, rejected, inconclusive, rerun, no-promotion cases |
 
-- [Invariants](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/invariants/)
-- [Test Strategy](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/test-strategy/)
-- [Change Validation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/change-validation/)
-- [Definition of Done](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/definition-of-done/)
-- [Dependency Governance](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/dependency-governance/)
-- [Documentation Standards](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/documentation-standards/)
-- [Known Limitations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/known-limitations/)
-- [Review Checklist](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/review-checklist/)
-- [Risk Register](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/risk-register/)
+[Test strategy](test-strategy.md) and [change validation](change-validation.md)
+map these obligations to executable checks.
 
-## What Quality Means Here
+## Invariants
 
-- proving that planning and outcome state remain durable, reviewable, and distinct from upstream policy
+- advisory and executable plans remain distinguishable;
+- readiness is conditional on declared evidence and operational inputs;
+- priority and schedule never override missing controls or authority;
+- handoffs preserve plan identity, custody, risk, and blockers;
+- observations remain separate from interpretation and promotion;
+- failed QC, refusal, and inconclusive results are durable outcomes;
+- feedback appends evidence without rewriting upstream history.
 
-## First Proof Check
+See [invariants](invariants.md) for the complete contract.
 
-- `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
-- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
+## Realistic negative paths
 
-## Design Pressure
+Quality evidence includes exhausted material, absent controls, unavailable
+instrument time, incompatible batch members, authorization gaps, partial
+observations, failed QC, deviations, contradictory outcomes, and an inability
+to answer the requested question. A rehearsal that exercises only a successful
+handoff cannot support production-readiness language.
 
-Lab quality fails when outcome state becomes easier to mutate than to explain.
-The section has to keep planning, persistence, and downstream review in the
-same trust story.
+Operational and scientific limits remain in [known limitations](known-limitations.md).
+Unclosed ownership, safety, and promotion risks remain in the
+[risk register](risk-register.md).
+
+## Review route
+
+Use [dependency governance](dependency-governance.md) for external integration
+and optional dependencies, [documentation standards](documentation-standards.md)
+for readiness and consequence claims, and [review checklist](review-checklist.md)
+before handoff. [Definition of done](definition-of-done.md) requires evidence
+for refusal, failure, and inconclusive outcomes as well as success.

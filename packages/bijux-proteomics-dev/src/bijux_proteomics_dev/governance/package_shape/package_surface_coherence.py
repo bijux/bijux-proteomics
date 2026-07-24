@@ -163,8 +163,10 @@ def _toml_text(report: PackageSurfaceCoherenceReport) -> str:
                 f'docs_path = "{entry.docs_path}"',
                 f"public_surface_names = [{_render_tuple(entry.public_surface_names)}]",
                 f"allowed_outbound_edges = [{_render_tuple(entry.allowed_outbound_edges)}]",
-                "excluded_responsibilities = "
-                f"[{_render_tuple(entry.excluded_responsibilities)}]",
+                (
+                    "excluded_responsibilities = "
+                    f"[{_render_tuple(entry.excluded_responsibilities)}]"
+                ),
                 "",
             ]
         )

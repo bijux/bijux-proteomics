@@ -90,22 +90,47 @@ def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> 
     assert "Workflow Refusal Handbook" in lab_consequence
 
 
-def test_package_index_pages_hand_off_shared_routes_before_local_routes() -> None:
-    package_index_paths = [
-        "docs/02-agentic-proteins/index.md",
-        "docs/03-bijux-proteomics-foundation/index.md",
-        "docs/04-bijux-proteomics-core/index.md",
-        "docs/05-bijux-proteomics-intelligence/index.md",
-        "docs/06-bijux-proteomics-knowledge/index.md",
-        "docs/07-bijux-proteomics-lab/index.md",
-        "docs/08-bijux-proteomics-maintain/index.md",
-        "docs/09-bijux-proteomics-runtime/index.md",
-    ]
+def test_package_indexes_use_domain_questions_for_reader_handoffs() -> None:
+    route_headings = {
+        "docs/02-agentic-proteins/index.md": (
+            "## Close A Caller Migration",
+            "## Continue By Migration Question",
+        ),
+        "docs/03-bijux-proteomics-foundation/index.md": (
+            "## Interpret Identity Evidence",
+            "## Continue By Contract Question",
+        ),
+        "docs/04-bijux-proteomics-core/index.md": (
+            "## Audit A Scientific Statement",
+            "## Continue By Scientific Question",
+        ),
+        "docs/05-bijux-proteomics-intelligence/index.md": (
+            "## Challenge A Recommendation",
+            "## Continue By Decision Question",
+        ),
+        "docs/06-bijux-proteomics-knowledge/index.md": (
+            "## Reconcile Conflicting Evidence",
+            "## Continue By Evidence Question",
+        ),
+        "docs/07-bijux-proteomics-lab/index.md": (
+            "## Learn From Non-Confirming Work",
+            "## Continue By Laboratory Question",
+        ),
+        "docs/08-bijux-proteomics-maintain/index.md": (
+            "## Resolve Conflicting Gate Verdicts",
+            "## Continue By Maintenance Question",
+        ),
+        "docs/09-bijux-proteomics-runtime/index.md": (
+            "## Verify A Rerun Claim",
+            "## Continue By Execution Question",
+        ),
+    }
 
-    for path in package_index_paths:
+    for path, (cross_package_route, package_route) in route_headings.items():
         text = _read(path)
-        assert "## Shared Reader Routes" in text
-        assert "## Start Inside" in text
+        assert "## Shared Reader Routes" not in text
+        assert "## Start Inside" not in text
+        assert text.index(cross_package_route) < text.index(package_route)
 
 
 def test_mkdocs_config_split_keeps_shared_config_repository_agnostic() -> None:

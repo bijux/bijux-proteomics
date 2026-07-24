@@ -1,98 +1,148 @@
 ---
 title: Artifact Governance
 audience: mixed
-type: explanation
+type: reference
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Artifact Governance
+# Artifact governance
 
-Repository artifacts do not all mean the same thing. Some are governed source,
-some are tracked contract references, and some are generated run output. Review
-gets weaker when those classes are treated as interchangeable.
+Every file carries an authority level as well as a path. Source code and
+handwritten documentation are reviewed directly. Generated contracts derive
+their authority from a generator and freshness check. Local builds, test runs,
+benchmarks, and caches are transient evidence and belong below the repository
+`artifacts/` root.
 
-## Artifact Model
+Confusing these classes is dangerous: an untracked run product can look like a
+released result, while a hand-edited generated report can disagree with the
+source that will replace it on the next regeneration.
 
 ```mermaid
-flowchart TB
-    file["changed file or artifact"]
-    source["governed source"]
-    contract["tracked contract artifact"]
-    output["generated run output"]
-    validator["matching validator or owner"]
-
-    file --> source
-    file --> contract
-    file --> output
-    source --> validator
-    contract --> validator
-    output --> validator
+flowchart TD
+    candidate["new or changed file"] --> durable{"durable repository contract?"}
+    durable -->|yes| derived{"generated from governed inputs?"}
+    derived -->|no| source["owned source, test, config, or documentation path"]
+    derived -->|yes| generated["governed destination + generator + freshness check"]
+    durable -->|no| output["artifacts/<owner>/<run>/"]
+    output --> evidence{"needed for a published claim?"}
+    evidence -->|no| retain["retain or clean as local output"]
+    evidence -->|yes| promote["review provenance, then publish through a governed contract"]
 ```
-
-This page should let a reviewer classify an artifact before debating its meaning. Once file classes blur together, source-of-truth arguments become slow and error-prone.
-
-## Artifact Classes
-
-- governed source under `docs/`, `packages/`, and root config files
-- tracked contract artifacts under `apis/`
-- generated local or CI output under `artifacts/`
-
-Publishable package roots must stay free of `.pytest_cache`, `.ruff_cache`,
-`__pycache__`, coverage spillover, and comparable transient execution state.
-If a normal workflow leaves that residue under `packages/*`, the workflow is
-wrong even if the code still passes.
-
-## Transient Artifact Policy
-
-- default local outputs, caches, reports, and rerun products to `artifacts/`
-- write outside `artifacts/` only when the task intentionally updates a
-  governed destination such as `docs/`, `apis/`, or `configs/`
-- keep package roots publishable: no `.pytest_cache`, `.ruff_cache`,
-  `coverage.xml`, `dist/`, `build/`, `site/`, or similar spillover under
-  `packages/*`
-- clean local residue through repository entrypoints instead of ad hoc manual
-  deletion: `make test-clean`, `make clean-root-artifacts`, and
-  `make quality-artifact-governance`
 
 ## File Ownership Matrix
 
-The checked storage matrix lives in
-`configs/package-governance/repository-file-ownership.toml`.
+The checked storage contract is
+`configs/package-governance/repository-file-ownership.toml`. The matrix is
+generated from the maintainer package and validated by the artifact governance
+gate.
 
-Use that matrix before introducing a new storage location:
+| File class | Canonical owner | Typical paths | Review question |
+| --- | --- | --- | --- |
+| product source and tests | package that owns the behavior | `packages/<package>/src/`, `packages/<package>/tests/` | does the package own the scientific or operational meaning? |
+| repository configuration | repository governance | `configs/` | which validator consumes this contract? |
+| public API evidence | API governance | `apis/` | which released interface and schema does the snapshot represent? |
+| public handbook | repository documentation | `docs/` | does the prose match released behavior and bounded evidence? |
+| package-facing explanation | package owner | `packages/<package>/README.md`, package `docs/` | can a consumer understand the package without repository folklore? |
+| benchmark source and manifests | `bijux-proteomics-core` | `packages/bijux-proteomics-core/benchmark-assets/` | are provenance, license, corpus identity, and limitations recoverable? |
+| execution and verification output | producing run | `artifacts/<owner>/` | are command, environment, inputs, checksums, and terminal status recorded? |
 
-- root contracts and repository-wide docs stay in `apis/`, `configs/`, `docs/`,
-  and `makes/`
-- package-owned docs stay in package `README.md` files and package-local
-  `docs/` roots
-- checked benchmark assets stay in
-  `packages/bijux-proteomics-core/benchmark-assets/`
-- transient outputs stay in `artifacts/`
-- maintainer automation stays in `bijux-proteomics-dev` plus root make targets
+Repository-wide documentation, configuration, API snapshots, and orchestration
+remain at the root. Package roots contain package-owned code, tests, metadata,
+and package-specific documentation; they are not alternate homes for
+repository policy.
+
+## Transient Artifact Policy
+
+Local commands must route disposable or run-specific output under `artifacts/`.
+This includes:
+
+- virtual environments, dependency caches, bytecode, and tool caches;
+- coverage data, test reports, generated sites, and validation logs;
+- wheels, source distributions, and editable-build state;
+- benchmark execution bundles, rerun dossiers, and comparison reports;
+- temporary exports created while checking schemas or public APIs.
+
+Use a stable owner and a run-specific child path when outputs must coexist:
+
+```text
+artifacts/
+├── root/                         # repository-wide environments and reports
+├── bijux-proteomics-core/        # Core validation output
+├── bijux-proteomics-runtime/     # execution and replay output
+└── bijux-proteomics-dev/         # governance and documentation checks
+```
+
+Clean normal test and build residue with:
+
+```bash
+make test-clean
+make clean-root-artifacts
+```
+
+Cleaning is not a substitute for correct routing. If a command repeatedly
+writes `dist/`, `build/`, `site/`, coverage files, caches, or an `artifacts/`
+directory into a publishable package root, correct the producing command and
+its tests.
+
+## Governed Generated Contracts
+
+A tracked generated contract must have four discoverable properties:
+
+1. the source inputs that determine its content;
+2. the command or Python entrypoint that renders it;
+3. the canonical checked-in destination;
+4. a check mode that fails when source and output disagree.
+
+Regenerate the contract, inspect the semantic diff, and run its freshness
+validator. Do not repair drift by editing only the rendered file. A fresh
+generated file proves agreement with its generator; it does not independently
+prove that the generator expresses the correct policy.
 
 ## Prohibited Spillover
 
-- no package-local `apis/`, `configs/`, or `makes/` mirrors for repository-wide
-  governance
-- no benchmark roots outside `bijux-proteomics-core`
-- no generated local outputs committed or parked under publishable package roots
-- no repository-wide policy pages copied into package docs when one root page
-  already owns the question
+The repository rejects storage patterns that create competing authorities:
 
-## Authority Rule
+- no package-local `apis/`, `configs/`, or `makes/` mirrors of root contracts;
+- no benchmark roots outside `bijux-proteomics-core`;
+- no package-local `artifacts/`, `.venv`, `.pytest_cache`, `.ruff_cache`,
+  `.hypothesis`, `coverage.xml`, `htmlcov`, `build`, `dist`, or `site` output;
+- no flagship benchmark manifests stored only as transient run products;
+- no generated governance page without its source generator and freshness
+  check;
+- no ad hoc output directory chosen only because a tool defaults there.
 
-When source, docs, and generated output disagree, source plus the governing
-contract check wins. Generated output is evidence of a run, not an independent
-source of truth.
+Check placement and generated ownership with:
 
-## First Proof Check
+```bash
+make quality-artifact-governance
+```
 
-- `configs/package-governance/repository-file-ownership.toml`
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/repository_file_ownership.py`
-- `make quality-artifact-governance`
+The gate validates package-root hygiene, the repository file-ownership matrix,
+benchmark ownership, and known generated destinations.
 
-## Design Pressure
+## From Run Output To Public Evidence
 
-The easy failure is to let generated output masquerade as governed source because it happens to live near the files that truly own the behavior.
+Transient does not mean unimportant. A runtime bundle or benchmark report can
+support a public claim when it records enough information for independent
+inspection:
+
+| Required field | Why it matters |
+| --- | --- |
+| source revision and package versions | binds the result to executable code |
+| input identities and checksums | distinguishes rerun from look-alike data |
+| resolved configuration and provider | exposes the actual execution posture |
+| command or public entrypoint | gives the reviewer a repeatable opening route |
+| artifact inventory and checksums | detects missing or substituted outputs |
+| terminal status, refusals, and diagnostics | prevents success-only reporting |
+| comparison policy and acceptance result | separates byte equality from scientific acceptance |
+
+Promotion into a published benchmark or release dossier is a governed act. The
+reviewed manifest or documentation may cite the run bundle, but the bundle does
+not become repository truth merely because a command completed.
+
+When source, public prose, generated contracts, and run output disagree, stop
+at the first inconsistent owner. Correct that owner, regenerate its
+derivatives, and repeat the evidence-producing command. The preferred
+conclusion never decides which file is authoritative.

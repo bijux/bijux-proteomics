@@ -4,42 +4,36 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Risk Register
+# Risk register
 
-A risk register should name the structural and behavioral failures that deserve ongoing attention.
+Core risk is scientific semantic erosion: software can remain executable while
+input accounting, score meaning, provenance, or workflow claims become wrong.
 
-## Risk Model
+| Risk | Early signal | Consequence | Required control |
+| --- | --- | --- | --- |
+| silent row loss | accepted totals change without matching rejection records | biased downstream evidence | field accounting, rejected rows, reason codes |
+| score-orientation drift | adapter or dependency changes “better” direction | thresholds and FDR invert | orientation fixture, boundaries, reference values |
+| target/decoy policy drift | labels, strata, competition, or denominator moves | error control becomes incomparable | serialized policy and sensitivity tests |
+| missingness collapse | absent, censored, filtered, failed, and zero merge | quantification and contrasts are biased | explicit states and adversarial sparse fixtures |
+| provenance loss | producer, version, parameters, database, or transformation disappears | imported output appears native or irreproducible | lineage invariant and artifact review |
+| circular benchmark | implementation generates its own expected answer | regression evidence is mistaken for independent validation | external reference or independently specified truth |
+| transfer overclaim | one corpus or workflow family sets broader posture | public language exceeds evidence | companion, holdout, and family-specific ceiling |
+| nondeterministic optimization | chunking or parallelism changes order, acceptance, or hash | repeated runs disagree | serial equivalence and stable artifact tests |
+| policy leakage | Runtime, Knowledge, Intelligence, or Lab rules move into Core | scientific functions depend on context outside their contract | dependency and ownership guards |
+| format overclaim | one producer fixture is described as full standard support | unseen dialects parse incorrectly | producer/version scope and mutation corpus |
 
 ```mermaid
 flowchart LR
-    runtime["runtime behavior leaks into core"]
-    language["contract language drifts across modules"]
-    policy["downstream policy masquerades as core invariant"]
-
-    runtime --> language --> policy
+    I["input accounting drift"] --> S["scientific semantic drift"]
+    P["policy or provenance loss"] --> S
+    S --> B["benchmark misinterpretation"]
+    B --> C["overstated public claim"]
 ```
 
-This page should make core risk feel like semantic erosion. The package is in
-trouble when adjacent execution or downstream policy pressure starts rewriting
-what core claims to mean.
-
-## Review Rules
-
-- runtime behavior hides inside core because it feels adjacent to execution rules
-- contract language drifts across modules
-- downstream policy starts masquerading as a core invariant
-
-## First Proof Check
-
-- `packages/bijux-proteomics-core/tests`
-- `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
-- `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
-
-## Design Pressure
-
-Core risk grows when boundary pressure is explained away as adjacency. The
-register has to keep semantic drift and policy leakage visible before they
-harden into the package contract.
+Silent acceptance drift, reversed score meaning, broken error control, lost
+provenance, and benchmark circularity are release-blocking. A large green suite
+does not reduce a risk whose relevant negative, reference, transfer, or
+consumer evidence is absent.

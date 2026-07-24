@@ -19,6 +19,7 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
 
@@ -43,41 +44,82 @@ Use this package when you need auditable scientific memory, explicit
 provenance, contradiction-aware evidence reasoning, and grounded workflow
 briefings that downstream packages can consume without re-curating locally.
 
-## At a glance
+## Memory ownership
 
-- Use knowledge when evidence, claims, citations, and contradictions must stay
-  reviewable over time instead of being flattened into generic context.
-- Start with `references`, `memory.models`, and `reviews.decision_briefs`,
-  then open the
-  [knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-  for the full owner surface.
-- Route execution to runtime, recommendation posture to intelligence, assay
-  follow-up to lab, and changes to scientific meaning back to core.
+Choose Knowledge when scientific evidence must remain selective, cited,
+versioned, and reviewable after ingestion. It owns the relationship between a
+source record and a claim; it does not own the action a consumer may take from
+that claim.
 
-## Why teams pick this package
+| Question | Knowledge record |
+| --- | --- |
+| What was observed or asserted? | evidence record with source identity and context |
+| What proposition may it affect? | typed claim with subject, relation, object, and scope |
+| Does it support, contradict, qualify, or merely mention? | explicit evidence-to-claim relationship |
+| Which version and transformation produced this record? | provenance and normalization lineage |
+| What changed across reviews? | append-only resolution history and decision brief |
+| What is still unknown? | coverage, sufficiency, risk, and knowledge-gap report |
 
-- explicit evidence and claim memory with provenance, trust, and freshness semantics
-- contradiction-aware resolution flows that preserve audit history
-- grounded workflow briefings, caveats, and scientific rules tied to citations
-- compatibility with shared schema and serialization contracts
+The [knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+maps these records to biological grounding and workflow review surfaces.
 
-## Typical use cases
+## Evidence memory flow
 
-- preserve evidence bundles, claims, and resolution history for later scientific review
-- retrieve grounded workflow caveats, benchmark claims, and ontology mappings
-- explain why a scientific conclusion changed over time without losing provenance
-- surface unresolved knowledge gaps before downstream packages rank, schedule, or execute work
+```mermaid
+flowchart LR
+    observation["observation or reference"] --> provenance["source and context"]
+    provenance --> claim["typed evidence claim"]
+    claim --> graph["evidence and contradiction graph"]
+    graph --> resolution["resolution history"]
+    resolution --> briefing["grounded workflow briefing"]
 
-## 0.3.8 Release Highlights
+    contradiction["contradicting evidence"] --> graph
+    gap["missing support"] --> briefing
+```
 
-- Knowledge now exposes cited references, benchmark manifests, curated corpora,
-  scientific rules, workflow briefing packets, comparator dossiers, and
-  machine-readable release-gate registries as first-class public surfaces.
-- Public resolution and lookup APIs now cover protein identity, feature
-  overlap, pathway membership, complex membership, kinase substrates, drug
-  targets, disease terms, knowledge coverage, and cross-species orthologs.
-- The package is now grouped by durable `memory`, `references`, `reviews`, and
-  `contracts` owners so provenance and trust semantics are easier to defend.
+Knowledge preserves why a claim is supported, contradicted, stale, or
+unresolved. It does not rank candidates or convert evidence availability into a
+recommendation; those decisions belong to Intelligence.
+
+## Evidence is a relationship
+
+A citation, database row, or run artifact is a source record. It becomes
+evidence only in relation to a precise claim and context. Preserve these as
+separate identities so one source can support one proposition, qualify another,
+and remain irrelevant to a third.
+
+| Record | Answers | Must not be inferred from it |
+| --- | --- | --- |
+| source | where did the material originate, and which version was reviewed? | that the source addresses the current claim |
+| claim | what proposition is under review? | that any attached source supports it |
+| context | under which biological and analytical conditions? | that a nearby context transfers |
+| relationship | support, contradiction, qualification, mention, or unresolved | that support is sufficient for action |
+| sufficiency assessment | is this versioned bundle adequate for a named use? | that it is adequate for every stronger use |
+
+This model prevents source reputation, identifier resolution, or citation count
+from being promoted into evidence strength without a reviewed relationship.
+
+## Memory invariants
+
+- source identity, source version, retrieval time, and content digest remain
+  distinguishable;
+- biological and analytical context are recorded rather than inferred from a
+  citation title;
+- contradiction and qualification are retained alongside support;
+- reconciliation can deduplicate or supersede records without erasing lineage;
+- review briefs are projections of evidence memory, not replacement stores;
+- missing context and unresolved identity remain explicit knowledge gaps.
+
+## Grounding work owned here
+
+- resolve proteins, features, pathways, complexes, kinase substrates, diseases,
+  drugs, and orthologs against curated annotation packs;
+- ingest evidence and claims into versioned memory models;
+- reconcile duplicates, conflicts, contradictions, and superseded records;
+- assemble workflow briefings, literature audits, comparator positions, and
+  evidence-sufficiency reports;
+- provide grounded review bundles to Intelligence without embedding ranking or
+  recommendation policy.
 
 ## Installation
 

@@ -4,48 +4,63 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Dependency Governance
 
-Dependency governance is really boundary governance under another name.
-
-For `bijux-proteomics-intelligence`, dependency review should keep evidence, contracts, and lab execution explicit instead of letting the package collapse into a hidden application layer.
-
-## Governance Model
+Dependencies must strengthen judgment without transferring another package's
+authority into Intelligence. The installed graph is intentionally one-way:
+Foundation, Core, and Knowledge provide contracts or evidence; Intelligence
+produces decision artifacts for downstream consequence review.
 
 ```mermaid
-flowchart TB
-    change["new or changed dependency"]
-    purpose{"improves evaluation or explanation work?"}
-    boundary{"knowledge, contracts, and lab seams stay explicit?"}
-    copying{"dependency avoids copied neighbor semantics?"}
-    accept["dependency is governable"]
-
-    change --> purpose
-    purpose -->|yes| boundary
-    purpose -->|no| reject1["reject or relocate"]
-    boundary -->|yes| copying
-    boundary -->|no| reject2["reject or isolate"]
-    copying -->|yes| accept
-    copying -->|no| reject3["redesign the integration"]
+flowchart LR
+    P["Pydantic"] --> I["Intelligence"]
+    N["NumPy"] --> I
+    G["Loguru"] --> I
+    F["Foundation"] --> I
+    C["Core"] --> I
+    K["Knowledge"] --> I
+    I -. "must not import" .-> X["Runtime"]
+    I -. "must not import" .-> L["Lab"]
 ```
 
-This page should make it obvious that a recommendation package gets weaker when it starts owning evidence semantics or execution behavior through dependency shortcuts.
+## Current Dependency Contract
 
-## Review Rules
+| Dependency | Permitted role | Boundary to protect |
+| --- | --- | --- |
+| `bijux-proteomics-foundation` | shared identifiers, provenance, stable contracts | do not fork shared meanings locally |
+| `bijux-proteomics-core` | scientific result types and computations used by judgment | do not make Intelligence an alternate scientific engine |
+| `bijux-proteomics-knowledge` | claims, evidence, citations, lineage, contradiction records | do not mutate custody or redefine evidence truth |
+| Pydantic | validation and serialization of decision artifacts | model shape must not substitute for semantic ownership |
+| NumPy | bounded numeric evaluation and ranking support | record orientation, missingness, tolerance, and deterministic behavior |
+| Loguru | observable diagnostics | logs are not retained decision evidence |
 
-- guard the seams to evidence, contracts, and lab execution carefully
-- avoid dependencies that turn the package into a hidden application layer
-- prefer explicit inputs from neighbors over copied semantics
+Runtime and Lab are deliberately absent. Importing either would let decision
+policy control execution or consequence recording and would create a cycle in
+the product flow.
 
-## First Proof Check
+## Admission Test
 
-- `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
+A dependency is acceptable only when:
 
-## Design Pressure
+1. Its role maps to an owned decision capability.
+2. It does not introduce a second representation of an upstream contract.
+3. Its optional or failure behavior is explicit at the public boundary.
+4. Numeric behavior is deterministic or its variability is captured.
+5. It does not pull Runtime, Lab, network access, or storage policy into the
+   recommendation layer.
+6. Focused tests prove the seam and dependency checks prove the graph.
 
-The easy mistake is to accept a useful dependency that lets intelligence behave like the application shell instead of a bounded decision layer.
+Prefer a narrow typed input over importing a neighbor's application service.
+Prefer a recorded evidence reference over reaching into Knowledge storage.
+Prefer returning a decision artifact over invoking a downstream action.
+
+## Rejection Signals
+
+Reject or redesign a dependency that requires hidden global state, changes
+ranking through an unrecorded default, owns evidence persistence, starts work,
+records laboratory outcomes, or duplicates a model already owned upstream.
+Convenience is not sufficient justification for crossing an authority
+boundary.

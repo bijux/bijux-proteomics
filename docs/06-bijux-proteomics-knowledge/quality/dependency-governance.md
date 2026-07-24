@@ -4,48 +4,58 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
 # Dependency Governance
 
-Dependency governance is really boundary governance under another name.
-
-For `bijux-proteomics-knowledge`, dependency review should keep semantic ownership inside the package and stop runtime or storage conveniences from becoming the real source of truth.
-
-## Governance Model
+Knowledge has a deliberately small runtime dependency set: Foundation, Core,
+and Pydantic. This keeps evidence meaning independent from orchestration,
+recommendation policy, laboratory actions, databases, and network clients.
 
 ```mermaid
-flowchart TB
-    change["new or changed dependency"]
-    meaning{"protects knowledge meaning?"}
-    ownership{"runtime and storage avoid semantic ownership?"}
-    state{"repository and schema boundaries stay explicit?"}
-    accept["dependency is governable"]
-
-    change --> meaning
-    meaning -->|yes| ownership
-    meaning -->|no| reject1["reject or relocate"]
-    ownership -->|yes| state
-    ownership -->|no| reject2["reject or isolate"]
-    state -->|yes| accept
-    state -->|no| reject3["redesign the dependency path"]
+flowchart LR
+    F["Foundation"] --> K["Knowledge"]
+    C["Core"] --> K
+    P["Pydantic"] --> K
+    K -. "must not import" .-> R["Runtime"]
+    K -. "must not import" .-> I["Intelligence"]
+    K -. "must not import" .-> L["Lab"]
+    S["storage or network adapter"] -. "outside semantic core" .-> K
 ```
 
-The main job here is to keep convenience tools from rewriting what the package means. If a dependency starts deciding truth shape indirectly, the seam has already moved.
+## Current Dependency Contract
 
-## Review Rules
+| Dependency | Permitted role | Prohibited authority |
+| --- | --- | --- |
+| `bijux-proteomics-foundation` | identifiers, provenance primitives, shared contracts | redefining those primitives in Knowledge |
+| `bijux-proteomics-core` | scientific result types needed for grounding and evidence capture | invoking Knowledge as an alternate analysis engine |
+| Pydantic | validation and serialization of custody records | treating schema validity as evidence validity |
 
-- guard the line between knowledge meaning and downstream decision policy
-- keep runtime and storage dependencies from becoming semantic owners
-- prefer explicit repository and schema boundaries over hidden shared state
+The absence of a database dependency is meaningful. Persistence mechanisms
+must store and retrieve the package's records without deciding claim identity,
+support direction, contradiction resolution, or confidence semantics. The same
+rule applies to search indexes, graph stores, HTTP clients, and ontology SDKs.
 
-## First Proof Check
+## Admission Test
 
-- `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
+A new dependency must satisfy all of these conditions:
 
-## Design Pressure
+1. It serves evidence custody, biological grounding, or review handoff.
+2. The canonical claim and evidence models remain inside Knowledge.
+3. Source version, retrieval context, and failure behavior can be retained.
+4. Offline tests can exercise the semantic path deterministically.
+5. It does not import Runtime, Intelligence, or Lab authority.
+6. Missing external services degrade explicitly rather than fabricating
+   evidence or silently narrowing coverage.
 
-The common failure is to accept storage or runtime convenience that quietly becomes the package’s semantic authority.
+Adapters should translate external records into governed Knowledge contracts at
+one boundary. Downstream code should consume those contracts rather than the
+vendor object model.
+
+## Rejection Signals
+
+Reject a dependency that introduces hidden network access, global caches,
+implicit ontology upgrades, database-specific truth semantics, lossy evidence
+conversion, or decision policy. A convenient retrieval mechanism is not a
+source of scientific authority.

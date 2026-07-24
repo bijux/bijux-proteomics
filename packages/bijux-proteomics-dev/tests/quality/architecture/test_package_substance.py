@@ -7,7 +7,7 @@ from bijux_proteomics_dev.quality.architecture.package_substance import (
     PACKAGE_SUBSTANCE_SUMMARY_PATH,
     PackageBoundaryRole,
     build_package_substance_inventory,
-    run,
+    package_substance_report_is_up_to_date,
     validate_package_substance,
 )
 
@@ -19,7 +19,7 @@ REPO_ROOT = next(
 
 
 def test_package_substance_report_is_up_to_date() -> None:
-    assert run(check=True) == 0
+    assert package_substance_report_is_up_to_date()
 
 
 def test_package_substance_inventory_keeps_real_products_and_bridge_explicit() -> None:

@@ -40,9 +40,11 @@ def test_skip_policy_validation_rejects_raw_pytest_skip(
     )
 
     assert skip_policy.validate_test_skip_policy(tmp_path) == (
-        "packages/bijux-proteomics-core/tests/test_skip_surface.py:5 "
-        "uses raw pytest.skip; route skips through "
-        "bijux_proteomics_foundation.testing.skip_policy",
+        (
+            "packages/bijux-proteomics-core/tests/test_skip_surface.py:5 "
+            "uses raw pytest.skip; route skips through "
+            "bijux_proteomics_foundation.testing.skip_policy"
+        ),
     )
 
 
@@ -75,7 +77,9 @@ def test_skip_policy_validation_rejects_raw_pytest_importorskip(
     )
 
     assert skip_policy.validate_test_skip_policy(tmp_path) == (
-        "packages/bijux-proteomics-runtime/tests/test_http_surface.py:3 "
-        "uses raw pytest.importorskip; route skips through "
-        "bijux_proteomics_foundation.testing.skip_policy",
+        (
+            "packages/bijux-proteomics-runtime/tests/test_http_surface.py:3 "
+            "uses raw pytest.importorskip; route skips through "
+            "bijux_proteomics_foundation.testing.skip_policy"
+        ),
     )

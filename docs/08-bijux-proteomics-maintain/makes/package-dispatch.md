@@ -1,43 +1,76 @@
 ---
 title: Package Dispatch
-audience: mixed
-type: explanation
+audience: maintainer
+type: reference
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Package Dispatch
+# Package dispatch
 
-Package dispatch should explain how one target reaches one package or many without hiding the routing logic.
+Package dispatch maps one public target to the packages that declare the
+required capability. The inventory in `makes/packages.mk` is the source of
+truth for package names, groups, and profile fragments.
 
-## Dispatch Model
+## Inventory records
 
-```mermaid
-flowchart TB
-    target["shared target"]
-    routing["makes/packages.mk"]
-    fragment["named package fragment"]
-    package["one package or many packages"]
+Each record has three fields:
 
-    target --> routing
-    routing --> fragment
-    fragment --> package
+```text
+package-name | capability-groups | package-profile.mk
 ```
 
-This page should make dispatch feel explicit at every hop. If a maintainer cannot tell why a target reached one package or all of them, the routing surface is too implicit to trust.
+Groups such as `primary`, `check`, `api`, `buildable`, and `sbom` determine
+which packages receive a root target. The package profile then supplies import
+names, dependency paths, test selection, coverage floors, and other explicit
+overrides before including shared package behavior.
 
-## Dispatch Rules
+```mermaid
+flowchart LR
+    command["make quality"]
+    target["quality -> check group"]
+    inventory["package inventory"]
+    profile["named package profile"]
+    shared["shared quality recipe"]
+    result["per-package verdict + aggregate failure"]
+    command --> target --> inventory --> profile --> shared --> result
+```
 
-- dispatch through named package fragments
-- keep per-package routing explicit in `makes/packages/*.mk`
-- avoid shared targets that secretly special-case one package too much
+## Select one package
 
-## First Proof Check
+Use the `PACKAGE` variable with a root dispatch target:
 
-- `makes/packages.mk`
-- `makes/packages/*.mk`
+```bash
+make test PACKAGE=bijux-proteomics-core
+make quality PACKAGE=bijux-proteomics-knowledge
+make api PACKAGE=agentic-proteins
+make build PACKAGE=bijux-proteomics-lab
+```
 
-## Design Pressure
+Unknown package names fail with the valid inventory. Without `PACKAGE`, the
+target selects its configured group. For example, API dispatch uses packages
+with API capability, while build dispatch uses buildable packages.
 
-The common drift is to preserve a neat shared target name while burying package-specific special cases deep enough that the dispatch story stops being obvious.
+## Execution contract
+
+The dispatcher resolves the profile, prepares the shared check environment when
+the target requires it, assigns package-specific source and artifact paths, and
+invokes Make inside the package with the selected profile. Package output goes
+to `artifacts/<package>/`.
+
+Dispatch continues across the selected package set when a package fails and
+prints the aggregate failure list at the end. This behavior exposes the full
+repository state while preserving a nonzero exit code.
+
+## Add a package or capability
+
+Add the package directory, a named profile under `makes/packages/`, and one
+inventory record. Assign only capabilities the package actually supports. The
+catalog rejects missing package directories, missing profiles, and undeclared
+package directories, keeping the filesystem and dispatch inventory aligned.
+
+Prefer a profile variable over a package-name conditional buried in shared
+recipes. If an override changes the meaning of a shared target substantially,
+the package needs a named target or clearer capability boundary rather than an
+invisible special case.

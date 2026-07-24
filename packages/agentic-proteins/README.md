@@ -18,6 +18,7 @@
 [![agentic-proteins](https://img.shields.io/badge/agentic--proteins-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins)
 [![bijux-proteomics-foundation](https://img.shields.io/badge/foundation-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation)
 [![bijux-proteomics-core](https://img.shields.io/badge/core-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core)
+[![bijux-proteomics-runtime](https://img.shields.io/badge/runtime-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime)
 [![bijux-proteomics-intelligence](https://img.shields.io/badge/intelligence-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence)
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
@@ -50,6 +51,64 @@ behavior stays in canonical packages.
   behavior to the canonical `bijux-proteomics-*` packages, and keep this layer
   forwarding-only.
 
+## Compatibility routing
+
+```mermaid
+flowchart LR
+    caller["existing agentic-proteins caller"]
+    bridge["forwarding import or command"]
+    runtime["bijux-proteomics-runtime"]
+    owners["canonical scientific packages"]
+
+    caller --> bridge --> runtime
+    bridge --> owners
+    new["new integration"] --> runtime
+```
+
+The bridge preserves call compatibility, not independent behavior. A forwarded
+symbol must resolve to its canonical owner, and any new implementation belongs
+in that owner before a compatibility export is considered.
+
+## Removal is a consumer claim
+
+The bridge can disappear only when supported callers no longer depend on its
+observable contracts. Repository search establishes local absence; it cannot
+establish that a deployed service, notebook collection, or automation system
+has migrated.
+
+| Evidence | What it establishes | What remains unknown |
+| --- | --- | --- |
+| forwarding test | the legacy path reaches the declared owner | whether a caller depends on different defaults or side effects |
+| repository import scan | checked-in source no longer imports the path | external and generated consumers |
+| CLI or HTTP parity test | selected observable behavior agrees | persistence and recovery compatibility outside the fixture |
+| caller acceptance record | one named consumer accepts the canonical contract | readiness of every other supported consumer |
+| complete consumer inventory | the retirement decision covers the declared support set | undeclared consumers outside that support boundary |
+
+Until the inventory and caller evidence close, the honest disposition is
+`migrated for this caller` or `blocked`, not `bridge removable`.
+
+## Migration closure record
+
+A migration decision must be reconstructable without relying on the person who
+performed it. Retain one record per supported consumer; aggregate records only
+after every consumer was evaluated against the same declared support boundary.
+
+| Record field | Required content |
+| --- | --- |
+| consumer identity | service, workflow, notebook collection, or automation owner |
+| version pair | legacy bridge version and canonical package version under comparison |
+| exercised surfaces | imports, commands, HTTP routes, state, artifacts, and failure paths actually observed |
+| parity evidence | fixtures, commands, assertions, and retained outputs that support the conclusion |
+| declared differences | adaptations in defaults, schemas, side effects, or recovery behavior accepted by the consumer |
+| disposition | `migrated`, `migrated with declared adaptation`, `blocked`, or `unsupported` |
+| accountable owner | person or team that accepted the disposition and its remaining limits |
+
+Symbol identity alone is sufficient only for a pure alias. Commands, HTTP
+routes, and execution paths require behavioral evidence over success, refusal,
+state transition, and artifact shape. A blocked record remains evidence: it
+identifies the contract that prevents migration instead of hiding it behind a
+passing import test.
+
 ## Compatibility contract
 
 - mirrors the canonical runtime root exports at `agentic_proteins`
@@ -58,15 +117,6 @@ behavior stays in canonical packages.
 - keeps the historical submodule tree explicit so legacy imports stay
   inspectable
 - exists to preserve migration safety for existing integrations
-
-## 0.3.8 Release Highlights
-
-- The package now states its forwarding-only contract directly instead of
-  sounding like a second runtime owner.
-- Direct dependencies and optional extras are narrowed to the canonical
-  `bijux-proteomics-core` and `bijux-proteomics-runtime` packages.
-- Legacy CLI and import continuity remain documented, but new integrations are
-  pointed at the canonical runtime package first.
 
 ## Installation
 

@@ -4,100 +4,101 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-07-01
+last_reviewed: 2026-07-21
 ---
 
 # bijux-proteomics-dev
 
-`bijux-proteomics-dev` is where repository discipline becomes executable code.
-This section exists so a maintainer can trace a docs rule, API guard, quality
-gate, release check, or security policy back to a checked-in Python owner
-instead of relying on folklore.
+`bijux-proteomics-dev` implements repository policy as versioned, tested Python
+instead of embedding it in shell fragments or CI-only behavior. It owns
+validators for documentation, APIs and schemas, architecture, security,
+quality, governance, compatibility, and release evidence.
 
 ```mermaid
-flowchart TB
-    question["repository-health question"]
-    toolkit["bijux-proteomics-dev"]
-    family["docs, api, quality, security, release helpers"]
-    tests["maintainer tests"]
-    outcomes["checked repository outcomes"]
-
-    question --> toolkit
-    toolkit --> family
-    family --> tests
-    tests --> outcomes
+flowchart LR
+    M["Make target"] --> E["stable Python entry point"]
+    E --> P["policy owner"]
+    P --> V["validator"]
+    V --> A["evidence in artifacts/"]
+    V --> X["actionable failure"]
+    P --> T["contract tests"]
 ```
 
-This section should let a maintainer trace a repository rule back to the exact helper family and then to the tests that keep that rule honest. If it cannot do that, the package is still behaving like implicit CI folklore.
+Make targets provide stable operator commands; this package carries the policy
+and implementation behind them. The split keeps orchestration readable while
+allowing validators to have typed inputs, unit tests, and reusable failure
+reports.
 
-## What This Package Proves
+## Route by responsibility
 
-- repository rules are code, not just conventions written in Markdown
-- maintainers can change policy with reviewable ownership and tests
-- docs quality, release safety, and schema discipline share one explicit toolkit
-- release posture, docs honesty, and API proof checks are inspectable surfaces
-  instead of hidden CI trivia
+| Concern | Guide | Expected owner |
+| --- | --- | --- |
+| find a validator or helper family | [Module map](module-map.md) | one durable Python module family |
+| choose checks for a change | [Quality gates](quality-gates.md) | explicit gate and evidence contract |
+| protect API and schema evolution | [Schema governance](schema-governance.md) | lock, compatibility, and generated evidence owners |
+| validate public documentation | [Documentation integrity](documentation-integrity.md) | links, structure, claims, badges, and build checks |
+| evaluate dependency or code risk | [Security gates](security-gates.md) | static, vulnerability, policy, and allowlist checks |
+| prepare publication | [Release support](release-support.md) | build, identity, version, artifact, and preflight checks |
+| make a repository-safe change | [Maintainer safe change](maintainer-safe-change.md) | scoped edit, affected gates, coherent commit |
+| decide whether code belongs here | [Scope and non-goals](scope-and-non-goals.md) | repository policy rather than product behavior |
 
-## Start With
+The [package overview](package-overview.md) and
+[package substance](package-substance.md) describe the implemented surface.
+[Operating guidelines](operating-guidelines.md) govern extensions and failure
+behavior.
 
-- open [Module Map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
-  when you need the owning helper family immediately
-- open [Quality Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/),
-  [Security Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates/),
-  or [Documentation Integrity](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity/)
-  when the symptom is already blocking work
-- open [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/)
-  and [Operating Guidelines](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines/)
-  when the question is where maintainer code should live at all
+## Validator contract
 
-## Reader Questions This Package Can Answer
+Every repository validator needs:
 
-- which exact helper family owns a failing docs, release, security, or API
-  contract
-- whether a repository rule is enforced by executable checks or only repeated
-  in prose
-- where a maintainer should extend tooling without accidentally swallowing
-  product-domain code
-- how to trace a release or documentation expectation back to the checked test
-  surface that keeps it honest
+1. a stable command entry point;
+2. a clearly owned policy input;
+3. deterministic repository discovery and output location;
+4. success and failure tests, including malformed and missing inputs;
+5. actionable diagnostics identifying the violated contract and evidence;
+6. a nonzero exit status on failure;
+7. documented scope and known limits.
 
-## Read By Responsibility
+```mermaid
+flowchart TD
+    I["repository inputs"] --> N["normalize and validate"]
+    N --> C["evaluate named contract"]
+    C --> R{"result"}
+    R -->|pass| E["write bounded evidence"]
+    R -->|fail| D["diagnostic and nonzero exit"]
+    D --> O["owner corrects cause"]
+    O --> I
+```
 
-- [Schema Governance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance/)
-  for `api/` ownership and contract drift control
-- [Release Support](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support/)
-  for trusted publication guards and version checks
-- [Documentation Integrity](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity/)
-  for architecture docs, badge sync, and consistency enforcement
-- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
-  to keep the toolkit from swallowing product code
+A validator must not rewrite the input to make it conform, catch and discard a
+failure, or report success when a required tool is missing. Remediation belongs
+to an explicit owner command and remains separate from verification whenever
+the two actions can be reviewed independently.
 
-## Why This Package Matters More Than It Looks
+## Policy ownership
 
-- the rest of the repository can only present itself honestly if this package
-  keeps documentation, release, and contract surfaces verifiable
-- stronger scientific and runtime depth increase the cost of weak maintainer
-  tooling because bad checks can distort public claims
-- this package is the proof that repository discipline is engineered, not
-  performative
+Product packages own scientific and runtime behavior. `bijux-proteomics-dev`
+may inspect those packages against repository contracts, but it does not become
+the source of truth for their domain models. Conversely, CI workflows call
+maintainer commands; they do not carry independent copies of validation policy.
 
-## Maintainer Proof Surfaces
+This creates a traceable chain:
 
-- module map for helper-family ownership before touching code
-- documentation integrity for reader-facing honesty, navigation, and badge
-  sync expectations
-- release support for publishable version, changelog, and artifact gates
-- schema governance and quality gates when a package-facing contract or API
-  claim is changing
+- the Make target names the operator contract;
+- the package module owns policy evaluation;
+- package tests exercise positive and negative behavior;
+- CI repeats the command in a clean environment;
+- evidence and failures remain available for review.
 
-## First Proof Check
+## Failure discipline
 
-- `src/bijux_proteomics_dev/docs/`
-- `src/bijux_proteomics_dev/governance/`, `release/`, `security/`, and `quality/`
-- `packages/bijux-proteomics-dev/tests`
-- checked documentation, release, and contract tests when a maintainer claim
-  needs proof rather than habit
+Failures identify the exact contract, subject, expected condition, observed
+condition, and remediation owner whenever possible. Existing blockers remain
+visible and distinguishable from regressions introduced by a change. A missing
+dependency, stale generated artifact, empty test collection, or skipped
+required surface is not a passing result.
 
-## Design Pressure
-
-The easy failure is to treat maintainer helpers as one black box, which makes it hard to see which family owns a broken repository rule or why.
+Generated logs and reports belong under `artifacts/` unless the command
+explicitly governs a tracked repository output. Handwritten policy and
+generated evidence are reviewed and committed separately when they are not
+inseparable for correctness.

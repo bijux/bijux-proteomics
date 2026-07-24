@@ -4,73 +4,99 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-07-21
 ---
 
-# Interfaces
+# Decision interfaces
 
-`bijux-proteomics-intelligence` interfaces are how recommendation logic becomes
-usable to humans and tooling. This section should help a reader see which
-surfaces accept candidates and judgment inputs, which ones emit rankings,
-decision briefs, interpretation summaries, and recommendation outcomes, and
-where explanation is part of the contract instead of optional decoration.
+Intelligence interfaces expose candidate evaluation, ranking, skeptical
+challenge, recommendation posture, and review artifacts. Their contract is to
+preserve how a decision was produced: the candidate universe, evidence
+revision, policy, score components, alternatives, sensitivity, and refusal or
+human-review conditions.
 
 ```mermaid
 flowchart LR
-    inputs["candidate and policy inputs"]
-    scoring["candidate, judgment, and posture surfaces"]
-    briefs["decision briefs and analytical reports"]
-    outcomes["recommendation outcomes"]
-    review["review boards and downstream packages"]
-
-    inputs --> scoring --> briefs --> outcomes --> review
+    E["evidence and scientific records"] --> D["decision context"]
+    D --> R["ranking result"]
+    R --> C["challenge record"]
+    C --> P["posture"]
+    P --> B["decision brief"]
+    B --> H["human or Lab handoff"]
 ```
 
-## What These Interfaces Need To Preserve
+## Choose an owner interface
 
-- recommendation output must stay explainable enough for review, not just
-  machine-readable enough for automation
-- scoring surfaces must reveal policy shape without pretending to be evidence
-  truth
-- downstream consumers need stable outcome and report forms because real
-  portfolio decisions depend on them
+| Need | Owner module | Expected output |
+| --- | --- | --- |
+| validate or compare candidates | `candidates` | validated set, exclusions, quality and fingerprints |
+| rank or select candidates | `candidates.ranking` and selection owners | component scores, ordering, ties, policy identity |
+| interrogate claim support | `claims`, `contradictions`, `falsifiers` | support and challenge findings with evidence references |
+| interpret scientific results | `interpretation` | bounded interpretation with assumptions and caveats |
+| evaluate scenarios or recommendations | `judgment` | scenario, counterfactual, sensitivity, confidence, regret, recommendation |
+| determine evidence posture | `posture` and `refusal` | advisory, downgrade, escalation, hold, or refusal reasons |
+| assemble external review | `reviews` | report contract, decision brief, outsider packet, scrutiny record |
+| propose follow-up | `next_steps` and `learning` | evidence request or policy-learning record, not execution authority |
 
-## Start With
+The package root exposes 14 lazy-loaded owner modules:
 
-- open [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
-  when the question is what a score, shortlist, brief, or outcome is allowed to
-  mean
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
-  when the real concern is report payload shape and explanation output
-- open [Operator Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/operator-workflows/)
-  when the reader wants to follow the decision surface in practice
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/)
-  before changing an explanation or outcome contract that review processes may
-  depend on
+```python
+from bijux_proteomics_intelligence import candidates, judgment, reviews
+```
 
-## Read By Consumer
+Import domain symbols from their owner module. [API surface](api-surface.md)
+maps supported paths and [public imports](public-imports.md) distinguishes the
+candidate representations exposed for different responsibilities.
 
-- [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/)
-  for code-level ranking, judgment, and review entrypoints
-- [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
-  and [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
-  for the stable shapes used in decision review
-- [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/),
-  [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/),
-  and [Configuration Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/configuration-surface/)
-  for operator and automation entrypoints
-- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/entrypoints-and-examples/)
-  for concrete flows that tie policy to outputs
+## Decision record
 
-## What This Section Should Clarify
+A portable recommendation or refusal identifies:
 
-- where recommendation interfaces end and governance interpretation begins
-- which outputs are part of the stable surface versus transient implementation
-  detail
-- why explanation belongs in the interface contract for this package
+- decision and candidate-set identity;
+- the exact Core, Runtime, and Knowledge artifact references evaluated;
+- candidate exclusions and validation findings;
+- policy name, version, objectives, constraints, thresholds, and tie-breaking;
+- score components, ordering, alternatives, and Pareto relationships;
+- contradictions, falsifiers, scenarios, and counterfactual results;
+- sensitivity, calibration, confidence, and expected regret;
+- advisory, downgrade, escalation, hold, refusal, and human-review posture;
+- proposed next evidence without implying permission to execute it.
 
-## First Proof Check
+[Data contracts](data-contracts.md) defines these semantics and
+[artifact contracts](artifact-contracts.md) defines portable review forms.
 
-- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
-- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
-- `packages/bijux-proteomics-intelligence/tests`
+## Questions and explanations
+
+Query and interpretation interfaces answer questions against a fixed decision
+context. Explanation reports the declared reasoning path; it must not invent
+missing evidence or conceal policy-sensitive alternatives.
+
+```mermaid
+flowchart TD
+    Q["review question"] --> X["resolve decision context"]
+    X --> E["retrieve evidence and policy"]
+    E --> A["answer with lineage"]
+    E --> U["unresolved or unsupported"]
+```
+
+An unsupported question produces an explicit limitation or refusal. It is not
+answered by extrapolating beyond the available evidence.
+
+## Configuration and compatibility
+
+Weights, objectives, constraints, thresholds, missing-value handling,
+tie-breaking, challenge sets, and posture rules are public decision
+configuration. Their normalized identity belongs in every result. See
+[configuration surface](configuration-surface.md).
+
+Candidate fields, policy identifiers, score orientation, posture enums, reason
+codes, artifact schemas, and default behavior are compatibility surfaces.
+[Compatibility commitments](compatibility-commitments.md) defines comparison
+and migration requirements when they change.
+
+## Authority boundary
+
+Intelligence can advise, challenge, request evidence, or refuse. It does not
+rewrite Knowledge provenance, execute Runtime work, authorize candidate
+progression, or approve laboratory activity. [Operator workflows](operator-workflows.md)
+shows how those handoffs remain explicit.

@@ -59,10 +59,12 @@ def test_duplicate_test_module_namespace_validation_rejects_unpackaged_same_pack
     issues = test_module_basenames.validate_duplicate_test_module_namespaces(tmp_path)
 
     assert issues == (
-        "test_shared_surface.py repeats inside unpackaged test roots for "
-        "bijux-proteomics-core: "
-        "packages/bijux-proteomics-core/tests/study/test_shared_surface.py, "
-        "packages/bijux-proteomics-core/tests/targeted/test_shared_surface.py",
+        (
+            "test_shared_surface.py repeats inside unpackaged test roots for "
+            "bijux-proteomics-core: "
+            "packages/bijux-proteomics-core/tests/study/test_shared_surface.py, "
+            "packages/bijux-proteomics-core/tests/targeted/test_shared_surface.py"
+        ),
     )
 
 
