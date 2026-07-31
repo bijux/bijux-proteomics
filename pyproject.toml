@@ -95,7 +95,7 @@ dev = [
   "PyJWT>=2.13.0,<3.0",
   "prance>=23.6.21.0",
   "openapi-spec-validator>=0.7.1",
-  "twine>=6.1.0,<7.0",
+  "twine>=6.1.0,<8.0",
 ]
 local-esmfold = [
   "transformers>=5.0.0rc3",
