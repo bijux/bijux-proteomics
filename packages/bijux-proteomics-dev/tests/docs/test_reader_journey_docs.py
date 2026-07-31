@@ -13,24 +13,27 @@ def _read(path: str) -> str:
     return (REPO_ROOT / path).read_text(encoding="utf-8")
 
 
-def test_mkdocs_nav_frontloads_reader_first_categories() -> None:
+def test_mkdocs_nav_uses_owned_handbook_sections() -> None:
     mkdocs = _read("mkdocs.yml")
-
-    ordered_labels = [
-        "\n  - Home: index.md",
-        "\n  - Product Overview:",
-        "\n  - Benchmark Assets:",
-        "\n  - Execution:",
-        "\n  - Workflow Families:",
-        "\n  - Decision Support:",
-        "\n  - Lab Consequence:",
-        "\n  - Maintenance:",
-        "\n  - Repository Handbook:",
+    nav = mkdocs.split("\nnav:\n", maxsplit=1)[1]
+    top_level_labels = [
+        line.removeprefix("  - ").split(":", maxsplit=1)[0]
+        for line in nav.splitlines()
+        if line.startswith("  - ")
     ]
 
-    positions = [mkdocs.index(label) for label in ordered_labels]
-
-    assert positions == sorted(positions)
+    assert top_level_labels == [
+        "Home",
+        "Repository Handbook",
+        "agentic-proteins",
+        "bijux-proteomics-foundation",
+        "bijux-proteomics-core",
+        "bijux-proteomics-intelligence",
+        "bijux-proteomics-knowledge",
+        "bijux-proteomics-lab",
+        "bijux-proteomics-runtime",
+        "Maintainer Handbook",
+    ]
 
 
 def test_workflow_family_index_covers_family_status_run_mode_and_blockers() -> None:
@@ -140,12 +143,12 @@ def test_mkdocs_config_split_keeps_shared_config_repository_agnostic() -> None:
     assert "redirect_maps:" in mkdocs
     assert "docs_package: bijux-proteomics-dev" in mkdocs
     assert "repository: bijux-proteomics" in mkdocs
-    assert "hub_links:" in mkdocs
+    assert "hub_links:" not in mkdocs
 
     assert "redirect_maps:" not in shared
     assert "docs_package:" not in shared
     assert "repository: bijux-proteomics" not in shared
-    assert "hub_links:" not in shared
+    assert "hub_links:" in shared
 
 
 def test_knowledge_intelligence_and_lab_indexes_route_readers_into_consequence_chain() -> (
