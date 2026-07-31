@@ -53,3 +53,16 @@ def test_docs_home_routes_scientist_operator_and_maintainer_in_one_hop() -> None
     assert "Maintainer Safe Change" in docs_home
     assert "Workflow Families" in docs_home
     assert "Decision Support" in docs_home
+
+
+def test_docs_home_places_badges_after_product_introduction() -> None:
+    docs_home = _read("docs/index.md")
+
+    introduction_start = docs_home.index("# Bijux Proteomics")
+    badges_start = docs_home.index(
+        "<!-- bijux-proteomics-badges:generated:start -->"
+    )
+    first_section = docs_home.index("## Product Scope")
+
+    assert introduction_start < badges_start < first_section
+    assert "## " not in docs_home[introduction_start:badges_start]

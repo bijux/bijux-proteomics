@@ -22,6 +22,7 @@ def test_runtime_and_compat_docs_name_the_workflow_cli_owner() -> None:
     compat_cli_docs = (
         REPO_ROOT / "docs" / "02-agentic-proteins" / "interfaces" / "cli-surface.md"
     ).read_text(encoding="utf-8")
+    normalized_compat_cli_docs = " ".join(compat_cli_docs.split())
 
     assert "Flagship workflow CLI command: `bijux-proteomics-runtime`" in runtime_readme
     assert "not the flagship workflow runner" in core_readme
@@ -30,7 +31,7 @@ def test_runtime_and_compat_docs_name_the_workflow_cli_owner() -> None:
     assert "agentic-proteins --help" in compat_readme
     assert (
         "new workflow use should start from `bijux-proteomics-runtime --help`"
-        in compat_cli_docs
+        in normalized_compat_cli_docs
     )
 
 
