@@ -59,9 +59,7 @@ def test_docs_home_places_badges_after_product_introduction() -> None:
     docs_home = _read("docs/index.md")
 
     introduction_start = docs_home.index("# Bijux Proteomics")
-    badges_start = docs_home.index(
-        "<!-- bijux-proteomics-badges:generated:start -->"
-    )
+    badges_start = docs_home.index("<!-- bijux-proteomics-badges:generated:start -->")
     first_section = docs_home.index("## Product Scope")
 
     assert introduction_start < badges_start < first_section
