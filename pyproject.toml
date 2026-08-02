@@ -115,6 +115,7 @@ api = [
 ]
 
 [tool.bijux_proteomics]
+repository = "bijux-proteomics"
 api_dir = "apis"
 packages = [
   "agentic-proteins",
