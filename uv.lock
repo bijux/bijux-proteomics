@@ -855,7 +855,7 @@ dev = [
     { name = "pyyaml", specifier = ">=6.0,<7.0" },
     { name = "radon", specifier = ">=6.0.0" },
     { name = "ruff", specifier = ">=0.6.8,<1.0" },
-    { name = "twine", specifier = ">=6.1.0,<7.0" },
+    { name = "twine", specifier = ">=6.1.0,<8.0" },
     { name = "types-colorama", specifier = ">=0.0.14,<1.0" },
     { name = "types-defusedxml", specifier = ">=0.7.0,<1.0" },
     { name = "types-orjson", specifier = ">=3.6.0,<4.0" },

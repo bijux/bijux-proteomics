@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bijux-proteomics-repository"
 description = "Repository workspace for bijux-proteomics."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4"
 dependencies = []
 dynamic = ["version"]
 
