@@ -575,7 +575,7 @@ requires-dist = [
     { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.7.3,<3.0" },
     { name = "pydantic", marker = "extra == 'dev'", specifier = ">=2.12,<3.0" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = ">=6.3.0,<7.0" },
-    { name = "pymdown-extensions", marker = "extra == 'dev'", specifier = ">=11.0,<12.0" },
+    { name = "pymdown-extensions", marker = "extra == 'dev'", specifier = ">=11.0.1,<12.0" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.390,<2.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3,<10.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.0.3,<10.0" },
@@ -855,7 +855,7 @@ dev = [
     { name = "pyyaml", specifier = ">=6.0,<7.0" },
     { name = "radon", specifier = ">=6.0.0" },
     { name = "ruff", specifier = ">=0.6.8,<1.0" },
-    { name = "twine", specifier = ">=6.1.0,<7.0" },
+    { name = "twine", specifier = ">=6.1.0,<8.0" },
     { name = "types-colorama", specifier = ">=0.0.14,<1.0" },
     { name = "types-defusedxml", specifier = ">=0.7.0,<1.0" },
     { name = "types-orjson", specifier = ">=3.6.0,<4.0" },
@@ -2116,7 +2116,7 @@ name = "importlib-metadata"
 version = "9.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.12'" },
+    { name = "zipp" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/01/15bb152d77b21318514a96f43af312635eb2500c96b55398d020c93d86ea/importlib_metadata-9.0.0.tar.gz", hash = "sha256:a4f57ab599e6a2e3016d7595cfd72eb4661a5106e787a95bcc90c7105b831efc", size = 56405, upload-time = "2026-03-20T06:42:56.999Z" }
 wheels = [
@@ -4180,15 +4180,15 @@ wheels = [
 
 [[package]]
 name = "pymdown-extensions"
-version = "11.0"
+version = "11.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markdown" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/67/f1e79672a5f91985577c7984c9709ca110e4fd37fe7fd167b60422e6ccc2/pymdown_extensions-11.0.tar.gz", hash = "sha256:8269cef0247f9e2d0a62fcea10860aba05c1cbab5470fd4b63230b96434dc589", size = 857049, upload-time = "2026-06-23T02:27:45.146Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/21/a9/5f0c535ba3b08fe09270c16808e053a968868242ecbd5676d4e3a488bf28/pymdown_extensions-11.0.1.tar.gz", hash = "sha256:dd2905ae6fc5b75582fafb139a1266ffc754705efa902aa50067fa7ff4f94ec0", size = 857113, upload-time = "2026-07-02T17:59:22.955Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/b6/1ae53367e28b9cffa3be7574e13fbe4589694272fd47710fbdbafd3d63c6/pymdown_extensions-11.0-py3-none-any.whl", hash = "sha256:fbc4acb641814fa9d17521bbd21a5240ef739a662f11c06330c4b78c93e954d6", size = 269415, upload-time = "2026-06-23T02:27:43.826Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/54/da572c98c0b77626a91b5d3b89f0231d8bff5125c225420908632f8b342d/pymdown_extensions-11.0.1-py3-none-any.whl", hash = "sha256:db3943a62bab7e03af1364f0c4083e64b91fb097675a4b6cceccfbe9a77e5eb2", size = 269455, upload-time = "2026-07-02T17:59:21.271Z" },
 ]
 
 [[package]]
