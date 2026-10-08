@@ -38,8 +38,8 @@ that need human or experimental adjudication.
 
 ```mermaid
 flowchart TD
-    records["immutable evidence records"] --> graph["evidence graph"]
-    graph --> conflict["conflict detection"]
+    records["immutable evidence records"] --> dependency_graph["evidence graph"]
+    dependency_graph --> conflict["conflict detection"]
     conflict -->|policy can resolve| resolution["new resolution record"]
     conflict -->|insufficient basis| queue["escalation queue"]
     resolution --> brief["decision brief"]
