@@ -15,6 +15,10 @@ follow-up. A reader can trace a result from accepted and rejected scientific
 inputs through execution, grounding, recommendation, and observed consequence
 without treating any one layer as authority for all the others.
 
+Start with [Product Overview](01-bijux-proteomics/foundation/product-overview.md)
+or the [Operator Rerun Journey](09-bijux-proteomics-runtime/operator-rerun-journey.md)
+to inspect the relevant ownership and evidence boundaries.
+
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
