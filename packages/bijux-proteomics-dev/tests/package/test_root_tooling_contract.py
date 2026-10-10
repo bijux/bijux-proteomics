@@ -54,7 +54,7 @@ def test_root_tox_configuration_redirects_state_into_root_artifacts() -> None:
 def test_root_pyproject_declares_documented_security_tooling() -> None:
     tool_section = _table(_root_pyproject()["tool"])
     bandit = tool_section["bandit"]
-    assert bandit["skips"] == ["B404", "B311"]
+    assert bandit["skips"] == []
     assert bandit["exclude_dirs"] == [
         ".venv",
         "tests",
