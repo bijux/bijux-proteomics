@@ -10,6 +10,10 @@ change contributor and maintainer workflows across the repository.
 
 ## Unreleased
 
+### Changed
+
+- Adopt trusted manual publication admission and accepted shared documentation policy ([#271](https://github.com/bijux/bijux-proteomics/pull/271)).
+
 ## 0.3.8 - 2026-07-01
 
 ### Added
