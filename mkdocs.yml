@@ -542,3 +542,8 @@ extra_javascript:
   - assets/javascripts/shell/bootstrap.js
   - assets/javascripts/navigation-sync.js
   - assets/javascripts/navigation/offsite-targets.js
+exclude_docs: |
+  /overrides/
+  /hooks/
+  /assets/styles/README.md
+  /assets/javascripts/shell/README.md
