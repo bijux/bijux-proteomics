@@ -6,11 +6,12 @@ import importlib.util
 from pathlib import Path
 import sys
 from types import ModuleType
-from typing import Any
-
+from typing import Any, cast
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
-SHARED_RENDERER = REPO_ROOT / ".bijux/shared/bijux-makes-py/repository/badge_renderer.py"
+SHARED_RENDERER = (
+    REPO_ROOT / ".bijux/shared/bijux-makes-py/repository/badge_renderer.py"
+)
 
 
 def _load_shared_renderer() -> ModuleType:
@@ -31,35 +32,35 @@ PackageBadgeRecord = _shared.PackageBadgeRecord
 
 
 def load_badge_catalog() -> dict[str, str]:
-    return _renderer.load_badge_catalog()
+    return cast(dict[str, str], _renderer.load_badge_catalog())
 
 
 def public_package_records() -> tuple[Any, ...]:
-    return _renderer.public_package_records()
+    return cast(tuple[Any, ...], _renderer.public_package_records())
 
 
 def family_badge_records() -> tuple[Any, ...]:
-    return _renderer.family_badge_records()
+    return cast(tuple[Any, ...], _renderer.family_badge_records())
 
 
 def iter_badge_targets() -> tuple[Any, ...]:
-    return _renderer.iter_badge_targets()
+    return cast(tuple[Any, ...], _renderer.iter_badge_targets())
 
 
 def render_badge_block(target: Any) -> str:
-    return _renderer.render_badge_block(target)
+    return cast(str, _renderer.render_badge_block(target))
 
 
 def render_target_text(target: Any, current_text: str) -> str:
-    return _renderer.render_target_text(target, current_text)
+    return cast(str, _renderer.render_target_text(target, current_text))
 
 
 def synchronize_badges(*, check: bool) -> list[Path]:
-    return _renderer.synchronize_badges(check=check)
+    return cast(list[Path], _renderer.synchronize_badges(check=check))
 
 
 def main(argv: list[str] | None = None) -> int:
-    return _renderer.main(argv)
+    return cast(int, _renderer.main(argv))
 
 
 if __name__ == "__main__":
