@@ -470,17 +470,6 @@ consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
 provider_module = "bijux_proteomics.identification.search_adapters"
-function_name = "get_search_adapter_manifest"
-signature_text = "(adapter_kind: 'SearchAdapterKind') -> 'SearchAdapterManifest'"
-consumer_distributions = ["bijux-proteomics-runtime"]
-consumer_modules = ["bijux_proteomics_runtime.workflows.plans"]
-[[entry.import_site]]
-consumer_distribution = "bijux-proteomics-runtime"
-consumer_module = "bijux_proteomics_runtime.workflows.plans"
-
-[[entry]]
-provider_distribution = "bijux-proteomics-core"
-provider_module = "bijux_proteomics.identification.search_adapters"
 function_name = "normalize_search_results_with_adapter"
 signature_text = "(*, source_path: 'Path', adapter_kind: 'SearchAdapterKind', dialect_id: 'str' = 'default', mapping: 'SearchResultColumnMapping | None' = None, decoy_policy: 'TargetDecoyLabelPolicy | None' = None, additional_dialects: 'tuple[SearchAdapterDialectManifest, ...]' = ()) -> 'SearchAdapterNormalizationReport'"
 consumer_distributions = ["bijux-proteomics-intelligence"]
@@ -488,6 +477,17 @@ consumer_modules = ["bijux_proteomics_intelligence.reviews.benchmarks"]
 [[entry.import_site]]
 consumer_distribution = "bijux-proteomics-intelligence"
 consumer_module = "bijux_proteomics_intelligence.reviews.benchmarks"
+
+[[entry]]
+provider_distribution = "bijux-proteomics-core"
+provider_module = "bijux_proteomics.identification.search_adapters.registry"
+function_name = "get_search_adapter_manifest"
+signature_text = "(adapter_kind: 'SearchAdapterKind') -> 'SearchAdapterManifest'"
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["bijux_proteomics_runtime.workflows.plans"]
+[[entry.import_site]]
+consumer_distribution = "bijux-proteomics-runtime"
+consumer_module = "bijux_proteomics_runtime.workflows.plans"
 
 [[entry]]
 provider_distribution = "bijux-proteomics-core"
