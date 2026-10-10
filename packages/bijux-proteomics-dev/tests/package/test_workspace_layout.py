@@ -9,7 +9,6 @@ import sys
 import tomllib
 from typing import Any, cast
 
-
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents
