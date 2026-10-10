@@ -26,7 +26,11 @@ def test_make_tree_limits_python_helpers_to_shared_mirror() -> None:
         for path in (REPO_ROOT / "makes").rglob("*.py")
     )
 
-    assert python_files == [Path("bijux-py/repository/artifact_aliases.py")]
+    source_files = sorted(
+        path.relative_to(REPO_ROOT / ".bijux" / "shared" / "bijux-makes-py")
+        for path in (REPO_ROOT / ".bijux" / "shared" / "bijux-makes-py").rglob("*.py")
+    )
+    assert python_files == [Path("bijux-py") / path for path in source_files]
 
 
 def test_make_setup_uses_shared_artifact_alias_implementation() -> None:

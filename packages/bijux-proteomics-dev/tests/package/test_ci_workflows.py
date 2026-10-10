@@ -133,15 +133,28 @@ def test_release_workflows_replace_legacy_publish_workflow() -> None:
     release_pypi = _workflow(WORKFLOWS_DIR / "release-pypi.yml")
     release_ghcr = _workflow(WORKFLOWS_DIR / "release-ghcr.yml")
 
-    for workflow in (release_artifacts, release_github, release_pypi, release_ghcr):
+    artifacts_events = _as_dict(release_artifacts.get("on"))
+    assert "workflow_call" in artifacts_events
+    for workflow in (release_github, release_pypi, release_ghcr):
         on_block = _as_dict(workflow.get("on"))
-        push_block = _as_dict(on_block.get("push"))
-        if push_block:
-            tags = push_block.get("tags", [])
-            assert isinstance(tags, list)
-            assert "v*" in tags
-            assert "workflow_dispatch" in on_block
-        assert "workflow_call" in on_block
+        assert set(on_block) == {"workflow_dispatch"}
+        inputs = _as_dict(_as_dict(on_block["workflow_dispatch"]).get("inputs"))
+        assert inputs["accepted_commit"]["required"] is True
+        resolve = _as_dict(workflow["jobs"]["publication_admission"])
+        admission = next(
+            step
+            for step in resolve["steps"]
+            if step.get("name") == "Authorize authenticated exact-commit publication"
+        )
+        assert (
+            admission["env"]["PUBLICATION_CONTROLLER_ACTOR_ID"]
+            == "${{ vars.BIJUX_PUBLICATION_ACTOR_ID }}"
+        )
+        assert admission["env"]["PUBLICATION_COMMIT"] == "${{ inputs.accepted_commit }}"
+        assert (
+            admission["run"]
+            == "python3 .bijux/shared/bijux-gh/scripts/publication_admission.py"
+        )
 
     assert release_artifacts.get("name") == "release-artifacts"
     assert release_artifacts["jobs"]["build"]["name"] == (
