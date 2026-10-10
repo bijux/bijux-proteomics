@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bijux-proteomics-repository"
 description = "Repository workspace for bijux-proteomics."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4"
 dependencies = []
 dynamic = ["version"]
 
@@ -115,6 +115,7 @@ api = [
 ]
 
 [tool.bijux_proteomics]
+repository = "bijux-proteomics"
 api_dir = "apis"
 packages = [
   "agentic-proteins",

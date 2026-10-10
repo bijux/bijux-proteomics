@@ -21,7 +21,6 @@ bijux_proteomics_dev/
 ├── release/       release readiness, versioning, licensing, and publication
 ├── security/      dependency audit and trusted process execution
 ├── tools/         explicit maintainer workflows
-└── workspace/     repository environment and artifact layout
 ```
 
 ## Routing table
@@ -34,7 +33,7 @@ bijux_proteomics_dev/
 | Can the package family be versioned, licensed, built, and released safely? | `release/` |
 | Are dependency and subprocess security controls satisfied? | `security/` |
 | Is this an operator-triggered asset-management workflow rather than a gate? | `tools/` |
-| Does the rule concern generated-output location or shared workspace setup? | `workspace/` |
+| Does a product-owned rule concern generated-output location? | `quality/artifacts/` |
 
 ```mermaid
 flowchart TD
@@ -45,7 +44,7 @@ flowchart TD
     contract["governance/"]
     workflow{"release-specific?"}
     release["release/"]
-    tool["tools/ or workspace/"]
+    tool["tools/"]
     request --> verdict
     verdict -->|yes| governance
     governance -->|yes| contract
