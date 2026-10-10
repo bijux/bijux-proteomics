@@ -79,8 +79,10 @@ def test_archive_completed_advanced_diann_run_accepts_completed_output_dir_witho
     assert tuple(
         command.command_text for command in archive_report.result_manifest.commands
     ) == (
-        "bijux_proteomics_runtime.workflows.advanced_diann_archive."
-        "archive_completed_advanced_diann_run",
+        (
+            "bijux_proteomics_runtime.workflows.advanced_diann_archive."
+            "archive_completed_advanced_diann_run"
+        ),
     )
 
 
