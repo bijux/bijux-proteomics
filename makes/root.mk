@@ -26,6 +26,11 @@ ROOT_TARGET_SHARED_ENV_test-all-plus-run-time ?= 1
 -include .env
 export
 
+# Package profiles resolve interpreter-dependent commands in their own environment.
+unexport QUALITY_GATE_PYTHON DEPTRY_SCAN_SCRIPT QUALITY_DEPTRY_COMMAND \
+	QUALITY_DEPTRY_VERSION_COMMAND CODESPELL PIP_AUDIT_PYTHON PIP_AUDIT \
+	SBOM_PIP_AUDIT SECURITY_PIP_AUDIT_TEXT_COMMAND
+
 include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
