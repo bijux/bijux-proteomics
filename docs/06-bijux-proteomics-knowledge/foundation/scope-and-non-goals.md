@@ -49,8 +49,8 @@ as calibrated decision probability.
 flowchart LR
     source["versioned source"] --> record["contextual evidence record"]
     record --> claim["support or contradiction"]
-    claim --> graph["validated evidence graph"]
-    graph --> review{"reconciliation and sufficiency"}
+    claim --> dependency_graph["validated evidence graph"]
+    dependency_graph --> review{"reconciliation and sufficiency"}
     review --> brief["decision-scoped evidence brief"]
     review --> hold["gap, dispute, or hold"]
     brief -. "consumed by" .-> judgment["Intelligence judgment"]
