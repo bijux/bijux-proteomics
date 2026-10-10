@@ -17,6 +17,7 @@ excluded_paths = [
   "configs/package-governance/knowledge-references-root-api.toml",
   "configs/package-governance/public-api-typecheck-targets.toml",
   "configs/package-governance/release-families.toml",
+  "configs/package-governance/root-runtime-dependency-policy.toml",
   "configs/package-governance/scientific-concept-owners.toml",
   "configs/package-governance/scientific-release-workflows.toml",
 ]
