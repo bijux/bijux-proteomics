@@ -166,12 +166,13 @@ def workspace_dependency_edges_for_path(
                         internal=resolved_target_distribution == package_name,
                     )
                 )
-    for target_name in _dynamic_import_targets(
+    dynamic_targets = _dynamic_import_targets(
         tree,
         static_bindings=static_bindings,
         import_module_names=import_module_names,
         importlib_module_names=importlib_module_names,
-    ):
+    )
+    for target_name in {*dynamic_targets, *_facade_owner_targets(tree)}:
         root_name = target_name.split(".")[0]
         target_distribution = roots.get(root_name)
         if target_distribution is None:
@@ -186,6 +187,115 @@ def workspace_dependency_edges_for_path(
             )
         )
     return tuple(sorted(edges, key=_edge_sort_key))
+
+
+def _facade_owner_targets(tree: ast.Module) -> tuple[str, ...]:
+    """Resolve declared lazy facade ownership without executing product code."""
+
+    targets: set[str] = set()
+    constructors: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module is not None:
+            if not node.module.startswith("bijux_proteomics."):
+                continue
+            for alias in node.names:
+                if alias.name == "build_facade_module" or alias.name.endswith(
+                    "FacadeOwner"
+                ):
+                    constructors[alias.asname or alias.name] = alias.name
+    for node in tree.body:
+        if (
+            isinstance(node, ast.ClassDef)
+            and node.name.endswith("FacadeOwner")
+            and any(
+                isinstance(item, ast.AnnAssign)
+                and isinstance(item.target, ast.Name)
+                and item.target.id == "owner_module"
+                for item in node.body
+            )
+        ):
+            constructors[node.name] = node.name
+    for node in tree.body:
+        if not isinstance(node, ast.FunctionDef) or not node.args.args:
+            continue
+        parameter = node.args.args[0].arg
+        for child in node.body:
+            if not isinstance(child, ast.Return) or not isinstance(
+                child.value, ast.Call
+            ):
+                continue
+            call = child.value
+            if not isinstance(call.func, ast.Name) or call.func.id not in constructors:
+                continue
+            if any(
+                item.arg == "owner_module"
+                and isinstance(item.value, ast.Name)
+                and item.value.id == parameter
+                for item in call.keywords
+            ):
+                constructors[node.name] = "build_facade_module"
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+            continue
+        constructor = constructors.get(node.func.id)
+        value: ast.AST | None = None
+        if constructor == "build_facade_module" and node.args:
+            value = node.args[0]
+        elif constructor is not None and constructor.endswith("FacadeOwner"):
+            value = next(
+                (item.value for item in node.keywords if item.arg == "owner_module"),
+                None,
+            )
+        if isinstance(value, ast.Constant) and isinstance(value.value, str):
+            targets.add(value.value)
+
+    export_maps: dict[str, tuple[str, ...]] = {}
+    name: ast.AST
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign):
+            name, value = node.target, node.value
+        elif isinstance(node, ast.Assign) and len(node.targets) == 1:
+            name, value = node.targets[0], node.value
+        else:
+            continue
+        if not isinstance(name, ast.Name) or not isinstance(
+            value, (ast.Tuple, ast.List)
+        ):
+            continue
+        owners: list[str] = []
+        for pair in value.elts:
+            if not isinstance(pair, (ast.Tuple, ast.List)) or len(pair.elts) != 2:
+                break
+            if not all(
+                isinstance(item, ast.Constant) and isinstance(item.value, str)
+                for item in pair.elts
+            ):
+                break
+            owner = pair.elts[1]
+            assert isinstance(owner, ast.Constant) and isinstance(owner.value, str)
+            owners.append(owner.value)
+        else:
+            export_maps[name.id] = tuple(owners)
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.For) or not isinstance(node.iter, ast.Name):
+            continue
+        if (
+            not isinstance(node.target, (ast.Tuple, ast.List))
+            or len(node.target.elts) != 2
+        ):
+            continue
+        owner = node.target.elts[1]
+        if not isinstance(owner, ast.Name):
+            continue
+        for descendant in ast.walk(ast.Module(body=node.body, type_ignores=[])):
+            if (
+                isinstance(descendant, ast.Assign)
+                and isinstance(descendant.value, ast.Name)
+                and descendant.value.id == owner.id
+                and any(isinstance(item, ast.Subscript) for item in descendant.targets)
+            ):
+                targets.update(export_maps.get(node.iter.id, ()))
+    return tuple(sorted(targets))
 
 
 def _static_module_bindings(tree: ast.Module) -> dict[str, StaticModuleValue]:
