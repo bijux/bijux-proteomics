@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-10-11
 ---
 
 # Release and Versioning
@@ -34,12 +34,18 @@ flowchart LR
     proof -. failure .-> stop["publication stops"]
 ```
 
+Release channels are dispatched explicitly from accepted `main` with the
+exact `accepted_commit`; a version tag identifies the release and does not
+trigger publication. Publication admission verifies the authenticated
+controller and accepted revision before any upload. The artifact builder is
+a reusable workflow called by those channels.
+
 The four release workflows have distinct ownership:
 
 | Workflow | Responsibility |
 | --- | --- |
-| `release-artifacts.yml` | Build and stage package distributions and GitHub release assets. |
-| `release-pypi.yml` | Resolve the package matrix, wait for the tagged revision's CI result, and publish Python distributions. |
+| `release-artifacts.yml` | Reusable builder: stage package distributions and GitHub release assets for the calling channel. |
+| `release-pypi.yml` | Verify accepted-commit admission, resolve the package matrix, and publish Python distributions. |
 | `release-ghcr.yml` | Publish release bundles to the container registry. |
 | `release-github.yml` | Assemble the release body and attach the staged assets to a GitHub Release. |
 
