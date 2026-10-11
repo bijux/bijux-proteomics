@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+import shutil
+import sys
 
 import pytest
 
@@ -10,6 +13,43 @@ from bijux_proteomics_dev.security.locked_dependencies import (
     registry_batches,
     validate_report,
 )
+from bijux_proteomics_dev.security.trusted_process import run_text
+
+
+def test_developer_security_reenters_owned_profile(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[4]
+    make = shutil.which("make")
+    assert make is not None
+    arguments = tmp_path / "audit-arguments.json"
+    interpreter = tmp_path / "audit-interpreter"
+    interpreter.write_text(
+        f"#!{sys.executable}\n"
+        "import json, sys\n"
+        "from pathlib import Path\n"
+        f"Path({str(arguments)!r}).write_text(json.dumps(sys.argv[1:]))\n",
+        encoding="utf-8",
+    )
+    interpreter.chmod(0o755)
+    result = run_text(
+        [
+            Path(make),
+            "-C",
+            root / "packages" / "bijux-proteomics-dev",
+            "-f",
+            root / "makes" / "packages" / "bijux-proteomics-dev.mk",
+            "security-deps",
+            "SELF_MAKE=make",
+            f"VENV_PYTHON={interpreter}",
+        ],
+        cwd=root,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(arguments.read_text(encoding="utf-8")) == [
+        "-m",
+        "bijux_proteomics_dev.security.locked_dependencies",
+    ]
 
 
 def test_optional_and_platform_versions_are_all_audited(tmp_path: Path) -> None:

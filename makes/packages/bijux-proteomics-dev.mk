@@ -13,6 +13,7 @@ SECURITY_PATHS := src
 SECURITY_AUDIT_PREPARE_MODE := environment
 PIP_AUDIT_INPUTS =
 SECURITY_EXTRA_TARGETS += security-locked-dependencies
+SECURITY_SELF_MAKE = $(MAKE) -f "$(abspath $(firstword $(MAKEFILE_LIST)))"
 PACKAGE_ALL_TARGETS := clean install test lint quality security build sbom
 test-all: TEST_MAIN_ARGS =
 test-all: TEST_PATHS = tests
