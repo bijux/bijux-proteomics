@@ -31,11 +31,20 @@ EXPECTED_WORKFLOWS = {
 }
 EXPECTED_VERIFY_PACKAGES = {
     "agentic-proteins",
-    "bijux-proteomics-foundation",
+    "bijux-proteomics",
     "bijux-proteomics-core",
+    "bijux-proteomics-foundation",
     "bijux-proteomics-intelligence",
     "bijux-proteomics-knowledge",
     "bijux-proteomics-lab",
+    "bijux-proteomics-runtime",
+    "proteomics",
+    "proteomics-core",
+    "proteomics-foundation",
+    "proteomics-intelligence",
+    "proteomics-knowledge",
+    "proteomics-lab",
+    "proteomics-runtime",
     "bijux-proteomics-dev",
 }
 
