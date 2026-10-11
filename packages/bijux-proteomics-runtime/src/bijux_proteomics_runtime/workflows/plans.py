@@ -12,8 +12,8 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.identification.search_adapters import (
-    SearchAdapterKind,
+from bijux_proteomics.identification.search_adapters.contracts import SearchAdapterKind
+from bijux_proteomics.identification.search_adapters.registry import (
     get_search_adapter_manifest,
 )
 from bijux_proteomics.io.formats import (

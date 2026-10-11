@@ -382,11 +382,17 @@ state separate on purpose:
   and generated run products
 - package `CHANGELOG.md` files own package release notes, while the root
   [`CHANGELOG.md`](CHANGELOG.md) is only for repository-wide changes
-- publishing is tag-driven and fans out into GitHub Release, PyPI, GHCR, and
-  docs deployment workflows
+- publication is dispatched explicitly from accepted `main` through
+  `release-pypi.yml`, `release-ghcr.yml`, `release-github.yml`, and
+  `deploy-docs.yml`; tags identify release versions rather than triggering uploads
 
 This separation keeps scientific ownership visible and makes transient state
 safe to remove without confusing it with source or governed evidence.
+
+The three release channels call the reusable artifact builder
+[`release-artifacts.yml`](.github/workflows/release-artifacts.yml) to stage
+package distributions. Their publication admission verifies the authenticated
+controller and exact accepted commit before a channel can publish.
 
 ## Repository Extension Contract
 

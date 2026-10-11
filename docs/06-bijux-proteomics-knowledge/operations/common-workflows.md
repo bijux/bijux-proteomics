@@ -115,7 +115,7 @@ sequenceDiagram
     K->>I: versioned support + contradiction state
     I->>L: advisory question + evidence references
     L-->>K: new observation + QC + deviations
-    K->>K: append evidence; preserve prior state
+    K->>K: append evidence#59; preserve prior state
 ```
 
 Runtime output can be ingested as evidence, but execution success does not

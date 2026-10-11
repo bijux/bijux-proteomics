@@ -26,10 +26,14 @@ def test_make_tree_limits_python_helpers_to_shared_mirror() -> None:
         for path in (REPO_ROOT / "makes").rglob("*.py")
     )
 
-    assert python_files == [Path("bijux-py/repository/artifact_aliases.py")]
+    source_files = sorted(
+        path.relative_to(REPO_ROOT / ".bijux" / "shared" / "bijux-makes-py")
+        for path in (REPO_ROOT / ".bijux" / "shared" / "bijux-makes-py").rglob("*.py")
+    )
+    assert python_files == [Path("bijux-py") / path for path in source_files]
 
 
-def test_make_setup_routes_shared_hook_variables_through_dev_package() -> None:
+def test_make_setup_uses_shared_artifact_alias_implementation() -> None:
     env_make = (REPO_ROOT / "makes" / "env.mk").read_text(encoding="utf-8")
     package_make = (REPO_ROOT / "makes" / "bijux-py" / "package.mk").read_text(
         encoding="utf-8"
@@ -38,15 +42,9 @@ def test_make_setup_routes_shared_hook_variables_through_dev_package() -> None:
         REPO_ROOT / "makes" / "bijux-py" / "repository" / "root.mk"
     ).read_text(encoding="utf-8")
 
-    assert "PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT ?=" in env_make
-    assert "bijux_proteomics_dev/workspace/artifact_layout.py" in env_make
-    assert (
-        "PACKAGE_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)"
-        in env_make
-    )
-    assert (
-        "ROOT_ARTIFACT_ALIAS_SCRIPT ?= $(PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT)" in env_make
-    )
+    assert "PROTEOMICS_ARTIFACT_LAYOUT_SCRIPT" not in env_make
+    assert "PACKAGE_ARTIFACT_ALIAS_SCRIPT" not in env_make
+    assert "ROOT_ARTIFACT_ALIAS_SCRIPT" not in env_make
     assert '"$(PYTHON)" "$(PACKAGE_ARTIFACT_ALIAS_SCRIPT)" package' in package_make
     assert '"$(PYTHON)" "$(ROOT_ARTIFACT_ALIAS_SCRIPT)" root' in repository_root_make
 

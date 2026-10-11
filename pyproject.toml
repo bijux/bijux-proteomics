@@ -1,12 +1,12 @@
 [build-system]
-requires = ["hatchling>=1.27.0,<1.32", "hatch-vcs>=0.4.0,<1.0"]
+requires = ["hatchling>=1.27.0,<1.33", "hatch-vcs>=0.4.0,<1.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "bijux-proteomics-repository"
 description = "Repository workspace for bijux-proteomics."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4"
 dependencies = []
 dynamic = ["version"]
 
@@ -86,7 +86,7 @@ dev = [
   "pip-audit>=2.7.3,<3.0",
   "interrogate>=1.7.0,<2.0",
   "mkdocs>=1.6.1,<2.0",
-  "mkdocs-material>=9.5.39,<10.0",
+  "mkdocs-material==9.7.7",
   "mkdocs-autorefs>=1.1.0,<2.0",
   "mkdocs-redirects>=1.2.1,<2.0",
   "mkdocs-git-revision-date-localized-plugin>=1.4.0,<2.0",
@@ -115,6 +115,7 @@ api = [
 ]
 
 [tool.bijux_proteomics]
+repository = "bijux-proteomics"
 api_dir = "apis"
 packages = [
   "agentic-proteins",
@@ -273,7 +274,7 @@ filterwarnings = [
 ]
 
 [tool.bandit]
-skips = ["B404", "B311"]
+skips = []
 exclude_dirs = [".venv", "tests", "artifacts", ".pytest_cache", ".ruff_cache"]
 
 [tool.commitizen]
