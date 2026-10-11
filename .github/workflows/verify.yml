@@ -46,12 +46,17 @@ jobs:
           - package_slug: agentic-proteins
             package_dir: packages/agentic-proteins
             artifacts_dir: artifacts/agentic-proteins
-          - package_slug: bijux-proteomics-foundation
-            package_dir: packages/bijux-proteomics-foundation
-            artifacts_dir: artifacts/bijux-proteomics-foundation
+          - package_slug: bijux-proteomics
+            package_dir: packages/bijux-proteomics
+            artifacts_dir: artifacts/bijux-proteomics
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
           - package_slug: bijux-proteomics-core
             package_dir: packages/bijux-proteomics-core
             artifacts_dir: artifacts/bijux-proteomics-core
+          - package_slug: bijux-proteomics-foundation
+            package_dir: packages/bijux-proteomics-foundation
+            artifacts_dir: artifacts/bijux-proteomics-foundation
           - package_slug: bijux-proteomics-intelligence
             package_dir: packages/bijux-proteomics-intelligence
             artifacts_dir: artifacts/bijux-proteomics-intelligence
@@ -61,17 +66,56 @@ jobs:
           - package_slug: bijux-proteomics-lab
             package_dir: packages/bijux-proteomics-lab
             artifacts_dir: artifacts/bijux-proteomics-lab
+          - package_slug: bijux-proteomics-runtime
+            package_dir: packages/bijux-proteomics-runtime
+            artifacts_dir: artifacts/bijux-proteomics-runtime
+          - package_slug: proteomics
+            package_dir: packages/proteomics
+            artifacts_dir: artifacts/proteomics
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
+          - package_slug: proteomics-core
+            package_dir: packages/proteomics-core
+            artifacts_dir: artifacts/proteomics-core
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
+          - package_slug: proteomics-foundation
+            package_dir: packages/proteomics-foundation
+            artifacts_dir: artifacts/proteomics-foundation
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
+          - package_slug: proteomics-intelligence
+            package_dir: packages/proteomics-intelligence
+            artifacts_dir: artifacts/proteomics-intelligence
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
+          - package_slug: proteomics-knowledge
+            package_dir: packages/proteomics-knowledge
+            artifacts_dir: artifacts/proteomics-knowledge
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
+          - package_slug: proteomics-lab
+            package_dir: packages/proteomics-lab
+            artifacts_dir: artifacts/proteomics-lab
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
+          - package_slug: proteomics-runtime
+            package_dir: packages/proteomics-runtime
+            artifacts_dir: artifacts/proteomics-runtime
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
           - package_slug: bijux-proteomics-dev
             package_dir: packages/bijux-proteomics-dev
             artifacts_dir: artifacts/bijux-proteomics-dev
             check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
+            api_toolchain_targets: "[]"
     uses: ./.github/workflows/ci.yml
     with:
       package_slug: "${{ matrix.package_slug }}"
       package_dir: "${{ matrix.package_dir }}"
       artifacts_dir: "${{ matrix.artifacts_dir }}"
       test_python_versions: "${{ matrix.test_python_versions || '[\"3.11\"]' }}"
-      check_targets: "${{ matrix.check_targets || '[\"quality\", \"security\", \"docs\", \"api\", \"build\", \"sbom\"]' }}"
+      check_targets: "${{ matrix.check_targets || '[\"quality\", \"security\", \"api\", \"build\", \"sbom\"]' }}"
       api_toolchain_targets: "${{ matrix.api_toolchain_targets || '[\"api\"]' }}"
       post_test_command: "${{ matrix.post_test_command || '' }}"
   verification_ready:
