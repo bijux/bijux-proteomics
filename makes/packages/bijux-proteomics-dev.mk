@@ -12,6 +12,8 @@ QUALITY_PATHS := src tests
 SECURITY_PATHS := src
 SECURITY_AUDIT_PREPARE_MODE := environment
 PIP_AUDIT_INPUTS =
+SECURITY_EXTRA_TARGETS += security-locked-dependencies
+SECURITY_SELF_MAKE = $(MAKE) -f "$(abspath $(firstword $(MAKEFILE_LIST)))"
 PACKAGE_ALL_TARGETS := clean install test lint quality security build sbom
 test-all: TEST_MAIN_ARGS =
 test-all: TEST_PATHS = tests
@@ -26,3 +28,7 @@ test-all-plus-run-time: test
 .PHONY: test-all-plus-run-time
 
 include $(abspath $(dir $(firstword $(MAKEFILE_LIST))))/../bijux-py/package.mk
+
+security-locked-dependencies:
+	@PYTHONPATH="$(MONOREPO_ROOT)/packages/bijux-proteomics-dev/src" $(VENV_PYTHON) -m bijux_proteomics_dev.security.locked_dependencies
+.PHONY: security-locked-dependencies

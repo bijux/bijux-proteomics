@@ -4,19 +4,21 @@ audience: mixed
 type: reference
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-07-21
+last_reviewed: 2026-10-11
 ---
 
 # Security gates
 
-Repository security is checked through three distinct controls: static source
-analysis, dependency vulnerability audit, and an exact root runtime-dependency
-contract. They answer different questions and none substitutes for the others.
+Repository security is checked through four distinct controls: static source
+analysis, installed dependency audit, frozen dependency audit, and an exact root
+runtime-dependency contract. They answer different questions and none substitutes for the others.
 
 ```mermaid
 flowchart TD
     source["Python source"] --> bandit["Bandit static analysis"]
-    environment["resolved distributions"] --> audit["pip-audit"]
+    environment["installed distributions"] --> audit["pip-audit"]
+    lock["uv.lock registry versions"] --> frozen["locked dependency audit"]
+    frozen --> verdict["exact policy verdict"]
     pyproject["pyproject.toml project.dependencies"] --> dependency["root dependency policy gate"]
     policy["root-runtime-dependency-policy.toml"] --> dependency
     bandit --> reports["artifacts/<package>/security/"]
@@ -32,6 +34,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | Bandit | configured Python source paths | no unaccepted finding at the configured severity policy | JSON and text reports below the package security artifact directory |
 | pip-audit | resolved dependency audit JSON | no vulnerability remains after explicit identifier and alias matching | `pip-audit.json`, `pip-audit.txt`, affected distribution, installed version, identifier, fix versions |
+| frozen dependency audit | every registry name/version pair in `uv.lock`, including optional and platform forks | every expected version is reported without skips or vulnerabilities; no advisory ignores | `artifacts/security/locked-dependencies/` requirements, JSON reports and logs |
 | root runtime dependency policy | root `[project].dependencies` and `configs/package-governance/root-runtime-dependency-policy.toml` | normalized declared and approved distribution sets are identical | missing approvals and stale policy entries are reported separately |
 
 Run the repository-level policy directly with:
@@ -43,6 +46,24 @@ make security-dependency-allowlist
 Package security targets compose Bandit and pip-audit through the shared Make
 security contract. Their reports belong below `artifacts/`; report files are
 run evidence, not reviewed security policy.
+
+## Frozen dependency coverage
+
+Installed-profile audits cover only the packages that their interpreter resolved.
+They can omit an optional extra or use a newer version than the lockfile. The
+frozen audit queries every locked PyPI distribution directly, without installing
+or executing optional scientific engines. Separate batches retain each version
+when the lockfile contains platform or interpreter forks of one package.
+
+Run it directly with `make security-locked-dependencies`. Root `make security`
+and the developer package security target include this gate, so the package CI
+matrix checks the whole frozen graph. Local workspace packages remain covered
+by source and package checks; unsupported external sources fail admission.
+
+The frozen audit does not apply `SECURITY_IGNORE_IDS`. A missing, skipped,
+unexpected, duplicate or vulnerable entry fails, as does an unsuccessful tool
+invocation. Keep the updated lockfile and its exact-version audit together when
+reviewing a dependency security repair.
 
 ## Root runtime dependency contract
 

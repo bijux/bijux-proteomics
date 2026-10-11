@@ -16,7 +16,7 @@ ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
 ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance && $(MAKE) quality-public-api-types && $(MAKE) quality-circular-imports && $(MAKE) quality-core-dependency-minimization && $(MAKE) quality-optional-dependency-guards && $(MAKE) quality-generated-file-markers && $(MAKE) quality-internal-orphan-modules && $(MAKE) quality-canonical-package-tree && $(MAKE) quality-architecture-regression
-ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
+ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist security-locked-dependencies
 ROOT_PACKAGE_TARGETS += test-all test-all-plus-run-time
 ROOT_TARGET_GROUPS_test-all ?= check
 ROOT_TARGET_GROUPS_test-all-plus-run-time ?= check
@@ -58,7 +58,7 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 .PHONY: \
 	help list list-all install lock lock-check lint quality security test test-all test-all-plus-run-time docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
-	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist test-collection-gate \
+	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist security-locked-dependencies test-collection-gate \
 	clean-root-artifacts root-check-env check-shared-bijux-py quality-public-api-types quality-circular-imports quality-core-dependency-minimization quality-optional-dependency-guards quality-generated-file-markers quality-internal-orphan-modules quality-canonical-package-tree quality-architecture-regression
 
 check: lock-check lint test-collection-gate test quality security docs api build sbom ## Run the full repository verification flow
@@ -126,6 +126,9 @@ quality-runtime-migration-ledger: root-check-env ## Validate agentic migration l
 
 quality-runtime-migration-validation: root-check-env ## Run full runtime migration validation suite
 	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.runtime_compatibility_validation
+
+security-locked-dependencies: root-check-env ## Audit every frozen third-party version, including optional and platform forks
+	@$(DEV_RUN) -m bijux_proteomics_dev.security.locked_dependencies
 
 security-dependency-allowlist: root-check-env ## Validate the dependency allowlist
 	@$(DEV_RUN) -m bijux_proteomics_dev.security.dependency_allowlist
