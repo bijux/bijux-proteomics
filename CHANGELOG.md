@@ -12,6 +12,8 @@ change contributor and maintainer workflows across the repository.
 
 ### Changed
 
+- Bind native documentation dates to committed source, permit Bijux-owned workflow badges, and clarify publication verification ([#277](https://github.com/bijux/bijux-proteomics/pull/277)).
+
 - Adopt trusted manual publication admission and accepted shared documentation policy ([#271](https://github.com/bijux/bijux-proteomics/pull/271)).
 
 ## 0.3.8 - 2026-07-01
