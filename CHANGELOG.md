@@ -12,6 +12,8 @@ change contributor and maintainer workflows across the repository.
 
 ### Changed
 
+- Adopt accepted reader preference recovery, inert native search, truthful clipboard feedback, patched publication dependencies and authenticated workflow actions ([#280](https://github.com/bijux/bijux-proteomics/pull/280)).
+
 - Bound manual documentation publication to the canonical 60-minute hosted budget and verify common governance independently from the retained documentation source ([#279](https://github.com/bijux/bijux-proteomics/pull/279)).
 
 
