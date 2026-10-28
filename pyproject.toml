@@ -90,7 +90,7 @@ dev = [
   "mkdocs-autorefs>=1.1.0,<2.0",
   "mkdocs-redirects>=1.2.1,<2.0",
   "mkdocs-git-revision-date-localized-plugin>=1.4.0,<2.0",
-  "gitpython>=3.1.55,<4.0",
+  "gitpython>=3.2.1,<4.0",
   "arq>=0.18",
   "PyJWT>=2.13.0,<3.0",
   "prance>=23.6.21.0",
@@ -147,6 +147,16 @@ badge_packages = [
 docs_package = "bijux-proteomics-dev"
 config_dir = "configs"
 make_dir = "makes"
+
+[tool.uv]
+constraint-dependencies = [
+  "certifi>=2026.10.19",
+  "filelock>=4.2.1",
+  "gitpython>=3.2.1",
+  "msgpack>=1.2.3",
+  "uv>=0.13.4",
+  "virtualenv>=21.14.9",
+]
 
 [tool.uv.sources]
 agentic-proteins = { workspace = true }
