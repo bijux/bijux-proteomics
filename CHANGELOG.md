@@ -12,6 +12,10 @@ change contributor and maintainer workflows across the repository.
 
 ### Changed
 
+- Qualify Hatchling 1.33 and Material 9.8, preserve complete package sources and
+  self-contained legal assets in source archives, and adopt accepted shared
+  workflow pins and patched OpenAPI tooling.
+
 - Patch Python workspace and OpenAPI tooling dependencies, qualify PyArrow 26,
   and consume accepted shared documentation security and workflow action pins.
 

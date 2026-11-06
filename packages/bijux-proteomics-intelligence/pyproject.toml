@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.27.0,<1.33", "hatch-vcs>=0.4.0,<1.0"]
+requires = ["hatchling>=1.27.0,<1.34", "hatch-vcs>=0.4.0,<1.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -56,10 +56,11 @@ fallback-version = "0.3.8"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]
+ignore-vcs = true
 include = [
   "README.md",
   "CHANGELOG.md",
-  "src/bijux_proteomics_intelligence/py.typed",
+  "src/bijux_proteomics_intelligence/**",
 ]
 force-include = { "LICENSE" = "LICENSE", "NOTICE" = "NOTICE" }
 
