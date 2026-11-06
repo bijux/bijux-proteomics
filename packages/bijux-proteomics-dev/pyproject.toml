@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.27.0,<1.33", "hatch-vcs>=0.4.0,<1.0"]
+requires = ["hatchling>=1.27.0,<1.34", "hatch-vcs>=0.4.0,<1.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -91,12 +91,13 @@ fallback-version = "0.3.8"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bijux_proteomics_dev"]
-include = ["src/bijux_proteomics_dev/py.typed"]
+include = ["src/bijux_proteomics_dev/**"]
 
 [tool.hatch.build.targets.wheel.package-data]
 "bijux_proteomics_dev" = ["py.typed"]
 
 [tool.hatch.build]
+ignore-vcs = true
 include = [
   "CHANGELOG.md",
   "README.md",
