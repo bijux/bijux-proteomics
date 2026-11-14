@@ -1,20 +1,3 @@
-[build-system]
-requires = ["hatchling>=1.27.0,<1.34", "hatch-vcs>=0.4.0,<1.0"]
-build-backend = "hatchling.build"
-
-[project]
-name = "bijux-proteomics-repository"
-description = "Repository workspace for bijux-proteomics."
-readme = "README.md"
-requires-python = ">=3.11,<4"
-dependencies = []
-dynamic = ["version"]
-
-[project.urls]
-Documentation = "https://bijux.io/bijux-proteomics/"
-Repository = "https://github.com/bijux/bijux-proteomics"
-Issues = "https://github.com/bijux/bijux-proteomics/issues"
-
 [dependency-groups]
 test = [
   "agentic-proteins[test]",
@@ -292,12 +275,3 @@ name = "cz_conventional_commits"
 version_provider = "scm"
 tag_format = "v$version"
 update_changelog_on_bump = false
-
-[tool.hatch.version]
-source = "vcs"
-tag-pattern = "^v(?P<version>.*)$"
-fallback-version = "0.3.8"
-raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = ".", search_parent_directories = true }
-
-[tool.hatch.build.targets.wheel]
-bypass-selection = true

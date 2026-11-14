@@ -27,28 +27,21 @@ def _string_list(payload: object) -> list[str]:
     return [str(entry) for entry in payload]
 
 
-def test_root_pyproject_uses_shared_workspace_build_contract() -> None:
+def test_root_pyproject_keeps_distribution_builds_in_workspace_packages() -> None:
     pyproject = _root_pyproject()
-
-    assert pyproject["build-system"] == {
-        "requires": ["hatchling>=1.27.0,<1.34", "hatch-vcs>=0.4.0,<1.0"],
-        "build-backend": "hatchling.build",
-    }
-
-    project = _table(pyproject["project"])
-    assert _string_list(project["dynamic"]) == ["version"]
-    assert "version" not in project
-
-    hatch_version = _table(_table(_table(pyproject["tool"])["hatch"])["version"])
-    assert hatch_version["source"] == "vcs"
-    assert hatch_version["tag-pattern"] == "^v(?P<version>.*)$"
-
+    assert "project" not in pyproject
+    assert "build-system" not in pyproject
+    assert "hatch" not in pyproject["tool"]
     uv_workspace = _table(_table(_table(pyproject["tool"])["uv"])["workspace"])
     assert _string_list(uv_workspace["members"]) == ["packages/*"]
-    hatch_wheel = _table(
-        _table(_table(_table(pyproject["tool"])["hatch"])["build"])["targets"]
-    )["wheel"]
-    assert hatch_wheel == {"bypass-selection": True}
+    names = []
+    for path in sorted((REPO_ROOT / "packages").glob("*/pyproject.toml")):
+        package = tomllib.loads(path.read_text())
+        names.append(package["project"]["name"])
+        assert "build-system" in package
+    workspace_packages = _table(_table(pyproject["tool"])[WORKSPACE_TOOL])["packages"]
+    assert set(names) == set(workspace_packages)
+    assert len(names) == len(set(names))
 
 
 def test_root_pyproject_exposes_all_workspace_packages_to_root_dev_installs() -> None:

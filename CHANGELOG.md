@@ -12,6 +12,9 @@ change contributor and maintainer workflows across the repository.
 
 ### Changed
 
+- Use a virtual workspace root, retaining canonical distribution names and
+  package-owned builds under `packages/` without an artificial root package.
+
 - Qualify Hatchling 1.33 and Material 9.8, preserve complete package sources and
   self-contained legal assets in source archives, and adopt accepted shared
   workflow pins and patched OpenAPI tooling.
