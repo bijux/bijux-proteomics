@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11, <4"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -7,7 +7,8 @@ resolution-markers = [
     "python_full_version == '3.13.*'",
     "python_full_version >= '3.12.4' and python_full_version < '3.13'",
     "python_full_version >= '3.12' and python_full_version < '3.12.4'",
-    "python_full_version < '3.12'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12'",
+    "python_full_version < '3.11.5'",
 ]
 
 [manifest]
@@ -20,7 +21,6 @@ members = [
     "bijux-proteomics-intelligence",
     "bijux-proteomics-knowledge",
     "bijux-proteomics-lab",
-    "bijux-proteomics-repository",
     "bijux-proteomics-runtime",
     "proteomics",
     "proteomics-core",
@@ -37,6 +37,103 @@ constraints = [
     { name = "msgpack", specifier = ">=1.2.3" },
     { name = "uv", specifier = ">=0.13.4" },
     { name = "virtualenv", specifier = ">=21.14.9" },
+]
+
+[manifest.dependency-groups]
+api = [{ name = "openprotein-python", specifier = ">=0.8.8" }]
+dev = [
+    { name = "agentic-proteins", editable = "packages/agentic-proteins" },
+    { name = "arq", specifier = ">=0.18" },
+    { name = "bandit", specifier = ">=1.7.10,<2.0" },
+    { name = "bijux-proteomics", editable = "packages/bijux-proteomics" },
+    { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
+    { name = "bijux-proteomics-dev", editable = "packages/bijux-proteomics-dev" },
+    { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
+    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
+    { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
+    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
+    { name = "bijux-proteomics-runtime", editable = "packages/bijux-proteomics-runtime" },
+    { name = "build", specifier = ">=1.0.3,<2.0" },
+    { name = "codespell", specifier = ">=2.3.0,<3.0" },
+    { name = "deptry", specifier = ">=0.10.0,<1.0" },
+    { name = "gitpython", specifier = ">=3.2.1,<4.0" },
+    { name = "httpx", specifier = ">=0.27.0,<1.0" },
+    { name = "hypothesis", specifier = ">=6.103.0,<7.0" },
+    { name = "hypothesis-jsonschema", specifier = ">=0.23.0,<1.0" },
+    { name = "interrogate", specifier = ">=1.7.0,<2.0" },
+    { name = "mkdocs", specifier = ">=1.6.1,<2.0" },
+    { name = "mkdocs-autorefs", specifier = ">=1.1.0,<2.0" },
+    { name = "mkdocs-git-revision-date-localized-plugin", specifier = ">=1.4.0,<2.0" },
+    { name = "mkdocs-material", specifier = "==9.8.1" },
+    { name = "mkdocs-redirects", specifier = ">=1.2.1,<2.0" },
+    { name = "mypy", specifier = ">=1.11.2,<3.0" },
+    { name = "openapi-spec-validator", specifier = ">=0.7.1" },
+    { name = "pexpect", specifier = ">=4.8.0,<5.0" },
+    { name = "pip-audit", specifier = ">=2.7.3,<3.0" },
+    { name = "prance", specifier = ">=23.6.21.0" },
+    { name = "proteomics", editable = "packages/proteomics" },
+    { name = "proteomics-core", editable = "packages/proteomics-core" },
+    { name = "proteomics-foundation", editable = "packages/proteomics-foundation" },
+    { name = "proteomics-intelligence", editable = "packages/proteomics-intelligence" },
+    { name = "proteomics-knowledge", editable = "packages/proteomics-knowledge" },
+    { name = "proteomics-lab", editable = "packages/proteomics-lab" },
+    { name = "proteomics-runtime", editable = "packages/proteomics-runtime" },
+    { name = "pydocstyle", specifier = ">=6.2.1,<7.0" },
+    { name = "pyfakefs", specifier = ">=5.9.0" },
+    { name = "pyjwt", specifier = ">=2.13.0,<3.0" },
+    { name = "pyright", specifier = ">=1.1.409,<2.0" },
+    { name = "pytest", specifier = ">=8.4.1,<10.0" },
+    { name = "pytest-asyncio", specifier = ">=1.0.0,<2.0" },
+    { name = "pytest-benchmark", specifier = ">=4.0.0,<6.0" },
+    { name = "pytest-cov", specifier = ">=6.2.1,<8.0" },
+    { name = "pytest-mock", specifier = ">=3.14.1,<4.0" },
+    { name = "pytest-rerunfailures", specifier = ">=13.0,<17.0" },
+    { name = "pytest-timeout", specifier = ">=2.4.0,<3.0" },
+    { name = "pytype", specifier = ">=2024.10.11" },
+    { name = "pyyaml", specifier = ">=6.0,<7.0" },
+    { name = "radon", specifier = ">=6.0.0" },
+    { name = "ruff", specifier = ">=0.6.8,<1.0" },
+    { name = "twine", specifier = ">=6.1.0,<8.0" },
+    { name = "types-colorama", specifier = ">=0.0.14,<1.0" },
+    { name = "types-defusedxml", specifier = ">=0.7.0,<1.0" },
+    { name = "types-orjson", specifier = ">=3.6.0,<4.0" },
+    { name = "types-pexpect", specifier = ">=4.9.0,<5.0" },
+    { name = "types-psutil", specifier = ">=6.0.0,<8.0" },
+    { name = "types-pyyaml", specifier = ">=6.0.12,<7.0" },
+    { name = "types-requests", specifier = ">=2.32.0,<3.0" },
+    { name = "typing-extensions", specifier = ">=4.5.0,<5.0" },
+    { name = "vulture", specifier = ">=2.7,<3.0" },
+]
+local-esmfold = [
+    { name = "einops", specifier = ">=0.7" },
+    { name = "tokenizers", specifier = ">=0.14" },
+    { name = "transformers", specifier = ">=5.0.0rc3" },
+]
+local-rosettafold = []
+nl = [
+    { name = "langchain-community", specifier = ">=0.3.27" },
+    { name = "langchain-core", specifier = ">=1.3.3" },
+    { name = "langchain-huggingface", specifier = ">=1.2.1" },
+    { name = "langchain-text-splitters", specifier = ">=1.1.2" },
+    { name = "langsmith", specifier = ">=0.8.0" },
+]
+test = [
+    { name = "agentic-proteins", extras = ["test"], editable = "packages/agentic-proteins" },
+    { name = "bijux-proteomics", editable = "packages/bijux-proteomics" },
+    { name = "bijux-proteomics-core", extras = ["test"], editable = "packages/bijux-proteomics-core" },
+    { name = "bijux-proteomics-dev", extras = ["test"], editable = "packages/bijux-proteomics-dev" },
+    { name = "bijux-proteomics-foundation", extras = ["test"], editable = "packages/bijux-proteomics-foundation" },
+    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
+    { name = "bijux-proteomics-knowledge", extras = ["test"], editable = "packages/bijux-proteomics-knowledge" },
+    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
+    { name = "bijux-proteomics-runtime", extras = ["test"], editable = "packages/bijux-proteomics-runtime" },
+    { name = "proteomics", editable = "packages/proteomics" },
+    { name = "proteomics-core", editable = "packages/proteomics-core" },
+    { name = "proteomics-foundation", editable = "packages/proteomics-foundation" },
+    { name = "proteomics-intelligence", editable = "packages/proteomics-intelligence" },
+    { name = "proteomics-knowledge", editable = "packages/proteomics-knowledge" },
+    { name = "proteomics-lab", editable = "packages/proteomics-lab" },
+    { name = "proteomics-runtime", editable = "packages/proteomics-runtime" },
 ]
 
 [[package]]
@@ -291,11 +388,12 @@ resolution-markers = [
     "python_full_version == '3.13.*'",
     "python_full_version >= '3.12.4' and python_full_version < '3.13'",
     "python_full_version >= '3.12' and python_full_version < '3.12.4'",
-    "python_full_version < '3.12'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12'",
+    "python_full_version < '3.11.5'",
 ]
 dependencies = [
-    { name = "idna", marker = "python_full_version < '3.15'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "idna" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or python_full_version >= '3.15'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/cc/a381afa6efea9f496eff839d4a6a1aed3bfafc7b3ab4b0d1b243a12573dd/anyio-4.14.2.tar.gz", hash = "sha256:cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f", size = 260176, upload-time = "2026-07-12T20:29:07.082Z" }
 wheels = [
@@ -310,7 +408,7 @@ resolution-markers = [
     "python_full_version >= '3.15'",
 ]
 dependencies = [
-    { name = "idna", marker = "python_full_version >= '3.15'" },
+    { name = "idna" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/d2/f4d173e22df740bc37b1db102b386ba719b66e95b0f0d751f556b387e6d2/anyio-4.15.1.tar.gz", hash = "sha256:9f28306018cbd6d329e64a36d58256edff76dd996fe423bc957326e578b82a94", size = 276966, upload-time = "2026-09-05T10:42:39.44Z" }
 wheels = [
@@ -601,7 +699,8 @@ dev = [
     { name = "pip-audit" },
     { name = "pydantic" },
     { name = "pydocstyle" },
-    { name = "pymdown-extensions" },
+    { name = "pymdown-extensions", version = "12.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
+    { name = "pymdown-extensions", version = "13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -647,7 +746,7 @@ requires-dist = [
     { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.7.3,<3.0" },
     { name = "pydantic", marker = "extra == 'dev'", specifier = ">=2.12,<3.0" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = ">=6.3.0,<7.0" },
-    { name = "pymdown-extensions", marker = "extra == 'dev'", specifier = ">=11.0.1,<13.0" },
+    { name = "pymdown-extensions", marker = "extra == 'dev'", specifier = ">=11.0.1,<14.0" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.390,<2.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3,<10.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.0.3,<10.0" },
@@ -767,207 +866,6 @@ requires-dist = [
     { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
     { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
     { name = "pydantic", specifier = ">=2.0.2" },
-]
-
-[[package]]
-name = "bijux-proteomics-repository"
-source = { editable = "." }
-
-[package.dev-dependencies]
-api = [
-    { name = "openprotein-python" },
-]
-dev = [
-    { name = "agentic-proteins" },
-    { name = "arq" },
-    { name = "bandit" },
-    { name = "bijux-proteomics" },
-    { name = "bijux-proteomics-core" },
-    { name = "bijux-proteomics-dev" },
-    { name = "bijux-proteomics-foundation" },
-    { name = "bijux-proteomics-intelligence" },
-    { name = "bijux-proteomics-knowledge" },
-    { name = "bijux-proteomics-lab" },
-    { name = "bijux-proteomics-runtime" },
-    { name = "build" },
-    { name = "codespell" },
-    { name = "deptry" },
-    { name = "gitpython" },
-    { name = "httpx" },
-    { name = "hypothesis" },
-    { name = "hypothesis-jsonschema" },
-    { name = "interrogate" },
-    { name = "mkdocs" },
-    { name = "mkdocs-autorefs" },
-    { name = "mkdocs-git-revision-date-localized-plugin" },
-    { name = "mkdocs-material" },
-    { name = "mkdocs-redirects" },
-    { name = "mypy" },
-    { name = "openapi-spec-validator" },
-    { name = "pexpect" },
-    { name = "pip-audit" },
-    { name = "prance" },
-    { name = "proteomics" },
-    { name = "proteomics-core" },
-    { name = "proteomics-foundation" },
-    { name = "proteomics-intelligence" },
-    { name = "proteomics-knowledge" },
-    { name = "proteomics-lab" },
-    { name = "proteomics-runtime" },
-    { name = "pydocstyle" },
-    { name = "pyfakefs" },
-    { name = "pyjwt" },
-    { name = "pyright" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-benchmark" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "pytest-rerunfailures" },
-    { name = "pytest-timeout" },
-    { name = "pytype" },
-    { name = "pyyaml" },
-    { name = "radon" },
-    { name = "ruff" },
-    { name = "twine" },
-    { name = "types-colorama" },
-    { name = "types-defusedxml" },
-    { name = "types-orjson" },
-    { name = "types-pexpect" },
-    { name = "types-psutil" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-    { name = "typing-extensions" },
-    { name = "vulture" },
-]
-local-esmfold = [
-    { name = "einops" },
-    { name = "tokenizers" },
-    { name = "transformers" },
-]
-nl = [
-    { name = "langchain-community" },
-    { name = "langchain-core" },
-    { name = "langchain-huggingface" },
-    { name = "langchain-text-splitters" },
-    { name = "langsmith" },
-]
-test = [
-    { name = "agentic-proteins", extra = ["test"] },
-    { name = "bijux-proteomics" },
-    { name = "bijux-proteomics-core", extra = ["test"] },
-    { name = "bijux-proteomics-dev", extra = ["test"] },
-    { name = "bijux-proteomics-foundation", extra = ["test"] },
-    { name = "bijux-proteomics-intelligence" },
-    { name = "bijux-proteomics-knowledge", extra = ["test"] },
-    { name = "bijux-proteomics-lab" },
-    { name = "bijux-proteomics-runtime", extra = ["test"] },
-    { name = "proteomics" },
-    { name = "proteomics-core" },
-    { name = "proteomics-foundation" },
-    { name = "proteomics-intelligence" },
-    { name = "proteomics-knowledge" },
-    { name = "proteomics-lab" },
-    { name = "proteomics-runtime" },
-]
-
-[package.metadata]
-
-[package.metadata.requires-dev]
-api = [{ name = "openprotein-python", specifier = ">=0.8.8" }]
-dev = [
-    { name = "agentic-proteins", editable = "packages/agentic-proteins" },
-    { name = "arq", specifier = ">=0.18" },
-    { name = "bandit", specifier = ">=1.7.10,<2.0" },
-    { name = "bijux-proteomics", editable = "packages/bijux-proteomics" },
-    { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
-    { name = "bijux-proteomics-dev", editable = "packages/bijux-proteomics-dev" },
-    { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
-    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
-    { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
-    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
-    { name = "bijux-proteomics-runtime", editable = "packages/bijux-proteomics-runtime" },
-    { name = "build", specifier = ">=1.0.3,<2.0" },
-    { name = "codespell", specifier = ">=2.3.0,<3.0" },
-    { name = "deptry", specifier = ">=0.10.0,<1.0" },
-    { name = "gitpython", specifier = ">=3.2.1,<4.0" },
-    { name = "httpx", specifier = ">=0.27.0,<1.0" },
-    { name = "hypothesis", specifier = ">=6.103.0,<7.0" },
-    { name = "hypothesis-jsonschema", specifier = ">=0.23.0,<1.0" },
-    { name = "interrogate", specifier = ">=1.7.0,<2.0" },
-    { name = "mkdocs", specifier = ">=1.6.1,<2.0" },
-    { name = "mkdocs-autorefs", specifier = ">=1.1.0,<2.0" },
-    { name = "mkdocs-git-revision-date-localized-plugin", specifier = ">=1.4.0,<2.0" },
-    { name = "mkdocs-material", specifier = "==9.8.0" },
-    { name = "mkdocs-redirects", specifier = ">=1.2.1,<2.0" },
-    { name = "mypy", specifier = ">=1.11.2,<3.0" },
-    { name = "openapi-spec-validator", specifier = ">=0.7.1" },
-    { name = "pexpect", specifier = ">=4.8.0,<5.0" },
-    { name = "pip-audit", specifier = ">=2.7.3,<3.0" },
-    { name = "prance", specifier = ">=23.6.21.0" },
-    { name = "proteomics", editable = "packages/proteomics" },
-    { name = "proteomics-core", editable = "packages/proteomics-core" },
-    { name = "proteomics-foundation", editable = "packages/proteomics-foundation" },
-    { name = "proteomics-intelligence", editable = "packages/proteomics-intelligence" },
-    { name = "proteomics-knowledge", editable = "packages/proteomics-knowledge" },
-    { name = "proteomics-lab", editable = "packages/proteomics-lab" },
-    { name = "proteomics-runtime", editable = "packages/proteomics-runtime" },
-    { name = "pydocstyle", specifier = ">=6.2.1,<7.0" },
-    { name = "pyfakefs", specifier = ">=5.9.0" },
-    { name = "pyjwt", specifier = ">=2.13.0,<3.0" },
-    { name = "pyright", specifier = ">=1.1.409,<2.0" },
-    { name = "pytest", specifier = ">=8.4.1,<10.0" },
-    { name = "pytest-asyncio", specifier = ">=1.0.0,<2.0" },
-    { name = "pytest-benchmark", specifier = ">=4.0.0,<6.0" },
-    { name = "pytest-cov", specifier = ">=6.2.1,<8.0" },
-    { name = "pytest-mock", specifier = ">=3.14.1,<4.0" },
-    { name = "pytest-rerunfailures", specifier = ">=13.0,<17.0" },
-    { name = "pytest-timeout", specifier = ">=2.4.0,<3.0" },
-    { name = "pytype", specifier = ">=2024.10.11" },
-    { name = "pyyaml", specifier = ">=6.0,<7.0" },
-    { name = "radon", specifier = ">=6.0.0" },
-    { name = "ruff", specifier = ">=0.6.8,<1.0" },
-    { name = "twine", specifier = ">=6.1.0,<8.0" },
-    { name = "types-colorama", specifier = ">=0.0.14,<1.0" },
-    { name = "types-defusedxml", specifier = ">=0.7.0,<1.0" },
-    { name = "types-orjson", specifier = ">=3.6.0,<4.0" },
-    { name = "types-pexpect", specifier = ">=4.9.0,<5.0" },
-    { name = "types-psutil", specifier = ">=6.0.0,<8.0" },
-    { name = "types-pyyaml", specifier = ">=6.0.12,<7.0" },
-    { name = "types-requests", specifier = ">=2.32.0,<3.0" },
-    { name = "typing-extensions", specifier = ">=4.5.0,<5.0" },
-    { name = "vulture", specifier = ">=2.7,<3.0" },
-]
-local-esmfold = [
-    { name = "einops", specifier = ">=0.7" },
-    { name = "tokenizers", specifier = ">=0.14" },
-    { name = "transformers", specifier = ">=5.0.0rc3" },
-]
-local-rosettafold = []
-nl = [
-    { name = "langchain-community", specifier = ">=0.3.27" },
-    { name = "langchain-core", specifier = ">=1.3.3" },
-    { name = "langchain-huggingface", specifier = ">=1.2.1" },
-    { name = "langchain-text-splitters", specifier = ">=1.1.2" },
-    { name = "langsmith", specifier = ">=0.8.0" },
-]
-test = [
-    { name = "agentic-proteins", extras = ["test"], editable = "packages/agentic-proteins" },
-    { name = "bijux-proteomics", editable = "packages/bijux-proteomics" },
-    { name = "bijux-proteomics-core", extras = ["test"], editable = "packages/bijux-proteomics-core" },
-    { name = "bijux-proteomics-dev", extras = ["test"], editable = "packages/bijux-proteomics-dev" },
-    { name = "bijux-proteomics-foundation", extras = ["test"], editable = "packages/bijux-proteomics-foundation" },
-    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
-    { name = "bijux-proteomics-knowledge", extras = ["test"], editable = "packages/bijux-proteomics-knowledge" },
-    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
-    { name = "bijux-proteomics-runtime", extras = ["test"], editable = "packages/bijux-proteomics-runtime" },
-    { name = "proteomics", editable = "packages/proteomics" },
-    { name = "proteomics-core", editable = "packages/proteomics-core" },
-    { name = "proteomics-foundation", editable = "packages/proteomics-foundation" },
-    { name = "proteomics-intelligence", editable = "packages/proteomics-intelligence" },
-    { name = "proteomics-knowledge", editable = "packages/proteomics-knowledge" },
-    { name = "proteomics-lab", editable = "packages/proteomics-lab" },
-    { name = "proteomics-runtime", editable = "packages/proteomics-runtime" },
 ]
 
 [[package]]
@@ -2201,7 +2099,7 @@ name = "importlib-metadata"
 version = "9.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.12'" },
+    { name = "zipp" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a9/01/15bb152d77b21318514a96f43af312635eb2500c96b55398d020c93d86ea/importlib_metadata-9.0.0.tar.gz", hash = "sha256:a4f57ab599e6a2e3016d7595cfd72eb4661a5106e787a95bcc90c7105b831efc", size = 56405, upload-time = "2026-03-20T06:42:56.999Z" }
 wheels = [
@@ -2723,9 +2621,29 @@ wheels = [
 name = "markdown"
 version = "3.10.2"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.11.5'",
+]
 sdist = { url = "https://files.pythonhosted.org/packages/2b/f4/69fa6ed85ae003c2378ffa8f6d2e3234662abd02c10d216c0ba96081a238/markdown-3.10.2.tar.gz", hash = "sha256:994d51325d25ad8aa7ce4ebaec003febcce822c3f8c911e3b17c52f7f589f950", size = 368805, upload-time = "2026-02-09T14:57:26.942Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/1f/77fa3081e4f66ca3576c896ae5d31c3002ac6607f9747d2e3aa49227e464/markdown-3.10.2-py3-none-any.whl", hash = "sha256:e91464b71ae3ee7afd3017d9f358ef0baf158fd9a298db92f1d4761133824c36", size = 108180, upload-time = "2026-02-09T14:57:25.787Z" },
+]
+
+[[package]]
+name = "markdown"
+version = "3.11.3"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.15'",
+    "python_full_version == '3.14.*'",
+    "python_full_version == '3.13.*'",
+    "python_full_version >= '3.12.4' and python_full_version < '3.13'",
+    "python_full_version >= '3.12' and python_full_version < '3.12.4'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/eb/dc0fd6eff604bfb870b7fb68b90985a32caaf3c76f67736bbf7f438acd59/markdown-3.11.3.tar.gz", hash = "sha256:81eb91631dc97ad1efbc76019ef0f80fe90ca49ddf81546752d79989c3bfff3e", size = 498810, upload-time = "2026-11-05T20:30:52.926Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/6f/1fa8970e960e5c832874399e6efa564870ade8206d57fef5d5e296b834f5/markdown-3.11.3-py3-none-any.whl", hash = "sha256:e1a31a112232504d753e5c01bb8c2de90d3f0ba986b063e10770cf7695b09e73", size = 116758, upload-time = "2026-11-05T20:30:51.775Z" },
 ]
 
 [[package]]
@@ -2853,7 +2771,8 @@ dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "ghp-import" },
     { name = "jinja2" },
-    { name = "markdown" },
+    { name = "markdown", version = "3.10.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
+    { name = "markdown", version = "3.11.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
     { name = "markupsafe" },
     { name = "mergedeep" },
     { name = "mkdocs-get-deps" },
@@ -2873,7 +2792,8 @@ name = "mkdocs-autorefs"
 version = "1.4.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "markdown" },
+    { name = "markdown", version = "3.10.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
+    { name = "markdown", version = "3.11.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
     { name = "markupsafe" },
     { name = "mkdocs" },
 ]
@@ -2913,24 +2833,26 @@ wheels = [
 
 [[package]]
 name = "mkdocs-material"
-version = "9.8.0"
+version = "9.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "babel" },
     { name = "backrefs" },
     { name = "colorama" },
     { name = "jinja2" },
-    { name = "markdown" },
+    { name = "markdown", version = "3.10.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
+    { name = "markdown", version = "3.11.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
     { name = "mkdocs" },
     { name = "mkdocs-material-extensions" },
     { name = "paginate" },
     { name = "pygments" },
-    { name = "pymdown-extensions" },
+    { name = "pymdown-extensions", version = "12.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
+    { name = "pymdown-extensions", version = "13.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b9/02/3c0df248819286810d8479b3a72d9531db0cc36c042fe1ab3985f137c664/mkdocs_material-9.8.0.tar.gz", hash = "sha256:1ed4c5edaf405a3fb62e55288b8fdff592971729361548b1ffa757bf9849fb81", size = 4094495, upload-time = "2026-10-24T09:50:16.181Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e2/b2/dee93bf227b481e28ba4d800c322dffc41b16d524ae84ca8d85aa7ec3a81/mkdocs_material-9.8.1.tar.gz", hash = "sha256:cddae7d77bb98d1d347aa68ee252ab40926171a1b34ba8777c44e16de9629f00", size = 4160481, upload-time = "2026-11-07T13:05:04.482Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/16/360f44c7702f27ff4670a647a16c72432291e311371d72b4c34a57e990e0/mkdocs_material-9.8.0-py3-none-any.whl", hash = "sha256:19304a7263c5700428227122b3b2699aa73f432c9de8816876adaec7d7293ce3", size = 9302245, upload-time = "2026-10-24T09:50:12.636Z" },
+    { url = "https://files.pythonhosted.org/packages/70/05/a4011d6a6af86cd03059a5b165cd69a3695ef4bd7bd477c66befe399640a/mkdocs_material-9.8.1-py3-none-any.whl", hash = "sha256:2115af67ee680e1398bdd0ea02e517721e4bba88b342503a93f97ea8eb3de51c", size = 9302217, upload-time = "2026-11-07T13:05:00.747Z" },
 ]
 
 [[package]]
@@ -3403,7 +3325,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12.4' and python_full_version < '3.13'",
     "python_full_version >= '3.12' and python_full_version < '3.12.4'",
-    "python_full_version < '3.12'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12'",
+    "python_full_version < '3.11.5'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/65/6e/09db70a523a96d25e115e71cc56a6f9031e7b8cd166c1ac8438307c14058/numpy-1.26.4.tar.gz", hash = "sha256:2a02aba9ed12e4ac4eb3ea9421c420301a0c6460d9830d74a9df87efa4912010", size = 15786129, upload-time = "2024-02-06T00:26:44.495Z" }
 wheels = [
@@ -3938,7 +3861,8 @@ dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "ghp-import" },
     { name = "jinja2" },
-    { name = "markdown" },
+    { name = "markdown", version = "3.10.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
+    { name = "markdown", version = "3.11.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
     { name = "markupsafe" },
     { name = "packaging" },
     { name = "pathspec" },
@@ -4339,15 +4263,39 @@ wheels = [
 
 [[package]]
 name = "pymdown-extensions"
-version = "12.2"
+version = "12.3"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.11.5'",
+]
 dependencies = [
-    { name = "markdown" },
+    { name = "markdown", version = "3.10.2", source = { registry = "https://pypi.org/simple" } },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/0a/d8c8535346f63ff85c8743383438a74b5c0e3394d90e898b2cd1a2fac705/pymdown_extensions-12.2.tar.gz", hash = "sha256:02da896c362b548d85123e7a377a40024ea6ea938b4e45ca064e408afd994b64", size = 870226, upload-time = "2026-10-10T13:01:20.494Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/fe/ac50ee24a80a1b344e643f6fb626063cc7041b978cd1dd9a7f9963ae1cd1/pymdown_extensions-12.3.tar.gz", hash = "sha256:a7f2a4e0bc60c6e6babfa7922cfb3b01cd640eb00fb208f3c582e12bae00ea67", size = 870532, upload-time = "2026-10-14T22:40:43.252Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/79/a5/30b1a3d82219cbe5e6661cd7053791dc3a3743547ebf31f3366429d84516/pymdown_extensions-12.2-py3-none-any.whl", hash = "sha256:caea66e916b4cfe987b5dabb0a78558e3506988f6353812b0b0288be8f976c16", size = 277518, upload-time = "2026-10-10T13:01:18.601Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/d0/758afe732c2da502c051b4d03ff88daa3c0fc1a1e671e6c5a6318177bab4/pymdown_extensions-12.3-py3-none-any.whl", hash = "sha256:345493a8e3497e24382902903a1c43a28e34a52f2b7571a1c9641429b820ca74", size = 277597, upload-time = "2026-10-14T22:40:41.543Z" },
+]
+
+[[package]]
+name = "pymdown-extensions"
+version = "13.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.15'",
+    "python_full_version == '3.14.*'",
+    "python_full_version == '3.13.*'",
+    "python_full_version >= '3.12.4' and python_full_version < '3.13'",
+    "python_full_version >= '3.12' and python_full_version < '3.12.4'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12'",
+]
+dependencies = [
+    { name = "markdown", version = "3.11.3", source = { registry = "https://pypi.org/simple" } },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/47/b0/c98e5189398dc14ad3fa7d8762bed345d9178a6a3a37e2f6bdfb7cce8f53/pymdown_extensions-13.1.tar.gz", hash = "sha256:e1ecec373677483b7324a47e5b4bf2e0c6614fe8dcdab1dcc6a05ecefd9b527d", size = 897600, upload-time = "2026-11-11T14:08:38.819Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/09/ea/6efb2c6c3dd91156bad5e46c292164a9115a35a83cac285f0ed8e7d3a810/pymdown_extensions-13.1-py3-none-any.whl", hash = "sha256:093d1fab98168526d98fbb17aa5c9da68eef3664324f6b25ebbf78b2709babeb", size = 284594, upload-time = "2026-11-11T14:08:37.03Z" },
 ]
 
 [[package]]
