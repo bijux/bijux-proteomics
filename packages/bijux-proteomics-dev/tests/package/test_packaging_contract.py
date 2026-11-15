@@ -18,9 +18,8 @@ def _workspace_metadata() -> dict[str, Any]:
     return cast(dict[str, Any], data["tool"]["bijux_proteomics"])
 
 
-def _repository_fallback_version() -> str:
-    with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
-        data = tomllib.load(handle)
+def _canonical_fallback_version() -> str:
+    data = _pyproject("bijux-proteomics")
     version_config = data.get("tool", {}).get("hatch", {}).get("version", {})
     fallback_version = version_config.get("fallback-version")
     assert isinstance(fallback_version, str) and fallback_version
@@ -47,7 +46,7 @@ def _pyproject(package_name: str) -> dict[str, Any]:
 
 
 def test_publishable_packages_define_hatch_vcs_fallback_versions() -> None:
-    expected_fallback_version = _repository_fallback_version()
+    expected_fallback_version = _canonical_fallback_version()
     failures: list[str] = []
 
     for package_name in _package_names():
