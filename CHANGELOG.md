@@ -15,7 +15,7 @@ change contributor and maintainer workflows across the repository.
 - Retain canonical package-owned distributions in a virtual workspace, reconcile
   OpenAPI Generator, Redocly, Material, pymdown-extensions and workflow action
   proposals, patch the FTP listing parser, and qualify package fallback-version
-  ownership ([#317](https://github.com/bijux/bijux-proteomics/pull/317), pending review).
+  ownership ([#317](https://github.com/bijux/bijux-proteomics/pull/317)).
 
 - Qualify Hatchling 1.33 and Material 9.8, preserve complete package sources and
   self-contained legal assets in source archives, and adopt accepted shared
