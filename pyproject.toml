@@ -76,7 +76,7 @@ dev = [
   "gitpython>=3.2.1,<4.0",
   "arq>=0.18",
   "PyJWT>=2.13.0,<3.0",
-  "prance>=23.6.21.0",
+  "prance>=26.7.19.0",
   "openapi-spec-validator>=0.7.1",
   "twine>=6.1.0,<8.0",
 ]
